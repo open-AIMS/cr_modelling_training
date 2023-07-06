@@ -48,3 +48,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# everything in the ignore folder
+ignore/
