@@ -1,0 +1,463 @@
+---
+title: "Getting started 1 - Installing and running BRMS"
+output: 
+  learnr::tutorial:
+    css: "css/style.css"
+    progressive: false
+    allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+library(cmdstanr)
+library(posterior)
+library(bayesplot)
+library(bayesnec)
+set_cmdstan_path("C:/cmdstan")
+```
+
+## Introduction
+
+```{r bnec-logo, fig.align='tight', out.width="10%", echo=FALSE}
+knitr::include_graphics("images/bayesnec_logo.png")
+```
+
+`bayesnec` is a toxicity estimate and No-Effect-Concentration estimation package that uses
+[brms](https://github.com/paul-buerkner/brms) to fit concentration(dose)-response data using Bayesian methods. 
+
+In order to use `bayesnec` it is first necessary to make sure you have `brms` working on your machine. 
+
+The `brms` package provides an interface to fit Bayesian generalized
+(non-)linear multivariate multilevel models using Stan, which is a C++ package
+for performing full Bayesian inference (see https://mc-stan.org/). The formula
+syntax is very similar to that of the package `lme4` to provide a familiar and
+simple interface for performing regression analyses. A wide range of response
+distributions are supported, allowing users to fit -- among others -- linear,
+robust linear, count data, survival, response times, ordinal, zero-inflated, and
+even self-defined mixture models all in a multilevel context. Further modeling
+options include non-linear and smooth terms, auto-correlation structures,
+censored data, missing value imputation, and quite a few more. In addition, all
+parameters of the response distribution can be predicted in order to perform
+distributional regression. Multivariate models (i.e., models with multiple
+response variables) can be fit, as well. Prior specifications are flexible and
+explicitly encourage users to apply prior distributions that actually reflect
+their beliefs. Model fit can easily be assessed and compared with posterior
+predictive checks, cross-validation, and Bayes factors.
+
+
+`brms` can use two alternative interfaces to Stan, including `rstan` and `cmdstanr` 
+both of which require Rtools and the g++ compiler to be properly configured in R. 
+Making sure `brms` is properly working on your machine is essential before any 
+attempt to use the `bayesnec` package for analyses, as if this dependency is not 
+working, `bayesnec` will not work. 
+
+Here we go through the necessary steps to get all the of relevant `bayesnec` dependencies working on your machine.
+The instructions here are composed entirely from the linked help files for each of the required dependencies. We have found it helpful to have all the steps captured in a single document. The information in the links provided may be updated from time to time, so please check the instructions we outline below are still appropriate in the event you are having trouble getting anything t work.
+
+## C++ Toolchain
+
+Prior to installing either `RStan` or `cmdstanr`, you need to configure your R installation to be able to compile C++ code.
+Note, you will need administrator rights on your machine to configure a working C++ toolchain, but this is essential to be able to run `stan` models.
+
+The links below describe how to configure the C++ tools chain for each respective operating system:
+
+[Windows - Configuring C++ Toolchain](https://github.com/stan-dev/rstan/wiki/Configuring-C---Toolchain-for-Windows)
+
+[Mac - Configuring C++ Toolchain](https://github.com/stan-dev/rstan/wiki/Configuring-C---Toolchain-for-Mac)
+
+[Linux - Configuring C++ Toolchain](https://github.com/stan-dev/rstan/wiki/Configuring-C-Toolchain-for-Linux)
+
+We will go through the detailed instructions only for the Windows configuration here. This is largely because there tend to be less issues with installation on Mac, and Linux users generally already have a experience working through similar installation issues. 
+
+Feel free to skip this section
+if you do not use a windows operating system.
+
+
+### RTools43 Installation
+
+The C++ toolchain for Windows requires installation of RTools. Rtools is a toolchain bundle used for building R packages from source (those that need compilation of C/C++ or Fortran code) and for building R itself. 
+
+The Windows toolchain consists of programs g++, the C++ compiler, and mingw32-make, the GNU Make utility. To check if these are present, open a command shell and type:
+
+````
+g++ --version
+mingw32-make --version
+````
+
+There are several versions of RTools40, RTools42, and RTools43 toolchains that require slightly different steps to configure, so please follow the appropriate steps below. The following instructions will assume that the default installation directory was used, so be sure to update the paths accordingly if you have chosen a different directory.
+
+Rtools43 is used for R 4.3.x and for R-devel, the development version of R.
+
+Rtools43 consists of Msys2 build tools, GCC 12/MinGW-w64 compiler toolchain, libraries built using the toolchain, and QPDF. Rtools43 supports 64-bit Windows and UCRT as the C runtime.
+
+We recommend using 
+the latest version of R (version 4.3x), which can be obtained [here](https://cran.r-project.org/bin/windows/base/), and RTools43, which can be obtained [here](https://cran.r-project.org/bin/windows/Rtools/rtools43/files/rtools43-5550-5548.exe).
+
+Once the executable is downloaded, right click and install using "Run as administrator". It is recommended to use the defaults, including the default installation location of C:\rtools43.
+
+All toolchains will require updating your PATH variable, See these instructions for details on changing the [PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) if you are unfamiliar. 
+
+Go to the install location and check that the following usr\\bin and mingw64\\bin directories exist:
+
+````
+C:\rtools40\\usr\\bin
+C:\rtools40\\mingw64\\bin
+````
+
+Check that a **mingw32-make.exe** file is in one of those directories.
+
+RTools may not always install **mingw32-make.exe** but it can be installed manually if needed by the following instructions:
+
+Open RTools Bash, which comes with RTools (hit Windows Key, type rtools bash, and hit enter). In the RTools Bash console window, type:
+
+`pacman -Sy mingw-w64-x86_64-make`
+
+Check that the `mingw32-make.exe` file is in one of the RTools folders listed above.
+
+Add the directories to to the Windows Path using the "Edit the system environment variables" tool in Windows' Control Panel. A step by step guide on adding directories to the windows path can be found at <https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/>
+
+-   Put the path in the system paths section (bottom section)
+-   Note that you can also add the path `C:\cmdstan\stan\lib\stan_math\lib\tbb` to save having to do it later (in the later install cmdstan step)
+
+Test the paths are set correctly
+
+    -   Reboot your computer
+    -   Start up R studio
+    -   Navigate to the terminal (a tab co-located in the R console panel)
+    -   Type `echo %PATH%`
+    -   The paths you added should be in the output from that command. They should look something like:
+        -   `\c\RTools\RTools40\usr\bin`
+
+Final check to see if it installed properly.
+
+In the terminal type:
+
+`g++ --version`
+
+and
+
+`mingw32-make --version`
+
+Check that it both return a version number. If they produce an error there is a problem with the installation.
+
+
+## `rstan`
+
+The default `brms` interface between Stan and R is the package [`rstan`](https://cran.r-project.org/web/packages/rstan/index.html). Instructions to ensure this is running properly can be found on the [`rstan` github](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started) and we follow these instructions here.
+
+
+### Installing `rstan`
+
+To be on the safe side, it is sometimes necessary to remove any existing RStan via
+
+```{r remove, eval=FALSE}
+remove.packages("rstan")
+if (file.exists(".RData")) file.remove(".RData")
+```
+
+Then, restart R.
+
+If you are using R version 3.x on a Mac, go to [here](https://github.com/stan-dev/rstan/wiki/Installing-RStan-from-Source#mac). 
+If you are using R 4.3 and RTools43 (which we recommend), then install rtsan using the following code:
+
+```{r install-rstan, eval=FALSE}
+install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+```
+
+### Verifying the `rstan` Installation
+
+To verify your installation, you can run the RStan example/test model:
+
+```{r example_rstan, eval=TRUE, cache=TRUE}
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+x=rnorm(1000,5,1)
+my_data=list(N=1000,x=x)
+stancode = 'data{ int N; real x[N];} parameters{real mu;real sigma;} 
+model{ x ~ normal(mu,sigma);}'
+fit = stan(model_code = stancode,data=my_data)
+
+```
+
+The model should then compile and sample.
+We can see a summary of the model parameters using:
+
+```{r summary}
+summary(fit)
+```
+
+## `cmdstanr`
+
+`cmdstanr` is an alternative lightweight interface to Stan for R users. This can sometimes be more tricky to get running than `Rstan`, especially on Windows machines. However, it is worthwhile getting `cmdstanr` running as it can be more stable than `rstan`, which sometimes causes RStudio to crash on windows. This can be very frustrating with Bayesian models that take a long time to run.
+
+### Installing `cmstandr`
+
+Here we follow the `cmdstanr` vignette ["Getting started with CmdStanR"](https://mc-stan.org/cmdstanr/articles/cmdstanr.html)
+
+`cmstandr` relies on a working installation of CmdStan, the shell interface to Stan. If you don’t have CmdStan installed then `cmdstanr` can install it for you, assuming you have a suitable C++ toolchain (see above). The requirements are described in the CmdStan [Guide](https://mc-stan.org/docs/cmdstan-guide/index.html).
+
+Here we follow the instructions for installing CmdStan from 
+[GitHub](https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#installation-from-github), which
+consists of the following steps:
+
+     * Verify that you have a working C++ toolchain (See above).
+
+     * Download the CmdStan source code from GitHub
+
+     * Build the CmdStan libraries and executables
+
+     * Check the installation by compiling and running the CmdStan example model bernoulli.stan.
+
+#### Downloading the CmdStan source code using git
+
+A CmdStan release is compressed tarfile which contains CmdStan and the Stan and math library submodules. The most recent CmdStan release is always available as https://github.com/stan-dev/cmdstan/releases/latest. A CmdStan release is versioned by major, minor, patch numbers, e.g., “2.29.2.” The release tarfile unpacks into a directory named “cmdstan-,” e.g. “cmdstan-2.29.2.”
+
+If git is not already on your system, install it here: <https://git-scm.com/download/win>
+
+To check that git is installed, In RStudio navigate to the terminal and type 
+````
+git --version
+````
+Check that it returns a version number. If it produces an error there is a problem with the installation.
+
+In R studio the following steps will download the source code from the current development branch of CmdStan into a directory named cmdstan:
+
+a\. Navigate to the terminal
+
+b\. change directory to c:\\ drive using: 
+````
+cd \c
+````
+
+c\. download latest version of cmdstan from githup - this may take a few minutes: 
+````
+git clone https://github.com/stan-dev/cmdstan.git --recursive
+
+#### Compile CmdStan
+
+````
+d\. change directory to where cmdstan is downloaded: 
+````
+cd cmdstan
+```
+
+e\. clean up the space (just to be sure): 
+````mingw32-make clean-all
+````
+
+f\. compile the code: 
+````mingw32-make build
+````
+
+This will take a few minutes and should end with similar phrase as """--- CmdStan v2.23.0 built ---"""
+
+g\. Add cmdstan library to system environment path by adding `C:\cmdstan\stan\lib\stan_math\lib\tbb` to the path (using the same instructions as above)
+
+h\. Reboot your computer
+
+Finally, some additional compilation flags will be needed for CmdStan. Navigate to the CmdStan/make directory and create a file called local. Add the following lines to the file:
+
+Open notepad and copy paste the following two lines of text:
+
+````
+CXXFLAGS += -Wno-nonnull
+
+TBB_CXXFLAGS= -U__MSVCRT_VERSION__ -D__MSVCRT_VERSION__=0x0E00
+````
+
+Save the file with the name `local` and ensure that it has no file extension. For example, if you used notepad the default file extension is .txt which can be deleted by right clicking the file and selecting rename. If you can't see the file extensions, click the view tab in your folder ribbon and make sure the `file name extension` box is checked. Instructions for how to remove a file extension can be found at: <https://www.computerhope.com/issues/ch002089.htm>
+
+#### Install `cmdstanr` and check the installation
+
+`cmdstanr` is not on CRAN yet, but the beta release can be installed by running the following command in R.
+
+```{r install-cmdstanr, eval=FALSE}
+# we recommend running this in a fresh R session or restarting your current session
+install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+```
+
+
+CmdStanR (the `cmdstanr` R package) can now be loaded like any other R package. We’ll also load the `bayesplot` and `posterior` packages to use later in examples.
+
+
+```{r load-cmdstanr, eval=FALSE}
+library(cmdstanr)
+library(posterior)
+library(bayesplot)
+color_scheme_set("brightblue")
+```
+
+Make sure the path points to the cmdstan installation
+
+```{r check cmdstan path}
+cmdstan_path()
+```
+
+If not, manually set it
+
+```{r set cmdstan path}
+set_cmdstan_path("C:/cmdstan")
+```
+
+Check that your toolchain is set up properly.
+
+```{r toolchain check}
+check_cmdstan_toolchain()
+```
+
+This should return the message `The C++ toolchain required for CmdStan is setup properly!`
+
+#### Compile a model
+
+If cmdstan is installed, the following example model should work.
+
+Set up data:
+
+```{r fit model}
+file <- file.path(cmdstan_path(), "examples", "bernoulli", "bernoulli.stan")
+mod <- cmdstan_model(file)
+mod$print()
+```
+
+Run a Monte Carlo Markov Chain:
+
+```{r mcmc}
+# names correspond to the data block in the Stan program
+data_list <- list(N = 10, y = c(0,1,0,0,0,0,0,0,0,1))
+
+fit <- mod$sample(
+  data = data_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 500
+)
+```
+
+Check that the model has successfully fitted by investigating the model parameters
+
+```{r check model}
+fit$summary()
+```
+
+
+## `brms`
+
+Now that we have `rstan`, and/or `cmdstanr` working, we should be able t run `brms`.
+Install the latest release from CRAN
+
+```{r, eval=FALSE}
+install.packages("brms")
+```
+
+or the latest development version from GitHub
+```{r, eval=FALSE}
+if (!require(devtools)) {
+  install.packages("devtools")
+}
+devtools::install_github("paul-buerkner/brms", build_vignettes = FALSE)
+```
+
+You can also set build_vignettes=TRUE but this will slow down the installation drastically (the vignettes can always be accessed online anytime at paul-buerkner.github.io/brms/articles).
+To use cmdstan as a backend for brms call the relevant options:
+
+```{r set-backend, eval=FALSE}
+require(cmdstanr)
+set_cmdstan_path("C:/cmdstan")
+options(brms.backend = "cmdstanr")
+```
+
+Setting the path and backend to `cmdstanr` may be required each time you restart your R session. Without settings these options, `rstan` will be used by default - which is fine, unless you are experience frequent crashes in RStudio.
+
+WE can fit a `brms` test model using:
+
+```{r check brmsmodel}
+require(brms)
+fit <- brm(count ~ zAge + zBase * Trt + (1|patient),
+            data = epilepsy, family = poisson(), silent = 2, refresh = 0)
+
+summary(fit)
+
+```
+
+
+## `bayesnec`
+
+Now that you are confident that `brms` is properly compiling, let's install and run a `bayesnec` example dataset and make sure this works ok.
+
+### Installation
+
+To install the latest release version from CRAN use
+
+```{r, eval=FALSE}
+install.packages("bayesnec")
+```
+
+The current development version can be downloaded from GitHub via
+
+```{r, eval=FALSE}
+if (!requireNamespace("remotes")) {
+  install.packages("remotes")
+}
+remotes::install_github("open-aims/bayesnec", ref = "dev")
+```
+
+
+### Example
+
+Let's start by loading `bayesnec`:
+
+```{r}
+library(bayesnec)
+```
+
+`baysnec` comes with an example dataset we can use for testing, called nec_data. 
+We load this using the data(). This has only two columns: x (concentration) and y (response).
+
+```{r}
+data(nec_data)
+head(nec_data)
+```
+
+We will discuss later what type of response variables can currently be modelled using `bayesnec`, but for now we will just use `bayesnec`'s default settings to fit a bayesnec model using the three parameter NEC model of Fox 2010. We will cover what models are available in `bayesnec` and how models can also be called using model sets in later parts of this course.
+
+We set a seed so that we reproduce the same results.
+
+```{r}
+set.seed(333)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+summary(bnec_fit)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
