@@ -1,5 +1,5 @@
 ---
-title: "Getting started 1 - Installing and running BRMS"
+title: "Getting started - Installing and running BRMS"
 output: 
   learnr::tutorial:
     css: "css/style.css"
