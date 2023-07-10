@@ -384,57 +384,6 @@ summary(fit)
 ```
 
 
-## `bayesnec`
-
-Now that you are confident that `brms` is properly compiling, let's install and run a `bayesnec` example dataset and make sure this works ok.
-
-### Installation
-
-To install the latest release version from CRAN use
-
-```{r, eval=FALSE}
-install.packages("bayesnec")
-```
-
-The current development version can be downloaded from GitHub via
-
-```{r, eval=FALSE}
-if (!requireNamespace("remotes")) {
-  install.packages("remotes")
-}
-remotes::install_github("open-aims/bayesnec", ref = "dev")
-```
-
-
-### Example
-
-Let's start by loading `bayesnec`:
-
-```{r}
-library(bayesnec)
-```
-
-`baysnec` comes with an example dataset we can use for testing, called nec_data. 
-We load this using the data(). This has only two columns: x (concentration) and y (response).
-
-```{r}
-data(nec_data)
-head(nec_data)
-```
-
-We will discuss later what type of response variables can currently be modelled using `bayesnec`, but for now we will just use `bayesnec`'s default settings to fit a bayesnec model using the three parameter NEC model of Fox 2010. We will cover what models are available in `bayesnec` and how models can also be called using model sets in later parts of this course.
-
-We set a seed so that we reproduce the same results.
-
-```{r}
-set.seed(333)
-bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
-summary(bnec_fit)
-```
-
-
-
-
 
 
 
