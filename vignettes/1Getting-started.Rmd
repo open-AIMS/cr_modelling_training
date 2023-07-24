@@ -6,6 +6,7 @@ output:
     progressive: false
     allow_skip: true
 runtime: shiny_prerendered
+bibliography: bayesnec.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -17,16 +18,38 @@ library(bayesnec)
 set_cmdstan_path("C:/cmdstan")
 ```
 
-## Introduction
+## Background
 
 ```{r bnec-logo, fig.align='tight', out.width="10%", echo=FALSE}
 knitr::include_graphics("images/bayesnec_logo.png")
 ```
 
-`bayesnec` is a toxicity estimate and No-Effect-Concentration estimation package that uses
-[brms](https://github.com/paul-buerkner/brms) to fit concentration(dose)-response data using Bayesian methods. 
+The `bayesnec` is an R package to fit concentration(dose) — response curves to toxicity data, and derive No-Effect-Concentration (*NEC*), No-Significant-Effect-Concentration (*NSEC*, [@fisherfox2023]), and Effect-Concentration (of specified percentage "x", **EC~x~**) thresholds from non-linear models fitted using Bayesian Hamiltonian Monte Carlo (HMC) via `brms` [@Burkner2017; @Burkner2018] and `stan`. The package is an adaptation and extension of an initial package `jagsNEC` [@Fisher2020] which was based on the `R2jags` package [@Su2015] and `jags` [@Plummer2003].
 
-In order to use `bayesnec` it is first necessary to make sure you have `brms` working on your machine. 
+## Introduction
+
+Bayesian model fitting can be difficult to automate across a broad range of usage cases, particularly with respect to specifying valid initial values and appropriate priors. This is one reason the use of Bayesian statistics for *NEC* estimation (or even **EC~x~** estimation) is not currently widely adopted across the broader ecotoxicological community, who rarely have access to specialist statistical expertise. The `bayesnec` package provides an accessible interface specifically for fitting *NEC* models and other concentration—response models using Bayesian methods. A range of models are specified based on the known distribution of the "concentration" or "dose" variable (the predictor) as well as the "response" variable. The package requires a simplified model formula, which together with the data is used to wrangle more complex non-linear model formula(s), as well as to generate priors and initial values required to call a `brms` model. While the distribution of the predictor and response variables can be specified directly, `bayesnec` will automatically attempt to assign the correct distribution to use based on the characteristics of the provided data.
+
+This project started with an implementation of the *NEC* model based on that described in (Pires et al. 2002) and [@Fox2010] using R2jags [@Fisher2020]. The package has been further generalised to allow a large range of response variables to be modelled using the appropriate statistical distribution. While the original `jagsNEC` implementation supported Gaussian-, Poisson-, Binomial-, Gamma-, Negative Binomial- and Beta-distributed response data, `bayesnec` additionally supports the Beta-Binomial distribution, and can be easily extended to include any of the available `brms` families. We have since also further added a range of alternative *NEC* model types, as well as a range of  concentration—response models (such as 4-parameter logistic and Weibull models) that are commonly used in frequentist-based packages such as `drc`[@Ritz2016]. These models do not employ segmented linear regression (i.e., use of a `step` function) but model the response as a smooth function of concentration.
+
+Specific models can be fit directly using `bnec` but it is possible to fit a custom model set, a specific model set, or all the available models. Further information on fitting models using `bayesnec` can be found on the `bayesnec` [website][https://open-aims.github.io/bayesnec/], although we will cover much of that material in this training.
+
+```{r website, fig.align='tight', out.width="100%", echo=FALSE}
+knitr::include_graphics("images/website.png")
+```
+The website includes references documenting the arguments for all the exported functions of `bayesnec`, as well as Articles outlining [single model usage](https://open-aims.github.io/bayesnec/articles/example1.html), [multi model usage](https://open-aims.github.io/bayesnec/articles/example2.html), details of all [the models](https://open-aims.github.io/bayesnec/articles/example2b.html) available, how to work with [priors](https://open-aims.github.io/bayesnec/articles/example3.html), and a function for [comparing posterior predictions](https://open-aims.github.io/bayesnec/articles/example4.html).
+
+This package is currently under development. We are keen to receive any feedback regarding usage. You can report a bug by clicking the [Report a bug](https://github.com/open-aims/bayesnec/issues) link on the website, and adding a [New Issue](https://github.com/open-AIMS/bayesnec/issues/new/choose).
+```{r new_issue, fig.align='tight', out.width="100%", echo=FALSE}
+knitr::include_graphics("images/new_issue.png")
+```
+
+We are especially keen on bug reporting that includes an easy to run self-contained reproducible example ([repro](https://utrechtuniversity.github.io/workshop-computational-reproducibility/)) of unexpected behaviour, or example model fits that fail to converge (have poor chain mixing) or yield other errors. Such information will hopefully help us towards building a more robust package. We cannot help troubleshoot issues if an easy-to-run reproducible example is not supplied.
+
+## Installing `bayesnec`
+`bayesnec` has been built using
+[brms](https://github.com/paul-buerkner/brms) as the main dependency. For this reason,
+in order to use `bayesnec` it is first necessary to make sure you have `brms` working on your machine. 
 
 The `brms` package provides an interface to fit Bayesian generalized
 (non-)linear multivariate multilevel models using Stan, which is a C++ package
@@ -44,7 +67,6 @@ response variables) can be fit, as well. Prior specifications are flexible and
 explicitly encourage users to apply prior distributions that actually reflect
 their beliefs. Model fit can easily be assessed and compared with posterior
 predictive checks, cross-validation, and Bayes factors.
-
 
 `brms` can use two alternative interfaces to Stan, including `rstan` and `cmdstanr` 
 both of which require Rtools and the g++ compiler to be properly configured in R. 
@@ -384,8 +406,7 @@ summary(fit)
 ```
 
 
-
-
+## References
 
 
 
