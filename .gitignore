@@ -53,3 +53,6 @@ rsconnect/
 
 # everything in the ignore folder
 ignore/
+
+# do not push or .RData files
+*.RData
