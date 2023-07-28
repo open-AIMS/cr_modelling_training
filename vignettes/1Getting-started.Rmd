@@ -21,7 +21,7 @@ set_cmdstan_path("C:/cmdstan")
 ## Background
 
 ```{r bnec-logo, fig.align='tight', out.width="10%", echo=FALSE}
-knitr::include_graphics("images/bayesnec_logo.png")
+knitr::include_graphics("images/bayesnec_logo.jpg")
 ```
 
 The `bayesnec` is an R package to fit concentration(dose) — response curves to toxicity data, and derive No-Effect-Concentration (*NEC*), No-Significant-Effect-Concentration (*NSEC*, [@fisherfox2023]), and Effect-Concentration (of specified percentage "x", **EC~x~**) thresholds from non-linear models fitted using Bayesian Hamiltonian Monte Carlo (HMC) via `brms` [@Burkner2017; @Burkner2018] and `stan`. The package is an adaptation and extension of an initial package `jagsNEC` [@Fisher2020] which was based on the `R2jags` package [@Su2015] and `jags` [@Plummer2003].
@@ -35,13 +35,13 @@ This project started with an implementation of the *NEC* model based on that des
 Specific models can be fit directly using `bnec` but it is possible to fit a custom model set, a specific model set, or all the available models. Further information on fitting models using `bayesnec` can be found on the `bayesnec` [website][https://open-aims.github.io/bayesnec/], although we will cover much of that material in this training.
 
 ```{r website, fig.align='tight', out.width="100%", echo=FALSE}
-knitr::include_graphics("images/website.png")
+knitr::include_graphics("images/website.jpg")
 ```
 The website includes references documenting the arguments for all the exported functions of `bayesnec`, as well as Articles outlining [single model usage](https://open-aims.github.io/bayesnec/articles/example1.html), [multi model usage](https://open-aims.github.io/bayesnec/articles/example2.html), details of all [the models](https://open-aims.github.io/bayesnec/articles/example2b.html) available, how to work with [priors](https://open-aims.github.io/bayesnec/articles/example3.html), and a function for [comparing posterior predictions](https://open-aims.github.io/bayesnec/articles/example4.html).
 
 This package is currently under development. We are keen to receive any feedback regarding usage. You can report a bug by clicking the [Report a bug](https://github.com/open-aims/bayesnec/issues) link on the website, and adding a [New Issue](https://github.com/open-AIMS/bayesnec/issues/new/choose).
 ```{r new_issue, fig.align='tight', out.width="100%", echo=FALSE}
-knitr::include_graphics("images/new_issue.png")
+knitr::include_graphics("images/new_issue.jpg")
 ```
 
 We are especially keen on bug reporting that includes an easy to run self-contained reproducible example ([repro](https://utrechtuniversity.github.io/workshop-computational-reproducibility/)) of unexpected behaviour, or example model fits that fail to converge (have poor chain mixing) or yield other errors. Such information will hopefully help us towards building a more robust package. We cannot help troubleshoot issues if an easy-to-run reproducible example is not supplied.
@@ -123,8 +123,8 @@ All toolchains will require updating your PATH variable, See these instructions 
 Go to the install location and check that the following usr\\bin and mingw64\\bin directories exist:
 
 ````
-C:\rtools40\\usr\\bin
-C:\rtools40\\mingw64\\bin
+C:\rtools43\\usr\\bin
+C:\rtools43\\mingw64\\bin
 ````
 
 Check that a **mingw32-make.exe** file is in one of those directories.
@@ -149,7 +149,7 @@ Test the paths are set correctly
     -   Navigate to the terminal (a tab co-located in the R console panel)
     -   Type `echo %PATH%`
     -   The paths you added should be in the output from that command. They should look something like:
-        -   `\c\RTools\RTools40\usr\bin`
+        -   `\c\RTools\RTools43\usr\bin`
 
 Final check to see if it installed properly.
 
@@ -239,7 +239,7 @@ A CmdStan release is compressed tarfile which contains CmdStan and the Stan and 
 
 If git is not already on your system, install it here: <https://git-scm.com/download/win>
 
-To check that git is installed, In RStudio navigate to the terminal and type 
+To check that git is installed, In RStudio navigate to the Terminal (under Tools) and type 
 ````
 git --version
 ````
@@ -254,7 +254,8 @@ b\. change directory to c:\\ drive using:
 cd \c
 ````
 
-c\. download latest version of cmdstan from githup - this may take a few minutes: 
+c\. download latest version of cmdstan from githup - this may take a few minutes:
+
 ````
 git clone https://github.com/stan-dev/cmdstan.git --recursive
 
@@ -262,23 +263,21 @@ git clone https://github.com/stan-dev/cmdstan.git --recursive
 
 ````
 d\. change directory to where cmdstan is downloaded: 
+
 ````
 cd cmdstan
-```
+````
 
 e\. clean up the space (just to be sure): 
-````mingw32-make clean-all
+
+````
+mingw32-make clean-all
+
 ````
 
-f\. compile the code: 
-````mingw32-make build
-````
+f\. Add cmdstan library to system environment path by adding `C:\cmdstan\stan\lib\stan_math\lib\tbb` to the path (using the same instructions as above)
 
-This will take a few minutes and should end with similar phrase as """--- CmdStan v2.23.0 built ---"""
-
-g\. Add cmdstan library to system environment path by adding `C:\cmdstan\stan\lib\stan_math\lib\tbb` to the path (using the same instructions as above)
-
-h\. Reboot your computer
+g\. Reboot your computer
 
 Finally, some additional compilation flags will be needed for CmdStan. Navigate to the CmdStan/make directory and create a file called local. Add the following lines to the file:
 
@@ -291,6 +290,15 @@ TBB_CXXFLAGS= -U__MSVCRT_VERSION__ -D__MSVCRT_VERSION__=0x0E00
 ````
 
 Save the file with the name `local` and ensure that it has no file extension. For example, if you used notepad the default file extension is .txt which can be deleted by right clicking the file and selecting rename. If you can't see the file extensions, click the view tab in your folder ribbon and make sure the `file name extension` box is checked. Instructions for how to remove a file extension can be found at: <https://www.computerhope.com/issues/ch002089.htm>
+
+
+h\. compile the code: 
+````
+mingw32-make build
+
+````
+
+This will take a few minutes and should end with similar phrase as """--- CmdStan v2.23.0 built ---"""
 
 #### Install `cmdstanr` and check the installation
 
@@ -404,6 +412,7 @@ fit <- brm(count ~ zAge + zBase * Trt + (1|patient),
 summary(fit)
 
 ```
+
 
 
 ## References
