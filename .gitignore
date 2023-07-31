@@ -56,3 +56,5 @@ ignore/
 
 # do not push or .RData files
 *.RData
+
+*.zip
