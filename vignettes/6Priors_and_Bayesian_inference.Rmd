@@ -249,7 +249,7 @@ Two things are of note. If the user is specifying their own priors, `bnec` requi
 show_params(model = "nec3param")
 ```
 
-### User specified priors for a *bayesmanecfit* containing multiple models
+## User specified priors for a *bayesmanecfit* containing multiple models
 
 The user can also specify a named list of priors when one or more models are being fitted to the same dataset.
 
