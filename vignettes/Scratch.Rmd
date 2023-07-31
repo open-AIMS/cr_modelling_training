@@ -1,0 +1,118 @@
+---
+title: "Untitled"
+author: "Fisher et al."
+date: "2023-07-21"
+output: html_document
+runtime: shiny
+---
+
+
+## Scratch
+
+
+**Notice, however, that in this case we log-transformed the predictor `raw_x` in the input formula.** This causes `brms` to pass these transformations onto Stan's native code, and therefore estimates of *NEC* will be on that same scale. So we need to transform them back to the data scale using the additional argument `xform`.
+
+
+## priors
+
+We can also make a plot to compare the posterior probability density to that of the prior using the `check_priors` function, for an individual model fit, but also saving all fits to a file in the working directory.
+
+
+```{r}
+check_priors(pull_out(exp_5, "nec4param"))
+```
+
+
+```{r}
+check_priors(exp_5, filename = "example_5_all_priors")
+```
+
+## rhat
+
+
+```{r}
+rhat(exp_5, rhat_cutoff = 1.01) |>
+  sapply("[[", "failed")
+```
+
+
+Where  a large number of models are failing to converge, obviously it would be better to adjust `iter` and `warmup` in the `bnec` call, as well as some of the other arguments to `brms` such as `adapt_delta`. See the `?brm` documentation for more details. It is possible to investigate if models from a  `bayesmanecfit` class achieved convergence according to Rhat:
+  
+  
+  ```{r}
+rhat(exp_5) |>
+  sapply("[[", "failed")
+```
+
+Here we get a message because none of our models failed the default Rhat criterion. A more conservative cut off of 1.01 can also be used by changing the default argument to the desired value. In this case two models fail, although we note that this is a very stringent criterion, and we have also used less than the default `bayesnec` value of `iter` (10,000).
+
+
+
+### Extracting endpoint values
+
+The models prefixed with **ecx** are all models that do not have the *NEC* as a parameter in the model. That is, they are smooth curves as a function of concentration and have no breakpoint. The *NEC* on the plots above for these models are an approximation based on *NSEC* [@fisherfox2023] and should only be used with careful consideration of the validity of this endpoint value (see the [Model details][e2b] vignette for more details). If a true model averaged estimate of *NEC* based only on threshold models is desired, this can be obtained with `model = "nec"`. We can use the helper functions `pull_out` and `amend` to alter the model set as required. `pull_out` has a `model` argument and can be used to pull a single model out (as above) or to pull out a specific set of models.
+
+We can use this to obtain first a set of *NEC* only models from the existing set.
+
+
+```{r}
+exp_5_nec <- pull_out(exp_5, model = "nec")
+```
+
+In this case, because we have already fitted `"decline"` models, we can ignore the message regarding the missing *NEC* models---these are all models that are not appropriate for a `Beta` family with a `logit` link function, or allow hormesis, which we did not consider in this example.
+
+Now we have two model sets, an *NEC* set, and a mixed *NEC* and *ECx* set. Of course, before we use this model set for any inference, we would need to check the chain mixing and `acf` plot for each of the input models. For the "all" set, the model with the highest weight is **nec4param**. 
+
+Now we can use the `ecx` function to get *EC~10~* and *EC~50~* values. We can do this using our all model set, because it is valid to use *NEC* models for estimating *ECx* (see more information in the [Model details][e2b] vignette).
+
+
+```{r}
+ECx10 <- ecx(exp_5, ecx_val = 10)
+ECx50 <- ecx(exp_5, ecx_val = 50)
+ECx10
+ECx50
+```
+
+The weighted *NEC* estimates can be extracted directly from the *NEC* model set object, as they are an explicit parameter in these models.
+
+
+```{r}
+NECvals <- exp_5_nec$w_nec
+NECvals
+```
+
+Note that the new *NEC* estimates from the **nec**-containing model fits are slightly higher than those reported in the summary output of all the fitted models. This can happen for smooth curves, which is what was used as the underlying data generation model in the simulations here, and is explored in more detail in the [Compare posteriors vigenette][e4].
+
+### Putting it all together
+
+Now we can make a combined plot of our output, showing the model averaged *NEC* model and the "all averaged model", along with the relevant thresholds.
+
+
+```{r}
+preds <- exp_5_nec$w_pred_vals$data
+
+autoplot(exp_5, nec = FALSE, all = FALSE) +
+  geom_vline(mapping = aes(xintercept = ECx10, colour = "ECx 10"),
+             linetype = c(1, 3, 3), key_glyph = "path") +
+  geom_vline(mapping = aes(xintercept = ECx50, colour = "ECx 50"),
+             linetype = c(1, 3, 3), key_glyph = "path") +
+  geom_vline(mapping = aes(xintercept = NECvals, colour = "NEC"),
+             linetype = c(1, 3, 3), key_glyph = "path") +
+  scale_color_manual(values = c("ECx 10" = "orange", "ECx 50" = "blue",
+                                "NEC" = "darkgrey"), name = "") +
+  geom_line(data = preds, mapping = aes(x = x, y = Estimate),
+            colour = "tomato", linetype = 2) +
+  geom_line(data = preds, mapping = aes(x = x, y = Q2.5),
+            colour = "tomato", linetype = 2) +
+  geom_line(data = preds, mapping = aes(x = x, y = Q97.5),
+            colour = "tomato", linetype = 2) +
+  theme(legend.position = c(0.8, 0.8),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 12),
+        strip.text.x = element_text(size = 16))
+```
+
+
+Here we show how using a model averaging approach, the NEC and NSEC metrics of *no-effect* toxicity can be combined to yield estimates of *no-effect* concentrations - the **N(S)EC**, and of their uncertainty within a single analysis framework. The outcome is a framework for CR analysis that is robust to uncertainty in the model formulation, and for which resulting no-effect toxicity estimates can be confidently integrated into risk assessment frameworks, such as the Species Sensitivity Distribution (SSD).
+
+
