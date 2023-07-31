@@ -11,14 +11,12 @@ bibliography: bayesnec.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(cmdstanr)
 library(posterior)
 library(bayesplot)
 library(bayesnec)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-set_cmdstan_path("C:/cmdstan")
 round_digits <- function(x) sprintf("%.2f", x)
 
 #qwraps2::lazyload_cache_labels("fullbayesmanec_ametryn", path = "vignettes/data/article_cache/latex")
@@ -41,7 +39,7 @@ Both `bayesnec` and drc (Ritz et al. 2015) contain upward of 23 non-linear funct
 As we just discussed these include multiple threshold models, 
 
 ```{r necmods, out.width="80%", echo=FALSE}
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.png")
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
 ```
 
 ## Smooth models (**ECx** and **NSEC**) model
@@ -50,7 +48,7 @@ As well as a wide array of models representing a smooth decline with increasing 
 
 
 ```{r ecxmods, out.width="80%", echo=FALSE}
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.png")
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg")
 ```
 
 ## Deciding which model to use
@@ -88,7 +86,7 @@ This is the basis of "Model averaging" [@Burnham2002] and can provide a robust w
 It is already widely used in ecology (Dormann et al. 2018).
 
 ```{r modav_ecol, out.width="60%", echo=FALSE}
-knitr::include_graphics("images/modelave_ecol.PNG")
+knitr::include_graphics("images/modelave_ecol.jpg")
 ```
 
 
@@ -106,7 +104,7 @@ AICc based Model averaging has been recently adopted in ecotoxicology for modell
 
 
 ```{r ssd, out.width="60%", echo=FALSE}
-knitr::include_graphics("images/ssd.PNG")
+knitr::include_graphics("images/ssd.jpg")
 ```
 
 ## Model averaging in `bayesnec`

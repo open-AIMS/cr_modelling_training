@@ -11,14 +11,12 @@ bibliography: bayesnec.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(cmdstanr)
 library(posterior)
 library(bayesplot)
 library(bayesnec)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-set_cmdstan_path("C:/cmdstan")
 ```
 
 ## Background
@@ -31,7 +29,7 @@ By the end of this tutorial, you will understand what models are available and s
 
 
 ```{r etnc_fig2, fig.align='tight', out.width="60%", echo=FALSE}
-knitr::include_graphics("images/etnc_fig2.PNG")
+knitr::include_graphics("images/etnc_fig2.jpg")
 ```
 
 
@@ -45,7 +43,7 @@ You can see that this list is divided into two types, those with the prefix **ne
 
 
 ```{r etnc_fig1, out.width="50%", echo=FALSE}
-knitr::include_graphics("images/etnc_fig1.PNG")
+knitr::include_graphics("images/etnc_fig1.jpg")
 ```
 
 
@@ -84,7 +82,7 @@ $$
 For model types with *nec* as a prefix, the **NEC** is directly estimated as parameter $\eta = \text{NEC}$ in the model, as per [@Fox2010]. 
 
 ```{r necmod_fox2010, out.width="50%", echo=FALSE}
-knitr::include_graphics("images/necmod_fox2010.PNG")
+knitr::include_graphics("images/necmod_fox2010.jpg")
 ```
 
 These models assume there is some relatively stable value of the response similar to the mean of the control across a range of lower value concentrations. This value is maintained until the threshold concentration is reached. This threshold is the estimated **NEC**. At this point the response declines with increasing concentration, according to some decay rate. The original model of Fox [@Fox2010] assumed an exponential decline following the threshold (**NEC**) concentration (*necexp*) - but we have also allowed a linear decline in `bayesnec` (*neclin*).
@@ -96,7 +94,7 @@ While such a model can be used to estimate an **EC~x~** value, their main value 
 Models with **EC~x~** as a prefix are continuous curve models. These models also have an intercept term (mean control of the response), but they have no threshold. The response value starts to decline with any increasing concentration, according to some decay rate (or more complex function).
 
 ```{r ecxmod, out.width="50%", echo=FALSE}
-knitr::include_graphics("images/ecxmod.PNG")
+knitr::include_graphics("images/ecxmod.jpg")
 ```
 
 These are appropriate to use when the data show no threshold like effects.
@@ -108,7 +106,7 @@ While smooth **EC~x~** models do not have a threshold with which to determine th
 
 
 ```{r nsec, out.width="50%", echo=FALSE}
-knitr::include_graphics("images/nsec.PNG")
+knitr::include_graphics("images/nsec.jpg")
 ```
 
 The full mathematical details of this method are described in both a frequentist and Bayesian context in our recent paper [@fisherfox2023]. 
@@ -124,7 +122,7 @@ Because we can do that with all of the individual posterior draws, using the Bay
 The NSEC is actually directly analogous to the NOEC, in that you are determining the concentration at which the response is now significantly different to the control.
 
 ```{r noec, out.width="50%", echo=FALSE}
-knitr::include_graphics("images/noec.PNG")
+knitr::include_graphics("images/noec.jpg")
 ```
 
 However, because it uses the fitted curve to interpolate between the treatment concentrations, the NSEC avoids one of the biggest issues with the NOEC - That the value is constrained to one of the treatment concentrations in the dataset, and so is directly determined by the experimental design.
@@ -140,10 +138,10 @@ For any risk assessment application that relies on estimation of *no-effect*, it
 This is something we explored in our recently accepted paper in [IEAM](https://setac.onlinelibrary.wiley.com/doi/abs/10.1002/ieam.4809).
 
 ```{r ieam, out.width="58%", echo=FALSE}
-knitr::include_graphics("images/ieam_head.PNG")
+knitr::include_graphics("images/ieam_head.jpg")
 ```
 ```{r svariolis, out.width="38%", echo=FALSE}
-knitr::include_graphics("images/svariolis.PNG")
+knitr::include_graphics("images/svariolis.jpg")
 ```
 
 In this case, using an **NEC** from a threshold model can result in high *non conservative* no-effect toxicity estimates, that sometimes have an *effect* greater than even 10% effect (and sometimes higher).
@@ -184,7 +182,7 @@ Now that you have an understanding of the different types of models available in
 The simplest is the **NEC**, for which the toxicity estimate of interest is actually a parameter estimate in the model itself. For this reason, there are very few arguments to the `nec` function. You simply specify the model fit (*object*), if you want a *posterior* or summary, any transformation (*xform*) that should be imposed, and the probability values (*prob_vals*) if a summary should be returned (which is the default).
 
 ```{r nec_function, out.width="70%", echo=FALSE}
-knitr::include_graphics("images/nec_function.PNG")
+knitr::include_graphics("images/nec_function.jpg")
 ```
 **object** - An object of class *bayesnecfit* or
 *bayesmanecfit* returned by `bnec`.
@@ -206,7 +204,7 @@ The *ecx* function extracts predicted **EC~x~** values and will work for both *n
 
 
 ```{r ecx_function, fig.align='tight', out.width="70%", echo=FALSE}
-knitr::include_graphics("images/ecx_function.PNG")
+knitr::include_graphics("images/ecx_function.jpg")
 ```
 
 In addition, 
@@ -246,7 +244,7 @@ The `nsec` function extracts the predicted **NSEC** value as desired from an obj
 
 
 ```{r nsec_function, fig.align='tight', out.width="70%", echo=FALSE}
-knitr::include_graphics("images/nsec_function.PNG")
+knitr::include_graphics("images/nsec_function.jpg")
 ```
 
 **sig_val** - The probability value to use as the lower quantile to test

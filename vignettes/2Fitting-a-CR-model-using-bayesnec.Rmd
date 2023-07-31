@@ -11,14 +11,12 @@ bibliography: bayesnec.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(cmdstanr)
 library(posterior)
 library(bayesplot)
 library(bayesnec)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-set_cmdstan_path("C:/cmdstan")
 ```
 
 ## Background
@@ -52,7 +50,7 @@ remotes::install_github("open-aims/bayesnec", ref = "dev")
 It can be worthwhile using the development branch as this can sometimes contain important bug fixes not available on the CRAN version. Note that this can be 'unstable' - i.e. it can change without notice, so re-running code may result in a different outcome. If using the development version it is worth noting the corresponding github commit in your workflow, as this would be critical for complete reproducibility.
 
 ```{r dev-branch, fig.align='tight', out.width="100%", echo=FALSE}
-knitr::include_graphics("images/dev_branch.PNG")
+knitr::include_graphics("images/dev_branch.jpg")
 ```
 
 ## Loading bayesnec and the example dataset
@@ -90,7 +88,7 @@ The main working function in `bayesnec` is the function `bnec`, which calls the 
 To see all of the arguments available for `bnec` use `?bnec`.
 
 ```{r bnec_function, fig.align='tight', out.width="80%", echo=FALSE}
-knitr::include_graphics("images/bnec_function.PNG")
+knitr::include_graphics("images/bnec_function.jpg")
 ```
 
 Only the first five arguments to `bnec` are currently in use, the remainder have been deprecated following a major re-write of the software that was a result of editorial review in the Journal of Statistical Software.
@@ -158,7 +156,7 @@ save(bnec_fit, file = "fitted_model.RData")
 Note that saved Bayesian model objects can be very large - so be mindful of where you are saving these and if that is a sensible place (ie onedrive is not always a good idea).
 
 ```{r rdata-object, fig.align='tight', out.width="80%", echo=FALSE}
-knitr::include_graphics("images/rdata_object.PNG")
+knitr::include_graphics("images/rdata_object.jpg")
 ```
 
 ## The `bayesnecfit` summary()
@@ -224,7 +222,7 @@ hist(bnec_fit$nec_posterior)
 The functions `plot` (extending `base` plot method) and `autoplot` (extending `ggplot2` plot method) can be used to plot the fitted model. These have a range of arguments to allow some customization of the plots.
 
 ```{r plot-args, fig.align='tight', out.width="100%", echo=FALSE}
-knitr::include_graphics("images/plot_args.PNG")
+knitr::include_graphics("images/plot_args.jpg")
 ```
 
 You can also make your own plot from the *pred_vals* data element included in the returned object (class `bayesnecfit`) from the call to `bnec`.

@@ -11,11 +11,9 @@ bibliography: bayesnec.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(cmdstanr)
 library(posterior)
 library(bayesplot)
 library(bayesnec)
-set_cmdstan_path("C:/cmdstan")
 ```
 
 ## Background
@@ -211,13 +209,15 @@ We can see a summary of the model parameters using:
 summary(fit)
 ```
 
-## `cmdstanr`
+## `cmdstanr` - optional installation
 
 `cmdstanr` is an alternative lightweight interface to Stan for R users. This can sometimes be more tricky to get running than `Rstan`, especially on Windows machines. However, it is worthwhile getting `cmdstanr` running as it can be more stable than `rstan`, which sometimes causes RStudio to crash on windows. This can be very frustrating with Bayesian models that take a long time to run.
 
 ### Installing `cmstandr`
 
-Here we follow the `cmdstanr` vignette ["Getting started with CmdStanR"](https://mc-stan.org/cmdstanr/articles/cmdstanr.html)
+Here we follow the `cmdstanr` vignette ["Getting started with CmdStanR"](https://mc-stan.org/cmdstanr/articles/cmdstanr.html).
+
+Note that due to issues with publishing `cmdstanr` based packages (or any not cran or github packages), we do not evaluate the instructions for `cmdstanr` in this tutorial.
 
 `cmstandr` relies on a working installation of CmdStan, the shell interface to Stan. If you don’t have CmdStan installed then `cmdstanr` can install it for you, assuming you have a suitable C++ toolchain (see above). The requirements are described in the CmdStan [Guide](https://mc-stan.org/docs/cmdstan-guide/index.html).
 
@@ -322,19 +322,19 @@ color_scheme_set("brightblue")
 
 Make sure the path points to the cmdstan installation
 
-```{r check cmdstan path}
+```{r check cmdstan path, eval=FALSE}
 cmdstan_path()
 ```
 
 If not, manually set it
 
-```{r set cmdstan path}
+```{r set cmdstan path, eval=FALSE}
 set_cmdstan_path("C:/cmdstan")
 ```
 
 Check that your toolchain is set up properly.
 
-```{r toolchain check}
+```{r toolchain check, eval=FALSE}
 check_cmdstan_toolchain()
 ```
 
@@ -346,7 +346,7 @@ If cmdstan is installed, the following example model should work.
 
 Set up data:
 
-```{r fit model}
+```{r fit model, eval=FALSE}
 file <- file.path(cmdstan_path(), "examples", "bernoulli", "bernoulli.stan")
 mod <- cmdstan_model(file)
 mod$print()
@@ -354,7 +354,7 @@ mod$print()
 
 Run a Monte Carlo Markov Chain:
 
-```{r mcmc}
+```{r mcmc, eval=FALSE}
 # names correspond to the data block in the Stan program
 data_list <- list(N = 10, y = c(0,1,0,0,0,0,0,0,0,1))
 
@@ -369,7 +369,7 @@ fit <- mod$sample(
 
 Check that the model has successfully fitted by investigating the model parameters
 
-```{r check model}
+```{r check model, eval=FALSE}
 fit$summary()
 ```
 
@@ -392,7 +392,10 @@ devtools::install_github("paul-buerkner/brms", build_vignettes = FALSE)
 ```
 
 You can also set build_vignettes=TRUE but this will slow down the installation drastically (the vignettes can always be accessed online anytime at paul-buerkner.github.io/brms/articles).
+
 To use cmdstan as a backend for brms call the relevant options:
+
+** DO not do this if you do not have `cmdstanr` working on your machine.
 
 ```{r set-backend, eval=FALSE}
 require(cmdstanr)

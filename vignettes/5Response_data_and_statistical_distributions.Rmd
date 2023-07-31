@@ -11,14 +11,12 @@ bibliography: bayesnec.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(cmdstanr)
 library(posterior)
 library(bayesplot)
 library(bayesnec)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-set_cmdstan_path("C:/cmdstan")
 ```
 
 ## Background
@@ -60,16 +58,16 @@ Computational power and statistical methods have advanced and it is no longer ne
 
 There are a large range of resources available on generalised modelling, and we are not going to cover the theoretical/mathematical underpinnings in detail here. I am hoping David will add a course on that topic to his new training website soon.
 
-`r knitr::include_graphics("images/glmbooks.PNG")`
+`r knitr::include_graphics("images/glmbooks.jpg")`
 
 ## Available `brms` families
 
 There are many different families available in `brms` that you can use.
 This includes many of the families in the base stats package that many R fitting algorithms can use:
-`r knitr::include_graphics("images/statsfams.PNG")`
+`r knitr::include_graphics("images/statsfams.jpg")`
 
 As well as many additional families that only work with `brms`.
-`r knitr::include_graphics("images/brmsfams.PNG")`
+`r knitr::include_graphics("images/brmsfams.jpg")`
 
 ## Link functions
 
