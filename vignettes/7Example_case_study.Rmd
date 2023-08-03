@@ -1,5 +1,5 @@
 ---
-title: "Using compare_posterior"
+title: "Worked example and comparing toxicity"
 output: 
   learnr::tutorial:
     css: "css/style.css"
