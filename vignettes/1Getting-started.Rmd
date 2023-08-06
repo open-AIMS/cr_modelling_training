@@ -251,7 +251,7 @@ a\. Navigate to the terminal
 
 b\. change directory to c:\\ drive using: 
 ````
-cd \c
+cd /
 ````
 
 c\. download latest version of cmdstan from githup - this may take a few minutes:

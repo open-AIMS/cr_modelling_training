@@ -27,7 +27,12 @@ We also went through in detail how to install the `bayesnec` dependencies, as th
 
 Now that you are confident that `brms` is properly compiling, we will install `bayesnec` and run a very simple `bayesnec` model using the provided example dataset and the default `bayesnec` settings.  
 
-The idea is to learn how to use `bayesnec` in the simplest way, and understand the the model fit that is returned and how to use some of the `bayesnec` and `brms` helper functions.
+The idea is to learn how to use `bayesnec` in the simplest way, and understand the model fit that is returned and how to use some of the `bayesnec` and `brms` helper functions.
+
+
+```{r bnec-logo, fig.align='tight', out.width="20%", echo=FALSE}
+knitr::include_graphics("images/bayesnec_logo.jpg")
+```
 
 ## Installation
 
@@ -49,7 +54,7 @@ remotes::install_github("open-aims/bayesnec", ref = "dev")
 ```
 It can be worthwhile using the development branch as this can sometimes contain important bug fixes not available on the CRAN version. Note that this can be 'unstable' - i.e. it can change without notice, so re-running code may result in a different outcome. If using the development version it is worth noting the corresponding github commit in your workflow, as this would be critical for complete reproducibility.
 
-```{r dev-branch, fig.align='tight', out.width="100%", echo=FALSE}
+```{r dev-branch, fig.align='tight', out.width="80%", echo=FALSE}
 knitr::include_graphics("images/dev_branch.jpg")
 ```
 
@@ -62,14 +67,14 @@ library(bayesnec)
 ```
 
 `baysnec` comes with an example dataset we can use for testing, called nec_data. 
-We load this using the data(). This has only two columns: x (concentration) and y (response).
+We load this using `data()`. This has only two columns: x (concentration) and y (response).
 
 ```{r}
 data(nec_data)
 head(nec_data)
 ```
 
-We will discuss later what type of response variables can currently be modeled using `bayesnec`, but for now we will just use `bayesnec`'s default settings to fit a `bayesnec` model using the three parameter NEC model of Fox 2010. We will cover what models are available in `bayesnec` and how models can also be called using model sets in later parts of this course.
+We will discuss later what type of response variables can currently be modeled using `bayesnec`, but for now we will just use `bayesnec`'s default settings to fit a `bayesnec` model using the three parameter **NEC** model of Fox 2010. We will cover what models are available in `bayesnec` and how models can also be called using model sets in later parts of this course.
 
 ## Setting seeds
 
@@ -79,7 +84,11 @@ It can be useful to set a seed so that we reproduce the same results.
 set.seed(333)
 ```
 
-The set.seed() function in R is used to create reproducible results when writing code that involves creating variables that take on random values. By using the set.seed() function, you guarantee that the same random values are produced each time you run the code, so you always get the same result. This can be useful for Bayesian analysis in particular, because these sample from random distributions as part of their fitting algorithm, and can sometimes produce slightly different results when run multiple times.
+The `set.seed()` function in R is used to create reproducible results when writing code that involves creating variables that take on random values. 
+
+By using the `set.seed()` function, you guarantee that the same random values are produced each time you run the code, so you always get the same result. 
+
+This can be useful for Bayesian analysis in particular, because these sample from random distributions as part of their fitting algorithm, and can sometimes produce slightly different results when run multiple times.
 
 ## The `bnec` function
 
@@ -91,7 +100,7 @@ To see all of the arguments available for `bnec` use `?bnec`.
 knitr::include_graphics("images/bnec_function.jpg")
 ```
 
-Only the first five arguments to `bnec` are currently in use, the remainder have been deprecated following a major re-write of the software that was a result of editorial review in the Journal of Statistical Software.
+Only the first six arguments to `bnec` are currently in use, the remainder have been deprecated following a major re-write of the software that was a result of editorial review in the Journal of Statistical Software.
 
 Additional arguments can be passed to the underlying `brm` call using `...`. For the full list of arguments that can be set using `brm` use `?brm`
 
@@ -168,16 +177,19 @@ load("fitted_model.RData")
 summary(bnec_fit)
 ```
 
-This tells us that we have an object of class `bayesnecfit` containing the non-linear model *nec3param*. `bayesnec` will return a `bayesnecfit` object when only a single model is fit. A `bayesmanecfit` class is returned if there are more than one model (discussed in more detail later). Again, it shows the family that was used for the fit, in this case the beta, with identity links for both of the family parameters. Again we will discuss this in more detail later.
+This tells us that we have an object of class `bayesnecfit` containing the non-linear model *nec3param*. `bayesnec` will return a `bayesnecfit` object when only a single model is fit. 
 
-The actual `brm` formula of the model that was fitted is printed, which can also be very useful.
+It shows the family that was used for the fit, in this case the Beta, with identity links. Again we will discuss this in more detail later.
+
+The actual `brm` formula of the model that was fitted is printed, which can also be very useful, and in a later module we will use this to write our own custom `brm` model.
+
 The Bayesian R2 values give an indication of model fit, and in this case is very high.
 
-Note the Rhat values in this example are one, indicating convergence.
+Note the *Rhat* values in this example are one, indicating convergence. *Rhat* is a convenient diagnostic for convergence of Bayesian models, and should ideally be near 1.
 
 ## Evaluating the `brm` model fit
 
-There are a range of model diagnostics that can be explored for brms model fits. We encourage you to explore the rich material already on GitHub regarding use and validation of brms models, and will only touch on this briefly here.
+There are a range of model diagnostics that can be explored for `brms` model fits. We encourage you to explore the rich material already on GitHub regarding use and validation of `brms` models, and will only touch on this briefly here.
 
 We can extract the underlying `brm` model using the function `pull_brmsfit`.
 
@@ -203,18 +215,16 @@ The `bayesbecfit` model object is basically a list of useful information associa
 names(bnec_fit)
 ```
 
-This includes summaries all of the parameter estimates, as well as a data.frame of predicted values that can be used for custom plotting if desired. 
+This includes summaries all of the parameter estimates, as well as a *data.frame* of predicted values that can be used for custom plotting if desired. 
 
 ```{r}
 head(bnec_fit$pred_vals$data)
 ```
 
-All `bayesnec` fitted models have a posterior estimate of the "No-Effect" toxicity. This is currently labelled nec_posterior (regardless of the type of model, NEC- or ECx - see latter discussion on model types). For NEC type models this the posterior of the actual NEC paramter, for ECx models this is the posterior of the estimated NSEC [@fisherfox2023]. We will cover this in more detail in the next tutorial.
+All `bayesnec` fitted models have a posterior estimate of the "No-Effect" toxicity. This is currently labelled nec_posterior (regardless of the type of model, NEC- or ECx - see latter discussion on model types). For **NEC** models this the posterior of the actual **NEC** parameter, for **EC~x~** models this is the posterior of the estimated **NSEC** [@fisherfox2023]. We will cover this in more detail in the next tutorial.
 
 ```{r}
 hist(bnec_fit$nec_posterior)
-```
-
 ```
 
 ## Options for plotting the fitted model
@@ -237,15 +247,15 @@ autoplot(bnec_fit) +
   xlab("Concentration")
 ```
 
-We are using the normal `ggplot` syntax with `+` to customize the access label - and most of the typical `ggplot` functions that allow annotation should work with a `bayesnec` autoplot call.
+We are using the normal `ggplot` syntax with `+` to customize the x-axis label - and most of the typical `ggplot` functions that allow annotation should work with a `bayesnec` autoplot call.
 
-By default autoplot will return fitted NEC value, and print an estimate with 95% CI's in the upper right hand corner. The plot is labelled with the fitted model, in this case the *nec3param*. By default the NEC is labelled as the N(S)EC which probably isn't appropriate for this model (it is in fact an NEC model) and should be changed to NEC. We will discuss this in a lot more detail later.
+By default autoplot will return fitted **NEC** value, and print an estimate with 95% CI's in the upper right hand corner. The plot is labelled with the fitted model, in this case the *nec3param*. By default the **NEC** is labelled as the N(S)EC which probably isn't appropriate for this model (it is in fact an **NEC** model) and should be changed to **NEC**. We will discuss this in a lot more detail later.
 
 ## Toxicity estimates
 
 Aside from automatically returning a posterior estimate of the no-effect toxicity based on default settings, we have developed a few helper functions for extracting toxicity estimates from the fitted models that allow the user to specify relevant arguments. 
 
-The main functions are `ecx`, `nec` and `nsec`. We will cover these in detail when we discuss the models available in `bayesnec` next. For now, lets just extract the **NEC** and the **EC10**.
+The main functions are `ecx`, `nec` and `nsec`. We will cover these in detail when we discuss the models available in `bayesnec` next.
 
 
 ```{r}
@@ -254,15 +264,15 @@ nec(bnec_fit)
 nsec(bnec_fit)
 ```
 
-You can see these return by default summarised estimates, showing the median and the 95% probability density interval. By default the function `ecx` returns the **EC10** value, and this information is captured as an attributed of the returned object.
+You can see these return by default summarized estimates, showing the median and the 95% probability density interval. By default the function `ecx` returns the **EC10** value, and this information is captured as an attributed of the returned object.
 
 
-The default NSEC is based on a 0.01 signifivant value, and this is also shown as an attribute.
-I'll describe the NSEC concept to you in more detail in the next tutorial.
+The default **NSEC** is based on a 0.01 significant value, and this is also shown as an attribute.
+I'll describe the **NSEC** concept to you in more detail in the next tutorial.
 
 The next tutorial will explain in detail the types of models that can be fitted in `bayesnec` and how these link to the toxicity estimates that can be derived. This will then make it easier to understand the specific usaer controlled arguments that can be passed to these different functions.
 
-For this example EC10, NEC and NSEC all return very similar values.
+For this example EC10, **NEC** and **NSEC** all return very similar values.
 
 
 

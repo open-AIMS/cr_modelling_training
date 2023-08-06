@@ -37,9 +37,9 @@ knitr::include_graphics("images/etnc_fig2.jpg")
 
 There are a range of models available in `bayesnec` and the working `bnec` function supports individual model fitting, as well as multi-model fitting with Bayesian model averaging, which we will discuss in more detail later.
 
-The argument `model` in a `bayesnecformula` is a character string indicating the name(s) of the desired model. The complete list of currently available models in `bnec` includes: `r models()$all`. 
+The argument `model` in a `bayesnecformula` is a character string indicating the name(s) of the desired model. The complete list of currently available models in `bnec` includes: `r models()$all`. There are also several model sets, which we will explain in more detail later.
 
-You can see that this list is divided into two types, those with the prefix **nec** and those with the prefix **EC~x~**. This separation delineates between "threshold" (**nec**) and non-threshold (**EC~x~**) models.
+You can see that the model names are divided into two types, those with the prefix **nec** and those with the prefix **ecx**. This separation delineates between "threshold" (**NEC**) and non-threshold (**EC~x~**) models.
 
 
 ```{r etnc_fig1, out.width="50%", echo=FALSE}
@@ -61,13 +61,13 @@ $\delta = \text{bottom}$, representing the lower plateau for the response at inf
 
 $\alpha = \text{slope}$, the linear decay rate in the models **neclin** and **ecxlin**, or the linear increase rate prior to $\eta$ for all hormesis models;
 
-$\omega$ = $\text{EC50}$ notionally the 50% effect concentration but may be influenced by scaling and should therefore not be strictly interpreted, and
+$\omega$ = $\text{EC50}$ notionally the 50% effect concentration but may be influenced by scaling and should therefore not be strictly interpreted;
 
-$\epsilon = \text{d}$, the exponent in the **ecxsigm** and **necisgm** models.
+$\epsilon = \text{d}$, the exponent in the **ecxsigm** and **necisgm** models; and
 
 $\zeta = \text{f}$ - A scaling exponent exclusive to model **ecxll5**.
 
-In addition to the model parameters, all **nec**-containing models have a step function used to define the breakpoint in the regression, which can be defined as
+In addition to the model parameters, all **nec**-containing models have a step function used to define the threshold breakpoint in the regression, given by
 
 $$
 f(x_i, \eta) = \begin{cases} 
@@ -85,20 +85,20 @@ For model types with *nec* as a prefix, the **NEC** is directly estimated as par
 knitr::include_graphics("images/necmod_fox2010.jpg")
 ```
 
-These models assume there is some relatively stable value of the response similar to the mean of the control across a range of lower value concentrations. This value is maintained until the threshold concentration is reached. This threshold is the estimated **NEC**. At this point the response declines with increasing concentration, according to some decay rate. The original model of Fox [@Fox2010] assumed an exponential decline following the threshold (**NEC**) concentration (*necexp*) - but we have also allowed a linear decline in `bayesnec` (*neclin*).
+These models assume there is some relatively stable value of the response similar to the mean of the control across a range of lower value concentrations. This value is maintained until the threshold concentration is reached. This threshold is the estimated **NEC**. At this point the response declines with increasing concentration, according to some decay rate. The original model of Fox [@Fox2010] assumed an exponential decline following the threshold (**NEC**) concentration (*nec3param*) - but we have also allowed a linear decline in `bayesnec` (*neclin*).
 
-While such a model can be used to estimate an **EC~x~** value, their main value is providing a clear estimate of the no-effect toxicity concentration. They represent a TRUE **N**o-**E**ffect-**C**oncentration (**NEC**).
+While such a model can be used to estimate an **EC~x~** value, their main value is providing a clear estimate of the no-effect toxicity concentration. They are currently the only way of estimating a TRUE **N**o-**E**ffect-**C**oncentration (**NEC**).
 
 ## No threshold (**EC~x~**) models
 
-Models with **EC~x~** as a prefix are continuous curve models. These models also have an intercept term (mean control of the response), but they have no threshold. The response value starts to decline with any increasing concentration, according to some decay rate (or more complex function).
+Models with **ecx** as a prefix are continuous curve models. These models also have an intercept term (mean control of the response), but they have no threshold. The response value starts to decline with any increasing concentration, according to some decay rate (or more complex function).
 
 ```{r ecxmod, out.width="50%", echo=FALSE}
 knitr::include_graphics("images/ecxmod.jpg")
 ```
 
 These are appropriate to use when the data show no threshold like effects.
-They are typically used for extracting **EC~x~** values, such as the EC10 - that has been quite widely used in SSD modelling. 
+They are typically used for extracting **EC~x~** values, such as the EC10 - that has been widely used in SSD modelling. 
 
 ## The **N**o-**S**ignificant-**E**ffect **C**oncentration (**NSEC**)
 
@@ -109,13 +109,13 @@ While smooth **EC~x~** models do not have a threshold with which to determine th
 knitr::include_graphics("images/nsec.jpg")
 ```
 
-The full mathematical details of this method are described in both a frequentist and Bayesian context in our recent paper [@fisherfox2023]. 
+The full mathematical details of this method are described in both a frequentist and Bayesian context in our recent paper [@fisherfox2023].
 
-We start with our fitted smooth **EC~x~** model, with it's estimated intercept (mean response at the control). Using the posterior estimate of this parameter, we estimate a lower confidence bound for that mean response. 
+We start with our fitted smooth **EC~x~** model, with it's estimated intercept (mean response at the control). Using the posterior estimate of this parameter, we calculate a lower confidence bound for that mean response. 
 
 From there we can interpolate from the fitted model the concentration at which that lower bound estimate crosses the predicted posterior fitted value of the response.
 
-Because we can do that with all of the individual posterior draws, using the Bayesian method we can also get an estimate of the confidence interval around the estimated **NSEC** value.
+Because we can do that with all of the individual posterior draws, using the Bayesian method we can also get an estimate of the confidence interval around the estimated **NSEC** value. Dont worry we'll explain the details of Bayesian statistics a bit more later.
 
 ## The link between **NSEC** and  **NOEC**
 
@@ -144,7 +144,7 @@ knitr::include_graphics("images/ieam_head.jpg")
 knitr::include_graphics("images/svariolis.jpg")
 ```
 
-In this case, using an **NEC** from a threshold model can result in high *non conservative* no-effect toxicity estimates, that sometimes have an *effect* greater than even 10% effect (and sometimes higher).
+In this case, using an **NEC** from a threshold model can result in highly *non conservative* no-effect toxicity estimates, that sometimes have an *effect* greater than even 10% effect (or even higher).
 
 When there is no threshold-effects, what value can we use to represent *no-effect* for a given species CR curve?
 
@@ -159,7 +159,7 @@ The **NOEC** has long been discarded as an appropriate measure of toxicity, and 
 
 We would argue that in the case where an estimate of *no-effect* is required, the use of **EC~x~** is inappropriate, because by definition this estimate represents an *effect* of magnitude *x*. 
 
-The **NSEC**, like the **NOEC** before it [@mebane2015], will represent some level of non-zero *effect* - because by definition, for any smoothly sigmoidal model any concentration > 0 will represent an effect. However, for the **NSEC**, this effect is as the the concentration at which there there is a significant deviation from the control response. 
+The **NSEC**, like the **NOEC** before it [@mebane2015], will represent some level of non-zero *effect* - because by definition, for any smoothly sigmoidal model any concentration > 0 will represent an effect. However, for the **NSEC**, this effect is defined as the concentration below which there is no significant deviation from the control response. 
 
 Significant deviations from the control can occur well before a 10% *effect* as estimated by the *EC10*. Unless there is some other evidence that this effect will have no negative consequence on the population, it may in fact represent a substantial non-zero effect, and such values cannot be considered truly protective of that species.
 
@@ -170,9 +170,16 @@ Significant deviations from the control can occur well before a 10% *effect* as 
 
 Hormesis occurs when their is an initial stimulation of the response at low concentrations, which is something we have observed reasonably regularly with mixed discharge WET testing and can occur for a variety of reasons.
 
-`bayesnec` includes several **NEC** based hormesis models (`r intersect(models()$horme, models()$nec)`). These all assume a linear increase in the response until the *nec* threshold concentration, and allow various decay functions following that threshold. Hormesis in this sense poses no problem in the context of defining an **NEC** concentration. It is always the threshold concentration at which a negative response starts to occur.
+`bayesnec` includes several **NEC** based hormesis models (`r intersect(models()$horme, models()$nec)`). These almost all assume a linear increase in the response until the *nec* threshold concentration, and allow various decay functions following that threshold. Hormesis in this sense poses no problem in the context of defining an **NEC** concentration. It is always the threshold concentration at which a negative response starts to occur.
 
 `bayesnec` also includes two **EC~x~** hormesis models (`r intersect(models()$horme, models()$ecx)`). These can cause ambiguity in the definition of **EC~x~** estimates, because we need to decide what baseline response to use for estimating the *effect* (i.e. relative to the control, or the peak value of the response). This is why we have an argument *hormesis_def* in the `ecx` function in `bayesnec` (discussed shortly). 
+
+```{r nec_horme, out.width="48%", echo=FALSE}
+knitr::include_graphics("images/horme_nec.jpg")
+```
+```{r ecx_horme, out.width="48%", echo=FALSE}
+knitr::include_graphics("images/horme_ecx.jpg")
+```
 
 
 ## Toxicity estimation in `bayesnec`: **NEC**
@@ -184,6 +191,7 @@ The simplest is the **NEC**, for which the toxicity estimate of interest is actu
 ```{r nec_function, out.width="70%", echo=FALSE}
 knitr::include_graphics("images/nec_function.jpg")
 ```
+
 **object** - An object of class *bayesnecfit* or
 *bayesmanecfit* returned by `bnec`.
 
@@ -233,23 +241,28 @@ decline from the maximum estimates (i.e. the peak at **NEC**);
 if "control", then ECx values are calculated relative to the control, which
 is assumed to be the lowest observed concentration.
 
-**x_range** - A range of x values over which to consider extracting ECx. 
+**x_range** - A range of x values over which to consider extracting ECx. This is useful if you need to interpolate beyond the observed x-range.
 
 
 
 ## Toxicity estimation in `bayesnec`: **NSEC**
 
 The `nsec` function extracts the predicted **NSEC** value as desired from an object of class
-`bayesnecfit` or `bayesmanecfit`. The function contains some of the same arguments as both the *nec* and *ecx* functions, including (*object*, *posterior*, *xform*, *prob_vals*, *precision*, *x_range*, and *hormesis_def*). The main new argument is:
+`bayesnecfit` or `bayesmanecfit`. The function contains some of the same arguments as both the *nec* and *ecx* functions, including (*object*, *posterior*, *xform*, *prob_vals*, *precision*, *x_range*, and *hormesis_def*).
 
 
 ```{r nsec_function, fig.align='tight', out.width="70%", echo=FALSE}
 knitr::include_graphics("images/nsec_function.jpg")
 ```
 
+
+The main new argument is:
+ 
 **sig_val** - The probability value to use as the lower quantile to test
-significance of the predicted posterior values.
-against the lowest observed concentration (assumed to be the control). The default is set at 0.01 (i.e. 99% certainty of a decline relative to control). We have found this value to generally yield sensible results.
+significance of the predicted posterior values, 
+against the lowest observed concentration (assumed to be the control). The default is set at 0.01 (i.e. 99% certainty of a decline relative to control). We have found this value to generally yield sensible results. When this is not the case, in the context of extracting **NSEC** values for SSD modelling, we have found it is generally better to consider if the statistical model is appropriate, rather than selecting other values of significance. 
+
+Other values of significance might be relevant in other decision science contexts.
 
 
 ## References

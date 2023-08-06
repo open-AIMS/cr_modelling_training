@@ -23,25 +23,25 @@ library(tidyr)
 
 CR data are of varied nature, with the measured response data taking a wide range of natural distributions.
 
-#### binary (binomial and beta-binomial)
+#### Binary (binomial and beta-binomial)
 
 e.g., individual survival: `r rbinom(10, 1, 0.5)` or proportions of survivors
 `r head(data.frame(trails=10, survivors=rbinom(4, 10, 0.5)))`
 
-#### bounded continuous (Beta)
+#### Bounded continuous (Beta)
 
 e.g., proportions or other ratios: `r round(rbeta(10, 1, 0.5),3)`
 
 
-#### counts (Poisson, Negative binomial)
+#### Counts (Poisson, Negative binomial)
 
 e.g numbers of whole animals: `r rpois(10, 4)`
 
-#### positive continuous (Gamma, *Tweedie*)
+#### Positive continuous (Gamma, *Tweedie*)
 
 e.g., growth in the absence of shrinkage: `r round(rgamma(10, 1, 0.5),2)`
 
-#### unbounded continuous (Gaussian/Normal)
+#### Unbounded continuous (Gaussian/Normal)
 
 e.g., growth when shrinkage is possible: `r round(rnorm(10, 0, 0.5),2)` 
 
