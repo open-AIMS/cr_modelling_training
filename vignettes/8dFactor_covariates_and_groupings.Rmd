@@ -1,0 +1,501 @@
+---
+title: "Are these ECx values different?"
+output: 
+  learnr::tutorial:
+    css: "css/style.css"
+    progressive: false
+    allow_skip: true
+runtime: shiny_prerendered
+bibliography: bayesnec.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = F)
+library(tidyverse)
+library(drc)
+```
+
+## Background
+
+A common experimental design in ecotoxicology involves understanding how toxicity changes given a changing factor. In these circumstances, being able to test whether there is a difference in ECx values will be useful.
+
+`drc` has a function, *EDcomp*,  to do this. From the help file `?EDcomp`: 
+
+_Relative potencies (also called selectivity indices) for arbitrary doses are compared between fitted dose-response curves._
+
+The function takes a range of inputs: 
+
+```{r drm_help, fig.align='tight', out.width="80%", echo=FALSE}
+knitr::include_graphics("images/drc_edcomp.JPG")
+```
+
+The key ones are: 
+
+- *object*  is our `drm` model object where we have specified a factor for the function to group our data to fit separate models (i.e., our time column in the daphnid example)
+
+- *percVec* is the ECx values we wish to compare. A minimum of two numbers should be provided in the form `percVec = c(50,50)`
+
+- *interval* specifies the approach to calculating confidence intervals
+
+- *reference* allows us to specify whether the `upper` asymptote or `control` response is the upper limit.  
+
+There are some other handy features that let us quickly analyse and compare ECx's built into the `drc` package that we will also explore. 
+
+## Setting up our example 
+
+Let's revisit the `daphnids` dataset. 
+
+```{r daphnids}
+data(daphnids)
+head(daphnids, 3)
+```
+
+We can fit our log-logistic 2-parameter model where we specify **curveid** as the factor *time* in our dataset. The plot confirms individual dose models were applied to the 24h and 48h data. 
+
+```{r}
+daphnids.m1 <- drm(no/total~dose, weights = total,curveid = time,
+                   data = daphnids, fct = LL.2(), type = "binomial")
+
+plot(daphnids.m1)
+
+```
+We can use the *ED* function to calculate ECx values for both models. If *curveid* is defined then this is automatic. 
+
+```{r}
+ED(daphnids.m1, c(10), "delta")
+```
+Note that we didn't define the arguments (e.g., `respLev = c(10)`). R will match the input to the argument based on the order that the arguments are given and their datatype.   
+
+
+## Using the EDcomp function 
+
+We can now use the EDcomp function to do a significance test to determine if there is a statistical difference. 
+
+```{r}
+EDcomp(daphnids.m1, percVec=c(10, 10), interval="delta")
+```
+Confidence intervals of the ratios of effect doses (i.e., the range of lower and upper) that contain 1 are not considered significantly different. So there is no evidence of a significant difference at the EC10 level. Let's check the EC50 level.
+
+```{r}
+EDcomp(daphnids.m1, percVec=c(50, 50), interval="delta")
+```
+
+The confidence intervals do not overlap 1 so there is a significant difference at the EC50 level. 
+
+We can plot how the ratio response level changes over the range of effect concentrations using the *relpot* function: 
+
+```{r}
+relpot(daphnids.m1, scale='percent', interval="delta")
+```
+
+#### binary (binomial and beta-binomial)
+
+e.g., individual survival: `r rbinom(10, 1, 0.5)` or proportions of survivors
+`r head(data.frame(trails=10, survivors=rbinom(4, 10, 0.5)))`
+
+#### bounded continuous (Beta)
+
+e.g., proportions or other ratios: `r round(rbeta(10, 1, 0.5),3)`
+
+
+#### counts (Poisson, Negative binomial)
+
+e.g numbers of whole animals: `r rpois(10, 4)`
+
+#### positive continuous (Gamma, *Tweedie*)
+
+e.g., growth in the absence of shrinkage: `r round(rgamma(10, 1, 0.5),2)`
+
+#### unbounded continuous (Gaussian/Normal)
+
+e.g., growth when shrinkage is possible: `r round(rnorm(10, 0, 0.5),2)` 
+
+
+## Generalised modelling
+
+**G**eneralized **L**inear **M**ixed modelling is the term used when data are fit using a linear model, but with (generalised) statistical distribution that matches the natural range and scaling of the response.
+
+When you fit a linear model in R using `lm()` you are effectively assuming a Gaussian or so-called *normal* distribution. This is also true for many other non-linear modelling functions, like `nls()`. 
+
+The assumption of normality, that many of you are familiar with in the traditional analysis of variance (ANOVA) methods is probably the most familiar case of *non-generalized* modelling. It is an assumption that might be ok sometimes, but it is usually assumed simply because it makes the mathematics of model fitting and estimation of confidence intervals much simpler.
+
+Computational power and statistical methods have advanced and it is no longer necessary to make this assumption. It is generally considered good practice to match your response data with an appropriate distribution (statistical family) and to undertake *generalised* modelling.
+
+There are a large range of resources available on generalised modelling, and we are not going to cover the theoretical/mathematical underpinnings in detail here. I am hoping David will add a course on that topic to his new training website soon.
+
+`r knitr::include_graphics("images/glmbooks.jpg")`
+
+## Available `brms` families
+
+There are many different families available in `brms` that you can use.
+This includes many of the families in the base stats package that many R fitting algorithms can use:
+`r knitr::include_graphics("images/statsfams.jpg")`
+
+As well as many additional families that only work with `brms`.
+`r knitr::include_graphics("images/brmsfams.jpg")`
+
+## Link functions
+
+You will see that all the statistical families have something we call a "link" function. 
+
+The GLM generalizes linear regression by allowing the linear perdictors in the model to be related to the response variable via this link function. 
+
+For example, a *logit* link function transforms the probabilities of a binary response variable to a continuous scale that is unbounded.
+
+Generalized linear models were formulated by John Nelder and Robert Wedderburn as a way of unifying various other statistical models, including linear regression, logistic regression and Poisson regression. They proposed an iteratively reweighted least squares method for **M**aximum **L**ikelihood **E**stimation (MLE) of the model parameters. **MLE** remains popular and is the default method use in many statistical computing packages. 
+
+As a potentially familiar example, logisitic regressions is essentially a GLM, using a logit link function.
+
+The *native* Link functions generally adopted for the different statistical families (e.g., `"logit"` for Binomial, `"log"` for Poisson) essentially introduce non-linear transformation. 
+
+For non-linear models (as in CR modelling) we are not using linear predictors. We are using non-linear formulas, so any additional non-linearity imposed by link functions changes the characteristics of the model being fitted. 
+
+It is for this reason that the default behaviour in `bayesnec` is to use the `"identity"` link. This is possible, because the underlying Bayesian methods allow estimation of model parameters without necessarily needing to map the response back to a continuous-unbounded distribution.
+
+Please be aware that estimates of NSEC or ECx might not be as expected when using link functions other than identity. 
+
+
+## Families currently implemented in `bayesnec`
+
+`bayesnec` allows for response variables to be fit using on of seven statistical distributions: 
+
+- Gaussian
+
+- Gamma
+
+- Poisson
+
+- Binomial
+
+- Negative-binomial
+
+- Beta
+
+- Beta-binomial
+
+Future implementations of `bayesnec` might include additional distributions which are currently only implemented in `brms`. 
+
+There is some work involved in adding additional families to `bayesnec` because we have developed algorithms for building priors and setting initial values, and these are specific to the statistical families. Feel free to request additional families through the `bayesnec` github [issues](https://github.com/open-AIMS/bayesnec/issues) page.
+
+
+## Default settings in `bayesnec`
+
+Using the default settings `bnec` will guess the most likely distribution for the response variable. Even so, it is critical that we check which distribution was used, and make sure we know the appropriate theoretical statistical distribution given the data. 
+
+This theoretical distribution must also be evaluated critically. Questions to ask are:
+
+ - does it capture the appropriate level of variability, as observed in the data?
+ 
+ - does it reproduce the right shaped confidence bounds across the whole response curve?
+
+In particular, it is essential that the natural variability observed in the data is properly captured by the statistical distribution used (dispersion). This will impact the confidence limits we see for estimated toxicity estimates. 
+
+It is particularly critical to get this right when using the NSEC estimates for toxicity, because these depend on the estimated variance observed in the control. See more details in [@fisheretal2023; @fisherfox2023].
+
+Next I'm going to go through some examples showing how to use the `bayesnec` to fit each of an *nec* and *ecx* model to a range of different response data, so you can get a feel of the kind of things you need to consider. 
+
+Many of the examples are those from Gerard Ricardo's github: <https://github.com/gerard-ricardo/NECs/blob/master/NECs>.
+
+## Binomial
+
+The response variable is considered to follow a binomial distribution when it is a count out of a total (such as the percentage survival of individuals, for example). First, we read in the binomial example from [pastebin](https://pastebin.com/tools), prepare the data for analysis, and then inspect the dataset as well as the "concentration", in this case `raw_x`.
+
+
+```{r}
+binom_data <- "https://pastebin.com/raw/zfrUha88" |>
+  read.table(header = TRUE, dec = ",", stringsAsFactors = FALSE) |>
+  dplyr::rename(raw_x = raw.x) |>
+  dplyr::mutate(raw_x = as.numeric(as.character(raw_x)))
+
+summary(binom_data$raw_x)
+
+```
+
+In this case for `raw_x`, the lowest concentration is 0.1 and the highest is 400. The data are right skewed and on the continuous scale. This type of distribution for the predictor data are common for concentration—response experiments, where the *concentration* data are the concentration of contaminants, or dilutions. 
+
+It can sometimes be helpful to transform the x predictor, for example using a log, as this is the scaling clearly used in the experimental design. While many of the models include exponential decay functions, we have found that model fitting is often more stable if the modelling is done with the x-data on a transformed scale. For this example we are going to use the x data as is.
+
+`r head(binom_data)`
+
+The data are binomial, with the column `suc` indicating the number of successes in the binomial call, and column `tot` indicating the number of trials.
+
+As we have previously discussed, 
+the main working function in `bayesnec` is the function `bnec`, which calls the other necessary functions and fits the `brms` model. 
+
+We can run `bnec` by supplying `formula`. For a binomial (or beta-binomial, see later topic) the basic `bayesnec` formula should be of the form:
+
+
+```{r, eval=FALSE}
+suc | trials(tot) ~ crf(raw_x), model = "your_model")
+```
+
+where the left-hand side of the formula is implemented exactly as in `brms`, including the `trials` term. The actual names of the columns in your data can be anything you like, but the one on the left of the | should be the column containing the number of successes (survivors, successfully fertilized eggs, etc). The one on the right of the | should be the total number of observations associated with each of those "success" observations. 
+
+In our example, we have "tot" - which seems to vary by row, and is probably something like a batch of eggs for which fertilization success was assessed.
+
+
+As we saw in our previous tutorial, the right-hand side of the formula contains the special internal function `crf` (which stands for concentration-response function), and takes the predictor and the desired C-R model or suite of models. As with any formula in R, the name of the terms need to be exactly as they are in the input data.frame.
+
+The current default in `bayesnec` is to estimate the appropriate distribution(s) and priors based on the data, but it is possible to supply `prior` or `family` directly as additional arguments to the underlying `brm` function from `brms`. 
+
+
+Let's first fit the model using the *nec3param* model. 
+```{r}
+library(bayesnec)
+
+set.seed(333)
+exp_1nec <- bnec(suc | trials(tot) ~ crf(raw_x, model = "nec3param"),
+              data = binom_data)
+```
+
+```{r}
+autoplot(exp_1nec)
+
+```
+
+When we plot this model, you can see that it has very tight confidence bounds. The *nec* model itself seems to fit ok, and the position of the **NEC** is reasonable. 
+
+Let's try fitting a smooth curve and estimating an **NSEC**.
+
+```{r}
+library(bayesnec)
+
+set.seed(333)
+exp_1ecx <- bnec(suc | trials(tot) ~ crf(raw_x, model = "ecxll3"),
+              data = binom_data)
+```
+
+```{r}
+autoplot(exp_1ecx)
+
+```
+You can see from this plot that the very tight confidence bands are resulting in an exceptionally low **NSEC** value. Let's take a look at the summary for these models:
+
+
+```{r, eval=TRUE}
+summary(c(exp_1ecx, exp_1nec))
+
+```
+
+```{r, eval=FALSE, include=FALSE}
+autoplot(exp_1, xform = exp)
+autoplot(exp_1)
+summary(exp_1)
+```
+
+For models whose response data are Binomial- or Poisson-distributed, an estimate of dispersion is provided by `bayesnec`, and this can be extracted using `exp_1exp$dispersion`, but is also shown in the `summary()` output of the *bayesmanecfit*. 
+
+Values > 1 indicate overdispersion and values < 1 indicate underdispersion. In this case the dispersion value is much bigger than 1, suggesting extreme overdispersion (meaning our model does not properly capture the true variability represented in this data). 
+
+We would need to consider alternative ways of modelling this data using a different distribution, such as the Beta-Binomial.
+
+
+```{r, eval=FALSE, include=FALSE}
+exp_1$dispersion
+```
+
+## Beta-Binomial
+
+The Beta-Binomial model can be useful for overdispersed Binomial data.
+We can fit this in exactly the same way as the binomial, but now we must explicitly call the family we want to use. `bayesnec` does not try to guess if binomial (or Poisson data, see  later) are over dispersed or not.
+
+Note the name of the beta-binomial in `bayesnec` is *beta_binomial2*. This is a legacy of us implementing this as a custom family, which at the time wasn't natively available in `brms`. We have lodged an [issue](https://github.com/open-AIMS/bayesnec/issues/140) to rectify this in future versions of `bayesnec`.
+
+Let's fit both the smooth *ecx* and threshold *nec* models at the same time.
+```{r}
+set.seed(333)
+exp_1b <- bnec(suc | trials(tot) ~ crf(raw_x, model = c("ecxll3", "nec3param")), data = binom_data, family = beta_binomial2)
+```
+
+Fitting this data with the *betabinomial2* yields a much more realistic fit in terms of the confidence bounds and the spread in the data. 
+```{r, eval=TRUE}
+autoplot(exp_1b)
+```
+
+Note that a dispersion estimate is not provided here, as over dispersion is only relevant for Poisson and Binomial data.
+
+```{r, eval=TRUE}
+summary(exp_1b)
+```
+
+Now that we have a better fit to these data, we can interpret the results. 
+
+The estimated *NEC* value quoted on the plot and in the summary seems reasonable, and is based on a relatively even split of weights between the two models. You can see on the summary that it is a mix of the **NEC** and **NSEC** values, and the plot indicates this using the syntax **N(S)EC**.
+ 
+
+## Beta
+
+Sometimes the response variable is distributed between `0` and `1` but is not a straight-forward Binomial because it is a proportion on the continuous scale. A common example in coral ecology is maximum quantum yield (the proportion of light used for photosynthesis when all reaction centres are open) which is a measure of photosynthetic efficiency calculated from Pulse-Amplitude-Modulation (PAM) data. Here we have a proportion value that is not based on trials and successes. In this case there are no theoretical trials, and the data must be modeled using a Beta distribution instead.
+
+
+```{r, eval=TRUE}
+prop_data <- "https://pastebin.com/raw/123jq46d" |>
+  read.table(header = TRUE, dec = ",", stringsAsFactors = FALSE) |>
+  dplyr::rename(raw_x = raw.x) |>
+  dplyr::mutate(across(where(is.character), as.numeric)) |> 
+  dplyr::mutate(sqrt.x=sqrt(raw_x))
+set.seed(333)
+exp_2 <- bnec(resp ~ crf(sqrt.x, model = c("ecxll3", "nec3param")), data = prop_data)
+```
+
+```{r, eval=TRUE}
+autoplot(exp_2, all_models = TRUE)
+exp_2$mod_stats
+```
+Because the Beta is a two parameter distribution, this can usually do a good job of modelling the variance in the data - and these confidence bands look reasonable. In this example, the *nec* model us much better than this three parameter log-logisitc (*ecx*) model and has most of the weight.
+
+
+## Poisson
+
+Where data are a count (of, for example, individuals or cells), the theoretical response is generally considered to be Poisson distributed. Such data are distributed from `0` to `Inf` and are integers. For this example, we are going to mimic count data based on the package's internal data set. We are making this over-dispersed to demonstrate the value of the negative binomial (next topic) - although some data do follow a Poisson distribution very nicely so you should always check if a Poisson is suitable before moving on to a negative binomial.
+
+
+```{r, eval=TRUE}
+data(nec_data)
+count_data <- nec_data |>
+  dplyr::mutate(
+    y = (y * 100 + rnorm(nrow(nec_data), 0, 15)) |>
+      round() |>
+      as.integer() |>
+      abs()
+  )
+
+str(count_data)
+```
+
+First, we supply `bnec` with `data` (here `count_data`), and specify our formula. As we have integers of 0 and greater, the `family` is `"poisson"`. The default behaviour to guess the variable type works for this example.
+
+
+```{r, eval=TRUE}
+set.seed(333)
+exp_3 <- bnec(y ~ crf(x, model =c("ecxll3", "nec3param")), data = count_data)
+```
+We first plot the model chains (with `plot(exp_3$fit)`) and parameter estimates to check the fit. The chains look oK. 
+
+However, our plot of the fit overlayed with the data is not very convincing. The model uncertainty is very narrow. Note based on the summary below that the dispersion estimate is much greater than one, indicating we did a good job of mimicking over dispersion.
+
+```{r, eval=TRUE}
+autoplot(exp_3, all_models = TRUE)
+```
+
+
+```{r, eval=TRUE}
+summary(exp_3)
+```
+
+
+
+## Negative binomial
+
+The negative binomial distribution is useful when count data are over dispersed and cannot be modeled using the Poisson distribution. We can do this by calling `family = "negbinomial"`.
+
+
+```{r, eval=TRUE}
+set.seed(333)
+exp_3b <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data, family = "negbinomial")
+```
+
+The resultant plot seems to indicate the Negative Binomial distribution works better in terms of dispersion (more sensible wider confidence bands), however it still might not be the best model for these data. See the [Model details][e2b] and [Multi model usage][e2] vignettes for options to fit other models to these data.
+
+```{r, eval=TRUE}
+autoplot(exp_3b, all_models = TRUE)
+```
+
+## Gamma
+
+Where data are a measured variable, the response is likely to be Gamma distributed. Good examples of `Gamma` distributed data include measures of body size, such as length, weight, or area. Such data are distributed from `0+` to `Inf` and are continuous. Here we use the `nec_data` supplied with `bayesnec` with the response `y` on the exponential scale to ensure the right data range for a Gamma as an example.
+
+
+```{r, eval=TRUE}
+data(nec_data)
+measure_data <- nec_data |>
+  dplyr::mutate(measure = exp(y))
+```
+
+
+```{r, eval=TRUE}
+set.seed(333)
+exp_4 <- bnec(measure ~ crf(x, model = c("ecxll3", "nec3param")), data = measure_data)
+```
+
+
+```{r, eval=TRUE}
+autoplot(exp_4, all_models = TRUE)
+```
+
+
+```{r, eval=TRUE}
+summary(exp_4)
+```
+
+In this case our model looks pretty good.
+
+## Gaussian
+
+While the Gaussian (aka *normal*) distribution has been historically the one most widely used, there are actually very few examples in ecotoxicology where response data can take on negative values - which is theoretically allowed in the Gaussian case and can cause issues with inference when used to model zero bounded data.
+
+Let's try a logit transformation on the proportions in our second example data set we used for the Beta distribution, and see how well these continuous data are modeled by a Gaussian instead.
+
+```{r, eval=TRUE}
+gaussian_data <- prop_data |>
+  dplyr::mutate(y = car::logit(resp))
+```
+
+
+```{r, eval=TRUE}
+set.seed(333)
+exp_5 <- bnec(y ~ crf(sqrt.x, model = c("ecxll4", "nec4param")), data = gaussian_data)
+```
+
+```{r, eval=TRUE}
+autoplot(exp_5, all_models = TRUE)
+```
+In this case our model looks pretty good - there is a bit of uncertainty in the tail - because the model is not bounded at zero, we have to estimate a lower bound.
+
+Comparing **N(S)EC** estimates between the Gaussian and the Beta fits we get:
+
+```{r, eval=TRUE}
+nec(exp_5)
+nec(exp_2)
+```
+
+The Beta estimate is slightly lower, although not substantially. Note that the EC10 estimates also differ slightly as well. It is worth thinking careful about what transformation of your response might mean in terms of the interpretation of ECx estimates in particular.
+
+
+```{r, eval=TRUE}
+ecx(exp_5)
+ecx(exp_2)
+```
+
+
+## Model suitability for response types
+
+You may have noticed, that for our Gaussian fit we had to use a different pair of models for the example.
+
+Models that have an exponential decay (most models with parameter $\beta = \text{beta}$) with no $\delta = \text{bottom}$ parameter are 0-bounded and are not suitable for the Gaussian family, or any family modeled using a `"logit"` or `"log"` link because they cannot generate predictions of negative response values. 
+
+Conversely, models with a linear decay (containing the string **lin** in their name) are not suitable for modelling families that are 0-bounded (Gamma, Poisson, Negative Binomial, Beta, Binomial, Beta-Binomial) using an `"identity"` link. These restrictions do not need to be controlled by the user, as a call to `bnec` with `models = "all"` in the formula will simply exclude inappropriate models, albeit with a message.
+
+Strictly speaking, models with a linear hormesis increase are not suitable for modelling responses that are 0, 1-bounded (Binomial-, Beta- and Beta-Binomial-distributed), however they are currently allowed in `bayesnec`, with a reasonable fit achieved through a combination of the appropriate distribution being applied to the response, and `bayesnec`'s `make_inits` function which ensures initial values passed to `brms` yield response values within the range of the user-supplied response data.
+
+## Future directions
+
+There is lots of scope as I mentioned earlier to add more of the `brms` implemented families in `bayesnec` to ensure that the wide array of data we see in nature can be adequately accommodated.
+
+We are also keen to implement other custom families not yet implemented in `brms`, such as the Tweedie distribution and ordered Beta model. 
+
+Despite the vast array of families available in `brms` there are no readily available distributions able to model data that includes 0 and 1 on the continuous scale in `brms` and `bayesnec` currently does 0 and 1 adjustments followed by modelling using a Beta distribution. The ordered beta model has been suggested as a better method for modelling continuous data with lower an upper bounds (see @Kubinec) that could be implemented in the `brms` customs families framework.
+
+For data that are 0 to $\infty$ on the continuous scale the Tweedie distribution may prove a much better option than the current zero-bounded Gamma, and has been used extensively in fisheries research for biomass data [@Shono2008]. As this family is not currently available in `brms` and would also need to be implemented as a custom family, which for the Tweedie is not trivial
+
+While we can implement custom families in `bayesnec`, this is a lot of work and unfortunately for now we had to make the decision to wait until these become natively available in `brms`.
+
+
+## References
+
+
+
+
+
+
+
