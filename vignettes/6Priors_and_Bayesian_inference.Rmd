@@ -284,8 +284,8 @@ show_params(model = "nec3param")
 
 ```{r}
 par(mfrow=c(1,2))
-hist(exmp_a$nec_posterior)
-hist(exmp_b$nec_posterior)
+hist(exmp_a$nec_posterior, main = "")
+hist(exmp_b$nec_posterior, main = "")
 ```
 
 
@@ -318,6 +318,8 @@ check_priors(exmp_c, filename = "Check_priors")
 pull_prior(exmp_c)
 ```
 
+## Setting priors for one model in a set
+
 The user can also specify priors for one model only out of the entire set, `bayesnec` will return a message stating that it is searching for priors on its own when they are either ill-formed (e.g. incomplete or have a typo), or the user simply decided not to specify priors for a particular model, e.g.
 
 ```{r,  results = "hide"}
@@ -335,6 +337,8 @@ exmp_d <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
 ```
 
 `prior = my_priors[[1]]` would also have worked because the argument priors can either take a `brmsprior` object directly, or a named list containing model-specific `brmsprior` objects.
+
+## Using `amend()` to modify priors
 
 Finally the user can also extend an existing `bayesmanecfit` object with the function `amend`, also by specifying custom-built `priors`.
 
