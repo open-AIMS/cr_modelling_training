@@ -154,7 +154,7 @@ The parameter estimates for any of the drc 4-parameter models are labelled b, c,
 
 - **d** upper asymptote 
 
-- **e** model midpoint or inflection point
+- **e** model midpoint or inflection point (or threshold no-effect level for `nec` models)
 
 When the lower and upper asymptotes represent the maximum possible response range (i.e., 0 to 1 or 0 to 100%), then the 'e' parameter will be equivalent to the EC50. 
 

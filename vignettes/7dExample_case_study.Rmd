@@ -1,5 +1,5 @@
 ---
-title: "Example case study"
+title: "Example case study drc"
 output: 
   learnr::tutorial:
     css: "css/style.css"
@@ -16,19 +16,6 @@ library(tidyverse)
 
 load("ametryn.RData")
 
-```
-
-## Background
-
-The posterior draws generated through Bayesian model fitting methods provide a rich resource that can be used to explore synergistic and antagonistic impacts [@Fisher2019d; @flores2021], propagate endpoint uncertainty [@Charles2020a; @Gottschalk2013], and test hypotheses of no-effect [@Thomas2006].
-
-With `bayesnec` we have included a function (`compare_posterior`) that allows bootstrapped comparisons of posterior predictions. This function allows the user to fit several different `bnec` model fits and compare differences in their posterior predictions. Comparisons can be made across the model fits for individual threshold estimates (e.g. NEC, NSEC or ECx) or across a range of predictor values. 
-
-```{r dredging, fig.align='tight', out.width="48%", echo=FALSE}
-knitr::include_graphics("images/dredging_effects.JPG")
-```
-```{r climate, fig.align='tight', out.width="48%", echo=FALSE}
-knitr::include_graphics("images/herbicides_climate.JPG")
 ```
 
 
@@ -58,8 +45,6 @@ ametryn_LL3 <-  drm(fvfm~concentration, data=ametryn, fct=LL.3(names = c("Slope"
 
 plot(ametryn_LL3)
 ```
-
-
 ## Inspecting the fitted model
 
 Following model fitting, we can do our standard checks including:
@@ -71,7 +56,7 @@ Following model fitting, we can do our standard checks including:
 summary(ametryn_LL3)
 ```
 
-All model parameters significant.
+All model parameters are significantly different to 0.
 
 - `residual` check to make sure assumptions of normality of the model residuals is accurate
 
@@ -89,6 +74,52 @@ mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),
                                     W1.4(),W2.4(), LN.4(), NEC.4()),linreg=TRUE) 
 
 ```
+
+Log-normal 4 parameter and log-logistic 3 parameter are the best fitting models. 
+
+```{r, warning=F}
+ametryn_LN4 <-  drm(fvfm~concentration, data=ametryn, fct=LN.4(names = c("Slope","Lower Limit","Upper Limit", "Midpoint")))
+
+plot(ametryn_LN4, type='all')
+plot(ametryn_LL3, add=TRUE,col="orange",lty=1, lwd=2)
+
+```
+Basically the same, just the tail is a bit different. 
+
+## Comparing ECx, NEC, and NSEC
+
+To get a NEC we need to plot a NEC model 
+
+```{r, warning=F}
+ametryn_nec4 <-  drm(fvfm~concentration, data=ametryn, fct=NEC.4())
+plot(ametryn_nec4)
+
+```
+The model appears to fit the data well. Let's Check the NEC (the 'e' parameter). We can 4 use `confint` function to calculate confidence intervals for the parameter. 
+
+```{r}
+summary(ametryn_nec4)
+confint(ametryn_nec4, level = 0.95)
+```
+The **e** parameter is not significantly different from 0 and has a confidence interval range of -24 to 24. I.e., is nonsense.
+
+Let's check what our model average calculates for an EC10. Remember that we cannot calculate an ECx value for a nec model so we have to exclude them from the average. 
+
+```{r maed, echo=TRUE, warning=F}
+maED(ametryn_LL3, 
+    list(W1.3(),W2.3(), LN.3(), LN.4(),W1.4(),W2.4(), LL.4()),
+    c(10), #multiple ECx values can be inputted here
+    interval="kang")
+```
+Nearly all the weight is coming from the 4-parameter log-logistic model. Dr Rebecca Fisher has developed a function to calculate the NSEC from drc models. 
+
+```{r}
+if (!requireNamespace("remotes")) {
+  install.packages("remotes")
+}
+remotes::install_github("open-aims/extractNSEC", ref = "main")
+```
+
 
 
 ## All models plot 

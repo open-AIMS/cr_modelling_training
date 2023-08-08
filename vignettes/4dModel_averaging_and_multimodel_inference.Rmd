@@ -14,7 +14,8 @@ knitr::opts_chunk$set(echo = TRUE, cache = F)
 library(drc)
 library(tidyverse)
 
-load("vignettes/ametryn.RData")
+load("ametryn.RData")
+
 ```
 
 ## Background
@@ -33,7 +34,7 @@ To keep the data simple, let's back transform the concentration to regular value
 We know that the data has a lower response limit of 0 so we can use a 3-parameter model. 
 
 
-```{r data fix, echo=TRUE}
+```{r data fix, echo=TRUE, warning=F}
 herbtox<- herbtox %>% 
   mutate(x=10^concentration)
 
@@ -44,10 +45,15 @@ ametryn_LL3 <-  drm(fvfm~x, data=herbtox, fct=LL.3(names = c("Slope","Upper Limi
 plot(ametryn_LL3, type="all")
 
 ```
+
+## Comparing model fits
+
 We can use the *mselect* function again to help choose the best model to fit. Comparing fits, we can see the LL.3(), LN.4(), or W2.3() models are comparable.  
 
-```{r mselect ametryn, echo=TRUE}
-mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), LN.4(), NEC.4()),linreg=TRUE) 
+```{r mselect ametryn, echo=TRUE, warning=F}
+set.seed(90)
+
+mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), LN.4(), NEC.4())) 
 ```
 We could calculate ECx values using these models individually, but we would have to run and save each model individually to pass to the `ED` function. This is cumbersome and does not answer which is best to use. 
 

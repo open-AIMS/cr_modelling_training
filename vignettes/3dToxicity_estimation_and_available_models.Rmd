@@ -36,11 +36,13 @@ The parameters in each model are generally consistent with what we defined in ou
 
 - **d** upper asymptote 
 
-- **e** model midpoint or inflection point
+- **e** model midpoint or inflection point (in NEC models **e** is the threshold effect)
 
 However, some new ones in the list include: 
 
 - **f** asymmetry parameter (for hormesis or 5 parameter models) 
+
+Though, it is always prudent to double check the parameters for the model you are using in the help files. 
 
 ## `drc` models are nested
 
