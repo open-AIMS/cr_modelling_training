@@ -54,7 +54,7 @@ When you fit a linear model in R using `lm()` you are effectively assuming a Gau
 
 The assumption of normality, that many of you are familiar with in the traditional analysis of variance (ANOVA) methods is probably the most familiar case of *non-generalized* modelling. It is an assumption that might be ok sometimes, but it is usually assumed simply because it makes the mathematics of model fitting and estimation of confidence intervals much simpler.
 
-Computational power and statistical methods have advanced and it is no longer necessary to make this assumption. It is generally considered good practice to match your response data with an appropriate distribution (statistical family) and to undertake *generalised* modelling.
+Computational power and statistical methods have advanced and it is no longer necessary to make this assumption. It is generally considered best practice to match your response data with an appropriate distribution (statistical family) and to undertake *generalised* modelling.
 
 There are a large range of resources available on generalised modelling, and we are not going to cover the theoretical/mathematical underpinnings in detail here. I am hoping David will add a course on that topic to his new training website soon.
 
@@ -64,16 +64,18 @@ There are a large range of resources available on generalised modelling, and we 
 
 There are many different families available in `brms` that you can use.
 This includes many of the families in the base stats package that many R fitting algorithms can use:
+
 `r knitr::include_graphics("images/statsfams.jpg")`
 
-As well as many additional families that only work with `brms`.
+As well as many additional families that only work with `brms`:
+
 `r knitr::include_graphics("images/brmsfams.jpg")`
 
 ## Link functions
 
 You will see that all the statistical families have something we call a "link" function. 
 
-The GLM generalizes linear regression by allowing the linear perdictors in the model to be related to the response variable via this link function. 
+The GLM generalizes linear regression by allowing the linear predictors in the model to be related to the response variable via this link function. 
 
 For example, a *logit* link function transforms the probabilities of a binary response variable to a continuous scale that is unbounded.
 
@@ -92,7 +94,7 @@ Please be aware that estimates of NSEC or ECx might not be as expected when usin
 
 ## Families currently implemented in `bayesnec`
 
-`bayesnec` allows for response variables to be fit using on of seven statistical distributions: 
+`bayesnec` allows for response variables to be fit using one of seven statistical distributions: 
 
 - Gaussian
 
@@ -127,7 +129,7 @@ In particular, it is essential that the natural variability observed in the data
 
 It is particularly critical to get this right when using the NSEC estimates for toxicity, because these depend on the estimated variance observed in the control. See more details in [@fisheretal2023; @fisherfox2023].
 
-Next I'm going to go through some examples showing how to use the `bayesnec` to fit each of an *nec* and *ecx* model to a range of different response data, so you can get a feel of the kind of things you need to consider. 
+Next I'm going to go through some examples showing how to use `bayesnec` to fit each of an *nec* and *ecx* model to a range of different response data, so you can get a feel of the kind of things you need to consider. 
 
 Many of the examples are those from Gerard Ricardo's github: <https://github.com/gerard-ricardo/NECs/blob/master/NECs>.
 
@@ -277,7 +279,7 @@ exp_2 <- bnec(resp ~ crf(sqrt.x, model = c("ecxll3", "nec3param")), data = prop_
 autoplot(exp_2, all_models = TRUE)
 exp_2$mod_stats
 ```
-Because the Beta is a two parameter distribution, this can usually do a good job of modelling the variance in the data - and these confidence bands look reasonable. In this example, the *nec* model us much better than this three parameter log-logisitc (*ecx*) model and has most of the weight.
+Because the Beta is a two parameter distribution, this can usually do a good job of modelling the variance in the data - and these confidence bands look reasonable. In this example, the *nec* model is much better than this three parameter log-logisitc (*ecx*) model and has most of the weight.
 
 
 ## Poisson
@@ -330,7 +332,7 @@ set.seed(333)
 exp_3b <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data, family = "negbinomial")
 ```
 
-The resultant plot seems to indicate the Negative Binomial distribution works better in terms of dispersion (more sensible wider confidence bands), however it still might not be the best model for these data. See the [Model details][e2b] and [Multi model usage][e2] vignettes for options to fit other models to these data.
+The resultant plot seems to indicate the Negative Binomial distribution works better in terms of dispersion (more sensible wider confidence bands).
 
 ```{r, eval=TRUE}
 autoplot(exp_3b, all_models = TRUE)
@@ -385,6 +387,7 @@ exp_5 <- bnec(y ~ crf(sqrt.x, model = c("ecxll4", "nec4param")), data = gaussian
 ```{r, eval=TRUE}
 autoplot(exp_5, all_models = TRUE)
 ```
+
 In this case our model looks pretty good - there is a bit of uncertainty in the tail - because the model is not bounded at zero, we have to estimate a lower bound.
 
 Comparing **N(S)EC** estimates between the Gaussian and the Beta fits we get:
@@ -394,7 +397,7 @@ nec(exp_5)
 nec(exp_2)
 ```
 
-The Beta estimate is slightly lower, although not substantially. Note that the EC10 estimates also differ slightly as well. It is worth thinking careful about what transformation of your response might mean in terms of the interpretation of ECx estimates in particular.
+The Beta estimate is slightly lower, although not substantially. Note that the EC10 estimates also differ slightly as well. It is worth thinking carefully about what transformation of your response might mean in terms of the interpretation of ECx estimates in particular.
 
 
 ```{r, eval=TRUE}
@@ -421,7 +424,7 @@ We are also keen to implement other custom families not yet implemented in `brms
 
 Despite the vast array of families available in `brms` there are no readily available distributions able to model data that includes 0 and 1 on the continuous scale in `brms` and `bayesnec` currently does 0 and 1 adjustments followed by modelling using a Beta distribution. The ordered beta model has been suggested as a better method for modelling continuous data with lower an upper bounds (see @Kubinec) that could be implemented in the `brms` customs families framework.
 
-For data that are 0 to $\infty$ on the continuous scale the Tweedie distribution may prove a much better option than the current zero-bounded Gamma, and has been used extensively in fisheries research for biomass data [@Shono2008]. As this family is not currently available in `brms` and would also need to be implemented as a custom family, which for the Tweedie is not trivial
+For data that are 0 to $\infty$ on the continuous scale the Tweedie distribution may prove a much better option than the current zero-bounded Gamma, and has been used extensively in fisheries research for biomass data [@Shono2008]. As this family is not currently available in `brms` it would also need to be implemented as a custom family, which for the Tweedie is not trivial.
 
 While we can implement custom families in `bayesnec`, this is a lot of work and unfortunately for now we had to make the decision to wait until these become natively available in `brms`.
 

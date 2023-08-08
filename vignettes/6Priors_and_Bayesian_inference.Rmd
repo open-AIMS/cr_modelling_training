@@ -19,6 +19,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 set_cmdstan_path("C:/cmdstan")
+load("fitted_model.RData")
 ```
 
 
@@ -30,7 +31,7 @@ This course focuses extensively on the use of Bayesian methods for fitting CR mo
 The greater complexity associated with Bayesian model fitting has likely hindered the uptake of Bayesian statistics for CR threshold derivation across the broader ecotoxicology and toxicology communities, who may not have access to specialist statistical expertise [@Fisher2019].
 
 
-We have persisted with the the greater overhead of implementing Bayesian inference methods for several reasons,
+We have persisted with the greater overhead of implementing Bayesian inference methods for several reasons,
 namely:-
 
 - A stable and flexible model fitting platform
@@ -39,7 +40,9 @@ namely:-
 
 - The resulting posterior sample
 
-In this tutorial we will go through a non-technical explanation of Bayesian statistics, and the associated fitting methods. We will discuss the importance of carefully considering priors, and how `bayesnec` handles these. Finally, we will showcase how the posterior distribution can be used for comparing toxicity.
+In this tutorial we will go through a non-technical explanation of Bayesian statistics, and the associated fitting methods. We will discuss the importance of carefully considering priors, and how `bayesnec` handles these. 
+
+In the next tutorial, we will showcase how the posterior distribution can be used for comparing toxicity.
 
 
 ```{r etnc_fig2, fig.align='tight', out.width="80%", echo=FALSE}
@@ -137,19 +140,25 @@ Instead, it is now considered better to use weakly informative, "generative" pri
 
 Considerable thought has gone into development of an algorithm to build "weakly" informative priors for fitting models in `bayesnec`. 
 
-The priors are "weakly" informative in that in addition to specifying the relevant statistical family that appropriately captures the parameter's theoretical statistical distribution, we also use information contained within the observed data to centre the probability density near the most likely parameter space and/or constrain priors to sensible bounds. 
+- specify the relevant statistical family that appropriately captures the parameter's theoretical statistical distribution
 
-These weakly informative priors are used to help constrain the underlying routines so that they are less likely to consider what the researcher would deem highly improbable estimates, that may also cause the routines to become unstable. 
+- use information contained within the observed data to centre the probability density near the most likely parameter space and/or constrain priors to sensible bounds. 
 
-Weakly informative priors can be particularly helpful in complex non-linear modelling to ensure reliable convergence. In testing against `drc` for some examples, we have found that `bayesnec` often finds a very sensible fit, where `drc` does not, and this is in part due to the bounds created on the parameter space by defining sensible priors.
+These weakly informative priors are used to help **constrain the underlying routines** so that they are less likely to consider what the researcher would deem highly improbable estimates, that may also cause the routines to become unstable. 
+
+Weakly informative priors can be particularly helpful in complex non-linear modelling to **ensure reliable convergence**. 
+
+In testing against `drc` for some examples, we have found that `bayesnec` often finds a very sensible fit, where `drc` does not, and this is in part due to the bounds created on the parameter space by defining sensible priors.
+
+## Weakly informative priors and *objectivity*
 
 These types of priors specify the general shape and bounds of the probability distribution for a given parameter, whilst remaining sufficiently broad so as not to influence the parameter's estimated posterior distribution (given a reasonable amount of observed data). 
 
 In this sense, appropriately weak priors should yield analytical outcomes that share the same level of *objectivity* as equivalent Frequentist approaches, whilst yielding robust parameter estimates with probabilistically interpretable uncertainty bounds. 
 
-Note, however that it is critical for users to critically interrogate these default priors, using for example, sensitivity analysis [@depaoli2020importance] and ensure they are appropriate given the data [@gelman2017entropy].
+Note, however that it is important for users to interrogate these default priors, using for example, sensitivity analysis [@depaoli2020importance] and ensure they are appropriate given the data [@gelman2017entropy].
 
-As a general rule, the priors in `bayesnec` are usually pretty good, provided there are sufficient data (which includes a reasonable number of treatment concentrations). When the data are poor, the default priors may have a substantial influece on the outcome. But when data are "poor", you may find that you need informative priors to provide a sensible fit in any case. Just be aware these are being influence by your prior knowledge.
+As a general rule, the priors in `bayesnec` are usually pretty good, provided there are sufficient data (which includes a reasonable number of treatment concentrations). When the data are poor, the default priors may have a substantial influence on the outcome. But when data are "poor", you may find that you need informative priors to provide a sensible fit in any case. Just be aware these are being influenced by your prior knowledge.
 
 ## Priors for response-scaled parameters
 
@@ -163,11 +172,29 @@ For the Binomial, Beta, and Beta-binomial families, estimates for $\tau = \text{
 
 ## Priors for predictor-scaled parameters
 
-The parameters $\eta = \text{NEC}$ and $\eta = \text{ec50}$ scale according to the predictor variable because both of these are estimated in units of the predictor (usually concentration). To stabilise model fitting, the $\eta = \text{NEC}$ and $\eta = \text{ec50}$ parameters are bounded to the upper and lower observed range in the predictor, under the assumption that the range of concentrations in the experiment were sufficient to cover the full range of the response outcomes. Note that this assumption may not always hold if the data are from an experiment that is badly designed, and the outcome of any analysis resulting in either $\eta$ or $\eta$ being estimated at the bounds of the predictor data range should be interpreted with caution. The priors used reflect the characteristics of the observed data that are used to predict the appropriate family. If the predictor variable is strictly positive, a Gamma prior is used, with maximum density ($\mu$, see above) at the median value of the predictor, and a shape parameter of 5. If the predictor variable is truncated at both 0 and 1, a `beta(2, 2)` prior is used. For predictor variables ranging from -$\infty$ to $\infty$, a Gaussian prior is used, with a mean set at the median of the predictor values and a standard deviation of 10 time the standard deviation of the predictor variable.
+The parameters $\eta = \text{NEC}$ and $\eta = \text{ec50}$ scale according to the predictor variable because both of these are estimated in units of the predictor (usually concentration). 
+
+To stabilise model fitting, the $\eta = \text{NEC}$ and $\eta = \text{ec50}$ parameters are bounded to the upper and lower observed range in the predictor, under the assumption that the range of concentrations in the experiment were sufficient to cover the full range of the response outcomes. 
+
+Note that this assumption may not always hold if the data are from an experiment that is badly designed, and the outcome of any analysis resulting in either $\eta$ or $\eta$ being estimated at the bounds of the predictor data range should be interpreted with caution. 
+
+The priors used reflect the characteristics of the observed data that are used to predict the appropriate family. 
+
+- If the predictor variable is strictly positive, a Gamma prior is used, with maximum density ($\mu$, see above) at the median value of the predictor, and a shape parameter of 5. 
+
+- If the predictor variable is truncated at both 0 and 1, a `beta(2, 2)` prior is used. 
+
+- For predictor variables ranging from -$\infty$ to $\infty$, a Gaussian prior is used, with a mean set at the median of the predictor values and a standard deviation of 10 time the standard deviation of the predictor variable.
 
 ## Priors for other parameters
 
-For the parameters $\beta = \text{beta}$, $\alpha = \text{slope}$ and $\epsilon = \text{d}$ we first ensured any relevant transformations in the model formula such that theoretical values with the range -$\infty$ to $\infty$ are allowable, and a `normal(0, 5)` (location and scale) prior is used. For example in the `nec3param` model, $\beta = \text{beta}$ is an exponential decay parameter, which must by definition be bounded to 0 and $\infty$. Calling `exp(beta)` in the model formula ensures the exponent meets these requirements. Note also that a mean of 0 and standard deviation of 5 represents a relatively broad prior on this exponential scaling, so this is usually a weakly informative prior in practice.
+For the parameters $\beta = \text{beta}$, $\alpha = \text{slope}$ and $\epsilon = \text{d}$ we first ensured any relevant transformations in the model formula such that theoretical values with the range -$\infty$ to $\infty$ are allowable, and a `normal(0, 5)` (location and scale) prior is used. 
+
+For example in the `nec3param` model, $\beta = \text{beta}$ is an exponential decay parameter, which must by definition be bounded to 0 and $\infty$. 
+
+Calling `exp(beta)` in the model formula ensures the exponent meets these requirements. 
+
+Note also that a mean of 0 and standard deviation of 5 represents a relatively broad prior on this exponential scaling, so this is usually a weakly informative prior in practice.
 
 ## When default priors or inadequate
 
@@ -185,18 +212,22 @@ Conversely, priors may be too vague, leading to poor model convergence.
 
 Alternatively, the default priors may be of the wrong statistical family if there was insufficient information in the provided data for `bayesnec` to correctly predict the appropriate ones to use. 
 
-## Checking the priors used in `bayesnec`
+## Checking the priors using `sample_priors()`
 
-The priors used in the default model fit can be extracted using `pull_prior`, and a sample or plot of prior values can be obtained from the individual `brms` model fits through the function `sample_priors` which samples directly from the `prior` element in the `brmsfit` object (`sample_priors(pull_brmsfit(fit)$prior)`, see \autoref{fig:sampleprior}).
+The priors used in the default model fit can be extracted using `pull_prior`, and a sample or plot of prior values can be obtained from the individual `brms` model fits through the function `sample_priors` which samples directly from the `prior` element in the `brmsfit` object (`sample_priors(pull_brmsfit(fit)$prior)`.
 
-```{r sampleprior, echo=FALSE, fig.height = 3.5, fig.width = 4.5, fig.cap = "Frequency histograms of samples of the default priors used by \`bayesnec` for fitting the \\texttt{nec4param} model to the example data."}
-sample_priors(pull_brmsfit(fit)$prior)
+```{r sampleprior, echo=FALSE, fig.height = 3.5, fig.width = 4.5}
+sample_priors(pull_brmsfit(bnec_fit)$prior)
 ```
 
-We can also use the function `check_priors` (based on the `hypothesis` function of `brms`) to assess how the posterior probability density for each parameter differs from that of the prior. Here we show the prior and posterior probability densities for the parameters in the `nec4param` model fit (`check_priors(fit)`, see \autoref{fig:checkpriorsingle}). There is also a `bayesmanecfit`-specific method that can be used to sequentially view all plots in a `bnec` call with multiple models, or write to a pdf as in `check_chains`.
+## Checking the priors using `check_priors()`
+
+We can also use the function `check_priors` (based on the `hypothesis` function of `brms`) to assess how the posterior probability density for each parameter differs from that of the prior. Here we show the prior and posterior probability densities for the parameters in the `nec4param` model fit (`check_priors(fit)`. 
+
+There is also a `bayesmanecfit`-specific method that can be used to sequentially view all plots in a `bnec` call with multiple models, or write to a pdf as in `check_chains`.
 
 ```{r checkpriorsingle, echo=FALSE,fig.height = 3.5, fig.width = 6, fig.cap = "A comparison of the prior and posterior parameter probability densities for the \\texttt{nec4param} model fit to the example data."}
-check_priors(fit)
+check_priors(bnec_fit)
 ```
 
 ## User specified priors for a single *bayesnecfit* model
@@ -248,6 +279,15 @@ Two things are of note. If the user is specifying their own priors, `bnec` requi
 ```{r}
 show_params(model = "nec3param")
 ```
+
+## Compare fits with different priors
+
+```{r}
+par(mfrow=c(1,2))
+hist(exmp_a$nec_posterior)
+hist(exmp_b$nec_posterior)
+```
+
 
 ## User specified priors for a *bayesmanecfit* containing multiple models
 
