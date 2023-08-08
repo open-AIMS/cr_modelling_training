@@ -75,9 +75,67 @@ nec.brmsfit <- function(x, x_var, group_var,
   return(nec_out)
 }
 
+# Function to return NSEC estimates
+# for brmsfit objects with a grouping variable.
+# If by_group = FALSE returns predicted values marginalized across the groups, 
+# if by_group = TRUE predictions are returned for each group.
+nsec.brmsfit <- function(object, x_var, group_var, 
+                     by_group = TRUE,
+                     probs = c(0.025, 0.5, 0.975),
+                     precision = 1000,
+                     sig_val = 0.01,
+                     posterior = FALSE, 
+                     x_range = NA
+                     ){
+  
+  if(is.na(x_range)){
+    x_range = range(object$data[x_var])
+  }
+  x_vec <- seq(min(x_range), max(x_range), length=precision)
+  
+  groups <-  unlist(unique(object$data[group_var]))
+  out_vals <- lapply(groups, FUN = function(g){
+    dat_list <- list(x_vec,
+                     g) 
+    names(dat_list) <- c(x_var, group_var)
+    pred_dat <- expand.grid(dat_list)
+   
+    p_samples <- posterior_epred(object, newdata = pred_dat, re_formula = NA)
+    reference <- quantile(p_samples[, 1], sig_val)
+    nsec_out <- apply(p_samples, 1, nsec_fct, reference, x_vec)
+    unlist(nsec_out)
+  })
+    
+  if(by_group & posterior){   
+    names(out_vals) <- groups
+    out_vals <- out_vals |> bind_cols() |> 
+     pivot_longer(everything(), names_to = group_var, values_to = "NSEC")
+  }
+
+  if(!by_group & posterior){   
+    out_vals <- as.numeric(unlist(out_vals))
+  }
+
+  if(by_group & !posterior){   
+    names(out_vals) <- groups
+    out_vals <- lapply(out_vals, quantile, probs = probs) |> 
+      bind_rows(.id = group_var)
+  }
+  
+  if(!by_group & !posterior){   
+    out_vals <- quantile(unlist(out_vals), probs = probs)
+  }
+  
+  attr(out_vals, "precision") <- precision
+  attr(out_vals, "sig_val") <- sig_val
+  attr(out_vals, "toxicity_estimate") <- "nsec"
+  return(out_vals)
+}
 
 
-
+nsec_fct <- function(y, reference, x_vec) {
+  x_vec[bayesnec:::min_abs(y - reference)]
+}
 
 
 
