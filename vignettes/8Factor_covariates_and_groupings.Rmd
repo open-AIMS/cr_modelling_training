@@ -18,6 +18,7 @@ library(bayesnec)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+source("functions.R")
 set_cmdstan_path("C:/cmdstan")
 ```
 
@@ -27,7 +28,7 @@ CR experimental designs are often complex, and may require the addition of multi
 
 In addition, there are times when we may have a fixed interaction factor that we are interested in. For example, there may be a CR experiment that has been repeated using different experimental settings, for example, to test a confounding factor on toxicity.
 
-`bnec` does currently not inclusion of an interaction with a fixed factor. Including an interaction term within each of the non-linear models implemented in `bayesnec` is relatively straightforward for a single CR model, and may be introduced in future releases of `bayesnec`. 
+`bnec` does not currently support inclusion of an interaction with a fixed factor. Including an interaction term within each of the non-linear models implemented in `bayesnec` is relatively straightforward for a single CR model, and may be introduced in future releases of `bayesnec`. 
 
 We will go through an example of how to leverage `bayesnec` to find an optimal model, and then supply the necessary priors to fit that optimal model directly in `brms` including a factor interaction.
 
@@ -195,25 +196,42 @@ For non-linear models we don't simply have a random **slope and intercept** mode
 
 For this to work, it is critical that there is reasonable coverage of the full concentration range **within** each leave of the grouping variable. Such random effects should only be applied for grouping variables that represent **across concentration groupings** that we already discussed.
 
-Good examples of this might be when you have replicate runs of an entire experiment that you want to aggregate to estimate a single toxicity value across them all. Another example that is common to our work on corals is a genotype effect - where a single coral head is collected and fragments from that colony distributed across the entire experiment. Finally, and example we will explore is the case where a plate well is used in microtox, and the entire plate repeated multiple times.
+Good examples of this include:
+
+- There are replicate runs of an entire experiment that you want to aggregate to estimate a single toxicity value across them all. 
+
+- There is a genotype effect, which is common to our work on corals. Here a single coral head is collected and fragments from that colony distributed across the entire experiment. 
+
+- Finally, an example we will explore is the case where a plate well is used in microtox, and the entire plate repeated multiple times.
 
 
 ## Slope and intercept effects example
 
-luminescent reporter strain we are developing.
-microtox.JPG
-tropical bacterial reporter strain assay
+The example slope and intercept random effect we will use is based on some work from a tropical luminescent reporter strain we are developing at AIMS. I want to thank Heidi Luter from my team for supplying this example case study data, and want to note that it is not yet published, so don't share these data with others.
+
+```{r microtox, fig.align='tight', out.width="40%", echo=FALSE}
+knitr::include_graphics("images/microtox.JPG")
+```
+
+Heidi has run her CR experiment using a plate format, where the entire CR concentration series can be run at once. But the plates are replicated across multiple experiments on the same contaminant. So this is a good example where we have a random effect that is spread across the entire CR range.
 
 ```{r, eval=TRUE}
 dat <- read.csv("example_pgl.csv")
 head(dat)
 ```
+
 ```{r}
 ggplot2::ggplot(dat, aes(log_x, y, colour = plateRep)) +
   geom_jitter()
 ```
 
+You can see on this plot there there is definitely among plate effects, with a clear distinction among some of these colours.
+
 ## Slope and intercept effects in `bayesnec`
+
+In `bayesnec` we can fit slope and intercept random effects using `pgl()`. This function will apply a random term to all of the parameters in any of the models called using `crf()`. 
+
+Because the plot indicates there is some evidence of *hormesis* let's start by fitting just our simplest hormesis *nec* model. We'll fit this model using the random effect on the *plateRep* grouping variable, and also without, so we can compare.
 
 ```{r, eval=TRUE}
 fit.pgl <- bnec(y~crf(log_x, model = "nechorme") + pgl(plateRep), 
@@ -222,12 +240,16 @@ fit <-  bnec(y~crf(log_x, model = "nechorme"), data = dat,
              seed = 70)
 ```
 
+Scrolling though the fitting messages, it can be a bit alarming - these models are quite complex, and finding initial values that don't produce errors can be tricky. However, `bayesnec` does eventually fit this model ok.
+
 ## Assessing slope and intercept effects
 
 ```{r}
 cowplot::plot_grid(autoplot(fit), autoplot(fit.pgl), 
                    labels = c("no random intercept", "random intercept"))
 ```
+
+You can see that a plot of the two model fits, with and without the random effects are very different. The model assuming all the data are independent has extremely narrow confidence bands, whereas the random slope and intercept model has extremely wide confidence intervals. In my opinion these are too wide - given they are not prediction intervals.
 
 ```{r}
 fit.brms <- pull_brmsfit(fit)
@@ -239,19 +261,26 @@ summary(fit.brms)
 summary(fit.pgl.brms)
 ```
 
+Looking across the two summaries, you can see the estimates of the variance terms of the random effects. 
+
+The *Rhat* values for the random effects are no long one. Being within 0.05 is still considered ok, but ultiamtely this random effects model is struggling to converge well.
+
 ```{r, eval=TRUE}
 loo_model_weights(fit.brms, fit.pgl.brms, method = "pseudobma")
 brms::loo_compare(fit.brms, fit.pgl.brms)
 ```
 
-
-
+The model weights suggest that there is strong evidence that this random effect model is better than the model that ignores it entirely.
 
 ## Factor interaction covariates
 
+There is some discussion around how many levels you need within a random effect grouping factor in order to estimate random effects. The consensus is starting to suggest that five should be considered a minimum. For the tank effects we were fitting earlier, reaching that minimum is easy because there are usually multiple tanks per treatment concentration, so you often have upwards of 20 or even 30 tanks. For slope and intercept random effects, having more than five is quite rare, and my understanding is that the algorithm in `stan` might particularly require a largish number of levels.
 
+Another option is to fit instead an interaction model. For this model we are estimating the parameters for each plate separately, we are no longer trying to estimate a variance term on the population level parameter.
 
+At the moment `bayesnec` doesn't support this directly, although it is going to be added when we get time. Here I will show you how to do this using `brms` directly, but making use of `bayesnec` to get some of the relevant inputs for `brms`.
 
+I had trouble getting this example to fit using the identity link, we here I am calling the family directly, so it will use the native link function fo the Beta family (*logit*).
 
 ```{r}
 fit <-  bnec(y~crf(log_x, model = "nechorme4"), data = dat, 
@@ -260,12 +289,22 @@ fit <-  bnec(y~crf(log_x, model = "nechorme4"), data = dat,
 fit.brms <- pull_brmsfit(fit)
 ```
 
+We fit the model, and then use that to extract both the model formula, as well as the priors, to use in the `brm()` call.
+
+
 ```{r}
 fit.brms$formula
 priors.fit <- prior_summary(fit.brms)
 priors.fit
 ```
+
+We copy and paste the model formula to make a `brms` model, adding our plate effect using *~ PlateRep* on all the non-linear model parameters. I'm fitting the non-interaction model using the same syntax, so we can use loo model weights to compare.
+
 ```{r}
+bf_fit <- brms::bf(y ~ bot + ((top + exp(slope) * log_x) - bot) * 
+                          exp(-exp(beta) * (log_x - nec) * step(log_x - nec)), 
+                          bot + top + beta + nec + slope ~ 1,
+                          nl = TRUE)
 bf_fitInt <- brms::bf(y ~ bot + ((top + exp(slope) * log_x) - bot) * 
                           exp(-exp(beta) * (log_x - nec) * step(log_x - nec)), 
                           bot + top + beta + nec + slope ~ plateRep,
@@ -273,25 +312,52 @@ bf_fitInt <- brms::bf(y ~ bot + ((top + exp(slope) * log_x) - bot) *
 ```
 
 ```{r}
-fit.brmsInt <- brm(bf_fitInt, data = dat, family = Beta(),
+fit_brms <- brm(bf_fit, data = dat, family = Beta(),
+                  prior = priors.fit, iter = 5000,  save_pars = save_pars(all=TRUE), 
+                  seed = 700, init = 0)
+fit_brmsInt <- brm(bf_fitInt, data = dat, family = Beta(),
                   prior = priors.fit, iter = 5000,  save_pars = save_pars(all=TRUE), 
                   seed = 700, init = 0)
 ```
 
 
 ```{r, eval=TRUE}
-loo_model_weights(fit.brms, fit.pgl.brms, method = "pseudobma")
+loo_model_weights(fit_brms, fit_brmsInt, method = "pseudobma")
+```
 
+```{r, eval=TRUE}
+pred <- pred_out(fit_brmsInt, x_var = "log_x", group_var = "plateRep", by_group = TRUE)
+nec.brmsfit(fit_brmsInt, x_var = "log_x", group_var = "plateRep", by_group = TRUE)
+ggplot(data = pred) +
+geom_line(mapping = aes(x = log_x, y = X50., color = plateRep),
+          linewidth = 0.5) +
+geom_jitter(data = dat, aes(x=log_x, y=y, fill = plateRep), 
+            pch = 21, size = 3, alpha = 0.6) +
+geom_ribbon(mapping = aes(x = log_x, ymin = X2.5., ymax =  X97.5., fill = plateRep),
+            alpha = 0.3) +
+labs(x = "Log concentration", y = "Response")
 
 ```
 
 
 ```{r, eval=TRUE}
-
-brms::loo_compare(fit.brms, fit.pgl.brms)
+pred <- pred_out(fit_brmsInt, x_var = "log_x", group_var = "plateRep", by_group = FALSE)
+ggplot(data = pred) +
+  geom_line(mapping = aes(x = log_x, y = X50.),
+            linewidth = 0.5) +
+  geom_jitter(data = dat, aes(x=log_x, y=y, fill = plateRep), 
+              pch = 21, size = 3, alpha = 0.6) +
+  geom_ribbon(mapping = aes(x = log_x, ymin = X2.5., ymax =  X97.5.),
+              alpha = 0.3) +
+  labs(x = "Log concentration", y = "Response")
 ```
 
-## Fit all individuall
+```{r}
+nec.brmsfit(fit_brmsInt, x_var = "log_x", group_var = "plateRep", by_group = FALSE)
+```
+
+
+## Fit all levels individually
 
 ```{r}
 plates <- unique(dat$plateRep)
@@ -302,85 +368,23 @@ fit.list <- lapply(plates, FUN = function(l){
                seed = 70, family = Beta())
   return(fit)
 })
-
 ```
 
-
-
-pred_dat <- expand.grid(list(log.x=log(seq(0.01,20, length=1000)),
-                            Treatment=unique(tt2.a$data$Treatment))) |>
-  mutate(tot=1,
-         Species = "Amphibalanus amphitrite")
-
-pred.aa <- pred_out(tt2.a, pred_dat = pred_dat) |>
-  mutate(conc = exp(log.x))
-tt.a <- brms::add_criterion(tt.a, "loo")
-tt2.a <- brms::add_criterion(tt2.a, "loo")
-loo_tab.a <- brms::loo_compare(tt.a, tt2.a)
-mod_prob.a <- brms::post_prob(tt.a, tt2.a)
-save(tt.a, tt2.a, pred.aa, loo_tab.a, mod_prob.a, file = "brm_fits_a.RData")
-load("brm_fits_a.RData")
-
-p_val.a <- 2 * pnorm(-abs((loo_tab.a[2, "elpd_diff"] - 0) / loo_tab.a[2, 'se_diff']))
-loo_tab.a[2, "elpd_diff"] + c(-1,1) * 1.96 * loo_tab.a[2, 'se_diff']
-
-
-## now plot both ----------
-
-all_points_dat2 <-  all_points_dat |> 
-  mutate(Treatment = recode(Treatment, 
-                            "FSW/PW" = "PW+FSW",  
-                            "HIGH CSW/PW" = "PW+CSW (high)", 
-                            "LOW CSW/PW"="PW+CSW (median)"))
-fitted_dat2 <- bind_rows(pred.aa, pred.tt) |> 
-  mutate(Treatment=as.character(Treatment)) |> 
-  mutate(Treatment = recode(Treatment, 
-                     "FSW/PW" = "PW+FSW",  
-                     "HIGH CSW/PW" = "PW+CSW (high)", 
-                     "LOW CW/PW"="PW+CSW (median)"))
-custom_plot <- 
-  ggplot(data = fitted_dat2) +
-  geom_line(mapping = aes(x = conc, y = X50., color = Treatment),
-            linewidth = 0.5) +
-  geom_jitter(data = all_points_dat2, aes(x=conc, y=y, fill = Treatment), 
-              pch = 21, size = 3, alpha = 0.6) +
-  geom_ribbon(mapping = aes(x = conc, ymin = X2.5., ymax =  X97.5., fill = Treatment),
-              alpha = 0.3) +
-  labs(x = "Concentration (% PW)", y = "Response") +
-  facet_wrap(~ Species) +
-  scale_x_continuous(trans = "log", breaks = c(0.05, 1, 20)) +
-  theme_bw() +
-  theme(strip.text = element_text(size = 11, face = "italic"), 
-        strip.background = element_rect(colour = NA))
-
-##pdf("all_fits_postcomp2.pdf", height = 6, width = 10)
-png("all_fits_postcomp2.png", height = 6, width = 10, 
-    units = "in", res = 1000)
-custom_plot
-dev.off()
-
-
-library(ggpubr)
-require(grid) 
-
-
-comb_plot <- ggarrange(post_compplot + rremove("ylab") + rremove("xlab"), 
-                       custom_plot + rremove("ylab") + rremove("xlab"), 
-                       common.legend = TRUE, labels = NULL, nrow = 2)
-
-pdf("all_plots.pdf", height = 8, width = 10)
-annotate_figure(comb_plot, 
-                left = textGrob("Response", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
-                bottom = textGrob("Concentration (% PW)"))
-dev.off()
+```{r}
+quantile(sapply(fit.list, FUN = nec, posterior = TRUE), 
+                   probs = c(0.025, 0.5, 0.975))
+nec.brmsfit(fit_brmsInt, x_var = "log_x", group_var = "plateRep", by_group = FALSE)
+```
 
 ## Testing for a factor interaction effect
 
+In the previous example we were using the factor interaction because we did't have enough levels to reliably estimate a random slope and intercept random effects model. 
+
 Sometimes we want to include a factor interaction in our model, because we have purposely applied a treatment effect, and we want to assess the impact on toxicity.
 
-In this case, we will want to estimate out toxicity values for each individual level of the factor, rather than simply mariginalizing over them, in the case were we are just trying to accomode non-independence.
+In this case, we will want to estimate our toxicity values for each individual level of the factor, rather than simply mariginalizing over them, in the case were we are just trying to accommodate non-independence.
 
-Here we will use a dataset kindly provided by Gwil Price. The data are a subset from the paper: https://doi.org/10.1039/D2EM00063F and describes zinc toxicity to a freshwater microalga (measured as population growth rate expressed as percent of each experiment’s control growth rates) with varied water hardness (4x factors – 5, 31, and 402 mg CaCO3/L) at a fixed pH of 8.3. 
+Here we will use a dataset kindly provided by Gwil Price. The data are a subset from the paper: https://doi.org/10.1039/D2EM00063F and describes zinc toxicity to a freshwater micro-alga (measured as population growth rate expressed as percent of each experiment’s control growth rates) with varied water hardness (4x factors – 5, 31, and 402 mg CaCO3/L) at a fixed pH of 8.3. 
 
 ## Example - testing for a factor interaction
 
@@ -392,16 +396,17 @@ library(bayesnec)
 dat <- read.csv("example_fi.csv") |> 
   na.omit()
 
-head(dat)
+str(dat)
 range(dat$Pcon)
 range(dat$Mean.Zn)
+table(dat$Hardness)
 ```
 
 The concentration data span a very large range (5 orders of magnitude), so let's model these using a log scaling.
 
 The response data are percentages adjusted relative to control. We know from experience that modelling such agal populations is often a little problematic. This is because the data are often not only zero bounded (most researchers like to assume negative population growth is zero), but often show constrained growth in the upper range as well (due to nutrient limitation, and other other biological factors).
 
-For this reason we have had the most success using a Beta distribution (it being the most commonly available fully bounded distribution). To use the Beta distribution data must be constrained >0 and <1. Specifically, the data cannot contain 0 or 1. `bayesnec` automatically applies an adjustment away from zero and one for use in the Beta distribution, and this is quite a common practice.
+For this reason we have had the most success using a Beta distribution (it being the most commonly available fully bounded distribution). To use the Beta distribution data must be constrained >0 and <1. Specifically, the data cannot contain 0 or 1. `bayesnec` automatically applies an adjustment away from zero and one for use in the Beta distribution, and this is quite a common practice. Because this example will be using `brms` which does not automatically do this, we will do it manually in our rescaling.
 
 Here we first divide by the maximum value in the dataset, then add a small amount to shift the data off zero, and multiply by 0.99 to make sure the values are not quite one.
 
@@ -415,7 +420,7 @@ dat <- dat |>
 range(dat$y)
 ```
 
-Now that we have a dataset suitable for modelling in `bayesnec` using a Beta, let's take a look at what we are working with.
+Now that we have a dataset suitable for modelling in `bayesnec` and `brms` using a Beta, let's take a look at what we are working with.
 
 ```{r}
 ggplot(data = dat, aes(x=x, y=y, colour=hardness)) +
@@ -425,9 +430,9 @@ ggplot(data = dat, aes(x=x, y=y, colour=hardness)) +
 You can definitely see the effect of hardness treatment on the toxicity of algae in this example.
 
 To me it is not obvious which model should fit the data best, so 
-let's figure that out using the overall dataset using `bayesnec`.
+let's figure that out using the overall dataset by fitting a full model set in `bayesnec`.
 
-As there is no evidence of *hormesis* in this data there is need to use any hormesis models, so set lets use `model.set = decline`.
+As there is no evidence of *hormesis* in this data there is no need to use any hormesis models, so set lets use `model.set = decline`.
 
 ```{r, eval=TRUE}
 fit.all <- bnec(y~crf(x, model = "decline"), data = dat)
@@ -441,7 +446,7 @@ fit.all$mod_stats |>
   dplyr::select(model, waic, wi)
 ```
 
-You can see that there is extremely high weight for *exwb1* model when you fit the data overall, so let's use this model for our factor interaction model.
+You can see that there is highest weight for *ecxwb1p3* model when you fit the data overall, so let's use this model for our factor interaction model.
 
 ```{r, eval=TRUE}
 plot(fit.all)
@@ -449,10 +454,10 @@ plot(fit.all)
 
 ## Fitting the interaction model in `brms`
 
-First we will extract the brms fit for that model
+First we will extract the `brms` fit for that model
 
 ```{r, eval=TRUE}
-fit.brms <- pull_brmsfit(fit.all, model = "ecxwb1")
+fit.brms <- pull_brmsfit(fit.all, model = "ecxwb1p3")
 ```
 
 Next, we will copy and paste the brms model formula
@@ -470,7 +475,7 @@ priors <- prior_summary(fit.brms)
 With all those pieces from the `bayesnec` fit, we can now fit our custom `brms` model, using `brms`'s main model fitting function `brm`.
 
 ```{r, eval=TRUE}
-bf_fit <- brms::bf(y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
+bf_fit <- brms::bf(y ~ bot + (top - bot) * (1 - exp(-exp(-exp(beta) * (x - ec50)))), 
                       bot + ec50 + top + beta  ~ 1,
                       nl = TRUE)
 
@@ -478,7 +483,7 @@ brm.fit <- brm(bf_fit, data = dat, family = Beta(link = "identity"),
                   prior = priors, iter = 5000,  save_pars = save_pars(all=TRUE), 
                   seed = 700)
 
-bf_fitInt <- brms::bf(y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
+bf_fitInt <- brms::bf(y ~ bot + (top - bot) * (1 - exp(-exp(-exp(beta) * (x - ec50)))),
                       bot + ec50 + top + beta  ~ hardness,
                       nl = TRUE)
 
@@ -489,20 +494,78 @@ brm.fitInt <- brm(bf_fitInt, data = dat, family = Beta(link = "identity"),
 
 ## Assessing the interaction model
 
+```{r}
 summary(fit.brms)
 summary(brm.fitInt)
+```
 
+```{r}
 loo_model_weights(brm.fit, brm.fitInt, method = "pseudobma")
+```
 
 
+```{r}
+nsec.brmsfit(brm.fitInt, x_var = "x", group_var = "hardness")
+```
+
+```{r, eval=TRUE}
+pred_vals <- pred_out(brm.fitInt, x_var = "x", group_var = "hardness", by_group = TRUE)
+ggplot(data = pred_vals) +
+  geom_line(mapping = aes(x = x, y = X50., colour = hardness),
+            linewidth = 0.5) +
+  geom_jitter(data = dat, aes(x=x, y=y, fill = hardness),
+              pch = 21, size = 3, alpha = 0.6) +
+  geom_ribbon(mapping = aes(x = x, ymin = X2.5., ymax =  X97.5., fill = hardness),
+              alpha = 0.3) +
+  labs(x = "Concentration", y = "Response")
+```
+
+This plot highlights something important - which is that when you fit an interaction model in this way, you are assuming that the functional form of the model is the same for all levels of the factor. This example is one where I really don't think this assumption is a good idea - The highest hardness treatment doesn't fit this model at all well. 
+
+Options to deal with this would be to:
+
+- fit each level independently using the full *decline* model set in `bayesnec` using a loop like we did for the single model using the microtox plate dataset. To do this for a full decline set takes many hours. I've done this before for a few different examples and it can work well, and you can use the `compare_posterior` function to explore differences in the factor levels. Unfortunately you can test for an overall "significance" of the factor.
+
+- using **G**eneralised **A**dditive **M**odels (GAMs) and include the factor interaction term. I have plenty of experience with these, but we are not going to cover them here. This may be a topic for further development in the statistical ecotoxicology space.
+
+## Fitting separate levels and using `compare_posterior`
+
+```{r}
+groups <- unique(dat$hardness)
+fit.separate <- lapply(groups, FUN = function(g){
+    dat.g <- dat |> dplyr::filter(hardness==g)
+    bnec(y~crf(x, model = "decline"), data = dat.g)
+})
+```
+
+```{r}
+names(fit.separate) <- groups
+post_comp <- compare_posterior(fit.separate, comparison = "fitted")
+```
 
 
+```{r}
+ggplot(data = post_comp$posterior_data) +
+  geom_line(mapping = aes(x = x, y = Estimate, color = model),
+            linewidth = 0.5) +
+  geom_ribbon(mapping = aes(x = x, ymin = Q2.5, ymax = Q97.5, fill = model),
+              alpha = 0.3)+
+  geom_jitter(data = dat, aes(x=x, y=y, colour=hardness)) +
+  labs(x = "Concentration", y = "Posterior estimate") +
+  theme_classic()
+```
 
+```{r}
+ggplot(data = post_comp$diff_data) +
+  geom_line(mapping = aes(x = x, y = diff.Estimate, color = comparison),
+            linewidth = 0.5) +
+  geom_ribbon(mapping = aes(x = x, ymin  = diff.Q2.5, ymax = diff.Q97.5,
+              fill = comparison), alpha = 0.3) +
+  labs(x = "Concentration", y = "Posterior difference") +
+  theme_classic()
+```
 
-
-
-
-
+## References
 
 
 

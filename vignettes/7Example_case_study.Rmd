@@ -262,14 +262,9 @@ Finally, we also use the `compare_posterior` function to extract and plot the we
 
 ```{r compare_posterior, echo = TRUE, cache = TRUE}
 post_comp <- compare_posterior(cleaned_fits, comparison = "nec")
-prob_diff <- post_comp$prob_diff %>%
-  tidyr::separate(col = comparison, into = c("herbicide", "columns")) %>%
-  tidyr::pivot_wider(names_from = columns, values_from = prob)
-colnames(prob_diff) <- stringr::str_to_sentence(colnames(prob_diff))
-prob_diff$Herbicide <- stringr::str_to_sentence(prob_diff$Herbicide)
 ```
 
-```{r necplots,  echo = FALSE, fig.width = 6, fig.height = 4, fig.cap = "Posterior distributions for N(S)EC toxicity estimates for the effect of seven herbicides on maximum effective quantum yield ($\\Delta F / Fm'$) of symbiotic dinoflagellates of the coral \\textit{Seriatopora hystrix}. Shown are medians with 80\\%  uncertainty intervals."}
+```{r necplots,  echo = TRUE, fig.width = 6, fig.height = 4, fig.cap = "Posterior distributions for N(S)EC toxicity estimates for the effect of seven herbicides on maximum effective quantum yield ($\\Delta F / Fm'$) of symbiotic dinoflagellates of the coral \\textit{Seriatopora hystrix}. Shown are medians with 80\\%  uncertainty intervals."}
 post_comp$posterior_data %>% 
   dplyr::mutate(conc = exp(value)) %>%
   ggplot(data = ., mapping = aes(x = conc)) +
@@ -285,10 +280,21 @@ post_comp$posterior_data %>%
 
 `compare_posterior` also calculates the probability of difference in toxicity across the herbicides, which confirm the visual results and can be used to infer significant differences in toxicity. 
 
+```{r}
+prob_diff <- post_comp$prob_diff %>%
+  tidyr::separate(col = comparison, into = c("herbicide", "columns")) %>%
+  tidyr::pivot_wider(names_from = columns, values_from = prob)
+colnames(prob_diff) <- stringr::str_to_sentence(colnames(prob_diff))
+prob_diff$Herbicide <- stringr::str_to_sentence(prob_diff$Herbicide)
+```
+
+
 ```{r probdiffs, echo=FALSE}
 knitr::kable(prob_diff, caption="Probability of differences in no-effect toxicity for seven herbicides. Values are based on the proportional overlap in predicted posterior probability density of the N(S)EC estimates.")
 ```
 
+
+## References
 
 
 
