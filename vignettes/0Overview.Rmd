@@ -20,7 +20,7 @@ library(bayesnec)
 
 1. Getting Started
 
-2. Fitting a CR model using `bayesnec`
+2. Fitting a CR model using `bayesnec` + `drc`
 
 
 3. Toxicity estimation and available models
