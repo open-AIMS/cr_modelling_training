@@ -14,7 +14,8 @@ knitr::opts_chunk$set(echo = TRUE, cache = F)
 library(drc)
 library(tidyverse)
 
-load("ametryn.RData")
+ametryn_data <- bayesnec::herbicide %>% 
+  dplyr::filter(herbicide == "ametryn")
 
 ```
 
@@ -24,9 +25,11 @@ We've learned how to fit a model with `drm`, check how well it fits with `summar
 
 
 ```{r ametryn, echo=TRUE}
-herbtox<- ametryn
-head(herbtox,3)
+
+head(ametryn_data,5)
+
 ```
+
 The data have three columns, one with the herbicide name, one with concentrations (log10 transformed) and one with our response variable, fvfm, which is a measure of photosynthetic efficiency. 
 
 To keep the data simple, let's back transform the concentration to regular values before fitting our model. We can do this using the *mutate* function (from the `tidyverse` packages), which adds a column to our dataframe after it does the math we tell it to do. 
@@ -34,31 +37,29 @@ To keep the data simple, let's back transform the concentration to regular value
 We know that the data has a lower response limit of 0 so we can use a 3-parameter model. 
 
 
-```{r data fix, echo=TRUE, warning=F}
-herbtox<- herbtox %>% 
-  mutate(x=10^concentration)
+```{r singlemod, echo=TRUE, warning=F}
 
-head(herbtox, 3)
-
-ametryn_LL3 <-  drm(fvfm~x, data=herbtox, fct=LL.3(names = c("Slope","Upper Limit", "Midpoint")))
+ametryn_LL3 <-  drm(fvfm~concentration, data=ametryn_data, fct=LL.3(names = c("Slope","Upper Limit", "Midpoint")))
 
 plot(ametryn_LL3, type="all")
 
 ```
 
+
 ## Comparing model fits
 
 We can use the *mselect* function again to help choose the best model to fit. Comparing fits, we can see the LL.3(), LN.4(), or W2.3() models are comparable.  
 
-```{r mselect ametryn, echo=TRUE, warning=F}
-set.seed(90)
+```{r mselect_ametryn, echo=TRUE, warning=F}
 
-mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), LN.4(), NEC.4())) 
+mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), LN.4(), NEC.4()), linreg=T)
+
 ```
+
 We could calculate ECx values using these models individually, but we would have to run and save each model individually to pass to the `ED` function. This is cumbersome and does not answer which is best to use. 
 
 ```{r ED ametryn, echo=TRUE}
-ametryn_W23 <-  drm(fvfm~x, data=herbtox, fct=W2.3(names = c("Slope","Upper Limit", "Midpoint")))
+ametryn_W23 <-  drm(fvfm~concentration, data=ametryn_data, fct=W2.3(names = c("Slope","Upper Limit", "Midpoint")))
 
 ED(ametryn_LL3, c(50), interval="delta")
 ED(ametryn_W23, c(50), interval="delta")
@@ -86,4 +87,11 @@ Our model average EC50 is 2.1 (1.8 - 2.4). Most of this value comes from LL.3 (~
 
 Note that we don't have a model average model fit to plot (like `Bayesnec` does). Instead we can report the model averaged ECx value and plot one of the highly weighted models (or all the highly weighted models). 
 
+
+```{r maed2, echo=TRUE}
+maED(ametryn_LL3, 
+    list(W1.3(),W2.3(), LN.3(),W1.4(),W2.4(), LN.4()),
+    c(50), #multiple ECx values can be inputted here
+    interval="kang")
+```
 

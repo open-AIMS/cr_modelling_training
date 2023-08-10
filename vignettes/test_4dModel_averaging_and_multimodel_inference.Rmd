@@ -1,0 +1,67 @@
+---
+title: "Model averaging in drc"
+output: 
+  learnr::tutorial:
+    css: "css/style.css"
+    progressive: false
+    allow_skip: true
+runtime: shiny_prerendered
+bibliography: bayesnec.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = F)
+
+library(drc)
+library(tidyverse)
+
+ametryn_data <- bayesnec::herbicide %>% 
+  dplyr::filter(herbicide == "ametryn") %>% 
+  mutate(x=log(concentration)) %>% 
+  data.frame()
+
+
+algae_2 <- drc::algae %>% 
+    data.frame()
+```
+
+lets see how this goes
+
+```{r ametryn_mselect, echo=T, warning=T}
+
+ametryn_LL4 <-  drm(fvfm~exp(x), data=ametryn_data, fct=LL.4())
+
+drc::mselect(object=ametryn_LL4, fctList = list(W1.3(),W2.3(), LN.3(), W1.4(),W2.4(), LN.4(), LL.3()), linreg=T)
+
+```
+
+now different
+
+```{r necselect, echo=T, warning=T}
+
+nec_data <- bayesnec::nec_data %>% 
+    data.frame()
+
+nec_LL4 <-  drm(y~x, data=nec_data, fct=LL.4())
+
+drc::mselect(object=nec_LL4, fctList = list(W1.3(),W2.3(), LN.3(), W1.4(),W2.4(), LN.4(), LL.3()), linreg=T)
+
+```
+
+
+now different
+
+```{r algselect, echo=T, warning=T}
+
+
+
+alg_LL4 <-  drm(vol~conc, data=algae_2, fct=LL.4())
+```
+
+
+
+```{r}
+
+drc::mselect(object=alg_LL4, fctList = list(W1.3(),W2.3(), LN.3(), W1.4(),W2.4(), LN.4(), LL.3()), linreg=T)
+
+```

@@ -142,3 +142,4 @@ Our results here suggest the Weibull 2 provides the best fit, but is roughly as 
 
 Often the purpose of applying a concentration response model is to calculate an ECx value. When there are many suitable models, we can use drc's model averaging tools to come up with a model averaged ECx value. 
 
+
