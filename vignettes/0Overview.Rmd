@@ -23,15 +23,15 @@ library(bayesnec)
 2. Fitting a CR model using `bayesnec` + `drc`
 
 
-3. Toxicity estimation and available models
+3. Toxicity estimation and available models +`drc`
 
 
-4. Model averaging and multi-model inference
+4. Model averaging and multi-model inference + `drc`
 
 5. Response data and statistical distributions
 
 6. Priors and Bayesian inference
 
-7. Example case study
+7. Example case study + `drc`
 
-8. Factor covariates and groupings
+8. Factor covariates and groupings + `drc`
