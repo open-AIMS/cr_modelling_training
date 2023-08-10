@@ -13,7 +13,7 @@ bibliography: bayesnec.bib
 knitr::opts_chunk$set(echo = TRUE, cache = F)
 library(drc)
 library(tidyverse)
-
+library(bayesnec)
 load("ametryn.RData")
 
 ```
@@ -21,7 +21,7 @@ load("ametryn.RData")
 
 ## Example case study - herbicide toxicity
 
-We will look at a `drc` comparison to the same herbicide toxicity data used for the `bayesnec` case studyl. The data we analyse in this example are from @jones2003meps, and they are included as an example dataset in `bayesnec`.
+We will look at a `drc` comparison to the same herbicide toxicity data used for the `bayesnec` case study. The data we analyse in this example are from @jones2003meps, and they are included as an example dataset in `bayesnec`.
 
 ```{r jonesnkerswell, out.width="64%", echo=FALSE}
 knitr::include_graphics("images/jonesnkerswell.jpg")
@@ -95,7 +95,7 @@ ametryn_nec4 <-  drm(fvfm~concentration, data=ametryn, fct=NEC.4())
 plot(ametryn_nec4)
 
 ```
-The model appears to fit the data well. Let's Check the NEC (the 'e' parameter). We can 4 use `confint` function to calculate confidence intervals for the parameter. 
+The model appears to fit the data well. Let's Check the NEC (the 'e' parameter). We can use `confint` function to calculate confidence intervals for the parameter. 
 
 ```{r}
 summary(ametryn_nec4)
@@ -111,13 +111,28 @@ maED(ametryn_LL3,
     c(10), #multiple ECx values can be inputted here
     interval="kang")
 ```
-Nearly all the weight is coming from the 4-parameter log-logistic model. Dr Rebecca Fisher has developed a function to calculate the NSEC from drc models. 
+Nearly all the weight is coming from the 4-parameter log-logistic model. 
+
+## Extract NSEC
+
+Dr Rebecca Fisher has developed a function to calculate the NSEC from drc models. 
 
 ```{r}
-if (!requireNamespace("remotes")) {
-  install.packages("remotes")
-}
-remotes::install_github("open-aims/extractNSEC", ref = "main")
+#if (!requireNamespace("remotes")) {
+#  install.packages("remotes")
+#}
+#remotes::install_github("open-aims/extractNSEC", ref = "main")
+
+ametryn_LL4 <-  drm(fvfm~concentration, data=ametryn, fct=LL.4())
+plot(ametryn_LL4)
+
+library(extractNSEC)
+
+extractNSEC::nsec(
+  object=ametryn_LL4, 
+  sig_val = 0.01,
+  prob_vals = c(0.5, 0.025, 0.975)
+)
 ```
 
 

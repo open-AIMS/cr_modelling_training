@@ -1,12 +1,15 @@
 ---
 title: "Model averaging in drc"
-output: 
-  learnr::tutorial:
-    css: "css/style.css"
-    progressive: false
-    allow_skip: true
-runtime: shiny_prerendered
-bibliography: bayesnec.bib
+output: html_document
+ 
+#  learnr::tutorial:
+#    css: "css/style.css"
+#    progressive: false
+#    allow_skip: true
+#runtime: shiny_prerendered
+#bibliography: bayesnec.bib
+
+
 ---
 
 ```{r setup, include=FALSE}
