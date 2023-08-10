@@ -538,10 +538,19 @@ fit.separate <- lapply(groups, FUN = function(g){
 })
 ```
 
+## Using `compare_posterior()`
+
 ```{r}
 names(fit.separate) <- groups
 post_comp <- compare_posterior(fit.separate, comparison = "fitted")
 ```
+
+```{r}
+post_comp_nec <- compare_posterior(fit.separate)
+plot(post_comp_nec)
+```
+
+
 
 
 ```{r}

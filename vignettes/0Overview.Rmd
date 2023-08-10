@@ -1,0 +1,37 @@
+---
+title: "Getting started - Installing and running BRMS"
+output: 
+  learnr::tutorial:
+    css: "css/style.css"
+    progressive: false
+    allow_skip: true
+runtime: shiny_prerendered
+bibliography: bayesnec.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+library(posterior)
+library(bayesplot)
+library(bayesnec)
+```
+
+## Overview
+
+1. Getting Started
+
+2. Fitting a CR model using `bayesnec`
+
+
+3. Toxicity estimation and available models
+
+
+4. Model averaging and multi-model inference
+
+5. Response data and statistical distributions
+
+6. Priors and Bayesian inference
+
+7. Example case study
+
+8. Factor covariates and groupings
