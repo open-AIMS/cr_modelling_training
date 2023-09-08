@@ -1,15 +1,8 @@
 ---
 title: "Model averaging in drc"
-output: html_document
- 
-#  learnr::tutorial:
-#    css: "css/style.css"
-#    progressive: false
-#    allow_skip: true
-#runtime: shiny_prerendered
-#bibliography: bayesnec.bib
-
-
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -42,7 +35,8 @@ We know that the data has a lower response limit of 0 so we can use a 3-paramete
 
 ```{r singlemod, echo=TRUE, warning=F}
 
-ametryn_LL3 <-  drm(fvfm~concentration, data=ametryn_data, fct=LL.3(names = c("Slope","Upper Limit", "Midpoint")))
+ametryn_LL3 <-  drm(fvfm~concentration, data=ametryn_data, 
+                    fct=LL.3(names = c("Slope","Upper Limit", "Midpoint")))
 
 plot(ametryn_LL3, type="all")
 
@@ -55,14 +49,17 @@ We can use the *mselect* function again to help choose the best model to fit. Co
 
 ```{r mselect_ametryn, echo=TRUE, warning=F}
 
-mselect(ametryn_LL3, fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), LN.4(), NEC.4()), linreg=T)
+mselect(ametryn_LL3, 
+        fctList = list(W1.3(),W2.3(), LN.3(), NEC.3(),W1.4(),W2.4(), 
+                       LN.4(), NEC.4()), linreg=T)
 
 ```
 
 We could calculate ECx values using these models individually, but we would have to run and save each model individually to pass to the `ED` function. This is cumbersome and does not answer which is best to use. 
 
 ```{r ED ametryn, echo=TRUE}
-ametryn_W23 <-  drm(fvfm~concentration, data=ametryn_data, fct=W2.3(names = c("Slope","Upper Limit", "Midpoint")))
+ametryn_W23 <-  drm(fvfm~concentration, data=ametryn_data, 
+                    fct=W2.3(names = c("Slope","Upper Limit", "Midpoint")))
 
 ED(ametryn_LL3, c(50), interval="delta")
 ED(ametryn_W23, c(50), interval="delta")
@@ -73,7 +70,7 @@ ED(ametryn_W23, c(50), interval="delta")
 
 If you're not sure which model to use to calculate an ECx value, say if there are multiple models with comparable fits but different ECx values, a robust approach would be to calculate a model average based on the individual models weighted by how well they fit the data. The function in the `drc` package for this is called model averaging effective doses `maED`.
 
-The function's arguments include a starting model, a list of models you want to average, the ED values you're after, and a method to calculate the confidence intervals. This is different to the confidence interval above because we're combining model predictions. There are two methods "kang" and "buckland" described in the package documentation. I normally go with Kang because I prefer the sound of confidence intervals based on "weighted means of confidence intervals for the individual fits" compared to "approximate variance formula under the assumption of perfectly correlated estimates". This *vibe* is not sound statistical advice. 
+The function's arguments include a starting model, a list of models you want to average, the ED values you're after, and a method to calculate the confidence intervals. This is different to the confidence interval above because we're combining model predictions. There are two methods "kang" and "buckland" described in the package documentation. I normally go with buckland because I prefer the sound of confidence intervals based on "approximate variance formula under the assumption of perfectly correlated estimates" vs "weighted means of confidence intervals for the individual fits". This *vibe* is not sound statistical advice. 
 
 
 Let's take our model list again and see the model average. Note that the NEC models cannot be included in a maED framework. 
@@ -83,7 +80,7 @@ Let's take our model list again and see the model average. Note that the NEC mod
 maED(ametryn_LL3, 
     list(W1.3(),W2.3(), LN.3(),W1.4(),W2.4(), LN.4()),
     c(50), #multiple ECx values can be inputted here
-    interval="kang")
+    interval="buckland")
 ```
 
 Our model average EC50 is 2.1 (1.8 - 2.4). Most of this value comes from LL.3 (~60% weight) and LN.4 (~40% weight). 
