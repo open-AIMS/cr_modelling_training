@@ -142,7 +142,7 @@ Considerable thought has gone into development of an algorithm to build "weakly"
 
 - specify the relevant statistical family that appropriately captures the parameter's theoretical statistical distribution
 
-- use information contained within the observed data to centre the probability density near the most likely parameter space and/or constrain priors to sensible bounds. 
+- use information contained within the observed data to center the probability density near the most likely parameter space and/or constrain priors to sensible bounds. 
 
 These weakly informative priors are used to help **constrain the underlying routines** so that they are less likely to consider what the researcher would deem highly improbable estimates, that may also cause the routines to become unstable. 
 
@@ -184,7 +184,7 @@ The priors used reflect the characteristics of the observed data that are used t
 
 - If the predictor variable is truncated at both 0 and 1, a `beta(2, 2)` prior is used. 
 
-- For predictor variables ranging from -$\infty$ to $\infty$, a Gaussian prior is used, with a mean set at the median of the predictor values and a standard deviation of 10 time the standard deviation of the predictor variable.
+- For predictor variables ranging from -$\infty$ to $\infty$, a Gaussian prior is used, with a mean set at the median of the predictor values and a standard deviation of 10 times the standard deviation of the predictor variable.
 
 ## Priors for other parameters
 
