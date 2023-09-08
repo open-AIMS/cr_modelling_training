@@ -547,7 +547,10 @@ post_comp <- compare_posterior(fit.separate, comparison = "fitted")
 
 ```{r}
 post_comp_nec <- compare_posterior(fit.separate)
-plot(post_comp_nec)
+ggplot(data = post_comp_nec$posterior_data, mapping = aes(x = value)) + 
+  geom_density(mapping = aes(group = model, colour = model, fill = model),
+               alpha = 0.3) +
+  theme_classic()
 ```
 
 
