@@ -32,6 +32,8 @@ website:
         text: Overview
       - href: vignettes/1Getting-started.qmd
         text: Setup
+      - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+        text: Modules
   sidebar:
     style: docked
     contents:

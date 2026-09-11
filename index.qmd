@@ -38,16 +38,16 @@ On completing the material you will be able to:
 | | Module | Subject |
 |---|---|---|
 | 1 | [Software setup](vignettes/1Getting-started.qmd) | R, the C++ toolchain, CmdStan, Positron |
-| 2 | Fitting a single model | the `bnec` call, the fitted object, plotting |
-| 3 | Toxicity estimation and the model set | NEC, NSEC and ECx, and the available equations |
+| 2 | [Fitting a single model](vignettes/2Fitting-a-CR-model-using-bayesnec.qmd) | the `bnec` call, the fitted object, plotting |
+| 3 | [Toxicity estimation and the model set](vignettes/3Toxicity_estimation_and_available_models.qmd) | NEC, NSEC and ECx, and the available equations |
 | 4 | Model averaging and multi-model inference | candidate sets, weights, averaged estimates |
 | 5 | Response data and statistical distributions | matching the family to the endpoint |
 | 6 | Priors and Bayesian inference | default priors, checking them, changing them |
 | 7 | A worked case study | herbicide toxicity, start to finish |
 | 8 | Factor covariates and groupings | comparing curves and estimates across groups |
 
-Modules 2 to 8 are being converted from the earlier version of this course and
-will appear here as they are completed. A frequentist treatment of the same
+Modules 4 to 8 are being converted from the earlier version of this course and
+are linked here as they are completed. A frequentist treatment of the same
 material using `drc` is supplied separately as reference; it is not part of the
 taught sequence.
 
