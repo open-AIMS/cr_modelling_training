@@ -39,6 +39,17 @@ shiny_prerendered`, written in R Markdown and deployed to shinyapps.io under the
 §9 prohibition on R Markdown therefore applies here without an exception, and the learnr
 set is retired rather than extended. Do not author a new `.Rmd` in this repo.
 
+**Every module stays in `vignettes/`.** The course is a series of vignettes and that is how
+collaborators expect to find it. A converted module replaces its `.Rmd` in place, keeping
+the same file stem, so the numbering and any existing reference still resolve. Do not move
+a module into a new directory; module 1 was briefly split into a `setup/` folder on
+2026-09-11 and moved back the same day.
+
+Module 1 is converted. It is `vignettes/1Getting-started.qmd`, with
+`vignettes/check_setup.R` beside it, and it is the only module that is not taught: it is
+issued as pre-work, and a participant who has not completed it cannot fit models during
+the workshop. There is no troubleshooting slot on the day.
+
 **The runtime is not yet decided, and it is the first thing to settle.** The three routes
 differ in what they can execute, and the course fits Bayesian models:
 
@@ -74,7 +85,7 @@ same subject, and the two are taught back to back.
 | # | File stem | Title | Notes |
 |---|---|---|---|
 | 0 | `0Overview` | course outline | title is wrong, see §7 |
-| 1 | `1Getting-started` | Getting started - installing and running BRMS | toolchain setup |
+| 1 | `1Getting-started` | Software setup | **converted to `.qmd`**, pre-workshop, not taught |
 | 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model using bayesnec | |
 | 2d | `2d Fitting-a-CR-model-using-drc` | Fitting a single model using drc | **space in the filename** |
 | 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the available models | |

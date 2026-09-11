@@ -61,4 +61,3 @@ ignore/
 # Quarto
 /.quarto/
 /_site/
-setup/*.html

@@ -26,7 +26,7 @@ the available hardware. WSL doubles as the Linux path and as the Windows
 fallback, so testing it serves two purposes.
 
 **The verification script is the contract, not the instructions.**
-`setup/check_setup.R` defines what "ready" means. Platform instructions are
+`vignettes/check_setup.R` defines what "ready" means. Platform instructions are
 best-effort routes to passing it. A participant on an untested platform who
 passes is ready; one who fails sends the output back before the day. This is
 what makes "no troubleshooting during the workshop" achievable, since
@@ -34,7 +34,7 @@ instructions alone cannot establish who is ready.
 
 ## Verified on Linux, 2026-09-11
 
-`setup/check_setup.R` was run end to end under WSL2 Debian and passed every
+`vignettes/check_setup.R` was run end to end under WSL2 Debian and passed every
 stage: R 4.6.1, `bayesnec` 2.1.3.7, `brms` 2.23.0, `cmdstanr` 0.9.0, `rstan`
 2.32.7, CmdStan 2.39.0 at `~/.cmdstan/cmdstan-2.39.0`,
 `check_cmdstan_toolchain()` clean, the bundled `bernoulli` example compiled and
@@ -77,7 +77,7 @@ measured, and the instructions should not imply otherwise.
 | Windows Defender real-time scanning | each compile is inspected; a 40-second compile can take several minutes | exclude the CmdStan directory, if permitted |
 | Policy blocking freshly compiled executables | compilation cannot proceed | WSL; this is the case WSL exists for |
 
-`setup/check_setup.R` reports on the first two directly, by inspecting `HOME`
+`vignettes/check_setup.R` reports on the first two directly, by inspecting `HOME`
 before anything is compiled.
 
 ## Instruction corrections for module 1
