@@ -1,0 +1,305 @@
+---
+title: "Software setup"
+subtitle: "Concentration-response modelling with `bayesnec` --- SETAC Australasia 2026"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+    theme: cosmo
+execute:
+  eval: false
+---
+
+::: {.callout-important}
+## Complete this before the workshop
+
+This setup takes most people between thirty minutes and two hours, and some of
+it cannot be hurried: package installation and the CmdStan build both take time
+that depends on your machine and your network.
+
+**There is no time set aside during the workshop to install or repair
+software.** If you arrive without a working installation you will be able to
+watch, but you will not be able to fit models alongside the demonstrations, and
+most of the day is spent fitting models.
+
+Work through this document, then run the verification check in the final
+section and send the output to the organisers. Doing that early leaves time for
+a problem to be resolved before the day.
+:::
+
+## Software required
+
+| Software | Purpose |
+|---|---|
+| R | the language everything else runs in |
+| A C++ toolchain | compiles each Bayesian model before it is fitted |
+| CmdStan | the sampler that fits the models |
+| Positron | the editor used throughout the workshop |
+| Git | retrieves the workshop materials |
+
+The C++ toolchain is the part that differs by operating system, and it is the
+part that fails most often. On Windows it is Rtools, on macOS the Xcode Command
+Line Tools, and on Linux the standard build tools.
+
+Bayesian model fitting works differently from most R modelling. Each model is
+translated into C++, compiled into a program, and run. That is why a compiler is
+needed at all, and why the first fit of a session takes longer than later ones.
+
+## Route by operating system
+
+**Windows is the tested and recommended route**, and it is the one described in
+most detail below. The difficulties Stan had on Windows historically came from
+an older interface, `rstan`, which required matched versions of several
+compiled packages. The current interface, `cmdstanr`, avoids most of that.
+
+**Linux is also tested.** macOS is not, because the workshop organisers have no
+Mac available. Mac users should follow the outline in the macOS section, which
+points to the authoritative upstream instructions, and then run the same
+verification check as everyone else. The check is what determines whether you
+are ready, not which instructions you followed.
+
+The Windows Subsystem for Linux is a fallback for one situation only, described
+in its own section. Do not start there.
+
+---
+
+# Windows
+
+## R and Rtools
+
+Install R first, then Rtools.
+
+Download R from [CRAN](https://cran.r-project.org/bin/windows/base/). The
+combination tested for this workshop is **R 4.5.x**.
+
+Then install **Rtools45**, from
+[CRAN's Rtools page](https://cran.r-project.org/bin/windows/Rtools/). Accept the
+default installation location.
+
+::: {.callout-warning}
+## Rtools must match your version of R
+
+Rtools45 is for R 4.5.x. A different R minor version needs the matching Rtools:
+Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of
+setup failure, and the error it produces does not mention version numbers.
+
+If you install a version of R other than 4.5.x, install the Rtools that matches
+it.
+:::
+
+## Positron
+
+Download and install [Positron](https://positron.posit.co/). It will find your R
+installation automatically. If you installed R after Positron, restart Positron
+so that it detects it.
+
+## Git
+
+Install [Git for Windows](https://git-scm.com/download/win), accepting the
+defaults. Git is used to retrieve the workshop materials.
+
+## R packages
+
+Open Positron and run the following in the R console.
+
+`cmdstanr` is not on CRAN, so it comes from the Stan project's own repository:
+
+```r
+install.packages("cmdstanr",
+                 repos = c("https://stan-dev.r-universe.dev",
+                           getOption("repos")))
+```
+
+Then the rest:
+
+```r
+install.packages(c("brms", "posterior", "bayesplot",
+                   "ggplot2", "dplyr", "tidyr", "drc"))
+```
+
+`brms` installs `rstan` as a dependency. That is expected. `rstan` must be
+installed, but the workshop does not use it as the sampler, so it does not
+matter if you never call it directly.
+
+::: {.callout-note}
+## The `bayesnec` version
+
+The workshop teaches a specific version of `bayesnec`, and the functions that
+estimate toxicity values changed in it. Installing a different version will give
+you different results from the ones on screen.
+
+**[TO BE CONFIRMED BEFORE THIS DOCUMENT IS ISSUED --- do not send with this
+placeholder in place. The exact install command and version follow the release
+planned for Monday.]**
+:::
+
+## CmdStan
+
+First confirm the compiler is configured. `fix = TRUE` repairs the common
+problems rather than only reporting them:
+
+```r
+cmdstanr::check_cmdstan_toolchain(fix = TRUE)
+```
+
+Then install CmdStan. **Give it a plain installation path**, rather than
+accepting the default:
+
+```r
+cmdstanr::install_cmdstan(dir = "C:/cmdstan")
+```
+
+The default location is inside your home directory. On many Windows machines,
+particularly work-managed ones, that directory is synchronised by OneDrive, and
+the CmdStan build fails there. The same failure occurs when the path contains a
+space or a character outside the standard English alphabet, which happens when a
+Windows username does. Installing to `C:/cmdstan` avoids all three, and costs
+nothing if none of them applies to you.
+
+Because that is not the default location, tell R where to find it in every
+future session. Run `usethis::edit_r_profile()`, or open `.Rprofile` in your home
+directory, and add the line below, replacing the version number with the one you
+installed:
+
+```r
+options(cmdstanr_cmdstan_path = "C:/cmdstan/cmdstan-2.39.0")
+```
+
+Without this, every new session reports that CmdStan is not installed.
+
+### Recurring problems on Windows
+
+**`install_cmdstan()` fails.** Run it again with these arguments:
+
+```r
+cmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = "C:/cmdstan")
+```
+
+This is the failure most recently observed on a fresh Windows machine, and this
+is what resolved it. `overwrite = TRUE` is the part that matters. A first
+attempt that fails partway through the build leaves a partly built directory
+behind, and a second attempt without `overwrite` declines to replace it, which
+produces an error resembling the original one. `quiet = FALSE` only prints more
+of the build output, which is worth having because the default output is
+truncated and does not identify which stage failed.
+
+**Compiling is very slow.** Windows Defender inspects each newly compiled
+program. A compile that should take under a minute can take several. Excluding
+the `C:/cmdstan` directory from real-time scanning resolves it, where your
+organisation's policy allows.
+
+**Compiling is blocked entirely.** Some managed machines prevent newly compiled
+programs from running at all. This is a policy decision rather than a
+configuration problem and cannot be worked around from within R. See the
+Windows Subsystem for Linux section.
+
+::: {.callout-tip}
+## Time box the native route
+
+Give the steps above about thirty minutes. If the verification check passes,
+stop. If compilation fails for reasons of security policy rather than something
+you can configure, move to WSL rather than continuing to adjust settings.
+:::
+
+---
+
+# macOS
+
+::: {.callout-warning}
+## Untested route
+
+The organisers have no Mac available and have not tested these steps. They point
+to the upstream instructions, which are maintained by the projects themselves.
+Run the verification check when you have finished; passing it is what matters,
+not the route taken.
+:::
+
+1. Install R from [CRAN](https://cran.r-project.org/bin/macosx/), choosing the
+   build for your processor. Apple Silicon and Intel builds differ.
+2. Install the Xcode Command Line Tools by running `xcode-select --install` in
+   Terminal. Some packages also require `gfortran`; the CRAN macOS tools page
+   describes the current requirement.
+3. Install [Positron](https://positron.posit.co/) and
+   [Git](https://git-scm.com/download/mac).
+4. Install the R packages exactly as in the Windows section above.
+5. Follow the
+   [CmdStanR getting-started vignette](https://mc-stan.org/cmdstanr/articles/cmdstanr.html)
+   for `check_cmdstan_toolchain()` and `install_cmdstan()`. The default
+   installation path is not a problem on macOS, so `dir` need not be set.
+
+---
+
+# Linux
+
+Install R through your distribution's package manager or from CRAN, and the
+standard build tools --- `build-essential` on Debian and Ubuntu, or the
+equivalent development group on other distributions. Install Positron and Git.
+Then install the R packages as in the Windows section, and run
+`check_cmdstan_toolchain()` followed by `install_cmdstan()`. The default path is
+not a problem here either.
+
+This route was verified on 2026-09-11 under Debian with R 4.6.1 and CmdStan
+2.39.0.
+
+---
+
+# Windows Subsystem for Linux
+
+WSL runs a Linux system inside Windows. **Use it only if compilation on Windows
+is blocked by security policy on a machine you cannot change.** It is not a
+simpler route, and it is not recommended otherwise.
+
+What it involves: a second installation of R inside Linux, a second package
+library to keep track of, a different way of referring to your files, and
+additional configuration in Positron to work with the Linux session. If you are
+not already comfortable at a command line, this gives you a second system to
+learn at the same time as the modelling.
+
+If you are in this position, contact the organisers before the workshop rather
+than attempting it on the day.
+
+---
+
+# The verification check
+
+`check_setup.R` is supplied with this document. It installs nothing. It reports
+what you have, compiles and fits a small model, and finishes with either READY
+or NOT READY.
+
+Open it in Positron and run the whole file, or run this in the R console with
+the path adjusted:
+
+```r
+source("check_setup.R", echo = FALSE)
+```
+
+The first run takes a few minutes, because it compiles a model. Later runs are
+faster.
+
+A successful run ends like this:
+
+```
+Summary
+-------
+READY. Every check passed.
+```
+
+A warning rather than a failure means you can follow the workshop but something
+is not as expected --- most often a `bayesnec` version other than the one being
+taught. Read the warning and act on it if you can.
+
+## Reporting the result
+
+Copy the entire output, from the first line to the last, and send it to the
+organisers. Send it whether it passed or failed: a passing result confirms you
+are ready, and a failing one gives enough detail to identify the problem in
+advance.
+
+The output contains your R version, your operating system, your package
+versions and your installation paths. It contains nothing else about your
+machine.
+
+Send it as early as you can. A problem found a week before the workshop can be
+resolved; the same problem found on the morning cannot.

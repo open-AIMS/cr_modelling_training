@@ -57,3 +57,8 @@ ignore/
 *.RData
 
 *.zip
+
+# Quarto
+/.quarto/
+/_site/
+setup/*.html
