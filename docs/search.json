@@ -1,5 +1,221 @@
 [
   {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html",
+    "title": "Fitting a single model",
+    "section": "",
+    "text": "bayesnec fits concentration-response curves to toxicity data and derives no-effect concentration (NEC), no-significant-effect concentration (NSEC, Fisher and Fox (2023)) and effect concentration (ECx) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via brms (Bürkner 2017; Bürkner 2018) and Stan. It is an extension of jagsNEC (Fisher et al. 2020).\nThis module fits one model to one dataset and works through everything that can be done with the result: checking that it converged, looking inside the fitted object, plotting it, and extracting toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, and priors.\nIf you have not yet installed R, a C++ compiler, CmdStan and bayesnec, work through the software setup first. Nothing in this module will run without them.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#background",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#background",
+    "title": "Fitting a single model",
+    "section": "",
+    "text": "bayesnec fits concentration-response curves to toxicity data and derives no-effect concentration (NEC), no-significant-effect concentration (NSEC, Fisher and Fox (2023)) and effect concentration (ECx) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via brms (Bürkner 2017; Bürkner 2018) and Stan. It is an extension of jagsNEC (Fisher et al. 2020).\nThis module fits one model to one dataset and works through everything that can be done with the result: checking that it converged, looking inside the fitted object, plotting it, and extracting toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, and priors.\nIf you have not yet installed R, a C++ compiler, CmdStan and bayesnec, work through the software setup first. Nothing in this module will run without them.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-example-dataset",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-example-dataset",
+    "title": "Fitting a single model",
+    "section": "The example dataset",
+    "text": "The example dataset\nbayesnec supplies a small example dataset, nec_data, with two columns: x, the concentration, and y, the response.\n\nlibrary(bayesnec)\ndata(nec_data)\nhead(nec_data)\n\n          x         y\n1 1.0187462 0.8602703\n2 0.8157475 0.9102426\n3 0.3713305 0.8485031\n4 0.4008323 0.9226047\n5 1.2945451 0.8657107\n6 1.3897943 0.9163264\n\n\nThe response here is a proportion bounded by zero and one, which matters for the statistical distribution used to model it. bayesnec will choose a distribution from the characteristics of the data unless told otherwise, and module 5 covers that choice in full.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#reproducibility",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#reproducibility",
+    "title": "Fitting a single model",
+    "section": "Reproducibility",
+    "text": "Reproducibility\nA Bayesian model is fitted by drawing samples, so running the same code twice gives slightly different numbers unless the random number generator is set to a known state. set.seed() does that, and every fit in this course is preceded by one.\n\nset.seed(333)\n\nThe estimates below will not match yours to the last decimal place unless you use the same seed, the same number of chains and the same version of the package. They should match to within the width of the credible intervals, and if they do not, that is worth investigating rather than accepting.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-bnec-function",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-bnec-function",
+    "title": "Fitting a single model",
+    "section": "The bnec function",
+    "text": "The bnec function\nbnec is the working function of the package. It assembles the non-linear model formula, generates priors and initial values, and calls brms. It is designed for an R user who is comfortable with model-fitting syntax but is not a specialist in non-linear or Bayesian modelling.\nRun ?bnec for the full argument list. Beyond the formula and the data, the arguments fall into four groups: the model or model set to fit (model); how toxicity estimates are computed from the fit (x_range, resolution, sig_val); how the response and predictor are identified when the formula alone is not enough (x_var, y_var, trials_var); and how priors are set (prior, prior_type).\nAnything else is passed through to brms::brm() by ..., so the full brm argument list is available. Three brm arguments are worth knowing about because bayesnec sets them differently from brms. It generates its own family and prior values rather than using the brms defaults, and it raises the number of iterations from 2,000 to 10,000, with a correspondingly longer warm-up, because the non-linear models here often need it.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-formula",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-formula",
+    "title": "Fitting a single model",
+    "section": "The formula",
+    "text": "The formula\nA bayesnec formula takes the form:\n\ny ~ crf(x, model = \"modelname\")\n\nThe left-hand side is the response, exactly as in brms. The right-hand side uses crf(), a function specific to bayesnec, which stands for concentration-response function. It takes the predictor and the name of the model to fit, and it accepts a transformation of the predictor, such as crf(log(x), ...).\nTerm names must match the columns of the data frame exactly, as in any R formula.\nThe available models are:\n\nmodels()$all\n\n [1] \"nec3param\"     \"nec4param\"     \"nechorme\"      \"nechorme4\"    \n [5] \"necsigm\"       \"neclin\"        \"neclinhorme\"   \"nechormepwr\"  \n [9] \"nechorme4pwr\"  \"nechormepwr01\" \"ecxlin\"        \"ecxexp\"       \n[13] \"ecxsigm\"       \"ecx4param\"     \"ecxwb1\"        \"ecxwb2\"       \n[17] \"ecxwb1p3\"      \"ecxwb2p3\"      \"ecxll5\"        \"ecxll4\"       \n[21] \"ecxll3\"        \"ecxhormebc4\"   \"ecxhormebc5\"  \n\n\nThese fall into named groups, which is how a set of models is requested rather than a single one:\n\nnames(models())\n\n[1] \"nec\"          \"ecx\"          \"all\"          \"bot_free\"     \"zero_bounded\"\n[6] \"decline\"      \"hormesis\"    \n\n\nModule 3 describes what each model does and which toxicity estimates follow from it. Module 4 covers fitting a set rather than a single model.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#calling-bnec",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#calling-bnec",
+    "title": "Fitting a single model",
+    "section": "Calling bnec",
+    "text": "Calling bnec\nSupplying a formula and a data frame is enough; everything else takes a default.\n\nset.seed(333)\nbnec_fit &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe first thing that happens is compilation. Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.\nSampling follows. How long the whole thing takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores. Use at least as many cores as you have chains:\n\noptions(mc.cores = 4)\n\nMore cores than chains gives no benefit without additional configuration.\nWhen the fit completes, bayesnec reports which model was fitted and which statistical distribution was used. Here it is a nec3param model with a beta distribution.\nWarnings may also appear. The two above concern the Pareto k diagnostic and p_waic, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#saving-the-fit",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#saving-the-fit",
+    "title": "Fitting a single model",
+    "section": "Saving the fit",
+    "text": "Saving the fit\nA fitted model is expensive to produce and cheap to store, so save it as soon as it finishes.\n\nsaveRDS(bnec_fit, \"nec3param_fit.rds\")\nbnec_fit &lt;- readRDS(\"nec3param_fit.rds\")\n\nBe deliberate about where. This fit is small by the standards of the course and the object is still 66 MB, because it stores every posterior draw for every parameter. A model-averaged set of twenty-three models is very much larger. A folder synchronised by OneDrive or a similar service is a poor choice: the upload is slow, and on some configurations it interferes with writing the file at all.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-summary",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-summary",
+    "title": "Fitting a single model",
+    "section": "The summary",
+    "text": "The summary\n\nsummary(bnec_fit)\n\nObject of class bayesnecfit containing the nec3param model\n\n Family: beta \n  Links: mu = identity \nFormula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec)) \n         top ~ 1\n         beta ~ 1\n         nec ~ 1\n   Data: data (Number of observations: 100) \n  Draws: 4 chains, each with iter = 10000; warmup = 8000; thin = 1;\n         total post-warmup draws = 8000\n\nRegression Coefficients:\n     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\ntop      0.89      0.01     0.88     0.90 1.00     6754     5905\nbeta     0.54      0.05     0.43     0.65 1.00     5776     4871\nnec      1.54      0.02     1.50     1.57 1.00     5870     4997\n\nFurther Distributional Parameters:\n    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\nphi    51.99      7.62    38.25    68.32 1.00     6847     5389\n\nDraws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\nand Tail_ESS are effective sample size measures, and Rhat is the potential\nscale reduction factor on split chains (at convergence, Rhat = 1).\n\n    Estimate Q2.5 Q97.5\nNEC     1.54 1.50  1.57\n\n\nBayesian R2 estimates:\n   Estimate Est.Error Q2.5 Q97.5\nR2     0.96      0.00 0.96  0.97\n\n\nThere is a lot here, and each part is worth reading.\nThe object is of class bayesnecfit, containing the nec3param model. bayesnec returns a bayesnecfit when one model is fitted, and a bayesmanecfit when a set is fitted.\nThe family is the beta distribution with an identity link. This is deliberate and it is not the brms default, which for a beta response is the logit. bayesnec uses the identity link for every family, so that the top, bot and nec parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a bayesnec fit against a brm model you have written yourself: unless you pass the link explicitly, the two are different models.\nThe brms formula that was actually fitted is printed. For nec3param it is a constant top until the concentration reaches nec, followed by exponential decay, with the switch implemented by step(). Module 3 sets out the equations.\nRhat is a convergence diagnostic and should be close to 1. All three parameters here are at 1.00, and the effective sample sizes are in the thousands, both of which indicate the sampler explored the posterior properly.\nThe NEC estimate is given below the coefficients, as a median with a 95% credible interval, and the Bayesian R² gives an indication of fit. At 0.96 this is a well-determined curve, which is what you would expect of a simulated example.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#checking-the-fit",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#checking-the-fit",
+    "title": "Fitting a single model",
+    "section": "Checking the fit",
+    "text": "Checking the fit\nbrms offers a range of diagnostics, and the brms documentation covers them far better than this course can. Extract the underlying model with pull_brmsfit():\n\nbrm_fit &lt;- pull_brmsfit(bnec_fit)\n\nPlotting it gives the marginal posterior of each parameter beside its trace:\n\nplot(brm_fit)\n\n\n\n\n\n\n\n\nRead the traces from left to right. Four chains that overlap, with no drift and no sustained excursion, indicate the chains have converged on the same distribution. Chains that separate into bands, or wander, indicate they have not, and the estimates should not be used.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#inside-the-fitted-object",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#inside-the-fitted-object",
+    "title": "Fitting a single model",
+    "section": "Inside the fitted object",
+    "text": "Inside the fitted object\nA bayesnecfit is a list holding the brms fit and a set of derived quantities.\n\nnames(bnec_fit)\n\n [1] \"fit\"             \"model\"           \"init\"            \"bayesnecformula\"\n [5] \"pred_vals\"       \"top\"             \"beta\"            \"ne\"             \n [9] \"f\"               \"bot\"             \"d\"               \"slope\"          \n[13] \"ec50\"            \"dispersion\"      \"predicted_y\"     \"residuals\"      \n[17] \"ne_posterior\"    \"ne_type\"        \n\n\npred_vals holds fitted values across the range of the predictor, which is what the plotting methods use and what you would use for a custom figure:\n\nhead(bnec_fit$pred_vals$data)\n\n           x Estimate      Q2.5     Q97.5\n1 0.03234801 0.889049 0.8784447 0.8985305\n2 0.03553938 0.889049 0.8784447 0.8985305\n3 0.03873074 0.889049 0.8784447 0.8985305\n4 0.04192210 0.889049 0.8784447 0.8985305\n5 0.04511347 0.889049 0.8784447 0.8985305\n6 0.04830483 0.889049 0.8784447 0.8985305\n\n\nEvery fitted model carries a posterior for the no-effect estimate, in ne_posterior, with ne_type recording what kind of estimate it is. For models in the nec group this is the posterior of the nec parameter itself. For models in the ecx group, which have no threshold parameter, it is the posterior of the NSEC (Fisher and Fox 2023). Module 3 explains why those are different things.\n\nhist(bnec_fit$ne_posterior,\n     main = \"\", xlab = \"No-effect concentration\", col = \"grey80\", border = \"white\")",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#plotting",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#plotting",
+    "title": "Fitting a single model",
+    "section": "Plotting",
+    "text": "Plotting\nplot() extends the base method and autoplot() extends the ggplot2 method. Both take arguments controlling what is drawn; see ?autoplot.bayesnecfit.\n\nautoplot(bnec_fit) +\n  ggplot2::xlab(\"Concentration\")\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\n\nThe result is a ggplot object, so it composes with + in the usual way, and most ggplot2 functions will work on it.\nBy default the plot is annotated with the fitted no-effect estimate and its 95% credible interval, and labelled with the model that was fitted. The annotation is labelled N(S)EC, because the same plotting code serves both model groups. For a nec3param fit the quantity is an NEC, and it is worth relabelling it as such in anything you present.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#toxicity-estimates",
+    "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#toxicity-estimates",
+    "title": "Fitting a single model",
+    "section": "Toxicity estimates",
+    "text": "Toxicity estimates\nThree functions extract estimates from a fitted model: ecx(), nec() and nsec().\n\necx(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.596116 1.564202 1.628030 \nattr(,\"resolution\")\n[1] 1000\nattr(,\"ecx_val\")\n[1] 10\nattr(,\"toxicity_estimate\")\n[1] \"ecx\"\n\nnec(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.535680 1.499262 1.569836 \nattr(,\"toxicity_estimate\")\n[1] \"nec\"\n\nnsec(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.543764 1.509624 1.579198 \nattr(,\"resolution\")\n[1] 1000\nattr(,\"sig_val\")\n[1] 0.01\nattr(,\"toxicity_estimate\")\n[1] \"nsec\"\nattr(,\"ecnsec_relativeP\")\n      50%      2.5%     97.5% \n1.4820684 0.2220197 2.5817716 \n\n\nEach returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: ecx() returns an EC10 unless told otherwise, and nsec() uses a significance value of 0.01.\nFor this dataset the three estimates are close together, which happens when the curve declines sharply from a well-defined threshold. They are not interchangeable, and on other data they separate widely. Module 3 covers what each of them measures and when each is appropriate.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Concentration-response modelling",
+    "section": "",
+    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#course-outcomes",
+    "href": "index.html#course-outcomes",
+    "title": "Concentration-response modelling",
+    "section": "Course outcomes",
+    "text": "Course outcomes\nOn completing the material you will be able to:\n\ndistinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;\nidentify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;\nfit concentration-response models in R and plot the results;\nderive NEC, NSEC and ECx estimates, and explain what each of them measures;\napply model averaging across a candidate set, and interpret the weights;\nproduce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#modules",
+    "href": "index.html#modules",
+    "title": "Concentration-response modelling",
+    "section": "Modules",
+    "text": "Modules\n\n\n\n\nModule\nSubject\n\n\n\n\n1\nSoftware setup\nR, the C++ toolchain, CmdStan, Positron\n\n\n2\nFitting a single model\nthe bnec call, the fitted object, plotting\n\n\n3\nToxicity estimation and the model set\nNEC, NSEC and ECx, and the available equations\n\n\n4\nModel averaging and multi-model inference\ncandidate sets, weights, averaged estimates\n\n\n5\nResponse data and statistical distributions\nmatching the family to the endpoint\n\n\n6\nPriors and Bayesian inference\ndefault priors, checking them, changing them\n\n\n7\nA worked case study\nherbicide toxicity, start to finish\n\n\n8\nFactor covariates and groupings\ncomparing curves and estimates across groups\n\n\n\nModules 2 to 8 are being converted from the earlier version of this course and will appear here as they are completed. A frequentist treatment of the same material using drc is supplied separately as reference; it is not part of the taught sequence.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#working-through-the-material-independently",
+    "href": "index.html#working-through-the-material-independently",
+    "title": "Concentration-response modelling",
+    "section": "Working through the material independently",
+    "text": "Working through the material independently\nThe modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.\nFitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.\nIf you want to run the code yourself, work through the software setup first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#workshop-participants",
+    "href": "index.html#workshop-participants",
+    "title": "Concentration-response modelling",
+    "section": "Workshop participants",
+    "text": "Workshop participants\nThis material is taught as a full-day workshop at SETAC Australasia 2026.\nThe software setup is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#source-and-citation",
+    "href": "index.html#source-and-citation",
+    "title": "Concentration-response modelling",
+    "section": "Source and citation",
+    "text": "Source and citation\nThe material is developed at the Australian Institute of Marine Science and the source is at open-AIMS/cr_modelling_training.\nbayesnec is documented at open-aims.github.io/bayesnec. The NSEC is introduced in Fisher and Fox (2023), Environmental Toxicology and Chemistry.\nCorrections and questions are welcome as issues.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
     "objectID": "vignettes/1Getting-started.html",
     "href": "vignettes/1Getting-started.html",
     "title": "Software setup",
@@ -88,7 +304,7 @@
     "href": "vignettes/1Getting-started.html#cmdstan",
     "title": "Software setup",
     "section": "CmdStan",
-    "text": "CmdStan\nFirst confirm the compiler is configured. fix = TRUE repairs the common problems rather than only reporting them:\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\nThen install CmdStan. Give it a plain installation path, rather than accepting the default:\ncmdstanr::install_cmdstan(dir = \"C:/cmdstan\")\nThe default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to C:/cmdstan avoids all three, and costs nothing if none of them applies to you.\nBecause that is not the default location, tell R where to find it in every future session. Run usethis::edit_r_profile(), or open .Rprofile in your home directory, and add the line below, replacing the version number with the one you installed:\noptions(cmdstanr_cmdstan_path = \"C:/cmdstan/cmdstan-2.39.0\")\nWithout this, every new session reports that CmdStan is not installed.\n\nRecurring problems on Windows\ninstall_cmdstan() fails. Run it again with these arguments:\ncmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = \"C:/cmdstan\")\nThis is the failure most recently observed on a fresh Windows machine, and this is what resolved it. overwrite = TRUE is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without overwrite declines to replace it, which produces an error resembling the original one. quiet = FALSE only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.\nCompiling is very slow. Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the C:/cmdstan directory from real-time scanning resolves it, where your organisation’s policy allows.\nCompiling is blocked entirely. Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.\n\n\n\n\n\n\nTipTime box the native route\n\n\n\nGive the steps above about thirty minutes. If the verification check passes, stop. If compilation fails for reasons of security policy rather than something you can configure, move to WSL rather than continuing to adjust settings.",
+    "text": "CmdStan\nFirst confirm the compiler is configured. fix = TRUE repairs the common problems rather than only reporting them:\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\nThen install CmdStan. Give it a plain installation path, rather than accepting the default:\ncmdstanr::install_cmdstan(dir = \"C:/cmdstan\")\nThe default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to C:/cmdstan avoids all three, and costs nothing if none of them applies to you.\nBecause that is not the default location, tell R where to find it in every future session. Run usethis::edit_r_profile(), or open .Rprofile in your home directory, and add the line below, replacing the version number with the one you installed:\noptions(cmdstanr_cmdstan_path = \"C:/cmdstan/cmdstan-2.39.0\")\nWithout this, every new session reports that CmdStan is not installed.\n\nRecurring problems on Windows\ninstall_cmdstan() fails. Run it again with these arguments:\ncmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = \"C:/cmdstan\")\nThis is the failure most recently observed on a fresh Windows machine, and this is what resolved it. overwrite = TRUE is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without overwrite declines to replace it, which produces an error resembling the original one. quiet = FALSE only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.\nA model compiles but no chains run. cmdstanr reports “No chains finished successfully”, which names neither a cause nor a file. On Windows a compiled Stan program loads tbb.dll from CmdStan’s own library directory as it starts, and if that directory is not on the PATH the program exits immediately. Add it:\n# adjust the version number to the one you installed\n\"C:/cmdstan/cmdstan-2.39.0/stan/lib/stan_math/lib/tbb\"\ninstall_cmdstan() normally adds this entry, so a missing one indicates that step did not complete. check_setup.R reports on it directly. This was found on a Windows machine during preparation of this course, and it is the reason the check script compiles the example afresh on every run rather than reusing an existing executable.\nCompiling is very slow. Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the C:/cmdstan directory from real-time scanning resolves it, where your organisation’s policy allows.\nCompiling is blocked entirely. Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.\n\n\n\n\n\n\nTipTime box the native route\n\n\n\nGive the steps above about thirty minutes. If the verification check passes, stop. If compilation fails for reasons of security policy rather than something you can configure, move to WSL rather than continuing to adjust settings.",
     "crumbs": [
       "Overview",
       "Before you start",
@@ -105,66 +321,6 @@
       "Overview",
       "Before you start",
       "Software setup"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Concentration-response modelling",
-    "section": "",
-    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#course-outcomes",
-    "href": "index.html#course-outcomes",
-    "title": "Concentration-response modelling",
-    "section": "Course outcomes",
-    "text": "Course outcomes\nOn completing the material you will be able to:\n\ndistinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;\nidentify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;\nfit concentration-response models in R and plot the results;\nderive NEC, NSEC and ECx estimates, and explain what each of them measures;\napply model averaging across a candidate set, and interpret the weights;\nproduce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#modules",
-    "href": "index.html#modules",
-    "title": "Concentration-response modelling",
-    "section": "Modules",
-    "text": "Modules\n\n\n\n\nModule\nSubject\n\n\n\n\n1\nSoftware setup\nR, the C++ toolchain, CmdStan, Positron\n\n\n2\nFitting a single model\nthe bnec call, the fitted object, plotting\n\n\n3\nToxicity estimation and the model set\nNEC, NSEC and ECx, and the available equations\n\n\n4\nModel averaging and multi-model inference\ncandidate sets, weights, averaged estimates\n\n\n5\nResponse data and statistical distributions\nmatching the family to the endpoint\n\n\n6\nPriors and Bayesian inference\ndefault priors, checking them, changing them\n\n\n7\nA worked case study\nherbicide toxicity, start to finish\n\n\n8\nFactor covariates and groupings\ncomparing curves and estimates across groups\n\n\n\nModules 2 to 8 are being converted from the earlier version of this course and will appear here as they are completed. A frequentist treatment of the same material using drc is supplied separately as reference; it is not part of the taught sequence.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#working-through-the-material-independently",
-    "href": "index.html#working-through-the-material-independently",
-    "title": "Concentration-response modelling",
-    "section": "Working through the material independently",
-    "text": "Working through the material independently\nThe modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.\nFitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.\nIf you want to run the code yourself, work through the software setup first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#workshop-participants",
-    "href": "index.html#workshop-participants",
-    "title": "Concentration-response modelling",
-    "section": "Workshop participants",
-    "text": "Workshop participants\nThis material is taught as a full-day workshop at SETAC Australasia 2026.\nThe software setup is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#source-and-citation",
-    "href": "index.html#source-and-citation",
-    "title": "Concentration-response modelling",
-    "section": "Source and citation",
-    "text": "Source and citation\nThe material is developed at the Australian Institute of Marine Science and the source is at open-AIMS/cr_modelling_training.\nbayesnec is documented at open-aims.github.io/bayesnec. The NSEC is introduced in Fisher and Fox (2023), Environmental Toxicology and Chemistry.\nCorrections and questions are welcome as issues.",
-    "crumbs": [
-      "Overview"
     ]
   }
 ]

@@ -72,6 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -181,6 +182,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../vignettes/1Getting-started.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
   </div>
 </li>
       </ul>
@@ -375,6 +393,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong><code>install_cmdstan()</code> fails.</strong> Run it again with these arguments:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is the failure most recently observed on a fresh Windows machine, and this is what resolved it. <code>overwrite = TRUE</code> is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without <code>overwrite</code> declines to replace it, which produces an error resembling the original one. <code>quiet = FALSE</code> only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.</p>
+<p><strong>A model compiles but no chains run.</strong> <code>cmdstanr</code> reports “No chains finished successfully”, which names neither a cause nor a file. On Windows a compiled Stan program loads <code>tbb.dll</code> from CmdStan’s own library directory as it starts, and if that directory is not on the <code>PATH</code> the program exits immediately. Add it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># adjust the version number to the one you installed</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">"C:/cmdstan/cmdstan-2.39.0/stan/lib/stan_math/lib/tbb"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>install_cmdstan()</code> normally adds this entry, so a missing one indicates that step did not complete. <code>check_setup.R</code> reports on it directly. This was found on a Windows machine during preparation of this course, and it is the reason the check script compiles the example afresh on every run rather than reusing an existing executable.</p>
 <p><strong>Compiling is very slow.</strong> Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the <code>C:/cmdstan</code> directory from real-time scanning resolves it, where your organisation’s policy allows.</p>
 <p><strong>Compiling is blocked entirely.</strong> Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -435,7 +457,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>The verification check</h1>
 <p><code>check_setup.R</code> is supplied with this document. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
 <p>Open it in Positron and run the whole file, or run this in the R console with the path adjusted:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The first run takes a few minutes, because it compiles a model. Later runs are faster.</p>
 <p>A successful run ends like this:</p>
 <pre><code>Summary
@@ -860,6 +882,9 @@ READY. Every check passed.</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="pagination-link" aria-label="2. Fitting a single model">
+        <span class="nav-page-text">2. Fitting a single model</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

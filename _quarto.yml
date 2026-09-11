@@ -1,12 +1,15 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - .nojekyll
   # Modules are listed explicitly rather than discovered, so that the
   # unconverted learnr .Rmd files are not picked up by the render. Add each
   # module here as it is converted.
   render:
     - index.qmd
     - vignettes/1Getting-started.qmd
+    - vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
 
 # Chunk output is stored under _freeze/ and committed. The Bayesian fits take
 # minutes to hours and need a Stan toolchain, so the site must be rebuildable
@@ -37,6 +40,10 @@ website:
         contents:
           - href: vignettes/1Getting-started.qmd
             text: Software setup
+      - section: "Modules"
+        contents:
+          - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+            text: "2. Fitting a single model"
   page-footer:
     left: "Australian Institute of Marine Science"
     right: "Built with [Quarto](https://quarto.org)"

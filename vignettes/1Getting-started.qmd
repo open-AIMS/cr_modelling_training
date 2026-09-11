@@ -179,6 +179,22 @@ produces an error resembling the original one. `quiet = FALSE` only prints more
 of the build output, which is worth having because the default output is
 truncated and does not identify which stage failed.
 
+**A model compiles but no chains run.** `cmdstanr` reports "No chains finished
+successfully", which names neither a cause nor a file. On Windows a compiled Stan
+program loads `tbb.dll` from CmdStan's own library directory as it starts, and if
+that directory is not on the `PATH` the program exits immediately. Add it:
+
+```r
+# adjust the version number to the one you installed
+"C:/cmdstan/cmdstan-2.39.0/stan/lib/stan_math/lib/tbb"
+```
+
+`install_cmdstan()` normally adds this entry, so a missing one indicates that
+step did not complete. `check_setup.R` reports on it directly. This was found on
+a Windows machine during preparation of this course, and it is the reason the
+check script compiles the example afresh on every run rather than reusing an
+existing executable.
+
 **Compiling is very slow.** Windows Defender inspects each newly compiled
 program. A compile that should take under a minute can take several. Excluding
 the `C:/cmdstan` directory from real-time scanning resolves it, where your

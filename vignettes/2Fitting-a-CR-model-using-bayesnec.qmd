@@ -1,0 +1,312 @@
+---
+title: "Fitting a single model"
+subtitle: "One concentration-response model in `bayesnec`, start to finish"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(bayesnec)
+options(mc.cores = 4)
+```
+
+## Background
+
+`bayesnec` fits concentration-response curves to toxicity data and derives
+no-effect concentration (*NEC*), no-significant-effect concentration (*NSEC*,
+@fisherfox2023) and effect concentration (**EC~x~**) estimates from non-linear
+models fitted by Bayesian Hamiltonian Monte Carlo, via `brms`
+[@Burkner2017; @Burkner2018] and Stan. It is an extension of `jagsNEC`
+[@Fisher2020].
+
+This module fits one model to one dataset and works through everything that can
+be done with the result: checking that it converged, looking inside the fitted
+object, plotting it, and extracting toxicity estimates. Later modules cover the
+full model set, model averaging, the choice of statistical distribution, and
+priors.
+
+If you have not yet installed R, a C++ compiler, CmdStan and `bayesnec`, work
+through the [software setup](1Getting-started.qmd) first. Nothing in this module
+will run without them.
+
+## The example dataset
+
+`bayesnec` supplies a small example dataset, `nec_data`, with two columns: `x`,
+the concentration, and `y`, the response.
+
+```{r}
+#| label: data
+library(bayesnec)
+data(nec_data)
+head(nec_data)
+```
+
+The response here is a proportion bounded by zero and one, which matters for the
+statistical distribution used to model it. `bayesnec` will choose a distribution
+from the characteristics of the data unless told otherwise, and module 5 covers
+that choice in full.
+
+## Reproducibility
+
+A Bayesian model is fitted by drawing samples, so running the same code twice
+gives slightly different numbers unless the random number generator is set to a
+known state. `set.seed()` does that, and every fit in this course is preceded by
+one.
+
+```{r}
+#| label: seed
+#| eval: false
+set.seed(333)
+```
+
+The estimates below will not match yours to the last decimal place unless you
+use the same seed, the same number of chains and the same version of the
+package. They should match to within the width of the credible intervals, and if
+they do not, that is worth investigating rather than accepting.
+
+## The `bnec` function
+
+`bnec` is the working function of the package. It assembles the non-linear model
+formula, generates priors and initial values, and calls `brms`. It is designed
+for an R user who is comfortable with model-fitting syntax but is not a
+specialist in non-linear or Bayesian modelling.
+
+Run `?bnec` for the full argument list. Beyond the formula and the data, the
+arguments fall into four groups: the model or model set to fit (`model`); how
+toxicity estimates are computed from the fit (`x_range`, `resolution`,
+`sig_val`); how the response and predictor are identified when the formula alone
+is not enough (`x_var`, `y_var`, `trials_var`); and how priors are set (`prior`,
+`prior_type`).
+
+Anything else is passed through to `brms::brm()` by `...`, so the full `brm`
+argument list is available. Three `brm` arguments are worth knowing about
+because `bayesnec` sets them differently from `brms`. It generates its own
+`family` and `prior` values rather than using the `brms` defaults, and it raises
+the number of iterations from 2,000 to 10,000, with a correspondingly longer
+warm-up, because the non-linear models here often need it.
+
+## The formula
+
+A `bayesnec` formula takes the form:
+
+```{r}
+#| label: formula-shape
+#| eval: false
+y ~ crf(x, model = "modelname")
+```
+
+The left-hand side is the response, exactly as in `brms`. The right-hand side
+uses `crf()`, a function specific to `bayesnec`, which stands for
+**c**oncentration-**r**esponse **f**unction. It takes the predictor and the name
+of the model to fit, and it accepts a transformation of the predictor, such as
+`crf(log(x), ...)`.
+
+Term names must match the columns of the data frame exactly, as in any R
+formula.
+
+The available models are:
+
+```{r}
+#| label: model-list
+models()$all
+```
+
+These fall into named groups, which is how a set of models is requested rather
+than a single one:
+
+```{r}
+#| label: model-groups
+names(models())
+```
+
+Module 3 describes what each model does and which toxicity estimates follow from
+it. Module 4 covers fitting a set rather than a single model.
+
+## Calling `bnec`
+
+Supplying a formula and a data frame is enough; everything else takes a default.
+
+```{r}
+#| label: fit
+set.seed(333)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+```
+
+The first thing that happens is compilation. Stan models are written in the Stan
+language, translated to C++ and compiled to a shared object, which R then loads
+and runs. This is why the first fit of a session is slower than later ones, and
+why a compiler is needed at all.
+
+Sampling follows. How long the whole thing takes depends on the machine, the
+number of chains and the number of iterations. The fit above took a little over
+two minutes on four cores. Use at least as many cores as you have chains:
+
+```{r}
+#| label: cores
+#| eval: false
+options(mc.cores = 4)
+```
+
+More cores than chains gives no benefit without additional configuration.
+
+When the fit completes, `bayesnec` reports which model was fitted and which
+statistical distribution was used. Here it is a `nec3param` model with a beta
+distribution.
+
+Warnings may also appear. The two above concern the Pareto *k* diagnostic and
+`p_waic`, both of which relate to the leave-one-out cross-validation used to
+compute model weights. Weights are irrelevant when a single model has been
+fitted, and module 4 returns to them when they are not.
+
+## Saving the fit
+
+A fitted model is expensive to produce and cheap to store, so save it as soon as
+it finishes.
+
+```{r}
+#| label: save-demo
+#| eval: false
+saveRDS(bnec_fit, "nec3param_fit.rds")
+bnec_fit <- readRDS("nec3param_fit.rds")
+```
+
+Be deliberate about where. This fit is small by the standards of the course and
+the object is still 66 MB, because it stores every posterior draw for every
+parameter. A model-averaged set of twenty-three models is very much larger. A
+folder synchronised by OneDrive or a similar service is a poor choice: the
+upload is slow, and on some configurations it interferes with writing the file
+at all.
+
+## The summary
+
+```{r}
+#| label: summary
+summary(bnec_fit)
+```
+
+There is a lot here, and each part is worth reading.
+
+The object is of class `bayesnecfit`, containing the `nec3param` model.
+`bayesnec` returns a `bayesnecfit` when one model is fitted, and a
+`bayesmanecfit` when a set is fitted.
+
+The family is the beta distribution with an **identity link**. This is
+deliberate and it is not the `brms` default, which for a beta response is the
+logit. `bayesnec` uses the identity link for every family, so that the `top`,
+`bot` and `nec` parameters stay on the scale of the response and remain directly
+interpretable. It matters if you ever compare a `bayesnec` fit against a `brm`
+model you have written yourself: unless you pass the link explicitly, the two
+are different models.
+
+The `brms` formula that was actually fitted is printed. For `nec3param` it is a
+constant `top` until the concentration reaches `nec`, followed by exponential
+decay, with the switch implemented by `step()`. Module 3 sets out the equations.
+
+*Rhat* is a convergence diagnostic and should be close to 1. All three
+parameters here are at 1.00, and the effective sample sizes are in the
+thousands, both of which indicate the sampler explored the posterior properly.
+
+The *NEC* estimate is given below the coefficients, as a median with a 95%
+credible interval, and the Bayesian R² gives an indication of fit. At 0.96 this
+is a well-determined curve, which is what you would expect of a simulated
+example.
+
+## Checking the fit
+
+`brms` offers a range of diagnostics, and the `brms` documentation covers them
+far better than this course can. Extract the underlying model with
+`pull_brmsfit()`:
+
+```{r}
+#| label: pull
+brm_fit <- pull_brmsfit(bnec_fit)
+```
+
+Plotting it gives the marginal posterior of each parameter beside its trace:
+
+```{r}
+#| label: chains
+#| fig-height: 6
+plot(brm_fit)
+```
+
+Read the traces from left to right. Four chains that overlap, with no drift and
+no sustained excursion, indicate the chains have converged on the same
+distribution. Chains that separate into bands, or wander, indicate they have
+not, and the estimates should not be used.
+
+## Inside the fitted object
+
+A `bayesnecfit` is a list holding the `brms` fit and a set of derived quantities.
+
+```{r}
+#| label: names
+names(bnec_fit)
+```
+
+`pred_vals` holds fitted values across the range of the predictor, which is what
+the plotting methods use and what you would use for a custom figure:
+
+```{r}
+#| label: predvals
+head(bnec_fit$pred_vals$data)
+```
+
+Every fitted model carries a posterior for the no-effect estimate, in
+`ne_posterior`, with `ne_type` recording what kind of estimate it is. For models
+in the `nec` group this is the posterior of the `nec` parameter itself. For
+models in the `ecx` group, which have no threshold parameter, it is the
+posterior of the *NSEC* [@fisherfox2023]. Module 3 explains why those are
+different things.
+
+```{r}
+#| label: ne-posterior
+#| fig-height: 4
+hist(bnec_fit$ne_posterior,
+     main = "", xlab = "No-effect concentration", col = "grey80", border = "white")
+```
+
+## Plotting
+
+`plot()` extends the base method and `autoplot()` extends the `ggplot2` method.
+Both take arguments controlling what is drawn; see `?autoplot.bayesnecfit`.
+
+```{r}
+#| label: autoplot
+#| fig-height: 4.5
+autoplot(bnec_fit) +
+  ggplot2::xlab("Concentration")
+```
+
+The result is a `ggplot` object, so it composes with `+` in the usual way, and
+most `ggplot2` functions will work on it.
+
+By default the plot is annotated with the fitted no-effect estimate and its 95%
+credible interval, and labelled with the model that was fitted. The annotation
+is labelled N(S)EC, because the same plotting code serves both model groups. For
+a `nec3param` fit the quantity is an *NEC*, and it is worth relabelling it as
+such in anything you present.
+
+## Toxicity estimates
+
+Three functions extract estimates from a fitted model: `ecx()`, `nec()` and
+`nsec()`.
+
+```{r}
+#| label: estimates
+ecx(bnec_fit)
+nec(bnec_fit)
+nsec(bnec_fit)
+```
+
+Each returns a median and a 95% probability interval by default, and each
+records how it was computed in the attributes of the returned object: `ecx()`
+returns an **EC10** unless told otherwise, and `nsec()` uses a significance
+value of 0.01.
+
+For this dataset the three estimates are close together, which happens when the
+curve declines sharply from a well-defined threshold. They are not
+interchangeable, and on other data they separate widely. Module 3 covers what
+each of them measures and when each is appropriate.
