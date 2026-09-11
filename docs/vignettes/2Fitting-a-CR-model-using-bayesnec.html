@@ -381,7 +381,7 @@ problematic observations.</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bnec_fit, <span class="st">"nec3param_fit.rds"</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"nec3param_fit.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Be deliberate about where. This fit is small by the standards of the course and the object is still 66 MB, because it stores every posterior draw for every parameter. A model-averaged set of twenty-three models is very much larger. A folder synchronised by OneDrive or a similar service is a poor choice: the upload is slow, and on some configurations it interferes with writing the file at all.</p>
+<p>Be deliberate about where. This is one of the smallest fits in the course and the object is 5.2 Mb, because it stores every posterior draw for every parameter. A model-averaged set of all 23 models is very much larger, and a fit to real data with a grouping variable larger again. A folder synchronised by OneDrive or a similar service is a poor choice: the upload is slow, and on some configurations it interferes with writing the file at all.</p>
 </section>
 <section id="the-summary" class="level2">
 <h2 class="anchored" data-anchor-id="the-summary">The summary</h2>
@@ -402,20 +402,20 @@ Formula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec))
 
 Regression Coefficients:
      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-top      0.89      0.00     0.88     0.90 1.00     7239     5581
-beta     0.54      0.06     0.42     0.66 1.00     5466     5582
-nec      1.54      0.02     1.50     1.57 1.00     5365     4897
+top      0.89      0.01     0.88     0.90 1.00     6722     5305
+beta     0.54      0.06     0.42     0.66 1.00     5266     4623
+nec      1.53      0.02     1.50     1.57 1.00     5786     4930
 
 Further Distributional Parameters:
     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-phi    51.90      7.49    38.81    68.07 1.00     6956     5566
+phi    52.03      7.61    38.22    67.79 1.00     6708     5424
 
 Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 
     Estimate Q2.5 Q97.5
-NEC     1.54 1.50  1.57
+NEC     1.53 1.50  1.57
 
 
 Bayesian R2 estimates:
@@ -428,7 +428,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <p>The family is the beta distribution with an <strong>identity link</strong>. This is deliberate and it is not the <code>brms</code> default, which for a beta response is the logit. <code>bayesnec</code> uses the identity link for every family, so that the <code>top</code>, <code>bot</code> and <code>nec</code> parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a <code>bayesnec</code> fit against a <code>brm</code> model you have written yourself: unless you pass the link explicitly, the two are different models.</p>
 <p>The <code>brms</code> formula that was actually fitted is printed. For <code>nec3param</code> it is a constant <code>top</code> until the concentration reaches <code>nec</code>, followed by exponential decay, with the switch implemented by <code>step()</code>. Module 3 sets out the equations.</p>
 <p><em>Rhat</em> is a convergence diagnostic and should be close to 1. All three parameters here are at 1.00, and the effective sample sizes are in the thousands, both of which indicate the sampler explored the posterior properly.</p>
-<p>The <em>NEC</em> estimate is given below the coefficients, as a median with a 95% credible interval, and the Bayesian R² gives an indication of fit. At 0.96 this is a well-determined curve, which is what you would expect of a simulated example.</p>
+<p>The <em>NEC</em> estimate is given below the coefficients, as a median with a 95% credible interval, and the Bayesian R² gives an indication of fit. The value here is high, as you would expect of a simulated example where the curve is well-determined; real data rarely look this tidy.</p>
 </section>
 <section id="checking-the-fit" class="level2">
 <h2 class="anchored" data-anchor-id="checking-the-fit">Checking the fit</h2>
@@ -467,12 +467,12 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           x  Estimate      Q2.5     Q97.5
-1 0.03234801 0.8891535 0.8790453 0.8985393
-2 0.03553938 0.8891535 0.8790453 0.8985393
-3 0.03873074 0.8891535 0.8790453 0.8985393
-4 0.04192210 0.8891535 0.8790453 0.8985393
-5 0.04511347 0.8891535 0.8790453 0.8985393
-6 0.04830483 0.8891535 0.8790453 0.8985393</code></pre>
+1 0.03234801 0.8890547 0.8786256 0.8986465
+2 0.03553938 0.8890547 0.8786256 0.8986465
+3 0.03873074 0.8890547 0.8786256 0.8986465
+4 0.04192210 0.8890547 0.8786256 0.8986465
+5 0.04511347 0.8890547 0.8786256 0.8986465
+6 0.04830483 0.8890547 0.8786256 0.8986465</code></pre>
 </div>
 </div>
 <p>Every fitted model carries a posterior for the no-effect estimate, in <code>ne_posterior</code>, with <code>ne_type</code> recording what kind of estimate it is. For models in the <code>nec</code> group this is the posterior of the <code>nec</code> parameter itself. For models in the <code>ecx</code> group, which have no threshold parameter, it is the posterior of the <em>NSEC</em> <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Module 3 explains why those are different things.</p>
@@ -517,7 +517,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.596507 1.564500 1.628194 
+1.596282 1.563494 1.626652 
 attr(,"resolution")
 [1] 200
 attr(,"ecx_val")
@@ -528,7 +528,7 @@ attr(,"toxicity_estimate")
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.535023 1.497395 1.570493 
+1.534924 1.497388 1.569384 
 attr(,"toxicity_estimate")
 [1] "nec"</code></pre>
 </div>
@@ -540,7 +540,7 @@ is censored above 3.22.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.542528 1.506930 1.575903 
+1.542647 1.507051 1.575059 
 attr(,"resolution")
 [1] 200
 attr(,"sig_val")
@@ -549,7 +549,7 @@ attr(,"toxicity_estimate")
 [1] "nsec"
 attr(,"ecnsec_relativeP")
       50%      2.5%     97.5% 
-1.3659681 0.2317658 2.3962617 </code></pre>
+1.4135682 0.2433627 2.4658367 </code></pre>
 </div>
 </div>
 <p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <strong>EC10</strong> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>

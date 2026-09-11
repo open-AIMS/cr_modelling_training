@@ -172,12 +172,13 @@ saveRDS(bnec_fit, "nec3param_fit.rds")
 bnec_fit <- readRDS("nec3param_fit.rds")
 ```
 
-Be deliberate about where. This fit is small by the standards of the course and
-the object is still 66 MB, because it stores every posterior draw for every
-parameter. A model-averaged set of twenty-three models is very much larger. A
-folder synchronised by OneDrive or a similar service is a poor choice: the
-upload is slow, and on some configurations it interferes with writing the file
-at all.
+Be deliberate about where. This is one of the smallest fits in the course and the
+object is `r format(object.size(bnec_fit), units = "Mb")`, because it stores
+every posterior draw for every parameter. A model-averaged set of all
+`r length(models()$all)` models is very much larger, and a fit to real data with
+a grouping variable larger again. A folder synchronised by
+OneDrive or a similar service is a poor choice: the upload is slow, and on some
+configurations it interferes with writing the file at all.
 
 ## The summary
 
@@ -209,9 +210,9 @@ parameters here are at 1.00, and the effective sample sizes are in the
 thousands, both of which indicate the sampler explored the posterior properly.
 
 The *NEC* estimate is given below the coefficients, as a median with a 95%
-credible interval, and the Bayesian R² gives an indication of fit. At 0.96 this
-is a well-determined curve, which is what you would expect of a simulated
-example.
+credible interval, and the Bayesian R² gives an indication of fit. The value here
+is high, as you would expect of a simulated example where the curve is
+well-determined; real data rarely look this tidy.
 
 ## Checking the fit
 
