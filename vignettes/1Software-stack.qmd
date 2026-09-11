@@ -21,19 +21,44 @@ compiler has to be installed to fit a curve, and why a fitted object is large.
 
 R is the language. Positron is the editor used throughout the course: an
 environment for writing and running R, with the script you are editing in one
-pane and a live R session, the console, in another. Code is sent from the script
-to the console a line or a block at a time, so the script is the record of what
-was done and the console is where it happens.
+pane and a live R session, the console, in another.
 
-![Positron with an R session running. The interpreter in use is named at the top
-right, the open project beside it, and the working directory above the console.
-The Variables and Plots panes are on the right.](images/positron_R.png){#fig-positron}
+A new session starts empty.
 
-The console reports which R started and the top right names the interpreter
-Positron is using — `R 4.5.1` in @fig-positron. Check it when something is
-missing that you know you installed: more than one R on a machine is common, and
-each has its own library, so a package installed under one is absent under
-another.
+![Positron with a new R session. The console reports which R started, and the
+interpreter in use is named at the top right with the open project beside
+it.](images/positron_R.png){#fig-positron-new}
+
+Code is sent from the script to the console a line or a block at a time, rather
+than typed into the console directly. The script is then the record of what was
+done, and can be re-run from the top to reproduce it; the console is where it
+happens.
+
+![The same window after running a short script. The console echoes the lines it
+was sent, the Variables pane lists the objects that now exist and what they
+contain, and the plot appears in the Plots pane.](images/positron_R2.png){#fig-positron-run}
+
+Four parts of that window are worth knowing before the first model is fitted.
+
+**The editor**, top left, holds the script. Run the current line or selection
+with `Ctrl`+`Enter` (`Cmd`+`Enter` on macOS) and it is sent to the console below.
+
+**The console**, bottom left, is the running R session. It echoes what it was
+sent, so @fig-positron-run shows the same four lines in both panes.
+
+**Variables**, top right, lists every object in the session with its type and
+contents — `x` as an integer vector of ten values and `y` as a double in the
+figure. It is the quickest way to see whether an object is what you expected,
+which matters later when a fitted model is a deeply nested list rather than a
+vector.
+
+**Plots**, bottom right, collects the figures produced, with arrows to step back
+through earlier ones and a control to save the current figure.
+
+The interpreter in use is named at the top right of the window, with the open
+project beside it. Check it when something is missing that you know you
+installed: more than one R on a machine is common, and each has its own library,
+so a package installed under one is absent under another.
 
 Two habits matter more here than in ordinary R work.
 

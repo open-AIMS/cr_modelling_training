@@ -284,18 +284,35 @@ div.csl-indent {
 <p>Fitting a concentration-response model in this course sets several pieces of software working together, and a failure in any of them surfaces as an error in whichever one you were typing into. Knowing what each layer does makes those errors readable, and it explains several things about the workflow that are otherwise arbitrary: why the first model of a session is slow, why a C++ compiler has to be installed to fit a curve, and why a fitted object is large.</p>
 <section id="the-working-environment" class="level2">
 <h2 class="anchored" data-anchor-id="the-working-environment">The working environment</h2>
-<p>R is the language. Positron is the editor used throughout the course: an environment for writing and running R, with the script you are editing in one pane and a live R session, the console, in another. Code is sent from the script to the console a line or a block at a time, so the script is the record of what was done and the console is where it happens.</p>
-<div id="fig-positron" class="quarto-float quarto-figure quarto-figure-center anchored">
+<p>R is the language. Positron is the editor used throughout the course: an environment for writing and running R, with the script you are editing in one pane and a live R session, the console, in another.</p>
+<p>A new session starts empty.</p>
+<div id="fig-positron-new" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-positron-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-positron-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/positron_R.png" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positron-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Positron with an R session running. The interpreter in use is named at the top right, the open project beside it, and the working directory above the console. The Variables and Plots panes are on the right.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positron-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Positron with a new R session. The console reports which R started, and the interpreter in use is named at the top right with the open project beside it.
 </figcaption>
 </figure>
 </div>
-<p>The console reports which R started and the top right names the interpreter Positron is using — <code>R 4.5.1</code> in <a href="#fig-positron" class="quarto-xref">Figure&nbsp;1</a>. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another.</p>
+<p>Code is sent from the script to the console a line or a block at a time, rather than typed into the console directly. The script is then the record of what was done, and can be re-run from the top to reproduce it; the console is where it happens.</p>
+<div id="fig-positron-run" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-positron-run-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/positron_R2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positron-run-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The same window after running a short script. The console echoes the lines it was sent, the Variables pane lists the objects that now exist and what they contain, and the plot appears in the Plots pane.
+</figcaption>
+</figure>
+</div>
+<p>Four parts of that window are worth knowing before the first model is fitted.</p>
+<p><strong>The editor</strong>, top left, holds the script. Run the current line or selection with <code>Ctrl</code>+<code>Enter</code> (<code>Cmd</code>+<code>Enter</code> on macOS) and it is sent to the console below.</p>
+<p><strong>The console</strong>, bottom left, is the running R session. It echoes what it was sent, so <a href="#fig-positron-run" class="quarto-xref">Figure&nbsp;2</a> shows the same four lines in both panes.</p>
+<p><strong>Variables</strong>, top right, lists every object in the session with its type and contents — <code>x</code> as an integer vector of ten values and <code>y</code> as a double in the figure. It is the quickest way to see whether an object is what you expected, which matters later when a fitted model is a deeply nested list rather than a vector.</p>
+<p><strong>Plots</strong>, bottom right, collects the figures produced, with arrows to step back through earlier ones and a control to save the current figure.</p>
+<p>The interpreter in use is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another.</p>
 <p>Two habits matter more here than in ordinary R work.</p>
 <p><strong>Work in a project.</strong> A project fixes the working directory, so relative paths like <code>read.csv("mydata.csv")</code> resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.</p>
 <p><strong>Do not save the workspace.</strong> R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.</p>
@@ -319,7 +336,7 @@ Figure&nbsp;1: Positron with an R session running. The interpreter in use is nam
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Each layer is called by the one above it.
+Figure&nbsp;3: Each layer is called by the one above it.
 </figcaption>
 </figure>
 </div>
@@ -369,7 +386,7 @@ posterior  1.6.1</code></pre>
 <img src="images/bayesnec_website.png" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-website-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: The <code>bayesnec</code> reference site. <em>Reference</em> documents every exported function, <em>Articles</em> covers single-model and multi-model usage, the model set, priors and comparing posterior predictions, and <em>Changelog</em> records what changed between versions.
+Figure&nbsp;4: The <code>bayesnec</code> reference site. <em>Reference</em> documents every exported function, <em>Articles</em> covers single-model and multi-model usage, the model set, priors and comparing posterior predictions, and <em>Changelog</em> records what changed between versions.
 </figcaption>
 </figure>
 </div>
@@ -381,7 +398,7 @@ Figure&nbsp;3: The <code>bayesnec</code> reference site. <em>Reference</em> docu
 <img src="images/bayesnec_landing.png" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-github-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: The source repository. Problems are reported under <em>Issues</em>.
+Figure&nbsp;5: The source repository. Problems are reported under <em>Issues</em>.
 </figcaption>
 </figure>
 </div>
