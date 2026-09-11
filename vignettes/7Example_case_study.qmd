@@ -1,0 +1,328 @@
+---
+title: "A worked case study"
+subtitle: "Estimating and comparing the toxicity of seven herbicides"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(bayesnec)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+```
+
+## Background
+
+The posterior draws a Bayesian fit produces are useful well beyond a point
+estimate. They support the study of synergistic and antagonistic effects
+[@Fisher2019d; @flores2021], the propagation of endpoint uncertainty
+[@Charles2020a; @Gottschalk2013], and tests of hypotheses of no effect
+[@Thomas2006].
+
+`compare_posterior()` uses them to compare fits: differences in a threshold
+estimate such as the *NEC*, *NSEC* or an **EC~x~**, or differences across a
+range of predictor values.
+
+```{r}
+#| label: fig-context
+#| out-width: "48%"
+#| layout-ncol: 2
+#| echo: false
+knitr::include_graphics(c("images/dredging_effects.JPG", "images/herbicides_climate.JPG"))
+```
+
+## The data
+
+Earlier modules used simulated data. This one works through a real analysis:
+estimating no-effect concentrations for a set of herbicides and comparing their
+relative toxicity.
+
+The data are from @jones2003meps and ship with `bayesnec`.
+
+```{r}
+#| label: fig-source
+#| out-width: "48%"
+#| layout-ncol: 2
+#| echo: false
+knitr::include_graphics(c("images/jonesnkerswell.jpg", "images/s_hystrix.jpg"))
+```
+
+The response is the maximum effective quantum yield, $\Delta F / Fm'$, of
+symbiotic dinoflagellates in the tissue of the coral *Seriatopora hystrix*,
+calculated from chlorophyll fluorescence measured with a DIVING-PAM fluorometer
+[@jones2003meps; @jones2003effects]. Corals were exposed for 10 hours to eight
+herbicides at concentrations from 0.3 to 1000 $\mu g L^{-1}$. Ioxynil is
+excluded here because it produced no adequate response at the highest
+concentration, leaving seven.
+
+```{r}
+#| label: data
+data(herbicide)
+str(herbicide)
+table(herbicide$herbicide)
+```
+
+## How these fits were produced
+
+Seven herbicides fitted against the `decline` set is
+`r length(models()$decline)` equations each, and takes hours. These fits are
+therefore **not run when this page is built**. They are produced by
+`scripts/generate_herbicide_fits.R`, which writes the compact results this
+module reads. The fitted objects themselves are far too large to keep — the
+2023 equivalent was 451 MB.
+
+The code shown below is the code that was run. It is displayed rather than
+executed, and every result on this page comes from that run.
+
+```{r}
+#| label: provenance
+#| echo: false
+#| comment: ""
+cat(readLines("data/herbicide_provenance.txt"), sep = "\n")
+```
+
+## Fitting one herbicide
+
+Taking ametryn first. The concentration is log transformed before fitting, both
+because it stabilises the fit and because the concentration series is
+logarithmic by design. There is little evidence of hormesis in these data, so
+the `decline` set is used rather than the full set.
+
+```{r}
+#| label: fit-ametryn-shown
+#| eval: false
+ametryn <- herbicide |>
+  mutate(concentration = log(concentration)) |>
+  filter(herbicide == "ametryn")
+
+manecfit_ametryn <- bnec(fvfm ~ crf(concentration, model = "decline"),
+                         data = ametryn, seed = 17)
+```
+
+Every argument other than the model set is left at its default. `bayesnec`
+selects a beta distribution for the response, uses the identity link, and drops
+`neclin` and `ecxlin` from the `decline` set because they are not suitable for a
+zero-bounded distribution.
+
+### The summary
+
+```{r}
+#| label: ametryn-summary
+#| echo: false
+#| comment: ""
+cat(readLines("data/ametryn_summary.txt"), sep = "\n")
+```
+
+The weights are spread across several smooth equations with limited support for
+the threshold models. The no-effect estimate is reported on the log
+concentration scale, because that is the scale the model was fitted on.
+
+### Every equation in the set
+
+```{r}
+#| label: fig-ametryn-all
+#| fig-height: 6
+#| fig-cap: "Each equation fitted to the ametryn data, with its 95% credible interval."
+allmods <- read.csv("data/ametryn_allmodels.csv")
+
+ggplot(allmods, aes(x = concentration)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "grey80") +
+  geom_line(aes(y = Estimate)) +
+  facet_wrap(~ model) +
+  scale_x_continuous(trans = "log",
+                     breaks = c(0.3, 3, 30, 300)) +
+  labs(x = expression("Concentration ("*mu*"g/L)"),
+       y = expression(Delta*"F/Fm'")) +
+  theme_classic()
+```
+
+Fits should also be checked with `check_chains()` and `check_priors()`, as
+modules 4 and 6 describe. Both take a `filename`, which writes the plots to a
+PDF suitable for an analysis appendix rather than to the screen.
+
+## Fitting all seven
+
+The same call is applied to each herbicide in turn.
+
+```{r}
+#| label: fit-all-shown
+#| eval: false
+manecfit <- herbicide |>
+  mutate(concentration = log(concentration)) |>
+  split(f = ~ herbicide) |>
+  purrr::map(function(x) {
+    bnec(fvfm ~ crf(concentration, model = "decline"), data = x, seed = 17)
+  })
+```
+
+### Dropping models that did not converge
+
+Any model failing the R-hat criterion is removed with `amend()`.
+
+```{r}
+#| label: clean-shown
+#| eval: false
+failed_models <- function(fit) {
+  r <- rhat(fit)
+  names(which(vapply(r, function(z) isTRUE(z$failed), logical(1))))
+}
+
+cleaned_fits <- purrr::map(manecfit, function(fit) {
+  bad <- failed_models(fit)
+  if (length(bad) > 0) amend(fit, drop = bad) else fit
+})
+```
+
+`rhat()` on a `bayesmanecfit` returns a list keyed by model name, each element
+holding the R-hat values and a logical `failed`. It is worth extracting it as
+above rather than reaching for `rhat(fit)$failed`, which is `NULL` on that
+structure and silently drops nothing. The default cutoff is 1.01.
+
+```{r}
+#| label: failed-models
+#| echo: false
+failed <- read.csv("data/herbicide_rhat_failed.csv")
+if (nrow(failed) == 0) {
+  cat("No model failed the R-hat criterion.\n")
+} else {
+  kable(failed, caption = "Models dropped for failing the R-hat criterion.")
+}
+```
+
+## Model weights across herbicides
+
+```{r}
+#| label: tbl-weights
+#| tbl-cap: "Fitted models and their relative weights, for the effect of seven herbicides on the maximum effective quantum yield of symbiotic dinoflagellates of *Seriatopora hystrix*."
+modstats <- read.csv("data/herbicide_mod_stats.csv")
+
+modstats |>
+  mutate(wi = round(wi, 3)) |>
+  select(herbicide, model, wi) |>
+  pivot_wider(names_from = herbicide, values_from = wi) |>
+  kable()
+```
+
+The best-fitting equations differ substantially between herbicides. Few show
+much weight on the threshold models. Among the smooth equations the weights vary
+widely, with support for more than one in every case.
+
+That is the argument for model averaging in a sentence: there is no single
+equation that is right for these data, the best one differs by herbicide, and
+selecting one would discard the uncertainty about which. Averaging carries it
+through into the estimates instead.
+
+Some models failed to fit under the default settings for every herbicide. Custom
+priors or initial values would likely recover them, but with a large number of
+well-fitting models already in each set, doing so is unlikely to change the
+inference.
+
+## The fitted curves
+
+```{r}
+#| label: fig-all-herbicides
+#| fig-height: 8
+#| fig-cap: "Model-averaged concentration-response curves for seven herbicides, with 95% credible intervals and the observations."
+preds <- read.csv("data/herbicide_pred_vals.csv")
+obs   <- read.csv("data/herbicide_observations.csv")
+
+ggplot(preds, aes(x = concentration)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "grey80") +
+  geom_line(aes(y = Estimate)) +
+  geom_point(data = obs, aes(y = fvfm), size = 0.6, alpha = 0.5) +
+  facet_wrap(~ herbicide, ncol = 2) +
+  scale_x_continuous(trans = "log", breaks = c(0.3, 3, 30, 300)) +
+  labs(x = expression("Concentration ("*mu*"g/L)"),
+       y = expression(Delta*"F/Fm'")) +
+  theme_classic()
+```
+
+## The toxicity estimates
+
+The value reported for each herbicide is a model-averaged posterior combining
+the *NEC* parameter from the threshold equations with the *NSEC* from the smooth
+ones, which is what module 3 described. It is labelled N(S)EC for that reason.
+
+```{r}
+#| label: tbl-estimates
+#| tbl-cap: "Model-averaged no-effect estimates, back-transformed to concentration."
+read.csv("data/herbicide_estimates.csv") |>
+  transmute(Herbicide = herbicide,
+            `Estimate` = signif(estimate, 3),
+            `Lower 95%` = signif(lower, 3),
+            `Upper 95%` = signif(upper, 3)) |>
+  kable()
+```
+
+These are the estimates that would enter a guideline derivation. In Australia
+that is the Australian and New Zealand Water Quality Guidelines [@anzg], where
+the *NEC* is the established preference [@Warne2015; @warne2018] and use of the
+*NSEC* is recent [@Fisher2022] and not yet formally adopted.
+
+```{r}
+#| label: fig-nsecieam
+#| out-width: "34%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/NSEC_ieam.jpg")
+```
+
+## Comparing the posteriors
+
+`compare_posterior()` extracts the weighted posterior for each fit so they can
+be compared directly, rather than by asking whether intervals overlap.
+
+```{r}
+#| label: compare-shown
+#| eval: false
+post_comp <- compare_posterior(cleaned_fits, comparison = "nec")
+```
+
+```{r}
+#| label: fig-posteriors
+#| fig-height: 4.5
+#| fig-cap: "Posterior densities of the N(S)EC estimate for each herbicide."
+post <- read.csv("data/herbicide_ne_posterior.csv")
+
+ggplot(post, aes(x = concentration, group = model,
+                 colour = model, fill = model)) +
+  geom_density(alpha = 0.3) +
+  scale_x_continuous(trans = "log", breaks = c(0.3, 1, 3, 10, 30),
+                     labels = c(0.3, 1, 3, 10, 30)) +
+  labs(x = expression("Concentration ("*mu*"g/L)"), y = "Density",
+       colour = "Herbicide", fill = "Herbicide") +
+  theme_classic()
+```
+
+Irgarol, diuron and ametryn are the most toxic and are similar to one another,
+their densities overlapping substantially. Tebuthiuron is the least toxic,
+followed by simazine and atrazine, with hexazinone intermediate.
+
+## Probabilities of difference
+
+Overlapping densities are a visual impression. `compare_posterior()` also
+returns the probability that one estimate is lower than another, computed from
+the draws.
+
+```{r}
+#| label: tbl-probdiff
+#| tbl-cap: "Probability of difference in no-effect toxicity between herbicides, from the overlap in their posterior densities."
+read.csv("data/herbicide_prob_diff.csv") |>
+  separate(col = comparison, into = c("herbicide", "against"), sep = "-") |>
+  pivot_wider(names_from = against, values_from = prob) |>
+  kable()
+```
+
+This is the practical advantage of having the posterior rather than an interval.
+The question "is A more toxic than B" is answered with a probability computed
+from the draws, without a significance test, and it propagates the uncertainty
+in the curve shape as well as in the parameters.
+
+## References
+
+::: {#refs}
+:::

@@ -149,9 +149,21 @@ remotes::install_github("open-AIMS/bayesnec", ref = "dev")
 The commit each build actually used is recorded here rather than pinned, so a
 published page remains attributable to a state of the package.
 
-| Date | `dev` commit | Version | Modules rendered |
+| Date | commit | Version | Modules rendered |
 |---|---|---|---|
-| 2026-09-11 | `fc33ca84` | 2.1.3.33 | 2, 3 |
+| 2026-09-11 | `dev` `fc33ca84` | 2.1.3.33 | 2, 3, 5 |
+| 2026-09-11 | PR #321 `3226749` | 2.1.3.34 | 4, 6 |
+
+The second row departs from `dev`. Module 4 demonstrates model averaging by
+combining single fits with `c()` and `amend()`, which is the path on which the
+pseudo-BMA weighting default was lost (#320); PR #321 supplies the default
+wherever a set is assembled, and RF approved building module 4 against whatever
+version works. Module 6 was rendered in the same pass.
+
+Modules 2, 3 and 5 remain frozen against `fc33ca84` and are unaffected: #321
+changes only how weights are defaulted when a set is assembled outside `bnec()`,
+and none of them does that. Re-render everything once #321 merges to `dev`, so
+the whole site reports one version.
 
 Re-check `dev` before a render, reinstall if it has moved, and clear `_freeze/`
 for every module that fits a model, because freeze does not notice a package
