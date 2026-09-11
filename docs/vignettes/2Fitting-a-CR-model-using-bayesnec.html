@@ -402,13 +402,13 @@ Formula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec))
 
 Regression Coefficients:
      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-top      0.89      0.01     0.88     0.90 1.00     6754     5905
-beta     0.54      0.05     0.43     0.65 1.00     5776     4871
-nec      1.54      0.02     1.50     1.57 1.00     5870     4997
+top      0.89      0.00     0.88     0.90 1.00     7239     5581
+beta     0.54      0.06     0.42     0.66 1.00     5466     5582
+nec      1.54      0.02     1.50     1.57 1.00     5365     4897
 
 Further Distributional Parameters:
     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-phi    51.99      7.62    38.25    68.32 1.00     6847     5389
+phi    51.90      7.49    38.81    68.07 1.00     6956     5566
 
 Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -466,13 +466,13 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           x Estimate      Q2.5     Q97.5
-1 0.03234801 0.889049 0.8784447 0.8985305
-2 0.03553938 0.889049 0.8784447 0.8985305
-3 0.03873074 0.889049 0.8784447 0.8985305
-4 0.04192210 0.889049 0.8784447 0.8985305
-5 0.04511347 0.889049 0.8784447 0.8985305
-6 0.04830483 0.889049 0.8784447 0.8985305</code></pre>
+<pre><code>           x  Estimate      Q2.5     Q97.5
+1 0.03234801 0.8891535 0.8790453 0.8985393
+2 0.03553938 0.8891535 0.8790453 0.8985393
+3 0.03873074 0.8891535 0.8790453 0.8985393
+4 0.04192210 0.8891535 0.8790453 0.8985393
+5 0.04511347 0.8891535 0.8790453 0.8985393
+6 0.04830483 0.8891535 0.8790453 0.8985393</code></pre>
 </div>
 </div>
 <p>Every fitted model carries a posterior for the no-effect estimate, in <code>ne_posterior</code>, with <code>ne_type</code> recording what kind of estimate it is. For models in the <code>nec</code> group this is the posterior of the <code>nec</code> parameter itself. For models in the <code>ecx</code> group, which have no threshold parameter, it is the posterior of the <em>NSEC</em> <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Module 3 explains why those are different things.</p>
@@ -517,9 +517,9 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.596116 1.564202 1.628030 
+1.596507 1.564500 1.628194 
 attr(,"resolution")
-[1] 1000
+[1] 200
 attr(,"ecx_val")
 [1] 10
 attr(,"toxicity_estimate")
@@ -528,23 +528,28 @@ attr(,"toxicity_estimate")
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.535680 1.499262 1.569836 
+1.535023 1.497395 1.570493 
 attr(,"toxicity_estimate")
 [1] "nec"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nsec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The nec3param curve does not fall below the control's 0.01 quantile
+anywhere in the predictor range for 80 of 8000 draws, which return NA. The NSEC
+is censored above 3.22.</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.543764 1.509624 1.579198 
+1.542528 1.506930 1.575903 
 attr(,"resolution")
-[1] 1000
+[1] 200
 attr(,"sig_val")
 [1] 0.01
 attr(,"toxicity_estimate")
 [1] "nsec"
 attr(,"ecnsec_relativeP")
       50%      2.5%     97.5% 
-1.4820684 0.2220197 2.5817716 </code></pre>
+1.3659681 0.2317658 2.3962617 </code></pre>
 </div>
 </div>
 <p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <strong>EC10</strong> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>

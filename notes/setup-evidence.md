@@ -80,6 +80,34 @@ measured, and the instructions should not imply otherwise.
 `vignettes/check_setup.R` reports on the first two directly, by inspecting `HOME`
 before anything is compiled.
 
+## The bayesnec version the site is built against
+
+The site is rendered against a named commit rather than against whatever happens
+to be installed, so that the published output and the version participants are
+told to install cannot diverge.
+
+**Current pin: `open-AIMS/bayesnec` at `fc33ca8424b7100dc53feed7f6538a9eac1a31ba`**,
+the head of `dev` on 2026-09-11, reporting version 2.1.3.33 and `NEWS.md` for
+2.2.0. Installed with:
+
+```r
+remotes::install_github("open-AIMS/bayesnec",
+                        ref = "fc33ca8424b7100dc53feed7f6538a9eac1a31ba")
+```
+
+This is an interim pin. It is not the feature branch `issue-309-init-search`,
+which was the checkout in the local working tree on that date and which sat nine
+commits off `dev`; a course should not be built against unmerged work. It is
+expected to be replaced by a release tag once the 2.2.0 development work
+concludes, at which point module 1's placeholder is filled with the release
+version and every module is re-rendered.
+
+Two 2.2.0 changes were confirmed present at this commit by rendering module 2
+against it: the default `resolution` in `ecx()` and `nsec()` is 200 rather than
+1000, and `hormesis_def` is absent from both while `ecnsec()` exists. The
+`ne_posterior` and `ne_type` elements of a `bayesnecfit`, and the `ecx()` default
+of EC10 and `nsec()` default `sig_val` of 0.01, are unchanged from 2.1.3.7.
+
 ## Instruction corrections for module 1
 
 - Rtools must match R: **Rtools45 for R 4.5.x**, Rtools44 for 4.4.x. Module 1

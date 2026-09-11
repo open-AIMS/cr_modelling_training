@@ -312,6 +312,29 @@ superseded drafts, background reading, the installer bundle and the 2023 build a
 It is git-ignored in full, so nothing placed there is backed up by the remote. This is the
 repository's equivalent of the `superceded/` folder in parent §7.
 
+**Freeze does not notice a package upgrade.** `execute: freeze: auto` keys on the source
+document, not on the environment that rendered it. Upgrading `bayesnec`, `brms` or Stan
+leaves every frozen result in place, so the site keeps publishing output from the previous
+version with no warning and no diff. Clear the stored result for the affected modules and
+re-render:
+
+```bash
+rm -rf _freeze/vignettes/<module>
+quarto render
+```
+
+Measured on 2026-09-11: module 2 was rendered under `bayesnec` 2.1.3.7, the package was
+upgraded to 2.1.3.33, and a plain `quarto render` reproduced the 2.1.3.7 output unchanged.
+The default `resolution` had changed from 1000 to 200 between those versions, so the
+published page would have reported a superseded default as current.
+
+After any package upgrade, clear `_freeze/` for every module that fits a model.
+
+**The `bayesnec` version the site is built against is pinned.** Modules are rendered against
+a named commit, not against whatever is installed, so that the published output and the
+version participants are told to install are the same thing. The current pin is recorded in
+`notes/setup-evidence.md`. Re-render every module after changing it.
+
 **Prompt logging.** Parent §10 applies. Course modules are teaching material about the
 analyses, so a change to a module's explanation of a method, to its code, or to which model
 is fitted **is** logged. Fixing a typo, restyling, or converting a document's format is
