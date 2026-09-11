@@ -91,7 +91,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../vignettes/3Toxicity_estimation_and_available_models.html" rel="next">
-<link href="../vignettes/1Getting-started.html" rel="prev">
+<link href="../vignettes/1Software-stack.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -155,11 +155,11 @@ div.csl-indent {
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../vignettes/1Getting-started.html"> 
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
 <span class="menu-text">Setup</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html"> 
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
 <span class="menu-text">Modules</span></a>
   </li>  
 </ul>
@@ -173,7 +173,7 @@ div.csl-indent {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">2. Fitting a single model</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">2. Fitting a single model</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -202,7 +202,7 @@ div.csl-indent {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../vignettes/1Getting-started.html" class="sidebar-item-text sidebar-link">
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Software setup</span></a>
   </div>
 </li>
@@ -217,6 +217,12 @@ div.csl-indent {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link active">
@@ -259,7 +265,7 @@ div.csl-indent {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">2. Fitting a single model</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html">2. Fitting a single model</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Fitting a single model</h1>
 <p class="subtitle lead">One concentration-response model in <code>bayesnec</code>, start to finish</p>
@@ -283,7 +289,7 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="background">Background</h2>
 <p><code>bayesnec</code> fits concentration-response curves to toxicity data and derives no-effect concentration (<em>NEC</em>), no-significant-effect concentration (<em>NSEC</em>, <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>) and effect concentration (<strong>EC<sub>x</sub></strong>) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via <code>brms</code> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> and Stan. It is an extension of <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>.</p>
 <p>This module fits one model to one dataset and works through everything that can be done with the result: checking that it converged, looking inside the fitted object, plotting it, and extracting toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, and priors.</p>
-<p>If you have not yet installed R, a C++ compiler, CmdStan and <code>bayesnec</code>, work through the <a href="../vignettes/1Getting-started.html">software setup</a> first. Nothing in this module will run without them.</p>
+<p>If you have not yet installed R, a C++ compiler, CmdStan and <code>bayesnec</code>, work through the <a href="../vignettes/0Software-setup.html">software setup</a> first. Nothing in this module will run without them.</p>
 </section>
 <section id="the-example-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="the-example-dataset">The example dataset</h2>
@@ -413,13 +419,13 @@ Formula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec))
 
 Regression Coefficients:
      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-top      0.89      0.01     0.88     0.90 1.00     6722     5305
-beta     0.54      0.06     0.42     0.66 1.00     5266     4623
-nec      1.53      0.02     1.50     1.57 1.00     5786     4930
+top      0.89      0.01     0.88     0.90 1.00     6828     5349
+beta     0.54      0.06     0.42     0.65 1.00     6079     5455
+nec      1.53      0.02     1.50     1.57 1.00     5747     4693
 
 Further Distributional Parameters:
     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-phi    52.03      7.61    38.22    67.79 1.00     6708     5424
+phi    51.98      7.68    38.33    68.51 1.00     6774     5628
 
 Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -478,12 +484,12 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           x  Estimate      Q2.5     Q97.5
-1 0.03234801 0.8890547 0.8786256 0.8986465
-2 0.03553938 0.8890547 0.8786256 0.8986465
-3 0.03873074 0.8890547 0.8786256 0.8986465
-4 0.04192210 0.8890547 0.8786256 0.8986465
-5 0.04511347 0.8890547 0.8786256 0.8986465
-6 0.04830483 0.8890547 0.8786256 0.8986465</code></pre>
+1 0.03234801 0.8891093 0.8787846 0.8988074
+2 0.03553938 0.8891093 0.8787846 0.8988074
+3 0.03873074 0.8891093 0.8787846 0.8988074
+4 0.04192210 0.8891093 0.8787846 0.8988074
+5 0.04511347 0.8891093 0.8787846 0.8988074
+6 0.04830483 0.8891093 0.8787846 0.8988074</code></pre>
 </div>
 </div>
 <p>Every fitted model carries a posterior for the no-effect estimate, in <code>ne_posterior</code>, with <code>ne_type</code> recording what kind of estimate it is. For models in the <code>nec</code> group this is the posterior of the <code>nec</code> parameter itself. For models in the <code>ecx</code> group, which have no threshold parameter, it is the posterior of the <em>NSEC</em> <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Module 3 explains why those are different things.</p>
@@ -528,7 +534,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.596282 1.563494 1.626652 
+1.596165 1.563258 1.627328 
 attr(,"resolution")
 [1] 200
 attr(,"ecx_val")
@@ -539,7 +545,7 @@ attr(,"toxicity_estimate")
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.534924 1.497388 1.569384 
+1.534904 1.496877 1.569845 
 attr(,"toxicity_estimate")
 [1] "nec"</code></pre>
 </div>
@@ -551,7 +557,7 @@ is censored above 3.22.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.542647 1.507051 1.575059 
+1.542563 1.506558 1.575238 
 attr(,"resolution")
 [1] 200
 attr(,"sig_val")
@@ -559,8 +565,8 @@ attr(,"sig_val")
 attr(,"toxicity_estimate")
 [1] "nsec"
 attr(,"ecnsec_relativeP")
-      50%      2.5%     97.5% 
-1.4135682 0.2433627 2.4658367 </code></pre>
+     50%     2.5%    97.5% 
+1.378365 0.219677 2.442490 </code></pre>
 </div>
 </div>
 <p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <strong>EC10</strong> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>
@@ -986,8 +992,8 @@ Fisher, Rebecca, Gerard Ricardo, and David Fox. 2020. <em><span class="nocase">B
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../vignettes/1Getting-started.html" class="pagination-link" aria-label="Software setup">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Software setup</span>
+      <a href="../vignettes/1Software-stack.html" class="pagination-link" aria-label="1. The software stack">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">1. The software stack</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

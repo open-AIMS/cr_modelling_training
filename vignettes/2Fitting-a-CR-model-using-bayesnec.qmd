@@ -28,7 +28,7 @@ full model set, model averaging, the choice of statistical distribution, and
 priors.
 
 If you have not yet installed R, a C++ compiler, CmdStan and `bayesnec`, work
-through the [software setup](1Getting-started.qmd) first. Nothing in this module
+through the [software setup](0Software-setup.qmd) first. Nothing in this module
 will run without them.
 
 ## The example dataset

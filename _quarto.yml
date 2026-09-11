@@ -8,7 +8,8 @@ project:
   # module here as it is converted.
   render:
     - index.qmd
-    - vignettes/1Getting-started.qmd
+    - vignettes/0Software-setup.qmd
+    - vignettes/1Software-stack.qmd
     - vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
     - vignettes/3Toxicity_estimation_and_available_models.qmd
 
@@ -30,9 +31,9 @@ website:
     left:
       - href: index.qmd
         text: Overview
-      - href: vignettes/1Getting-started.qmd
+      - href: vignettes/0Software-setup.qmd
         text: Setup
-      - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+      - href: vignettes/1Software-stack.qmd
         text: Modules
   sidebar:
     style: docked
@@ -41,10 +42,12 @@ website:
         text: Overview
       - section: "Before you start"
         contents:
-          - href: vignettes/1Getting-started.qmd
+          - href: vignettes/0Software-setup.qmd
             text: Software setup
       - section: "Modules"
         contents:
+          - href: vignettes/1Software-stack.qmd
+            text: "1. The software stack"
           - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
             text: "2. Fitting a single model"
           - href: vignettes/3Toxicity_estimation_and_available_models.qmd

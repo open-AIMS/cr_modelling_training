@@ -35,9 +35,13 @@ On completing the material you will be able to:
 
 ## Modules
 
+Before the modules: [software setup](vignettes/0Software-setup.qmd) installs R,
+a C++ compiler, CmdStan and the R packages, and verifies the installation. It is
+not taught; it is done beforehand.
+
 | | Module | Subject |
 |---|---|---|
-| 1 | [Software setup](vignettes/1Getting-started.qmd) | R, the C++ toolchain, CmdStan, Positron |
+| 1 | [The software stack](vignettes/1Software-stack.qmd) | R, Stan, `brms` and `bayesnec`, and Positron |
 | 2 | [Fitting a single model](vignettes/2Fitting-a-CR-model-using-bayesnec.qmd) | the `bnec` call, the fitted object, plotting |
 | 3 | [Toxicity estimation and the model set](vignettes/3Toxicity_estimation_and_available_models.qmd) | NEC, NSEC and ECx, and the available equations |
 | 4 | Model averaging and multi-model inference | candidate sets, weights, averaged estimates |
@@ -63,7 +67,7 @@ these modules are shown with their code and their output rather than being run
 as you read. Anything that runs quickly is intended to be run.
 
 If you want to run the code yourself, work through the [software
-setup](vignettes/1Getting-started.qmd) first. It installs R, a C++ compiler,
+setup](vignettes/0Software-setup.qmd) first. It installs R, a C++ compiler,
 CmdStan and the R packages, and ends with a script that verifies the
 installation.
 
@@ -71,7 +75,7 @@ installation.
 
 This material is taught as a full-day workshop at SETAC Australasia 2026.
 
-The [software setup](vignettes/1Getting-started.qmd) is pre-work and must be
+The [software setup](vignettes/0Software-setup.qmd) is pre-work and must be
 completed beforehand. No time is set aside on the day to install or repair
 software, and a participant without a working installation will be able to
 follow the demonstrations but not fit models alongside them.

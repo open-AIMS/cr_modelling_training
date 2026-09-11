@@ -14,7 +14,7 @@ written to be read as, and the modules are ordered and cross-linked on it.
 
 Running the code requires R, a C++ compiler, CmdStan and several R packages. The
 [software setup
-module](https://open-aims.github.io/cr_modelling_training/vignettes/1Getting-started.html)
+module](https://open-aims.github.io/cr_modelling_training/vignettes/0Software-setup.html)
 covers the installation on Windows, macOS and Linux, and ends with a script that
 verifies it.
 

@@ -45,10 +45,16 @@ the same file stem, so the numbering and any existing reference still resolve. D
 a module into a new directory; module 1 was briefly split into a `setup/` folder on
 2026-09-11 and moved back the same day.
 
-Module 1 is converted. It is `vignettes/1Getting-started.qmd`, with
-`vignettes/check_setup.R` beside it, and it is the only module that is not taught: it is
-issued as pre-work, and a participant who has not completed it cannot fit models during
-the workshop. There is no troubleshooting slot on the day.
+**Software setup is pre-work and sits outside the numbered sequence.** It is
+`vignettes/0Software-setup.qmd`, with `vignettes/check_setup.R` beside it. It is issued
+before the workshop and is not taught: a participant who has not completed it cannot fit
+models on the day, and there is no troubleshooting slot. Module 1 is
+`vignettes/1Software-stack.qmd`, which is taught, and covers what R, Stan, `brms` and
+`bayesnec` each contribute and how Positron is used.
+
+**Converting a module touches three places**, and missing one leaves the module
+unreachable: the `project: render:` list and the sidebar in `_quarto.yml`, and the module
+table in `index.qmd`.
 
 **The runtime is not yet decided, and it is the first thing to settle.** The three routes
 differ in what they can execute, and the course fits Bayesian models:
@@ -85,10 +91,11 @@ same subject, and the two are taught back to back.
 | # | File stem | Title | Notes |
 |---|---|---|---|
 | 0 | `0Overview` | course outline | title is wrong, see §7 |
-| 1 | `1Getting-started` | Software setup | **converted to `.qmd`**, pre-workshop, not taught |
-| 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model using bayesnec | |
+| — | `0Software-setup` | Software setup | **converted**, pre-work, not taught, unnumbered |
+| 1 | `1Software-stack` | The software stack | **converted**, new: R, Stan, `brms`, `bayesnec`, Positron |
+| 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model | **converted** |
 | 2d | `2d Fitting-a-CR-model-using-drc` | Fitting a single model using drc | **space in the filename** |
-| 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the available models | |
+| 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the model set | **converted** |
 | 3d | `3dToxicity_estimation_and_available_models` | Toxicity estimation and the available models in drc | |
 | 4 | `4Model_averaging_and_multimodel_inference` | Model averaging and multimodel inference | |
 | 4d | `4dModel_averaging_and_multimodel_inference` | Model averaging in drc | **not learnr**, see §7 |

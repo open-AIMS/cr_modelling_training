@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Concentration-response modelling</title>
+<title>The software stack – Concentration-response modelling</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,27 +26,82 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./vignettes/0Software-setup.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" rel="next">
+<link href="../vignettes/0Software-setup.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,6 +129,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -85,7 +143,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Concentration-response modelling</span>
     </a>
   </div>
@@ -96,15 +154,15 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./vignettes/0Software-setup.html"> 
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
 <span class="menu-text">Setup</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./vignettes/1Software-stack.html"> 
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
 <span class="menu-text">Modules</span></a>
   </li>  
 </ul>
@@ -118,7 +176,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Overview</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">1. The software stack</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -132,7 +190,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Overview</span></a>
   </div>
 </li>
@@ -147,7 +205,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Software setup</span></a>
   </div>
 </li>
@@ -164,19 +222,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">1. The software stack</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2. Fitting a single model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3. Toxicity estimation and the model set</span></a>
   </div>
 </li>
@@ -192,21 +250,21 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#course-outcomes" id="toc-course-outcomes" class="nav-link active" data-scroll-target="#course-outcomes">Course outcomes</a></li>
-  <li><a href="#modules" id="toc-modules" class="nav-link" data-scroll-target="#modules">Modules</a></li>
-  <li><a href="#working-through-the-material-independently" id="toc-working-through-the-material-independently" class="nav-link" data-scroll-target="#working-through-the-material-independently">Working through the material independently</a></li>
-  <li><a href="#workshop-participants" id="toc-workshop-participants" class="nav-link" data-scroll-target="#workshop-participants">Workshop participants</a></li>
-  <li><a href="#source-and-citation" id="toc-source-and-citation" class="nav-link" data-scroll-target="#source-and-citation">Source and citation</a></li>
+  <li><a href="#the-working-environment" id="toc-the-working-environment" class="nav-link active" data-scroll-target="#the-working-environment">The working environment</a></li>
+  <li><a href="#the-four-layers" id="toc-the-four-layers" class="nav-link" data-scroll-target="#the-four-layers">The four layers</a></li>
+  <li><a href="#where-bayesnec-came-from" id="toc-where-bayesnec-came-from" class="nav-link" data-scroll-target="#where-bayesnec-came-from">Where bayesnec came from</a></li>
+  <li><a href="#versions" id="toc-versions" class="nav-link" data-scroll-target="#versions">Versions</a></li>
+  <li><a href="#getting-help-and-reporting-problems" id="toc-getting-help-and-reporting-problems" class="nav-link" data-scroll-target="#getting-help-and-reporting-problems">Getting help, and reporting problems</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">1. The software stack</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Concentration-response modelling</h1>
-<p class="subtitle lead">Estimating no-effect toxicity values from concentration-response data in R</p>
+<h1 class="title">The software stack</h1>
+<p class="subtitle lead">What R, Stan, <code>brms</code> and <code>bayesnec</code> each do, and why all four are needed</p>
 </div>
 
 
@@ -223,97 +281,101 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.</p>
-<p>The material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using <code>bayesnec</code>, which fits these models in a Bayesian framework via <code>brms</code> and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.</p>
-<section id="course-outcomes" class="level2">
-<h2 class="anchored" data-anchor-id="course-outcomes">Course outcomes</h2>
-<p>On completing the material you will be able to:</p>
-<ul>
-<li>distinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;</li>
-<li>identify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;</li>
-<li>fit concentration-response models in R and plot the results;</li>
-<li>derive NEC, NSEC and ECx estimates, and explain what each of them measures;</li>
-<li>apply model averaging across a candidate set, and interpret the weights;</li>
-<li>produce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.</li>
-</ul>
+<p>Fitting a concentration-response model in this course sets four pieces of software working together, and a failure in any of them surfaces as an error in whichever one you were typing into. Knowing what each layer does makes those errors readable, and it explains several things about the workflow that are otherwise arbitrary: why the first model of a session is slow, why a C++ compiler has to be installed to fit a curve, and why a fitted object is large.</p>
+<section id="the-working-environment" class="level2">
+<h2 class="anchored" data-anchor-id="the-working-environment">The working environment</h2>
+<p>R is the language. Positron is the editor used throughout the course: an environment for writing and running R, with the script you are editing in one pane and a live R session, the console, in another. Code is sent from the script to the console a line or a block at a time, so the script is the record of what was done and the console is where it happens.</p>
+<p>Two habits matter more here than in ordinary R work.</p>
+<p><strong>Work in a project.</strong> A project fixes the working directory, so relative paths like <code>read.csv("mydata.csv")</code> resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.</p>
+<p><strong>Do not save the workspace.</strong> R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.</p>
 </section>
-<section id="modules" class="level2">
-<h2 class="anchored" data-anchor-id="modules">Modules</h2>
-<p>Before the modules: <a href="./vignettes/0Software-setup.html">software setup</a> installs R, a C++ compiler, CmdStan and the R packages, and verifies the installation. It is not taught; it is done beforehand.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th></th>
-<th>Module</th>
-<th>Subject</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td><a href="./vignettes/1Software-stack.html">The software stack</a></td>
-<td>R, Stan, <code>brms</code> and <code>bayesnec</code>, and Positron</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td><a href="./vignettes/2Fitting-a-CR-model-using-bayesnec.html">Fitting a single model</a></td>
-<td>the <code>bnec</code> call, the fitted object, plotting</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td><a href="./vignettes/3Toxicity_estimation_and_available_models.html">Toxicity estimation and the model set</a></td>
-<td>NEC, NSEC and ECx, and the available equations</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>Model averaging and multi-model inference</td>
-<td>candidate sets, weights, averaged estimates</td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td>Response data and statistical distributions</td>
-<td>matching the family to the endpoint</td>
-</tr>
-<tr class="even">
-<td>6</td>
-<td>Priors and Bayesian inference</td>
-<td>default priors, checking them, changing them</td>
-</tr>
-<tr class="odd">
-<td>7</td>
-<td>A worked case study</td>
-<td>herbicide toxicity, start to finish</td>
-</tr>
-<tr class="even">
-<td>8</td>
-<td>Factor covariates and groupings</td>
-<td>comparing curves and estimates across groups</td>
-</tr>
-</tbody>
-</table>
-<p>Modules 4 to 8 are being converted from the earlier version of this course and are linked here as they are completed. A frequentist treatment of the same material using <code>drc</code> is supplied separately as reference; it is not part of the taught sequence.</p>
+<section id="the-four-layers" class="level2">
+<h2 class="anchored" data-anchor-id="the-four-layers">The four layers</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-stack" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-stack">flowchart TD
+    A["&lt;b&gt;bayesnec&lt;/b&gt;&lt;br/&gt;concentration-response models,&lt;br/&gt;priors, toxicity estimates"]
+    B["&lt;b&gt;brms&lt;/b&gt;&lt;br/&gt;R formulas to Stan code"]
+    C["&lt;b&gt;cmdstanr&lt;/b&gt; or &lt;b&gt;rstan&lt;/b&gt;&lt;br/&gt;the interface to Stan"]
+    D["&lt;b&gt;Stan&lt;/b&gt;&lt;br/&gt;the sampler, written in C++"]
+    E["&lt;b&gt;C++ compiler&lt;/b&gt;&lt;br/&gt;Rtools, Xcode CLT, or gcc"]
+    A --&gt; B --&gt; C --&gt; D --&gt; E
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Each layer is called by the one above it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Stan</strong> is the engine. It is a separate piece of software, not an R package, that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program describes a statistical model; Stan translates it to C++, compiles it into an executable, and runs that executable to draw samples from the posterior. This is the source of the compile step: a Stan model is a program that has to be built before it can run, which is why a C++ compiler is a requirement and why the first fit of a session takes noticeably longer than later ones.</p>
+<p><strong><code>cmdstanr</code> and <code>rstan</code></strong> are two R interfaces to Stan, and <code>brms</code> can use either. This course uses <code>cmdstanr</code>, which drives a normal CmdStan installation as a separate process. <code>rstan</code> embeds Stan inside R instead, which couples the Stan version to the package version and has historically been the more fragile arrangement on Windows. <code>rstan</code> still has to be installed, because <code>brms</code> imports it, but it is not the sampler here. The backend is selected once:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong><code>brms</code></strong> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> removes the need to write Stan code. It takes a model written in R’s formula syntax, close to that of <code>lme4</code>, and generates the Stan program for it. It supports a wide range of response distributions and model structures — non-linear and smooth terms, multilevel structure, censoring, distributional regression — and provides the methods for checking a fit once it exists.</p>
+<p><strong><code>bayesnec</code></strong> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span> is what this course is about. <code>brms</code> will fit a non-linear model, but only if you supply the equation, sensible starting values and priors for every parameter. For concentration-response work that is the barrier: the models are non-linear, the priors are not obvious, and a poorly initialised non-linear fit fails in ways that need specialist reading. This is a substantial part of why Bayesian methods are not widely used for <em>NEC</em> estimation in ecotoxicology, where specialist statistical support is rarely available.</p>
+<p><code>bayesnec</code> takes a short formula naming a concentration-response equation, and from that plus the data it constructs the full non-linear <code>brms</code> formula, generates priors and initial values, chooses a statistical distribution appropriate to the response, fits the model, and extracts toxicity estimates from it. Module 2 does exactly this in one line.</p>
 </section>
-<section id="working-through-the-material-independently" class="level2">
-<h2 class="anchored" data-anchor-id="working-through-the-material-independently">Working through the material independently</h2>
-<p>The modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.</p>
-<p>Fitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.</p>
-<p>If you want to run the code yourself, work through the <a href="./vignettes/0Software-setup.html">software setup</a> first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.</p>
+<section id="where-bayesnec-came-from" class="level2">
+<h2 class="anchored" data-anchor-id="where-bayesnec-came-from">Where bayesnec came from</h2>
+<p>The package began as <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>, an implementation of the <em>NEC</em> model of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span> using JAGS. It was rewritten on <code>brms</code> and Stan, and generalised well beyond the original: the supported response distributions now include the beta-binomial alongside the Gaussian, Poisson, binomial, gamma, negative binomial and beta of the original, and any <code>brms</code> family can in principle be added.</p>
+<p>The model set was also extended. Alongside the threshold models that estimate an <em>NEC</em> directly, it now includes smooth concentration-response equations of the kind used in frequentist packages such as <code>drc</code> <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span> — four-parameter logistic and Weibull curves among them — which model the response as a smooth function of concentration rather than with a breakpoint. Module 3 sets out the full set and what each one supports.</p>
 </section>
-<section id="workshop-participants" class="level2">
-<h2 class="anchored" data-anchor-id="workshop-participants">Workshop participants</h2>
-<p>This material is taught as a full-day workshop at SETAC Australasia 2026.</p>
-<p>The <a href="./vignettes/0Software-setup.html">software setup</a> is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.</p>
+<section id="versions" class="level2">
+<h2 class="anchored" data-anchor-id="versions">Versions</h2>
+<p>The versions in use when a model is fitted are part of the result, because defaults and estimators change between releases. Recording them costs one line:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"bayesnec"</span>, <span class="st">"brms"</span>, <span class="st">"cmdstanr"</span>, <span class="st">"rstan"</span>, <span class="st">"posterior"</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, p, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(p))))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>bayesnec   2.1.3.33
+brms       2.23.0
+cmdstanr   0.9.0
+rstan      2.32.7
+posterior  1.6.1</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R          4.6.1</code></pre>
+</div>
+</div>
+<p>This course is built against the development version of <code>bayesnec</code>, which is ahead of the release on CRAN. The setup instructions name the version to install.</p>
 </section>
-<section id="source-and-citation" class="level2">
-<h2 class="anchored" data-anchor-id="source-and-citation">Source and citation</h2>
-<p>The material is developed at the <a href="https://www.aims.gov.au/">Australian Institute of Marine Science</a> and the source is at <a href="https://github.com/open-AIMS/cr_modelling_training">open-AIMS/cr_modelling_training</a>.</p>
-<p><code>bayesnec</code> is documented at <a href="https://open-aims.github.io/bayesnec/">open-aims.github.io/bayesnec</a>. The NSEC is introduced in Fisher and Fox (2023), <em>Environmental Toxicology and Chemistry</em>.</p>
-<p>Corrections and questions are welcome as <a href="https://github.com/open-AIMS/cr_modelling_training/issues">issues</a>.</p>
+<section id="getting-help-and-reporting-problems" class="level2">
+<h2 class="anchored" data-anchor-id="getting-help-and-reporting-problems">Getting help, and reporting problems</h2>
+<p>The <code>bayesnec</code> reference site at <a href="https://open-aims.github.io/bayesnec/">open-aims.github.io/bayesnec</a> documents every exported function and carries articles on single-model and multi-model usage, the model set, priors, and comparing posterior predictions. This course covers much of the same ground in a different order.</p>
+<p>The package is under active development and feedback is wanted. Problems go to the <a href="https://github.com/open-AIMS/bayesnec/issues">issue tracker</a>.</p>
+<p>A report is only actionable with a self-contained reproducible example: code and data that someone else can run to see the same behaviour. This matters particularly for a fit that fails to converge, because the cause is usually specific to the data. Without a reproducible example a convergence problem cannot be diagnosed by anyone who does not have your dataset.</p>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Burkner2017" class="csl-entry" role="listitem">
+Bürkner, Paul Christian. 2017. <span>“<span class="nocase">brms: An R package for Bayesian multilevel models using Stan</span>.”</span> <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01">https://doi.org/10.18637/jss.v080.i01</a>.
+</div>
+<div id="ref-Burkner2018" class="csl-entry" role="listitem">
+Bürkner, Paul-Christian. 2018. <span>“Advanced <span>Bayesian</span> Multilevel Modeling with the <span>R</span> Package <span class="nocase">brms</span>.”</span> <em>The R Journal</em> 10 (1): 395–411. <a href="https://doi.org/10.32614/RJ-2018-017">https://doi.org/10.32614/RJ-2018-017</a>.
+</div>
+<div id="ref-Fisher2020" class="csl-entry" role="listitem">
+Fisher, Rebecca, Gerard Ricardo, and David Fox. 2020. <em><span class="nocase">Bayesian concentration-response modelling using jagsNEC</span></em>. <a href="https://doi.org/10.5281/ZENODO.3966864">https://doi.org/10.5281/ZENODO.3966864</a>.
+</div>
+<div id="ref-Fox2010" class="csl-entry" role="listitem">
+Fox, David R. 2010. <span>“<span class="nocase">A Bayesian approach for determining the no effect concentration and hazardous concentration in ecotoxicology</span>.”</span> <em>Ecotoxicology and Environmental Safety</em> 73 (2): 123–31.
+</div>
+<div id="ref-Ritz2015" class="csl-entry" role="listitem">
+Ritz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. <span>“<span>Dose-Response Analysis Using R</span>.”</span> <em>PLoS ONE</em> 10 (12): e0146021. <a href="https://doi.org/10.1371/journal.pone.0146021">https://doi.org/10.1371/journal.pone.0146021</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -716,10 +778,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../vignettes/0Software-setup.html" class="pagination-link" aria-label="Software setup">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Software setup</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./vignettes/0Software-setup.html" class="pagination-link" aria-label="Software setup">
-        <span class="nav-page-text">Software setup</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="pagination-link" aria-label="2. Fitting a single model">
+        <span class="nav-page-text">2. Fitting a single model</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

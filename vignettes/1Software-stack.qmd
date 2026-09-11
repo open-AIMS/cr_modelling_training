@@ -1,0 +1,146 @@
+---
+title: "The software stack"
+subtitle: "What R, Stan, `brms` and `bayesnec` each do, and why all four are needed"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Fitting a concentration-response model in this course sets four pieces of
+software working together, and a failure in any of them surfaces as an error in
+whichever one you were typing into. Knowing what each layer does makes those
+errors readable, and it explains several things about the workflow that are
+otherwise arbitrary: why the first model of a session is slow, why a C++
+compiler has to be installed to fit a curve, and why a fitted object is large.
+
+## The working environment
+
+R is the language. Positron is the editor used throughout the course: an
+environment for writing and running R, with the script you are editing in one
+pane and a live R session, the console, in another. Code is sent from the script
+to the console a line or a block at a time, so the script is the record of what
+was done and the console is where it happens.
+
+Two habits matter more here than in ordinary R work.
+
+**Work in a project.** A project fixes the working directory, so relative paths
+like `read.csv("mydata.csv")` resolve the same way for everyone. Without one, the
+same script behaves differently on two machines for reasons that are tedious to
+diagnose.
+
+**Do not save the workspace.** R offers to store the objects in memory when a
+session ends and to restore them when it starts. Accept that and you will
+eventually be working with a fitted model whose provenance you cannot reconstruct
+— fitted under code you have since edited, indistinguishable from a current one.
+Start every session empty and re-run the script. The exception is a Bayesian fit,
+which is expensive enough to save deliberately to a file, covered in module 2.
+
+## The four layers
+
+```{mermaid}
+%%| label: fig-stack
+%%| fig-cap: "Each layer is called by the one above it."
+flowchart TD
+    A["<b>bayesnec</b><br/>concentration-response models,<br/>priors, toxicity estimates"]
+    B["<b>brms</b><br/>R formulas to Stan code"]
+    C["<b>cmdstanr</b> or <b>rstan</b><br/>the interface to Stan"]
+    D["<b>Stan</b><br/>the sampler, written in C++"]
+    E["<b>C++ compiler</b><br/>Rtools, Xcode CLT, or gcc"]
+    A --> B --> C --> D --> E
+```
+
+**Stan** is the engine. It is a separate piece of software, not an R package,
+that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program
+describes a statistical model; Stan translates it to C++, compiles it into an
+executable, and runs that executable to draw samples from the posterior. This is
+the source of the compile step: a Stan model is a program that has to be built
+before it can run, which is why a C++ compiler is a requirement and why the first
+fit of a session takes noticeably longer than later ones.
+
+**`cmdstanr` and `rstan`** are two R interfaces to Stan, and `brms` can use
+either. This course uses `cmdstanr`, which drives a normal CmdStan installation
+as a separate process. `rstan` embeds Stan inside R instead, which couples the
+Stan version to the package version and has historically been the more fragile
+arrangement on Windows. `rstan` still has to be installed, because `brms` imports
+it, but it is not the sampler here. The backend is selected once:
+
+```{r}
+#| label: backend
+#| eval: false
+options(brms.backend = "cmdstanr")
+```
+
+**`brms`** [@Burkner2017; @Burkner2018] removes the need to write Stan code. It
+takes a model written in R's formula syntax, close to that of `lme4`, and
+generates the Stan program for it. It supports a wide range of response
+distributions and model structures — non-linear and smooth terms, multilevel
+structure, censoring, distributional regression — and provides the methods for
+checking a fit once it exists.
+
+**`bayesnec`** [@Fisher2020] is what this course is about. `brms` will fit a
+non-linear model, but only if you supply the equation, sensible starting values
+and priors for every parameter. For concentration-response work that is the
+barrier: the models are non-linear, the priors are not obvious, and a poorly
+initialised non-linear fit fails in ways that need specialist reading. This is a
+substantial part of why Bayesian methods are not widely used for *NEC* estimation
+in ecotoxicology, where specialist statistical support is rarely available.
+
+`bayesnec` takes a short formula naming a concentration-response equation, and
+from that plus the data it constructs the full non-linear `brms` formula,
+generates priors and initial values, chooses a statistical distribution
+appropriate to the response, fits the model, and extracts toxicity estimates from
+it. Module 2 does exactly this in one line.
+
+## Where bayesnec came from
+
+The package began as `jagsNEC` [@Fisher2020], an implementation of the *NEC*
+model of @Fox2010 using JAGS. It was rewritten on `brms` and Stan, and
+generalised well beyond the original: the supported response distributions now
+include the beta-binomial alongside the Gaussian, Poisson, binomial, gamma,
+negative binomial and beta of the original, and any `brms` family can in
+principle be added.
+
+The model set was also extended. Alongside the threshold models that estimate an
+*NEC* directly, it now includes smooth concentration-response equations of the
+kind used in frequentist packages such as `drc` [@Ritz2015] — four-parameter
+logistic and Weibull curves among them — which model the response as a smooth
+function of concentration rather than with a breakpoint. Module 3 sets out the
+full set and what each one supports.
+
+## Versions
+
+The versions in use when a model is fitted are part of the result, because
+defaults and estimators change between releases. Recording them costs one line:
+
+```{r}
+#| label: versions
+#| comment: ""
+for (p in c("bayesnec", "brms", "cmdstanr", "rstan", "posterior")) {
+  cat(sprintf("%-10s %s\n", p, as.character(packageVersion(p))))
+}
+cat(sprintf("%-10s %s\n", "R", getRversion()))
+```
+
+This course is built against the development version of `bayesnec`, which is
+ahead of the release on CRAN. The setup instructions name the version to install.
+
+## Getting help, and reporting problems
+
+The `bayesnec` reference site at
+[open-aims.github.io/bayesnec](https://open-aims.github.io/bayesnec/) documents
+every exported function and carries articles on single-model and multi-model
+usage, the model set, priors, and comparing posterior predictions. This course
+covers much of the same ground in a different order.
+
+The package is under active development and feedback is wanted. Problems go to
+the [issue tracker](https://github.com/open-AIMS/bayesnec/issues).
+
+A report is only actionable with a self-contained reproducible example: code and
+data that someone else can run to see the same behaviour. This matters
+particularly for a fit that fails to converge, because the cause is usually
+specific to the data. Without a reproducible example a convergence problem cannot
+be diagnosed by anyone who does not have your dataset.
