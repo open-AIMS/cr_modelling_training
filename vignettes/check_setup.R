@@ -104,20 +104,25 @@ if (is.na(versions[["cmdstanr"]])) {
          if (!is.na(cs)) paste0(cs, " at ", cmdstanr::cmdstan_path())
          else "not found; run cmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE)")
 
-  # A compiled Stan program loads tbb.dll from CmdStan's own lib directory as it
-  # starts. If that directory is not on PATH the program builds and then exits
-  # immediately, which cmdstanr reports as "No chains finished successfully" --
-  # a message naming neither the DLL nor the directory. install_cmdstan() adds
-  # the entry on Windows, so a missing one means that step did not complete.
-  # Recorded as a warning rather than a failure because the library can be
-  # resolved by other means; stage 5 is what settles it.
-  if (!is.na(cs) && .Platform$OS.type == "windows") {
-    tbb_dir <- file.path(cmdstanr::cmdstan_path(),
-                         "stan", "lib", "stan_math", "lib", "tbb")
-    norm <- function(p) normalizePath(p, winslash = "/", mustWork = FALSE)
-    on_path <- norm(tbb_dir) %in% norm(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE)[[1]])
-    record("tbb_path", if (on_path) TRUE else NA,
-           if (on_path) "on PATH" else paste0("not on PATH: ", tbb_dir))
+  # A check that the CmdStan TBB directory is on PATH was added here and then
+  # removed. A compiled Stan program does link against tbb.dll, but CmdStanRun
+  # puts that directory on the PATH of the chain process itself, so the entry is
+  # not required in the user's environment. Measured on Windows 2026-09-11:
+  # sampling succeeded with the directory removed from PATH. The check reported
+  # a warning on a correctly installed machine, which is worse than reporting
+  # nothing.
+
+  # cmdstanr decides which Rtools to look for from the R minor version, and the
+  # mapping changed. 0.9.0 sends R 4.5.x to RTOOLS45_HOME; 0.8.0 sent every R
+  # from 4.4 onward to RTOOLS44_HOME. A participant following the setup
+  # instructions installs Rtools45, so an older cmdstanr searches for a toolchain
+  # they were never told to install and reports it as missing.
+  if (!is.na(versions[["cmdstanr"]]) && .Platform$OS.type == "windows") {
+    cmdstanr_ok <- utils::packageVersion("cmdstanr") >= "0.9.0"
+    record("cmdstanr_version", if (cmdstanr_ok) TRUE else NA,
+           if (cmdstanr_ok) as.character(utils::packageVersion("cmdstanr"))
+           else paste0(utils::packageVersion("cmdstanr"),
+                       " expects Rtools44; install 0.9.0 or later for Rtools45"))
   }
 }
 

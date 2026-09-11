@@ -64,22 +64,54 @@ that `quiet = FALSE` only changes how much build output is printed. The default
 output is truncated and does not identify which of the three stages —
 download, extraction, build — failed.
 
+## Windows verification, 2026-09-11
+
+`vignettes/check_setup.R` was run on Windows 11 (build 26200) with R 4.5.1,
+Rtools44, `cmdstanr` 0.8.0, CmdStan 2.36.0, `brms` 2.23.0 and `bayesnec`
+2.1.3.0. It halted at stage 5 with "No chains finished successfully" and never
+printed its summary. The full account is in
+`ignore/windows-checks/windows-setup-report.md`; that folder is not tracked.
+
+Two defects in the script were found and are fixed. `$sample()` does not throw
+when every chain fails to start, so stage 5 recorded PASS and then died reading
+the result outside its `tryCatch` — meaning a participant in exactly the state
+the script exists to detect had nothing to send back. And `cmdstan_model()`
+reuses any executable newer than the `.stan` file, so stage 4 reported PASS
+without invoking the compiler; the executable on that machine was dated June 2025
+and had been built by a toolchain since removed.
+
+**A TBB PATH check was added and then removed, and the diagnosis behind it was
+wrong.** The sampling failure was first attributed to CmdStan's TBB directory
+being absent from `PATH`. The test supporting that was run in Git Bash, which
+carries `C:\Program Files\Git\mingw64\bin` and therefore supplies
+`libwinpthread-1.dll` — that DLL, not `tbb.dll`, was the one the stale executable
+could not find. `CmdStanRun` places the TBB directory on the PATH of the chain
+process itself, and sampling was measured to succeed with it removed from the
+user PATH entirely. The check warned on correctly installed machines. A comment
+in stage 3 records this so it is not added again.
+
+Two machine faults that do not generalise: a User-scope `RTOOLS44_HOME` pointing
+at a directory that does not exist, overriding a correct Machine-scope value, and
+the stale executable above. One that does: `C:\rtools44\ucrt64\bin` was empty,
+and `check_cmdstan_toolchain(fix = TRUE)` populated it. `cmdstanr` ships
+`install_toolchain()` for this, which indicates a stock Rtools does not provide
+what it needs. Module 1 now describes that step as required rather than as a
+repair. A fresh Rtools install was not tested.
+
+### The Rtools pairing, resolved
+
+The report left open whether module 1's R 4.5.x with Rtools45 had ever been run:
+the test machine worked on Rtools44 because `cmdstanr` 0.8.0 mapped every R from
+4.4 onward to `RTOOLS44_HOME`.
+
+Resolved by reading `cmdstanr:::rtools4x_version()` in 0.9.0, the version on the
+Stan r-universe: it returns "44" for an R minor below 5.0 and "45" otherwise, so
+R 4.5.x resolves to `RTOOLS45_HOME`. Module 1's pairing is correct **provided
+`cmdstanr` is 0.9.0 or later**. `check_setup.R` now reports the `cmdstanr`
+version on Windows, and module 1 states the requirement. This was established by
+inspecting the installed 0.9.0 source, not by running it on Windows.
+
 ## Advice not yet observed here
-
-The following are the recurring Windows failure modes. None was encountered on
-the fresh machine above, so they are recorded as anticipated rather than
-measured, and the instructions should not imply otherwise.
-
-| Condition | Effect | Response |
-|---|---|---|
-| `HOME` inside OneDrive | CmdStan build fails; the default target is `~/.cmdstan` | `install_cmdstan(dir = "C:/cmdstan")` |
-| Space or non-ASCII character in the username | build fails | as above |
-| Windows Defender real-time scanning | each compile is inspected; a 40-second compile can take several minutes | exclude the CmdStan directory, if permitted |
-| Policy blocking freshly compiled executables | compilation cannot proceed | WSL; this is the case WSL exists for |
-
-`vignettes/check_setup.R` reports on the first two directly, by inspecting `HOME`
-before anything is compiled.
-
 ## The bayesnec version the site is built against
 
 **The site tracks the head of `dev`** (RF, 2026-09-11). The 2.2.0 development
