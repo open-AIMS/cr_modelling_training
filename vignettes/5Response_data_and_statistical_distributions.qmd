@@ -1,0 +1,420 @@
+---
+title: "Response data and statistical distributions"
+subtitle: "Matching the statistical family to the response being modelled"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(bayesnec)
+library(dplyr)
+options(mc.cores = 4)
+set.seed(333)
+```
+
+## Background
+
+Concentration-response data are of varied kinds, and the measured response
+follows a correspondingly wide range of natural distributions. The examples
+below are drawn at random to show the shape of each.
+
+**Binary**, modelled by the binomial or beta-binomial. Individual survival,
+`r paste(rbinom(10, 1, 0.5), collapse = " ")`, or counts of survivors out of a
+total.
+
+**Bounded continuous**, modelled by the beta. Proportions or ratios that are not
+counts out of a total: `r paste(round(rbeta(10, 1, 0.5), 3), collapse = " ")`.
+
+**Counts**, modelled by the Poisson or negative binomial. Numbers of whole
+animals: `r paste(rpois(10, 4), collapse = " ")`.
+
+**Positive continuous**, modelled by the gamma. Growth where shrinkage is not
+possible: `r paste(round(rgamma(10, 1, 0.5), 2), collapse = " ")`.
+
+**Unbounded continuous**, modelled by the Gaussian. Growth where shrinkage is
+possible: `r paste(round(rnorm(10, 0, 0.5), 2), collapse = " ")`.
+
+## Generalised modelling
+
+Generalised modelling fits data with a statistical distribution matched to the
+natural range and scaling of the response, rather than assuming one.
+
+Fitting a linear model with `lm()` assumes a Gaussian distribution, and so do
+many non-linear routines such as `nls()`. The normality assumption familiar from
+analysis of variance is the most common case of non-generalised modelling. It is
+sometimes reasonable, but it was adopted largely because it makes the
+mathematics of fitting and interval estimation tractable.
+
+That constraint no longer applies. Matching the response to an appropriate
+statistical family is now standard practice, and the theory is covered well
+elsewhere; this module is concerned with making the right choice in `bayesnec`
+rather than with the underlying mathematics.
+
+```{r}
+#| label: fig-glmbooks
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/glmbooks.jpg")
+```
+
+## Families available in `brms`
+
+`brms` supports many families, including most of those in the base `stats`
+package that other R fitting routines use:
+
+```{r}
+#| label: fig-statsfams
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/statsfams.jpg")
+```
+
+and a number that are specific to it:
+
+```{r}
+#| label: fig-brmsfams
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/brmsfams.jpg")
+```
+
+## Link functions
+
+Every statistical family has a link function. A generalised linear model relates
+the linear predictor to the response through it — a logit link, for example,
+maps the probabilities of a binary response onto an unbounded continuous scale.
+Generalised linear models were formulated by Nelder and Wedderburn as a
+unification of linear regression, logistic regression and Poisson regression,
+with maximum likelihood estimation of the parameters. Logistic regression is the
+familiar case.
+
+The native link for a family — logit for the binomial, log for the Poisson —
+imposes a non-linear transformation. Concentration-response models are already
+non-linear and do not use linear predictors, so any further non-linearity from a
+link changes the model being fitted.
+
+**`bayesnec` therefore uses the identity link for every family.** The Bayesian
+machinery makes this possible, because the parameters can be estimated without
+mapping the response onto an unbounded scale. It keeps `top`, `bot` and `nec` on
+the scale of the response, where they are directly interpretable.
+
+```{r}
+#| label: links
+#| comment: ""
+bayesnec:::supported_links()
+```
+
+This matters when comparing a `bayesnec` fit against a `brms` model written by
+hand. `brms` defaults to logit for a beta response and log for a Poisson, so
+unless the link is passed explicitly the two are different models. ECx and NSEC
+estimates from a fit using any link other than the identity may not behave as
+expected.
+
+## Families implemented in `bayesnec`
+
+```{r}
+#| label: families
+#| comment: ""
+names(bayesnec:::mod_fams)
+```
+
+The first eight are the ordinary cases covered below. `hurdle_gamma`,
+`zero_inflated_beta`, `zero_inflated_poisson` and `zero_inflated_negbinomial`
+handle responses with an excess of zeros — a separate topic, treated in the
+`bayesnec` article on hurdle families.
+
+Adding a family is not trivial, because `bayesnec` generates priors and initial
+values by algorithms specific to each one. Requests go to the
+[issue tracker](https://github.com/open-AIMS/bayesnec/issues).
+
+## Default behaviour
+
+With default settings `bnec` infers the most likely distribution from the
+response. That inference must be checked rather than trusted. Two questions
+decide whether a distribution is adequate:
+
+- does it capture the variability actually present in the data?
+- does it produce sensibly shaped credible bounds across the whole curve?
+
+Getting the dispersion right matters directly for toxicity estimates, because it
+sets the width of their intervals. It matters most for the *NSEC*, which is
+defined against the estimated variability in the control: overstate that
+variability and the estimate becomes less conservative
+[@fisheretal2023; @fisherfox2023].
+
+The sections below fit a threshold and a smooth model to each of several
+response types. Several of the examples come from [Gerard Ricardo's
+repository](https://github.com/gerard-ricardo/NECs/blob/master/NECs).
+
+## Binomial
+
+A response is binomial when it is a count out of a total, such as the number of
+survivors out of a number exposed.
+
+```{r}
+#| label: binom-data
+binom_data <- read.csv("example_binomial.csv")
+summary(binom_data$raw_x)
+head(binom_data)
+```
+
+The predictor runs from 0.1 to 400 and is strongly right skewed, which is
+typical of a dilution series. Transforming the predictor, usually by a
+logarithm, often makes fitting more stable, and the design is generally
+logarithmic in any case. This example uses the predictor untransformed.
+
+`suc` holds the number of successes and `tot` the number of trials.
+
+For a binomial or beta-binomial response the formula takes a `trials` term,
+exactly as in `brms`:
+
+```{r}
+#| label: binom-formula
+#| eval: false
+suc | trials(tot) ~ crf(raw_x, model = "your_model")
+```
+
+The column to the left of the `|` holds the successes — survivors, fertilised
+eggs — and the one inside `trials()` the total associated with each. The names
+are whatever they are in your data frame.
+
+```{r}
+#| label: fit-binom-nec
+set.seed(333)
+exp_1nec <- bnec(suc | trials(tot) ~ crf(raw_x, model = "nec3param"),
+                 data = binom_data)
+```
+
+```{r}
+#| label: fig-binom-nec
+#| fig-height: 4.5
+autoplot(exp_1nec)
+```
+
+The credible bounds are very tight. The threshold model itself fits reasonably
+and the *NEC* is in a plausible place.
+
+Fitting a smooth curve to the same data instead:
+
+```{r}
+#| label: fit-binom-ecx
+set.seed(333)
+exp_1ecx <- bnec(suc | trials(tot) ~ crf(raw_x, model = "ecxll3"),
+                 data = binom_data)
+```
+
+```{r}
+#| label: fig-binom-ecx
+#| fig-height: 4.5
+autoplot(exp_1ecx)
+```
+
+## Beta-binomial
+
+The bounds above are implausibly narrow for data of this kind. A binomial
+distribution has a single parameter, so its variance is fixed by its mean. Real
+counts out of a total are usually more variable than that, because the
+individuals within a replicate are not independent — a batch of eggs shares a
+parent, a container shares its conditions. This is over-dispersion.
+
+The beta-binomial adds a second parameter and estimates the extra variation
+rather than assuming it away.
+
+```{r}
+#| label: fit-betabinom
+set.seed(333)
+exp_1b <- bnec(suc | trials(tot) ~ crf(raw_x, model = c("ecxll3", "nec3param")),
+               data = binom_data, family = "beta_binomial")
+```
+
+```{r}
+#| label: fig-betabinom
+#| fig-height: 5
+autoplot(exp_1b, all_models = TRUE)
+```
+
+The bounds are now much wider, and they are a better description of the scatter
+in the data.
+
+`bayesnec` once supplied this as a custom family called `beta_binomial2`,
+because `brms` did not provide one natively. It does now, and the family is
+named `beta_binomial`; code written against `beta_binomial2` will no longer run.
+
+## Beta
+
+A response bounded between 0 and 1 that is not a count out of a total is
+modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is
+a common example in coral work: a proportion of light used in photosynthesis,
+with no underlying trials to count.
+
+```{r}
+#| label: beta-data
+prop_data <- read.csv("example_proportion.csv") |>
+  mutate(sqrt.x = sqrt(raw_x))
+```
+
+```{r}
+#| label: fit-beta
+set.seed(333)
+exp_2 <- bnec(resp ~ crf(sqrt.x, model = c("ecxll3", "nec3param")),
+              data = prop_data)
+```
+
+```{r}
+#| label: fig-beta
+#| fig-height: 5
+autoplot(exp_2, all_models = TRUE)
+```
+
+```{r}
+#| label: beta-stats
+exp_2$mod_stats
+```
+
+The beta has two parameters, so it can generally accommodate the variance in the
+data, and these bounds are reasonable. The threshold model takes most of the
+weight here and describes the data much better than the three-parameter
+log-logistic.
+
+Note that the predictor was square-root transformed in the formula. Estimates
+returned by `nec()`, `nsec()` and `ecx()` are then on the transformed scale, and
+must be back-transformed with the `xform` argument to be read as concentrations.
+
+## Poisson
+
+Counts of whole things — individuals, cells — are theoretically Poisson
+distributed: integers from zero upwards. This example builds over-dispersed
+counts from the package's example data, in order to show what the negative
+binomial is for. Real count data are sometimes genuinely Poisson, so check
+before assuming otherwise.
+
+```{r}
+#| label: count-data
+set.seed(333)
+data(nec_data)
+count_data <- nec_data |>
+  mutate(
+    y = (y * 100 + rnorm(nrow(nec_data), 0, 15)) |>
+      round() |> as.integer() |> abs()
+  )
+str(count_data)
+```
+
+```{r}
+#| label: fit-pois
+set.seed(333)
+exp_3 <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data)
+```
+
+```{r}
+#| label: fig-pois
+#| fig-height: 5
+autoplot(exp_3, all_models = TRUE)
+```
+
+## Negative binomial
+
+The Poisson has one parameter, so like the binomial its variance is determined
+by its mean. Counts that are more variable than that need the negative binomial,
+which estimates the additional variation.
+
+```{r}
+#| label: fit-negbin
+set.seed(333)
+exp_3b <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")),
+               data = count_data, family = "negbinomial")
+```
+
+```{r}
+#| label: fig-negbin
+#| fig-height: 5
+autoplot(exp_3b, all_models = TRUE)
+```
+
+The bounds widen, as they did for the beta-binomial, and for the same reason.
+
+## Gamma
+
+A continuous response that cannot be negative — a length, a mass, a rate where
+shrinkage is impossible — is modelled by the gamma.
+
+```{r}
+#| label: gamma-data
+data(nec_data)
+measure_data <- nec_data |>
+  mutate(measure = exp(y))
+```
+
+```{r}
+#| label: fit-gamma
+set.seed(333)
+exp_4 <- bnec(measure ~ crf(x, model = c("ecxll3", "nec3param")),
+              data = measure_data)
+```
+
+```{r}
+#| label: fig-gamma
+#| fig-height: 5
+autoplot(exp_4, all_models = TRUE)
+```
+
+## Gaussian
+
+A continuous response that can take negative values is modelled by the Gaussian.
+Growth rates are the usual case, where an organism may shrink, and so are
+responses that have been transformed onto an unbounded scale. Here the
+proportion data above are put on a logit scale.
+
+```{r}
+#| label: gauss-data
+gaussian_data <- prop_data |>
+  mutate(y = car::logit(resp))
+```
+
+```{r}
+#| label: fit-gauss
+set.seed(333)
+exp_5 <- bnec(y ~ crf(sqrt.x, model = c("ecxll4", "nec4param")),
+              data = gaussian_data)
+```
+
+```{r}
+#| label: fig-gauss
+#| fig-height: 5
+autoplot(exp_5, all_models = TRUE)
+```
+
+Transforming a bounded response onto an unbounded scale and modelling it as
+Gaussian is one way of handling proportion data, and it was standard practice
+before generalised methods were routine. Modelling the response on its own scale
+with the beta, as above, is preferable: it keeps the parameters interpretable as
+proportions, and it does not require the transformation to have made the
+variance constant.
+
+## Model suitability by response type
+
+Not every equation suits every family. A model predicting negative values cannot
+be used with a response that must be positive, and `bayesnec` discards any model
+in a requested set that is unsuitable for the distribution of the response. This
+is why a set of twenty-three may return fewer than twenty-three fits, and why
+the `zero_bounded` set exists.
+
+## Open questions
+
+The families implemented in `bayesnec` cover the common cases in
+concentration-response work. Responses with an excess of zeros need the hurdle
+and zero-inflated families listed above, which are covered separately.
+
+The important practical point is the one at the top of this module: check which
+distribution was used, and check that it reproduces the variability in the data.
+The default inference is a convenience, not a substitute for that judgement.
+
+## References
+
+::: {#refs}
+:::
