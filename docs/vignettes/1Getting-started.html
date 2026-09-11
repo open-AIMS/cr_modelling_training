@@ -201,6 +201,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">2. Fitting a single model</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -458,7 +464,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>check_setup.R</code> is supplied with this document. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
 <p>Open it in Positron and run the whole file, or run this in the R console with the path adjusted:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The first run takes a few minutes, because it compiles a model. Later runs are faster.</p>
+<p>Every run takes a few minutes, because it compiles a model each time rather than reusing an earlier build. That is deliberate: reusing a build would let the check pass without ever invoking the compiler, which is the thing being tested.</p>
 <p>A successful run ends like this:</p>
 <pre><code>Summary
 -------

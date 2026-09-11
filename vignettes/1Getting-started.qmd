@@ -285,8 +285,9 @@ the path adjusted:
 source("check_setup.R", echo = FALSE)
 ```
 
-The first run takes a few minutes, because it compiles a model. Later runs are
-faster.
+Every run takes a few minutes, because it compiles a model each time rather than
+reusing an earlier build. That is deliberate: reusing a build would let the check
+pass without ever invoking the compiler, which is the thing being tested.
 
 A successful run ends like this:
 

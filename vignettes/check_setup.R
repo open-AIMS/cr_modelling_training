@@ -103,10 +103,26 @@ if (is.na(versions[["cmdstanr"]])) {
   record("cmdstan", !is.na(cs),
          if (!is.na(cs)) paste0(cs, " at ", cmdstanr::cmdstan_path())
          else "not found; run cmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE)")
+
+  # A compiled Stan program loads tbb.dll from CmdStan's own lib directory as it
+  # starts. If that directory is not on PATH the program builds and then exits
+  # immediately, which cmdstanr reports as "No chains finished successfully" --
+  # a message naming neither the DLL nor the directory. install_cmdstan() adds
+  # the entry on Windows, so a missing one means that step did not complete.
+  # Recorded as a warning rather than a failure because the library can be
+  # resolved by other means; stage 5 is what settles it.
+  if (!is.na(cs) && .Platform$OS.type == "windows") {
+    tbb_dir <- file.path(cmdstanr::cmdstan_path(),
+                         "stan", "lib", "stan_math", "lib", "tbb")
+    norm <- function(p) normalizePath(p, winslash = "/", mustWork = FALSE)
+    on_path <- norm(tbb_dir) %in% norm(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE)[[1]])
+    record("tbb_path", if (on_path) TRUE else NA,
+           if (on_path) "on PATH" else paste0("not on PATH: ", tbb_dir))
+  }
 }
 
 # --- Stage 4: compile a Stan model --------------------------------------------
-rule("Stage 4: compile (this takes a minute or two the first time)")
+rule("Stage 4: compile (this takes a minute or two)")
 
 # The bundled bernoulli example is used rather than a brms model because it
 # isolates the toolchain: if this compiles, any later failure is in brms or
@@ -114,11 +130,32 @@ rule("Stage 4: compile (this takes a minute or two the first time)")
 compiled <- NULL
 if (isTRUE(get0("cmdstan", envir = results, ifnotfound = list(ok = FALSE))$ok)) {
   stan_file <- file.path(cmdstanr::cmdstan_path(), "examples", "bernoulli", "bernoulli.stan")
-  compiled <- tryCatch(cmdstanr::cmdstan_model(stan_file),
-                       error = function(e) conditionMessage(e))
-  record("compile", inherits(compiled, "CmdStanModel"),
-         if (inherits(compiled, "CmdStanModel")) "bernoulli example compiled"
-         else as.character(compiled))
+
+  # force_recompile = TRUE because cmdstan_model() otherwise reuses any
+  # executable newer than the .stan file, including one built months earlier by
+  # a toolchain since removed. Without it this stage reports PASS without
+  # invoking the compiler, which is the one thing it exists to test. The price
+  # is a compile on every run rather than only the first.
+  #
+  # A successful build emits several hundred lines of warnings from CmdStan's
+  # bundled TBB. They are captured rather than printed, because the participant
+  # is asked to return the whole output and it has to stay readable. On a
+  # failure they are the diagnosis, so the tail is printed then.
+  build_log <- utils::capture.output(
+    compiled <- tryCatch(
+      cmdstanr::cmdstan_model(stan_file, force_recompile = TRUE, quiet = TRUE),
+      error = function(e) conditionMessage(e)),
+    type = "message")
+
+  compile_ok <- inherits(compiled, "CmdStanModel")
+  record("compile", compile_ok,
+         if (compile_ok) "bernoulli example compiled" else as.character(compiled))
+
+  if (!compile_ok && length(build_log)) {
+    cat("\n  last 40 lines of compiler output:\n")
+    cat(paste0("  | ", utils::tail(build_log, 40)), sep = "\n")
+    cat("\n")
+  }
 } else {
   record("compile", FALSE, "skipped, CmdStan not available")
 }
@@ -132,10 +169,30 @@ if (inherits(compiled, "CmdStanModel")) {
                     chains = 1, iter_warmup = 200, iter_sampling = 200,
                     refresh = 0, show_messages = FALSE),
     error = function(e) conditionMessage(e))
-  ok <- inherits(fit, "CmdStanMCMC")
+  # $sample() does not throw when every chain fails to start: it warns and
+  # returns a CmdStanMCMC whose draws cannot be read. Testing with inherits()
+  # alone therefore records PASS and then halts the script at the next line,
+  # where the summary is read -- on exactly the machines this script exists to
+  # diagnose. The result is read inside its own tryCatch so the failure is
+  # recorded and the run still reaches the summary.
+  theta <- if (inherits(fit, "CmdStanMCMC")) {
+    tryCatch(fit$summary("theta")$mean, error = function(e) conditionMessage(e))
+  } else NULL
+
+  ok <- is.numeric(theta) && length(theta) == 1L && is.finite(theta)
   record("sample", ok,
-         if (ok) sprintf("theta mean %.3f", fit$summary("theta")$mean)
+         if (ok) sprintf("theta mean %.3f", theta)
+         else if (is.character(theta)) theta
          else as.character(fit))
+
+  # A CmdStanMCMC whose chains failed emits "No CmdStan config files found" from
+  # its finaliser when the session ends, placing an error after the summary and
+  # after the NOT READY line. Dropping the reference keeps it out of the output
+  # the participant is asked to return.
+  if (!ok) {
+    rm(fit)
+    invisible(gc())
+  }
 } else {
   record("sample", FALSE, "skipped, model did not compile")
 }

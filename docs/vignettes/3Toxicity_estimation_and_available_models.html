@@ -314,7 +314,7 @@ window.Quarto = {
 <p>The distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean. This figure, from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>, is what the module builds towards.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-etnc2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<div id="fig-etnc2" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/etnc_fig2.jpg" id="fig-etnc2" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
@@ -344,7 +344,7 @@ Figure&nbsp;1
 <p>The names divide into two prefixes. Those beginning <code>nec</code> are threshold models; those beginning <code>ecx</code> are smooth models with no threshold.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-etnc1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="50%">
+<div id="fig-etnc1" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-etnc1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/etnc_fig1.jpg" id="fig-etnc1" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
@@ -390,7 +390,7 @@ f(x_i, \eta) = \begin{cases}
 <p>In models prefixed <code>nec</code>, the no-effect concentration is a parameter of the model, <span class="math inline">\(\eta\)</span>, and is estimated directly, following <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span>.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-necmod" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="50%">
+<div id="fig-necmod" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-necmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/necmod_fox2010.jpg" id="fig-necmod" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
@@ -410,7 +410,7 @@ Figure&nbsp;3
 <p>Models prefixed <code>ecx</code> are continuous curves. They have an intercept, the mean control response, but no threshold: the response begins to decline at any concentration above zero, at a rate set by the equation.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ecxmod" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="50%">
+<div id="fig-ecxmod" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ecxmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/ecxmod.jpg" id="fig-ecxmod" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
@@ -429,7 +429,7 @@ Figure&nbsp;4
 <p>A smooth model has no threshold parameter, so the <em>NEC</em> cannot be read from it. The <em>NSEC</em> is a way of obtaining a no-effect estimate from such a model <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-nsec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="50%">
+<div id="fig-nsec" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/nsec.jpg" id="fig-nsec" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
@@ -450,7 +450,7 @@ Figure&nbsp;5
 <p>The <em>NSEC</em> is analogous to the <em>NOEC</em>: both identify the concentration at which the response becomes significantly different from the control.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-noec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="50%">
+<div id="fig-noec" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-noec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/noec.jpg" id="fig-noec" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
@@ -471,7 +471,7 @@ Figure&nbsp;6
 <p>Where the data show a threshold, the <em>NEC</em> is the most defensible estimate of no effect. Threshold models do not always fit well, however, and fitting one to smoothly declining data produces estimates that are <em>non-conservative</em> — the estimated threshold sits above concentrations at which an effect is already occurring.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ieam" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="58%">
+<div id="fig-ieam" class="quarto-float quarto-figure quarto-figure-center anchored" width="58%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/ieam_head.jpg" id="fig-ieam" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:58.0%">
@@ -485,7 +485,7 @@ Figure&nbsp;7
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-svariolis" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="38%">
+<div id="fig-svariolis" class="quarto-float quarto-figure quarto-figure-center anchored" width="38%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-svariolis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/svariolis.jpg" id="fig-svariolis" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:38.0%">
@@ -526,10 +526,10 @@ Figure&nbsp;8
 <pre><code>[1] "ecxhormebc4" "ecxhormebc5"</code></pre>
 </div>
 </div>
-<div class="cell quarto-layout-panel" data-layout-ncol="2" data-layout-align="center">
+<div class="cell quarto-layout-panel" data-layout-align="center" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<div id="fig-horme-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="48%">
+<div id="fig-horme-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-horme-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/horme_nec.jpg" id="fig-horme-1" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:48.0%">
@@ -541,7 +541,7 @@ Figure&nbsp;9
 </div>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<div id="fig-horme-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="48%">
+<div id="fig-horme-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-horme-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/horme_ecx.jpg" id="fig-horme-2" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:48.0%">
