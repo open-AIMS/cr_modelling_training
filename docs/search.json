@@ -1,398 +1,206 @@
 [
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html",
-    "title": "Toxicity estimation and the model set",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html",
+    "title": "Response data and statistical distributions",
     "section": "",
-    "text": "Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module covers what is available and why it matters: the equations bayesnec can fit, how they differ, and which toxicity estimate each one supports.\nThe distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean. This figure, from Fisher and Fox (2023), is what the module builds towards.\n\n\n\n\n\n\n\n\nFigure 1",
+    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#background",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#background",
-    "title": "Toxicity estimation and the model set",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#background",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#background",
+    "title": "Response data and statistical distributions",
     "section": "",
-    "text": "Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module covers what is available and why it matters: the equations bayesnec can fit, how they differ, and which toxicity estimate each one supports.\nThe distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean. This figure, from Fisher and Fox (2023), is what the module builds towards.\n\n\n\n\n\n\n\n\nFigure 1",
+    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-model-set",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-model-set",
-    "title": "Toxicity estimation and the model set",
-    "section": "The model set",
-    "text": "The model set\nThe model argument of a bayesnecformula names the equation or equations to fit. The complete set is:\n\nmodels()$all\n\n [1] \"nec3param\"     \"nec4param\"     \"nechorme\"      \"nechorme4\"    \n [5] \"necsigm\"       \"neclin\"        \"neclinhorme\"   \"nechormepwr\"  \n [9] \"nechorme4pwr\"  \"nechormepwr01\" \"ecxlin\"        \"ecxexp\"       \n[13] \"ecxsigm\"       \"ecx4param\"     \"ecxwb1\"        \"ecxwb2\"       \n[17] \"ecxwb1p3\"      \"ecxwb2p3\"      \"ecxll5\"        \"ecxll4\"       \n[21] \"ecxll3\"        \"ecxhormebc4\"   \"ecxhormebc5\"  \n\n\nThe names divide into two prefixes. Those beginning nec are threshold models; those beginning ecx are smooth models with no threshold.\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nNamed subsets of the full set are also available, and are how a group of equations is requested rather than a single one:\n\nnames(models())\n\n[1] \"nec\"          \"ecx\"          \"all\"          \"bot_free\"     \"zero_bounded\"\n[6] \"decline\"      \"hormesis\"    \n\n\nModule 4 covers fitting a set and averaging across it.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
+    "title": "Response data and statistical distributions",
+    "section": "Generalised modelling",
+    "text": "Generalised modelling\nGeneralised modelling fits data with a statistical distribution matched to the natural range and scaling of the response, rather than assuming one.\nFitting a linear model with lm() assumes a Gaussian distribution, and so do many non-linear routines such as nls(). The normality assumption familiar from analysis of variance is the most common case of non-generalised modelling. It is sometimes reasonable, but it was adopted largely because it makes the mathematics of fitting and interval estimation tractable.\nThat constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in bayesnec rather than with the underlying mathematics.\n\n\n\n\n\n\n\n\nFigure 1",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#parameter-definitions",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#parameter-definitions",
-    "title": "Toxicity estimation and the model set",
-    "section": "Parameter definitions",
-    "text": "Parameter definitions\nThe parameters have been given consistent meanings across equations wherever possible, so that a parameter named top means the same thing in every model that has one. Equations range from two parameters, in the linear and exponential decay models ecxlin and ecxexp, to five in nechorme4.\n\\(\\tau = \\text{top}\\), the y-intercept or upper plateau: the mean response at zero concentration.\n\\(\\eta = \\text{nec}\\), the no-effect concentration, the value of the predictor at which the threshold in the regression is estimated to lie.\n\\(\\beta = \\text{beta}\\), the exponential decay rate of the response, either from zero concentration or from \\(\\eta\\). The exception is neclinhorme, where it is a linear decay from \\(\\eta\\), because the slope \\(\\alpha\\) is already used for the linear increase.\n\\(\\delta = \\text{bot}\\), the lower plateau: the response at infinite concentration.\n\\(\\alpha = \\text{slope}\\), the linear decay rate in neclin and ecxlin, or the linear increase before \\(\\eta\\) in the hormesis models.\n\\(\\omega = \\text{ec50}\\), nominally the 50% effect concentration, though it is affected by scaling and should not be read strictly as an EC50.\n\\(\\epsilon = \\text{d}\\), the exponent in ecxsigm and necsigm.\n\\(\\zeta = \\text{f}\\), a scaling exponent used only by ecxll5.\nEvery nec model also uses a step function to define the breakpoint:\n\\[\nf(x_i, \\eta) = \\begin{cases}\n      0, & x_i - \\eta &lt; 0 \\\\\n      1, & x_i - \\eta \\geq 0 \\\\\n   \\end{cases}\n\\]",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
+    "title": "Response data and statistical distributions",
+    "section": "Families available in brms",
+    "text": "Families available in brms\nbrms supports many families, including most of those in the base stats package that other R fitting routines use:\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nand a number that are specific to it:\n\n\n\n\n\n\n\n\nFigure 3",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#threshold-models",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#threshold-models",
-    "title": "Toxicity estimation and the model set",
-    "section": "Threshold models",
-    "text": "Threshold models\nIn models prefixed nec, the no-effect concentration is a parameter of the model, \\(\\eta\\), and is estimated directly, following Fox (2010).\n\n\n\n\n\n\n\n\nFigure 3\n\n\n\n\n\nThese models assume the response holds at a stable level, near the control mean, across the lower concentrations, until a threshold is reached. That threshold is the NEC. Beyond it the response declines with increasing concentration at some rate. The original formulation of Fox (2010) assumed exponential decline after the threshold, which is nec3param; bayesnec also provides a linear decline in neclin.\nThese models can be used to estimate an ECx, but their value is the estimate of the threshold. They are the only way to estimate a true no-effect concentration.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
+    "title": "Response data and statistical distributions",
+    "section": "Link functions",
+    "text": "Link functions\nEvery statistical family has a link function. A generalised linear model relates the linear predictor to the response through it — a logit link, for example, maps the probabilities of a binary response onto an unbounded continuous scale. Generalised linear models were formulated by Nelder and Wedderburn as a unification of linear regression, logistic regression and Poisson regression, with maximum likelihood estimation of the parameters. Logistic regression is the familiar case.\nThe native link for a family — logit for the binomial, log for the Poisson — imposes a non-linear transformation. Concentration-response models are already non-linear and do not use linear predictors, so any further non-linearity from a link changes the model being fitted.\nbayesnec therefore uses the identity link for every family. The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps top, bot and nec on the scale of the response, where they are directly interpretable.\n\nbayesnec:::supported_links()\n\n[1] \"identity\" \"log\"      \"logit\"   \n\n\nThis matters when comparing a bayesnec fit against a brms model written by hand. brms defaults to logit for a beta response and log for a Poisson, so unless the link is passed explicitly the two are different models. ECx and NSEC estimates from a fit using any link other than the identity may not behave as expected.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#smooth-models",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#smooth-models",
-    "title": "Toxicity estimation and the model set",
-    "section": "Smooth models",
-    "text": "Smooth models\nModels prefixed ecx are continuous curves. They have an intercept, the mean control response, but no threshold: the response begins to decline at any concentration above zero, at a rate set by the equation.\n\n\n\n\n\n\n\n\nFigure 4\n\n\n\n\n\nThey are appropriate where the data show no threshold, and are used to extract ECx values such as the EC10, which is widely used in species sensitivity distribution modelling.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
+    "title": "Response data and statistical distributions",
+    "section": "Families implemented in bayesnec",
+    "text": "Families implemented in bayesnec\n\nnames(bayesnec:::mod_fams)\n\n [1] \"gaussian\"                  \"Gamma\"                    \n [3] \"poisson\"                   \"negbinomial\"              \n [5] \"bernoulli\"                 \"binomial\"                 \n [7] \"beta_binomial\"             \"beta\"                     \n [9] \"hurdle_gamma\"              \"zero_inflated_beta\"       \n[11] \"zero_inflated_poisson\"     \"zero_inflated_negbinomial\"\n\n\nThe first eight are the ordinary cases covered below. hurdle_gamma, zero_inflated_beta, zero_inflated_poisson and zero_inflated_negbinomial handle responses with an excess of zeros — a separate topic, treated in the bayesnec article on hurdle families.\nAdding a family is not trivial, because bayesnec generates priors and initial values by algorithms specific to each one. Requests go to the issue tracker.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-no-significant-effect-concentration",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-no-significant-effect-concentration",
-    "title": "Toxicity estimation and the model set",
-    "section": "The no-significant-effect concentration",
-    "text": "The no-significant-effect concentration\nA smooth model has no threshold parameter, so the NEC cannot be read from it. The NSEC is a way of obtaining a no-effect estimate from such a model (Fisher and Fox 2023).\n\n\n\n\n\n\n\n\nFigure 5\n\n\n\n\n\nThe construction starts from the fitted intercept, the mean response at the control. From the posterior of that parameter a lower bound on the control response is calculated. The NSEC is the concentration at which the fitted curve crosses that bound.\nBecause the calculation is done for every posterior draw, the result is a posterior distribution for the NSEC rather than a point estimate, and a credible interval follows from it directly. Module 6 covers what a posterior is and where it comes from.\nThe full derivation, in both frequentist and Bayesian form, is in Fisher and Fox (2023).",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
+    "title": "Response data and statistical distributions",
+    "section": "Default behaviour",
+    "text": "Default behaviour\nWith default settings bnec infers the most likely distribution from the response. That inference must be checked rather than trusted. Two questions decide whether a distribution is adequate:\n\ndoes it capture the variability actually present in the data?\ndoes it produce sensibly shaped credible bounds across the whole curve?\n\nGetting the dispersion right matters directly for toxicity estimates, because it sets the width of their intervals. It matters most for the NSEC, which is defined against the estimated variability in the control: overstate that variability and the estimate becomes less conservative (Fisher et al. 2023; Fisher and Fox 2023).\nThe sections below fit a threshold and a smooth model to each of several response types. Several of the examples come from Gerard Ricardo’s repository.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-nsec-and-the-noec",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-nsec-and-the-noec",
-    "title": "Toxicity estimation and the model set",
-    "section": "The NSEC and the NOEC",
-    "text": "The NSEC and the NOEC\nThe NSEC is analogous to the NOEC: both identify the concentration at which the response becomes significantly different from the control.\n\n\n\n\n\n\n\n\nFigure 6\n\n\n\n\n\nThe difference is that the NSEC interpolates from a fitted curve, so it is not restricted to the concentrations that happen to have been tested. This removes the most serious defect of the NOEC, whose value can only ever be one of the treatment concentrations and is therefore determined by the experimental design as much as by the toxicity.\nBecause it rests on a comparison against control variability, the NSEC is sensitive to poorly designed experiments. High variability in the control produces a less conservative estimate, which is the opposite of what intuition suggests, and it is the single most important thing to watch when using it.\nA valid NSEC therefore depends on the control variability being a good representation of natural variability in an unimpacted population. That in turn depends on modelling the response with an appropriate statistical distribution, which module 5 covers.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Binomial",
+    "text": "Binomial\nA response is binomial when it is a count out of a total, such as the number of survivors out of a number exposed.\n\nbinom_data &lt;- read.csv(\"example_binomial.csv\")\nsummary(binom_data$raw_x)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n   0.10   10.94   37.50   99.23  125.00  400.00 \n\nhead(binom_data)\n\n  raw_x suc tot\n1   0.1 101 175\n2   0.1 106 112\n3   0.1 102 103\n4   0.1 112 114\n5   0.1  58  69\n6   0.1 158 165\n\n\nThe predictor runs from 0.1 to 400 and is strongly right skewed, which is typical of a dilution series. Transforming the predictor, usually by a logarithm, often makes fitting more stable, and the design is generally logarithmic in any case. This example uses the predictor untransformed.\nsuc holds the number of successes and tot the number of trials.\nFor a binomial or beta-binomial response the formula takes a trials term, exactly as in brms:\n\nsuc | trials(tot) ~ crf(raw_x, model = \"your_model\")\n\nThe column to the left of the | holds the successes — survivors, fertilised eggs — and the one inside trials() the total associated with each. The names are whatever they are in your data frame.\n\nset.seed(333)\nexp_1nec &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"nec3param\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a binomial distribution.\n\n\nWarning: Found 2 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n23 (47.9%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\n\nautoplot(exp_1nec)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 4\n\n\n\n\n\nThe credible bounds are very tight. The threshold model itself fits reasonably and the NEC is in a plausible place.\nFitting a smooth curve to the same data instead:\n\nset.seed(333)\nexp_1ecx &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"ecxll3\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 1 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll3 model using a binomial distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 79 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\n\nautoplot(exp_1ecx)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 5",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#choosing-a-toxicity-estimate",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#choosing-a-toxicity-estimate",
-    "title": "Toxicity estimation and the model set",
-    "section": "Choosing a toxicity estimate",
-    "text": "Choosing a toxicity estimate\nWhere the data show a threshold, the NEC is the most defensible estimate of no effect. Threshold models do not always fit well, however, and fitting one to smoothly declining data produces estimates that are non-conservative — the estimated threshold sits above concentrations at which an effect is already occurring.\n\n\n\n\n\n\n\n\nFigure 7\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 8\n\n\n\n\n\nIn the cases examined there, an NEC taken from a threshold model fitted to smooth data implied an effect larger than 10%, and sometimes considerably larger. The question that follows is what to use instead when there is no threshold.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Beta-binomial",
+    "text": "Beta-binomial\nThe bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.\nThe beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.\n\nset.seed(333)\nexp_1b &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = c(\"ecxll3\", \"nec3param\")),\n               data = binom_data, family = \"beta_binomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a beta_binomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta_binomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_1b, all_models = TRUE)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 6\n\n\n\n\n\nThe bounds are now much wider, and they are a better description of the scatter in the data.\nbayesnec once supplied this as a custom family called beta_binomial2, because brms did not provide one natively. It does now, and the family is named beta_binomial; code written against beta_binomial2 will no longer run.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#nsec-against-ecx",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#nsec-against-ecx",
-    "title": "Toxicity estimation and the model set",
-    "section": "NSEC against ECx",
-    "text": "NSEC against ECx\nWhere no threshold can be estimated, the available options are the NOEC, an ECx at some low value of x, or the NSEC.\nThe NOEC has been discarded as a measure of toxicity and is the least preferred method in the current Australian and New Zealand guidelines (Warne and Van Dam 2008; Warne et al. 2018).\nECx, and the EC10 in particular, is the method those guidelines specify (Warne et al. 2018) and is widely used internationally. An ECx at x of 5 or 10 has been endorsed by the OECD since Van Der Hoeven et al. (1997).\nWhere an estimate of no effect is required, an ECx is arguably the wrong instrument, because it reports the concentration producing an effect of magnitude x. It is an effect concentration by construction.\nThe NSEC, like the NOEC before it (Mebane 2015), also represents some non-zero effect: for a smooth sigmoidal model any concentration above zero produces one. The difference is where the line is drawn. The NSEC is the concentration below which the response does not deviate significantly from the control, and a significant deviation can occur well before the effect reaches the 10% that an EC10 reports. Unless there is separate evidence that a 10% effect carries no consequence for the population, an EC10 cannot be assumed protective.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta",
+    "title": "Response data and statistical distributions",
+    "section": "Beta",
+    "text": "Beta\nA response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.\n\nprop_data &lt;- read.csv(\"example_proportion.csv\") |&gt;\n  mutate(sqrt.x = sqrt(raw_x))\n\n\nset.seed(333)\nexp_2 &lt;- bnec(resp ~ crf(sqrt.x, model = c(\"ecxll3\", \"nec3param\")),\n              data = prop_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 157 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nWarning: The largest R-hat is 1.05, indicating chains have not mixed.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#r-hat\n\n\nWarning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#bulk-ess\n\n\nWarning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#tail-ess\n\n\nResponse variable modelled as a ecxll3 model using a beta distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\n4: \n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_2, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 7\n\n\n\n\n\n\nexp_2$mod_stats\n\n              model      waic         wi dispersion_Estimate dispersion_Q2.5\necxll3       ecxll3 -412.4089 0.02275017                  NA              NA\nnec3param nec3param -423.8700 0.97724983                  NA              NA\n          dispersion_Q97.5 dispersion_P_over_1\necxll3                  NA                  NA\nnec3param               NA                  NA\n\n\nThe beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.\nNote that the predictor was square-root transformed in the formula. Estimates returned by nec(), nsec() and ecx() are then on the transformed scale, and must be back-transformed with the xform argument to be read as concentrations.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#hormesis",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#hormesis",
-    "title": "Toxicity estimation and the model set",
-    "section": "Hormesis",
-    "text": "Hormesis\nSome equations in both groups allow an initial increase in the response at low concentrations before the decline begins (see Mattson 2008). These are the hormesis models, and their names contain horme. The behaviour occurs for several reasons and is seen regularly in whole-effluent toxicity testing of mixed discharges.\nThe threshold hormesis models are:\n\nintersect(models()$horme, models()$nec)\n\n[1] \"nechorme\"      \"nechorme4\"     \"neclinhorme\"   \"nechormepwr\"  \n[5] \"nechorme4pwr\"  \"nechormepwr01\"\n\n\nThese assume a linear increase up to the threshold and allow various decay functions after it. Hormesis raises no difficulty for the NEC, which remains the concentration at which the response begins to decline.\nThe smooth hormesis models are:\n\nintersect(models()$horme, models()$ecx)\n\n[1] \"ecxhormebc4\" \"ecxhormebc5\"\n\n\n\n\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\n\n\n\n\n\n\nFigure 10\n\n\n\n\n\n\nThese do raise a difficulty for ECx, because an effect has to be measured against something, and a hormetic curve offers two candidates: the control, and the peak of the curve. bayesnec measures every ECx, NSEC and ECNSEC from the control — the predicted mean at the lowest concentration in the data, taken separately for each posterior draw. The two references coincide for a monotonically declining curve and differ for a hormetic one, so this choice changes the reported ECx for a hormesis equation and no other.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
+    "title": "Response data and statistical distributions",
+    "section": "Poisson",
+    "text": "Poisson\nCounts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.\n\nset.seed(333)\ndata(nec_data)\ncount_data &lt;- nec_data |&gt;\n  mutate(\n    y = (y * 100 + rnorm(nrow(nec_data), 0, 15)) |&gt;\n      round() |&gt; as.integer() |&gt; abs()\n  )\nstr(count_data)\n\n'data.frame':   100 obs. of  2 variables:\n $ x: num  1.019 0.816 0.371 0.401 1.295 ...\n $ y: int  85 120 54 96 64 88 111 92 99 86 ...\n\n\n\nset.seed(333)\nexp_3 &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")), data = count_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a poisson distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a poisson distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 8",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#extracting-estimates",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#extracting-estimates",
-    "title": "Toxicity estimation and the model set",
-    "section": "Extracting estimates",
-    "text": "Extracting estimates\nThree functions extract toxicity estimates from a fitted model: nec(), ecx() and nsec(). Their full documentation is in the help files, which are the authoritative source; what follows covers the arguments that carry a decision rather than every argument.\n\nnec()\nThe NEC is a parameter of the model, so the function has little to do beyond summarising its posterior.\n\nsignature(\"nec\")\n\nfunction (object, posterior = FALSE, xform = identity, prob_vals = c(0.5, \n    0.025, 0.975), ...)  \n\n\nposterior returns the full posterior sample rather than a summary. xform applies a function to the returned values, which is how estimates are returned to the original scale when the predictor was transformed in the formula. prob_vals sets the quantiles summarised, by default the median and a 95% credible interval.\nnec() applies only to models that have the parameter. Calling it on a smooth model is an error rather than a silent substitution.\n\n\necx()\n\nsignature(\"ecx\")\n\nfunction (object, ecx_val = 10, resolution = 200, posterior = FALSE, \n    type = \"absolute\", x_range = NA, xform = identity, prob_vals = c(0.5, \n        0.025, 0.975), ..., dpar = NULL)  \n\n\necx_val is the effect percentage, defaulting to 10 for an EC10.\ntype determines what the percentage is measured against, which is the substantive decision here. \"absolute\", the default, measures from the control to zero. \"relative\" measures from the control to the equation’s theoretical asymptote, the bot parameter where the equation has one. \"range\" measures from the control to the lowest response the fitted curve predicts. \"direct\" takes a response value rather than a percentage and returns the concentration at which the curve reaches it.\nresolution sets the number of predictor values over which the crossing is located. x_range allows estimates outside the observed range of the predictor, which should be used deliberately, since it extrapolates the fitted curve.\n\n\nnsec()\n\nsignature(\"nsec\")\n\nfunction (object, sig_val = 0.01, resolution = 200, x_range = NA, \n    xform = identity, prob_vals = c(0.5, 0.025, 0.975), ..., \n    posterior = FALSE, dpar = NULL)  \n\n\nsig_val is the quantile of the control posterior used to define a significant decline, defaulting to 0.01, that is 99% certainty of a decline relative to the control. That value generally produces sensible results. Where it does not, the better response in a guideline-derivation context is usually to reconsider whether the statistical model suits the data, rather than to adjust the significance level. Other values may be appropriate in other decision contexts.",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Negative binomial",
+    "text": "Negative binomial\nThe Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.\n\nset.seed(333)\nexp_3b &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n               data = count_data, family = \"negbinomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a negbinomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a negbinomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (4.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3b, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\nThe bounds widen, as they did for the beta-binomial, and for the same reason.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
+      "5. Response data and distributions"
     ]
   },
   {
-    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#references",
-    "href": "vignettes/3Toxicity_estimation_and_available_models.html#references",
-    "title": "Toxicity estimation and the model set",
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
+    "title": "Response data and statistical distributions",
+    "section": "Gamma",
+    "text": "Gamma\nA continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.\n\ndata(nec_data)\nmeasure_data &lt;- nec_data |&gt;\n  mutate(measure = exp(y))\n\n\nset.seed(333)\nexp_4 &lt;- bnec(measure ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n              data = measure_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a Gamma distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a Gamma distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_4, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 10",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
+    "title": "Response data and statistical distributions",
+    "section": "Gaussian",
+    "text": "Gaussian\nA continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.\n\ngaussian_data &lt;- prop_data |&gt;\n  mutate(y = car::logit(resp))\n\n\nset.seed(333)\nexp_5 &lt;- bnec(y ~ crf(sqrt.x, model = c(\"ecxll4\", \"nec4param\")),\n              data = gaussian_data)\n\nFinding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 10 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll4 model using a gaussian distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec4param model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 3 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a nec4param model using a gaussian distribution.\n\n\nFitted models are: ecxll4 nec4param\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll4 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll4, nec4param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_5, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 11\n\n\n\n\n\nTransforming a bounded response onto an unbounded scale and modelling it as Gaussian is one way of handling proportion data, and it was standard practice before generalised methods were routine. Modelling the response on its own scale with the beta, as above, is preferable: it keeps the parameters interpretable as proportions, and it does not require the transformation to have made the variance constant.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
+    "title": "Response data and statistical distributions",
+    "section": "Model suitability by response type",
+    "text": "Model suitability by response type\nNot every equation suits every family. A model predicting negative values cannot be used with a response that must be positive, and bayesnec discards any model in a requested set that is unsuitable for the distribution of the response. This is why a set of twenty-three may return fewer than twenty-three fits, and why the zero_bounded set exists.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
+    "title": "Response data and statistical distributions",
+    "section": "Open questions",
+    "text": "Open questions\nThe families implemented in bayesnec cover the common cases in concentration-response work. Responses with an excess of zeros need the hurdle and zero-inflated families listed above, which are covered separately.\nThe important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience, not a substitute for that judgement.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#references",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#references",
+    "title": "Response data and statistical distributions",
     "section": "References",
-    "text": "References\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFox, David R. 2010. “A Bayesian approach for determining the no effect concentration and hazardous concentration in ecotoxicology.” Ecotoxicology and Environmental Safety 73 (2): 123–31.\n\n\nMattson, Mark P. 2008. “Hormesis Defined.” Ageing Research Reviews 7 (1): 1–7. https://doi.org/https://doi.org/10.1016/j.arr.2007.08.007.\n\n\nMebane, Christopher A. 2015. “In Response: Biological Arguments for Selecting Effect Sizes in Ecotoxicological Testing—a Governmental Perspective.” Journal Article. Environmental Toxicology and Chemistry 34 (11): 2440–42.\n\n\nVan Der Hoeven, Nelly, Frank Noppert, and Annegaaike Leopold. 1997. “How to Measure No Effect. Part i: Towards a New Measure of Chronic Toxicity in Ecotoxicology. Introduction and Workshop Results.” Journal Article. Environmetrics 8 (3): 241–48. https://doi.org/https://doi.org/10.1002/(SICI)1099-095X(199705)8:3&lt;241::AID-ENV244&gt;3.0.CO;2-7.\n\n\nWarne, M, GE Batley, RA van Dam, et al. 2018. “Revised Method for Deriving Australian and New Zealand Water Quality Guideline Values for Toxicants – Update of 2015 Version.” Journal Article. Prepared for the Revision of the Australian and New Zealand Guidelines for Fresh and Marine Water Quality. Australian and New Zealand Governments and Australian State and Territory Governments, Canberra, 48 Pp.\n\n\nWarne, Michael St J, and Rick Van Dam. 2008. “NOEC and LOEC Data Should No Longer Be Generated or Used.” Journal Article. Australasian Journal of Ecotoxicology 14 (1): 1–5.",
+    "text": "References\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. “Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.” Integrated Environmental Assessment and Management, ahead of print. https://doi.org/https://doi.org/10.1002/ieam.4809.",
     "crumbs": [
       "Overview",
       "Modules",
-      "3. Toxicity estimation and the model set"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html",
-    "href": "vignettes/1Software-stack.html",
-    "title": "The software stack",
-    "section": "",
-    "text": "Fitting a concentration-response model in this course sets several pieces of software working together, and a failure in any of them surfaces as an error in whichever one you were typing into. Knowing what each layer does makes those errors readable, and it explains several things about the workflow that are otherwise arbitrary: why the first model of a session is slow, why a C++ compiler has to be installed to fit a curve, and why a fitted object is large.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html#the-working-environment",
-    "href": "vignettes/1Software-stack.html#the-working-environment",
-    "title": "The software stack",
-    "section": "The working environment",
-    "text": "The working environment\nR is the language. Positron is the editor used throughout the course: an environment for writing and running R, with the script you are editing in one pane and a live R session, the console, in another.\nA new session starts empty.\n\n\n\n\n\n\nFigure 1: Positron with a new R session. The console reports which R started, and the interpreter in use is named at the top right with the open project beside it.\n\n\n\nCode is sent from the script to the console a line or a block at a time, rather than typed into the console directly. The script is then the record of what was done, and can be re-run from the top to reproduce it; the console is where it happens.\n\n\n\n\n\n\nFigure 2: The same window after running a short script. The console echoes the lines it was sent, the Variables pane lists the objects that now exist and what they contain, and the plot appears in the Plots pane.\n\n\n\nFour parts of that window are worth knowing before the first model is fitted.\nThe editor, top left, holds the script. Run the current line or selection with Ctrl+Enter (Cmd+Enter on macOS) and it is sent to the console below.\nThe console, bottom left, is the running R session. It echoes what it was sent, so Figure 2 shows the same four lines in both panes.\nVariables, top right, lists every object in the session with its type and contents — x as an integer vector of ten values and y as a double in the figure. It is the quickest way to see whether an object is what you expected, which matters later when a fitted model is a deeply nested list rather than a vector.\nPlots, bottom right, collects the figures produced, with arrows to step back through earlier ones and a control to save the current figure.\nThe interpreter in use is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another.\nTwo habits matter more here than in ordinary R work.\nWork in a project. A project fixes the working directory, so relative paths like read.csv(\"mydata.csv\") resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.\nDo not save the workspace. R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html#the-dependency-chain",
-    "href": "vignettes/1Software-stack.html#the-dependency-chain",
-    "title": "The software stack",
-    "section": "The dependency chain",
-    "text": "The dependency chain\n\n\n\n\n\n\nflowchart TD\n    A[\"&lt;b&gt;bayesnec&lt;/b&gt;&lt;br/&gt;concentration-response models,&lt;br/&gt;priors, toxicity estimates\"]\n    B[\"&lt;b&gt;brms&lt;/b&gt;&lt;br/&gt;R formulas to Stan code\"]\n    C[\"&lt;b&gt;cmdstanr&lt;/b&gt; or &lt;b&gt;rstan&lt;/b&gt;&lt;br/&gt;the interface to Stan\"]\n    D[\"&lt;b&gt;Stan&lt;/b&gt;&lt;br/&gt;the sampler, written in C++\"]\n    E[\"&lt;b&gt;C++ compiler&lt;/b&gt;&lt;br/&gt;Rtools, Xcode CLT, or gcc\"]\n    A --&gt; B --&gt; C --&gt; D --&gt; E\n\n\n\n\nFigure 3: Each layer is called by the one above it.\n\n\n\n\n\nStan is the engine. It is a separate piece of software, not an R package, that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program describes a statistical model; Stan translates it to C++, compiles it into an executable, and runs that executable to draw samples from the posterior. This is the source of the compile step: a Stan model is a program that has to be built before it can run, which is why a C++ compiler is a requirement and why the first fit of a session takes noticeably longer than later ones.\ncmdstanr and rstan are two R interfaces to Stan, and brms can use either. This course uses cmdstanr, which drives a normal CmdStan installation as a separate process. rstan embeds Stan inside R instead, which couples the Stan version to the package version and has historically been the more fragile arrangement on Windows. rstan still has to be installed, because brms imports it, but it is not the sampler here. The backend is selected once:\n\noptions(brms.backend = \"cmdstanr\")\n\nbrms (Bürkner 2017; Bürkner 2018) removes the need to write Stan code. It takes a model written in R’s formula syntax, close to that of lme4, and generates the Stan program for it. It supports a wide range of response distributions and model structures — non-linear and smooth terms, multilevel structure, censoring, distributional regression — and provides the methods for checking a fit once it exists.\nbayesnec (Fisher et al. 2020) is what this course is about. brms will fit a non-linear model, but only if you supply the equation, sensible starting values and priors for every parameter. For concentration-response work that is the barrier: the models are non-linear, the priors are not obvious, and a poorly initialised non-linear fit fails in ways that need specialist reading. This is a substantial part of why Bayesian methods are not widely used for NEC estimation in ecotoxicology, where specialist statistical support is rarely available.\nbayesnec takes a short formula naming a concentration-response equation, and from that plus the data it constructs the full non-linear brms formula, generates priors and initial values, chooses a statistical distribution appropriate to the response, fits the model, and extracts toxicity estimates from it. Module 2 does exactly this in one line.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html#package-history",
-    "href": "vignettes/1Software-stack.html#package-history",
-    "title": "The software stack",
-    "section": "Package history",
-    "text": "Package history\nThe package began as jagsNEC (Fisher et al. 2020), an implementation of the NEC model of Fox (2010) using JAGS. It was rewritten on brms and Stan, and generalised well beyond the original: the supported response distributions now include the beta-binomial alongside the Gaussian, Poisson, binomial, gamma, negative binomial and beta of the original, and any brms family can in principle be added.\nThe model set was also extended. Alongside the threshold models that estimate an NEC directly, it now includes smooth concentration-response equations of the kind used in frequentist packages such as drc (Ritz et al. 2015) — four-parameter logistic and Weibull curves among them — which model the response as a smooth function of concentration rather than with a breakpoint. Module 3 sets out the full set and what each one supports.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html#versions",
-    "href": "vignettes/1Software-stack.html#versions",
-    "title": "The software stack",
-    "section": "Versions",
-    "text": "Versions\nThe versions in use when a model is fitted are part of the result, because defaults and estimators change between releases. Recording them costs one line:\n\nfor (p in c(\"bayesnec\", \"brms\", \"cmdstanr\", \"rstan\", \"posterior\")) {\n  cat(sprintf(\"%-10s %s\\n\", p, as.character(packageVersion(p))))\n}\n\nbayesnec   2.1.3.33\nbrms       2.23.0\ncmdstanr   0.9.0\nrstan      2.32.7\nposterior  1.6.1\n\ncat(sprintf(\"%-10s %s\\n\", \"R\", getRversion()))\n\nR          4.6.1\n\n\nThis course is built against the development version of bayesnec, which is ahead of the release on CRAN. The setup instructions name the version to install.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "vignettes/1Software-stack.html#documentation-and-support",
-    "href": "vignettes/1Software-stack.html#documentation-and-support",
-    "title": "The software stack",
-    "section": "Documentation and support",
-    "text": "Documentation and support\nThe bayesnec reference site at open-aims.github.io/bayesnec is the place to start.\n\n\n\n\n\n\nFigure 4: The bayesnec reference site. Reference documents every exported function, Articles covers single-model and multi-model usage, the model set, priors and comparing posterior predictions, and Changelog records what changed between versions.\n\n\n\nReference is the authoritative description of every argument, and is worth preferring over any transcription of it, including the ones in this course. Changelog matters more than it usually does for a package under active development: estimator behaviour and default priors have both changed between recent versions.\nThe package is developed in the open and feedback is wanted.\n\n\n\n\n\n\nFigure 5: The source repository. Problems are reported under Issues.\n\n\n\nA report is only actionable with a self-contained reproducible example: code and data that someone else can run to see the same behaviour. This matters particularly for a fit that fails to converge, because the cause is usually specific to the data. Without a reproducible example a convergence problem cannot be diagnosed by anyone who does not have your dataset.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "1. The software stack"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Concentration-response modelling",
-    "section": "",
-    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#course-outcomes",
-    "href": "index.html#course-outcomes",
-    "title": "Concentration-response modelling",
-    "section": "Course outcomes",
-    "text": "Course outcomes\nOn completing the material you will be able to:\n\ndistinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;\nidentify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;\nfit concentration-response models in R and plot the results;\nderive NEC, NSEC and ECx estimates, and explain what each of them measures;\napply model averaging across a candidate set, and interpret the weights;\nproduce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#modules",
-    "href": "index.html#modules",
-    "title": "Concentration-response modelling",
-    "section": "Modules",
-    "text": "Modules\nBefore the modules: software setup installs R, a C++ compiler, CmdStan and the R packages, and verifies the installation. It is not taught; it is done beforehand.\n\n\n\n\nModule\nSubject\n\n\n\n\n1\nThe software stack\nR, Stan, brms and bayesnec, and Positron\n\n\n2\nFitting a single model\nthe bnec call, the fitted object, plotting\n\n\n3\nToxicity estimation and the model set\nNEC, NSEC and ECx, and the available equations\n\n\n4\nModel averaging and multi-model inference\ncandidate sets, weights, averaged estimates\n\n\n5\nResponse data and statistical distributions\nmatching the family to the endpoint\n\n\n6\nPriors and Bayesian inference\ndefault priors, checking them, changing them\n\n\n7\nA worked case study\nherbicide toxicity, start to finish\n\n\n8\nFactor covariates and groupings\ncomparing curves and estimates across groups\n\n\n\nModules 4 to 8 are being converted from the earlier version of this course and are linked here as they are completed. A frequentist treatment of the same material using drc is supplied separately as reference; it is not part of the taught sequence.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#working-through-the-material-independently",
-    "href": "index.html#working-through-the-material-independently",
-    "title": "Concentration-response modelling",
-    "section": "Working through the material independently",
-    "text": "Working through the material independently\nThe modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.\nFitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.\nIf you want to run the code yourself, work through the software setup first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#workshop-participants",
-    "href": "index.html#workshop-participants",
-    "title": "Concentration-response modelling",
-    "section": "Workshop participants",
-    "text": "Workshop participants\nThis material is taught as a full-day workshop at SETAC Australasia 2026.\nThe software setup is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "index.html#source-and-citation",
-    "href": "index.html#source-and-citation",
-    "title": "Concentration-response modelling",
-    "section": "Source and citation",
-    "text": "Source and citation\nThe material is developed at the Australian Institute of Marine Science and the source is at open-AIMS/cr_modelling_training.\nbayesnec is documented at open-aims.github.io/bayesnec. The NSEC is introduced in Fisher and Fox (2023), Environmental Toxicology and Chemistry.\nCorrections and questions are welcome as issues.",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html",
-    "href": "vignettes/0Software-setup.html",
-    "title": "Software setup",
-    "section": "",
-    "text": "ImportantComplete this before the workshop\n\n\n\nThis setup takes most people between thirty minutes and two hours, and some of it cannot be hurried: package installation and the CmdStan build both take time that depends on your machine and your network.\nThere is no time set aside during the workshop to install or repair software. If you arrive without a working installation you will be able to watch, but you will not be able to fit models alongside the demonstrations, and most of the day is spent fitting models.\nWork through this document, then run the verification check in the final section and send the output to the organisers. Doing that early leaves time for a problem to be resolved before the day.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#software-required",
-    "href": "vignettes/0Software-setup.html#software-required",
-    "title": "Software setup",
-    "section": "Software required",
-    "text": "Software required\n\n\n\nSoftware\nPurpose\n\n\n\n\nR\nthe language everything else runs in\n\n\nA C++ toolchain\ncompiles each Bayesian model before it is fitted\n\n\nCmdStan\nthe sampler that fits the models\n\n\nPositron\nthe editor used throughout the workshop\n\n\nGit\nretrieves the workshop materials\n\n\n\nThe C++ toolchain is the part that differs by operating system, and it is the part that fails most often. On Windows it is Rtools, on macOS the Xcode Command Line Tools, and on Linux the standard build tools.\nBayesian model fitting works differently from most R modelling. Each model is translated into C++, compiled into a program, and run. That is why a compiler is needed at all, and why the first fit of a session takes longer than later ones.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#route-by-operating-system",
-    "href": "vignettes/0Software-setup.html#route-by-operating-system",
-    "title": "Software setup",
-    "section": "Route by operating system",
-    "text": "Route by operating system\nWindows is the tested and recommended route, and it is the one described in most detail below. The difficulties Stan had on Windows historically came from an older interface, rstan, which required matched versions of several compiled packages. The current interface, cmdstanr, avoids most of that.\nLinux is also tested. macOS is not, because the workshop organisers have no Mac available. Mac users should follow the outline in the macOS section, which points to the authoritative upstream instructions, and then run the same verification check as everyone else. The check is what determines whether you are ready, not which instructions you followed.\nThe Windows Subsystem for Linux is a fallback for one situation only, described in its own section. Do not start there.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#r-and-rtools",
-    "href": "vignettes/0Software-setup.html#r-and-rtools",
-    "title": "Software setup",
-    "section": "R and Rtools",
-    "text": "R and Rtools\nInstall R first, then Rtools.\nDownload R from CRAN. The combination tested for this workshop is R 4.5.x.\nThen install Rtools45, from CRAN’s Rtools page. Accept the default installation location.\n\n\n\n\n\n\nWarningRtools must match your version of R\n\n\n\nRtools45 is for R 4.5.x. A different R minor version needs the matching Rtools: Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of setup failure, and the error it produces does not mention version numbers.\nIf you install a version of R other than 4.5.x, install the Rtools that matches it.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#positron",
-    "href": "vignettes/0Software-setup.html#positron",
-    "title": "Software setup",
-    "section": "Positron",
-    "text": "Positron\nDownload and install Positron. It will find your R installation automatically. If you installed R after Positron, restart Positron so that it detects it.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#git",
-    "href": "vignettes/0Software-setup.html#git",
-    "title": "Software setup",
-    "section": "Git",
-    "text": "Git\nInstall Git for Windows, accepting the defaults. Git is used to retrieve the workshop materials.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#r-packages",
-    "href": "vignettes/0Software-setup.html#r-packages",
-    "title": "Software setup",
-    "section": "R packages",
-    "text": "R packages\nOpen Positron and run the following in the R console.\ncmdstanr is not on CRAN, so it comes from the Stan project’s own repository:\ninstall.packages(\"cmdstanr\",\n                 repos = c(\"https://stan-dev.r-universe.dev\",\n                           getOption(\"repos\")))\nThen the rest:\ninstall.packages(c(\"brms\", \"posterior\", \"bayesplot\",\n                   \"ggplot2\", \"dplyr\", \"tidyr\", \"drc\"))\nbrms installs rstan as a dependency. That is expected. rstan must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly.\n\n\n\n\n\n\nNoteThe bayesnec version\n\n\n\nThe workshop teaches a specific version of bayesnec, and the functions that estimate toxicity values changed in it. Installing a different version will give you different results from the ones on screen.\n[TO BE CONFIRMED BEFORE THIS DOCUMENT IS ISSUED — do not send with this placeholder in place. The exact install command and version follow the release planned for Monday.]",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#cmdstan",
-    "href": "vignettes/0Software-setup.html#cmdstan",
-    "title": "Software setup",
-    "section": "CmdStan",
-    "text": "CmdStan\nFirst confirm the compiler is configured. On a current Rtools this passes without doing anything; fix = TRUE repairs the problems it can rather than only reporting them:\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\nThen install CmdStan. Three things need setting, and all three have been observed to stop a fresh installation:\ndir.create(\"C:/cmdstan\")           # cmdstanr will not create it\noptions(timeout = 1800)            # the default of 60 seconds is far too short\ncmdstanr::install_cmdstan(dir = \"C:/cmdstan\")\nThe directory must exist first. install_cmdstan() does not create it, and stops with Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.\nThe download needs a longer timeout. The CmdStan archive is about 49 MB, and R’s default options(timeout) is 60 seconds, which is not enough on any ordinary connection. The timeout argument of install_cmdstan() does not govern the download — the option does. Measured on a connection delivering about 500 KB/s: the download failed with Download of CmdStan failed with error at the default, and completed in 4.9 minutes at timeout = 1800 with nothing else changed. Conference and hotel networks are commonly slower than that, so set it.\nThe default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to C:/cmdstan avoids all three, and costs nothing if none of them applies to you.\nBecause that is not the default location, tell R where to find it in every future session. Run usethis::edit_r_profile(), or open .Rprofile in your home directory, and add the line below, replacing the version number with the one you installed:\noptions(cmdstanr_cmdstan_path = \"C:/cmdstan/cmdstan-2.39.0\")\nWithout this, every new session reports that CmdStan is not installed.\n\nRecurring problems on Windows\ninstall_cmdstan() fails. Run it again with these arguments:\ncmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = \"C:/cmdstan\")\nThis is the failure most recently observed on a fresh Windows machine, and this is what resolved it. overwrite = TRUE is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without overwrite declines to replace it, which produces an error resembling the original one. quiet = FALSE only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.\nA model compiles but no chains run. cmdstanr reports “No chains finished successfully”, which names neither a cause nor a file. The usual reason is that Rtools changed after CmdStan was installed. CmdStan builds its own tbb.dll, linked against the toolchain that built it, so a CmdStan built under Rtools44 requires libraries that Rtools45 does not provide; the model still compiles and then every chain exits immediately with STATUS_DLL_NOT_FOUND. Rebuild CmdStan:\ncmdstanr::install_cmdstan(overwrite = TRUE, dir = \"C:/cmdstan\")\nAnyone who upgrades R and Rtools between installing CmdStan and the workshop will meet this.\nRtools is installed but cmdstanr cannot find it. cmdstanr chooses which Rtools to look for from your R version, and the mapping changed between releases. Version 0.9.0 sends R 4.5.x to Rtools45; 0.8.0 sent every R from 4.4 onward to Rtools44. With an older cmdstanr and the Rtools45 this document specifies, it searches for a toolchain you were never asked to install and reports it missing. Install cmdstanr 0.9.0 or later, which is what the r-universe repository above supplies. check_setup.R reports the version.\nCompiling is very slow. Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the C:/cmdstan directory from real-time scanning resolves it, where your organisation’s policy allows.\nCompiling is blocked entirely. Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.\n\n\n\n\n\n\nTipTime box the native route\n\n\n\nGive the steps above about thirty minutes. If the verification check passes, stop. If compilation fails for reasons of security policy rather than something you can configure, move to WSL rather than continuing to adjust settings.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
-    ]
-  },
-  {
-    "objectID": "vignettes/0Software-setup.html#reporting-the-result",
-    "href": "vignettes/0Software-setup.html#reporting-the-result",
-    "title": "Software setup",
-    "section": "Reporting the result",
-    "text": "Reporting the result\nCopy the entire output, from the first line to the last, and send it to the organisers. Send it whether it passed or failed: a passing result confirms you are ready, and a failing one gives enough detail to identify the problem in advance.\nThe output contains your R version, your operating system, your package versions and your installation paths. It contains nothing else about your machine.\nSend it as early as you can. A problem found a week before the workshop can be resolved; the same problem found on the morning cannot.",
-    "crumbs": [
-      "Overview",
-      "Before you start",
-      "Software setup"
+      "5. Response data and distributions"
     ]
   },
   {
@@ -549,6 +357,402 @@
       "Overview",
       "Modules",
       "2. Fitting a single model"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html",
+    "href": "vignettes/0Software-setup.html",
+    "title": "Software setup",
+    "section": "",
+    "text": "ImportantComplete this before the workshop\n\n\n\nThis setup takes most people between thirty minutes and two hours, and some of it cannot be hurried: package installation and the CmdStan build both take time that depends on your machine and your network.\nThere is no time set aside during the workshop to install or repair software. If you arrive without a working installation you will be able to watch, but you will not be able to fit models alongside the demonstrations, and most of the day is spent fitting models.\nWork through this document, then run the verification check in the final section and send the output to the organisers. Doing that early leaves time for a problem to be resolved before the day.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#software-required",
+    "href": "vignettes/0Software-setup.html#software-required",
+    "title": "Software setup",
+    "section": "Software required",
+    "text": "Software required\n\n\n\nSoftware\nPurpose\n\n\n\n\nR\nthe language everything else runs in\n\n\nA C++ toolchain\ncompiles each Bayesian model before it is fitted\n\n\nCmdStan\nthe sampler that fits the models\n\n\nPositron\nthe editor used throughout the workshop\n\n\nGit\nretrieves the workshop materials\n\n\n\nThe C++ toolchain is the part that differs by operating system, and it is the part that fails most often. On Windows it is Rtools, on macOS the Xcode Command Line Tools, and on Linux the standard build tools.\nBayesian model fitting works differently from most R modelling. Each model is translated into C++, compiled into a program, and run. That is why a compiler is needed at all, and why the first fit of a session takes longer than later ones.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#route-by-operating-system",
+    "href": "vignettes/0Software-setup.html#route-by-operating-system",
+    "title": "Software setup",
+    "section": "Route by operating system",
+    "text": "Route by operating system\nWindows is the tested and recommended route, and it is the one described in most detail below. The difficulties Stan had on Windows historically came from an older interface, rstan, which required matched versions of several compiled packages. The current interface, cmdstanr, avoids most of that.\nLinux is also tested. macOS is not, because the workshop organisers have no Mac available. Mac users should follow the outline in the macOS section, which points to the authoritative upstream instructions, and then run the same verification check as everyone else. The check is what determines whether you are ready, not which instructions you followed.\nThe Windows Subsystem for Linux is a fallback for one situation only, described in its own section. Do not start there.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#r-and-rtools",
+    "href": "vignettes/0Software-setup.html#r-and-rtools",
+    "title": "Software setup",
+    "section": "R and Rtools",
+    "text": "R and Rtools\nInstall R first, then Rtools.\nDownload R from CRAN. The combination tested for this workshop is R 4.5.x.\nThen install Rtools45, from CRAN’s Rtools page. Accept the default installation location.\n\n\n\n\n\n\nWarningRtools must match your version of R\n\n\n\nRtools45 is for R 4.5.x. A different R minor version needs the matching Rtools: Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of setup failure, and the error it produces does not mention version numbers.\nIf you install a version of R other than 4.5.x, install the Rtools that matches it.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#positron",
+    "href": "vignettes/0Software-setup.html#positron",
+    "title": "Software setup",
+    "section": "Positron",
+    "text": "Positron\nDownload and install Positron. It will find your R installation automatically. If you installed R after Positron, restart Positron so that it detects it.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#git",
+    "href": "vignettes/0Software-setup.html#git",
+    "title": "Software setup",
+    "section": "Git",
+    "text": "Git\nInstall Git for Windows, accepting the defaults. Git is used to retrieve the workshop materials.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#r-packages",
+    "href": "vignettes/0Software-setup.html#r-packages",
+    "title": "Software setup",
+    "section": "R packages",
+    "text": "R packages\nOpen Positron and run the following in the R console.\ncmdstanr is not on CRAN, so it comes from the Stan project’s own repository:\ninstall.packages(\"cmdstanr\",\n                 repos = c(\"https://stan-dev.r-universe.dev\",\n                           getOption(\"repos\")))\nThen the rest:\ninstall.packages(c(\"brms\", \"posterior\", \"bayesplot\",\n                   \"ggplot2\", \"dplyr\", \"tidyr\", \"drc\"))\nbrms installs rstan as a dependency. That is expected. rstan must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly.\n\n\n\n\n\n\nNoteThe bayesnec version\n\n\n\nThe workshop teaches a specific version of bayesnec, and the functions that estimate toxicity values changed in it. Installing a different version will give you different results from the ones on screen.\n[TO BE CONFIRMED BEFORE THIS DOCUMENT IS ISSUED — do not send with this placeholder in place. The exact install command and version follow the release planned for Monday.]",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#cmdstan",
+    "href": "vignettes/0Software-setup.html#cmdstan",
+    "title": "Software setup",
+    "section": "CmdStan",
+    "text": "CmdStan\nFirst confirm the compiler is configured. On a current Rtools this passes without doing anything; fix = TRUE repairs the problems it can rather than only reporting them:\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\nThen install CmdStan. Three things need setting, and all three have been observed to stop a fresh installation:\ndir.create(\"C:/cmdstan\")           # cmdstanr will not create it\noptions(timeout = 1800)            # the default of 60 seconds is far too short\ncmdstanr::install_cmdstan(dir = \"C:/cmdstan\")\nThe directory must exist first. install_cmdstan() does not create it, and stops with Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.\nThe download needs a longer timeout. The CmdStan archive is about 49 MB, and R’s default options(timeout) is 60 seconds, which is not enough on any ordinary connection. The timeout argument of install_cmdstan() does not govern the download — the option does. Measured on a connection delivering about 500 KB/s: the download failed with Download of CmdStan failed with error at the default, and completed in 4.9 minutes at timeout = 1800 with nothing else changed. Conference and hotel networks are commonly slower than that, so set it.\nThe default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to C:/cmdstan avoids all three, and costs nothing if none of them applies to you.\nBecause that is not the default location, tell R where to find it in every future session. Run usethis::edit_r_profile(), or open .Rprofile in your home directory, and add the line below, replacing the version number with the one you installed:\noptions(cmdstanr_cmdstan_path = \"C:/cmdstan/cmdstan-2.39.0\")\nWithout this, every new session reports that CmdStan is not installed.\n\nRecurring problems on Windows\ninstall_cmdstan() fails. Run it again with these arguments:\ncmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = \"C:/cmdstan\")\nThis is the failure most recently observed on a fresh Windows machine, and this is what resolved it. overwrite = TRUE is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without overwrite declines to replace it, which produces an error resembling the original one. quiet = FALSE only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.\nA model compiles but no chains run. cmdstanr reports “No chains finished successfully”, which names neither a cause nor a file. The usual reason is that Rtools changed after CmdStan was installed. CmdStan builds its own tbb.dll, linked against the toolchain that built it, so a CmdStan built under Rtools44 requires libraries that Rtools45 does not provide; the model still compiles and then every chain exits immediately with STATUS_DLL_NOT_FOUND. Rebuild CmdStan:\ncmdstanr::install_cmdstan(overwrite = TRUE, dir = \"C:/cmdstan\")\nAnyone who upgrades R and Rtools between installing CmdStan and the workshop will meet this.\nRtools is installed but cmdstanr cannot find it. cmdstanr chooses which Rtools to look for from your R version, and the mapping changed between releases. Version 0.9.0 sends R 4.5.x to Rtools45; 0.8.0 sent every R from 4.4 onward to Rtools44. With an older cmdstanr and the Rtools45 this document specifies, it searches for a toolchain you were never asked to install and reports it missing. Install cmdstanr 0.9.0 or later, which is what the r-universe repository above supplies. check_setup.R reports the version.\nCompiling is very slow. Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the C:/cmdstan directory from real-time scanning resolves it, where your organisation’s policy allows.\nCompiling is blocked entirely. Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.\n\n\n\n\n\n\nTipTime box the native route\n\n\n\nGive the steps above about thirty minutes. If the verification check passes, stop. If compilation fails for reasons of security policy rather than something you can configure, move to WSL rather than continuing to adjust settings.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/0Software-setup.html#reporting-the-result",
+    "href": "vignettes/0Software-setup.html#reporting-the-result",
+    "title": "Software setup",
+    "section": "Reporting the result",
+    "text": "Reporting the result\nCopy the entire output, from the first line to the last, and send it to the organisers. Send it whether it passed or failed: a passing result confirms you are ready, and a failing one gives enough detail to identify the problem in advance.\nThe output contains your R version, your operating system, your package versions and your installation paths. It contains nothing else about your machine.\nSend it as early as you can. A problem found a week before the workshop can be resolved; the same problem found on the morning cannot.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Concentration-response modelling",
+    "section": "",
+    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#course-outcomes",
+    "href": "index.html#course-outcomes",
+    "title": "Concentration-response modelling",
+    "section": "Course outcomes",
+    "text": "Course outcomes\nOn completing the material you will be able to:\n\ndistinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;\nidentify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;\nfit concentration-response models in R and plot the results;\nderive NEC, NSEC and ECx estimates, and explain what each of them measures;\napply model averaging across a candidate set, and interpret the weights;\nproduce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#modules",
+    "href": "index.html#modules",
+    "title": "Concentration-response modelling",
+    "section": "Modules",
+    "text": "Modules\nBefore the modules: software setup installs R, a C++ compiler, CmdStan and the R packages, and verifies the installation. It is not taught; it is done beforehand.\n\n\n\n\nModule\nSubject\n\n\n\n\n1\nThe software stack\nR, Stan, brms and bayesnec, and Positron\n\n\n2\nFitting a single model\nthe bnec call, the fitted object, plotting\n\n\n3\nToxicity estimation and the model set\nNEC, NSEC and ECx, and the available equations\n\n\n4\nModel averaging and multi-model inference\ncandidate sets, weights, averaged estimates\n\n\n5\nResponse data and statistical distributions\nmatching the family to the endpoint\n\n\n6\nPriors and Bayesian inference\ndefault priors, checking them, changing them\n\n\n7\nA worked case study\nherbicide toxicity, start to finish\n\n\n8\nFactor covariates and groupings\ncomparing curves and estimates across groups\n\n\n\nModules 4 to 8 are being converted from the earlier version of this course and are linked here as they are completed. A frequentist treatment of the same material using drc is supplied separately as reference; it is not part of the taught sequence.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#working-through-the-material-independently",
+    "href": "index.html#working-through-the-material-independently",
+    "title": "Concentration-response modelling",
+    "section": "Working through the material independently",
+    "text": "Working through the material independently\nThe modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.\nFitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.\nIf you want to run the code yourself, work through the software setup first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#workshop-participants",
+    "href": "index.html#workshop-participants",
+    "title": "Concentration-response modelling",
+    "section": "Workshop participants",
+    "text": "Workshop participants\nThis material is taught as a full-day workshop at SETAC Australasia 2026.\nThe software setup is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#source-and-citation",
+    "href": "index.html#source-and-citation",
+    "title": "Concentration-response modelling",
+    "section": "Source and citation",
+    "text": "Source and citation\nThe material is developed at the Australian Institute of Marine Science and the source is at open-AIMS/cr_modelling_training.\nbayesnec is documented at open-aims.github.io/bayesnec. The NSEC is introduced in Fisher and Fox (2023), Environmental Toxicology and Chemistry.\nCorrections and questions are welcome as issues.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html",
+    "href": "vignettes/1Software-stack.html",
+    "title": "The software stack",
+    "section": "",
+    "text": "Fitting a concentration-response model in this course sets several pieces of software working together, and a failure in any of them surfaces as an error in whichever one you were typing into. Knowing what each layer does makes those errors readable, and it explains several things about the workflow that are otherwise arbitrary: why the first model of a session is slow, why a C++ compiler has to be installed to fit a curve, and why a fitted object is large.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html#the-working-environment",
+    "href": "vignettes/1Software-stack.html#the-working-environment",
+    "title": "The software stack",
+    "section": "The working environment",
+    "text": "The working environment\nR is the language. Positron is the editor used throughout the course: an environment for writing and running R, with the script you are editing in one pane and a live R session, the console, in another.\nA new session starts empty.\n\n\n\n\n\n\nFigure 1: Positron with a new R session. The console reports which R started, and the interpreter in use is named at the top right with the open project beside it.\n\n\n\nCode is sent from the script to the console a line or a block at a time, rather than typed into the console directly. The script is then the record of what was done, and can be re-run from the top to reproduce it; the console is where it happens.\n\n\n\n\n\n\nFigure 2: The same window after running a short script. The console echoes the lines it was sent, the Variables pane lists the objects that now exist and what they contain, and the plot appears in the Plots pane.\n\n\n\nFour parts of that window are worth knowing before the first model is fitted.\nThe editor, top left, holds the script. Run the current line or selection with Ctrl+Enter (Cmd+Enter on macOS) and it is sent to the console below.\nThe console, bottom left, is the running R session. It echoes what it was sent, so Figure 2 shows the same four lines in both panes.\nVariables, top right, lists every object in the session with its type and contents — x as an integer vector of ten values and y as a double in the figure. It is the quickest way to see whether an object is what you expected, which matters later when a fitted model is a deeply nested list rather than a vector.\nPlots, bottom right, collects the figures produced, with arrows to step back through earlier ones and a control to save the current figure.\nThe interpreter in use is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another.\nTwo habits matter more here than in ordinary R work.\nWork in a project. A project fixes the working directory, so relative paths like read.csv(\"mydata.csv\") resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.\nDo not save the workspace. R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html#the-dependency-chain",
+    "href": "vignettes/1Software-stack.html#the-dependency-chain",
+    "title": "The software stack",
+    "section": "The dependency chain",
+    "text": "The dependency chain\n\n\n\n\n\n\nflowchart TD\n    A[\"&lt;b&gt;bayesnec&lt;/b&gt;&lt;br/&gt;concentration-response models,&lt;br/&gt;priors, toxicity estimates\"]\n    B[\"&lt;b&gt;brms&lt;/b&gt;&lt;br/&gt;R formulas to Stan code\"]\n    C[\"&lt;b&gt;cmdstanr&lt;/b&gt; or &lt;b&gt;rstan&lt;/b&gt;&lt;br/&gt;the interface to Stan\"]\n    D[\"&lt;b&gt;Stan&lt;/b&gt;&lt;br/&gt;the sampler, written in C++\"]\n    E[\"&lt;b&gt;C++ compiler&lt;/b&gt;&lt;br/&gt;Rtools, Xcode CLT, or gcc\"]\n    A --&gt; B --&gt; C --&gt; D --&gt; E\n\n\n\n\nFigure 3: Each layer is called by the one above it.\n\n\n\n\n\nStan is the engine. It is a separate piece of software, not an R package, that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program describes a statistical model; Stan translates it to C++, compiles it into an executable, and runs that executable to draw samples from the posterior. This is the source of the compile step: a Stan model is a program that has to be built before it can run, which is why a C++ compiler is a requirement and why the first fit of a session takes noticeably longer than later ones.\ncmdstanr and rstan are two R interfaces to Stan, and brms can use either. This course uses cmdstanr, which drives a normal CmdStan installation as a separate process. rstan embeds Stan inside R instead, which couples the Stan version to the package version and has historically been the more fragile arrangement on Windows. rstan still has to be installed, because brms imports it, but it is not the sampler here. The backend is selected once:\n\noptions(brms.backend = \"cmdstanr\")\n\nbrms (Bürkner 2017; Bürkner 2018) removes the need to write Stan code. It takes a model written in R’s formula syntax, close to that of lme4, and generates the Stan program for it. It supports a wide range of response distributions and model structures — non-linear and smooth terms, multilevel structure, censoring, distributional regression — and provides the methods for checking a fit once it exists.\nbayesnec (Fisher et al. 2020) is what this course is about. brms will fit a non-linear model, but only if you supply the equation, sensible starting values and priors for every parameter. For concentration-response work that is the barrier: the models are non-linear, the priors are not obvious, and a poorly initialised non-linear fit fails in ways that need specialist reading. This is a substantial part of why Bayesian methods are not widely used for NEC estimation in ecotoxicology, where specialist statistical support is rarely available.\nbayesnec takes a short formula naming a concentration-response equation, and from that plus the data it constructs the full non-linear brms formula, generates priors and initial values, chooses a statistical distribution appropriate to the response, fits the model, and extracts toxicity estimates from it. Module 2 does exactly this in one line.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html#package-history",
+    "href": "vignettes/1Software-stack.html#package-history",
+    "title": "The software stack",
+    "section": "Package history",
+    "text": "Package history\nThe package began as jagsNEC (Fisher et al. 2020), an implementation of the NEC model of Fox (2010) using JAGS. It was rewritten on brms and Stan, and generalised well beyond the original: the supported response distributions now include the beta-binomial alongside the Gaussian, Poisson, binomial, gamma, negative binomial and beta of the original, and any brms family can in principle be added.\nThe model set was also extended. Alongside the threshold models that estimate an NEC directly, it now includes smooth concentration-response equations of the kind used in frequentist packages such as drc (Ritz et al. 2015) — four-parameter logistic and Weibull curves among them — which model the response as a smooth function of concentration rather than with a breakpoint. Module 3 sets out the full set and what each one supports.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html#versions",
+    "href": "vignettes/1Software-stack.html#versions",
+    "title": "The software stack",
+    "section": "Versions",
+    "text": "Versions\nThe versions in use when a model is fitted are part of the result, because defaults and estimators change between releases. Recording them costs one line:\n\nfor (p in c(\"bayesnec\", \"brms\", \"cmdstanr\", \"rstan\", \"posterior\")) {\n  cat(sprintf(\"%-10s %s\\n\", p, as.character(packageVersion(p))))\n}\n\nbayesnec   2.1.3.33\nbrms       2.23.0\ncmdstanr   0.9.0\nrstan      2.32.7\nposterior  1.6.1\n\ncat(sprintf(\"%-10s %s\\n\", \"R\", getRversion()))\n\nR          4.6.1\n\n\nThis course is built against the development version of bayesnec, which is ahead of the release on CRAN. The setup instructions name the version to install.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Software-stack.html#documentation-and-support",
+    "href": "vignettes/1Software-stack.html#documentation-and-support",
+    "title": "The software stack",
+    "section": "Documentation and support",
+    "text": "Documentation and support\nThe bayesnec reference site at open-aims.github.io/bayesnec is the place to start.\n\n\n\n\n\n\nFigure 4: The bayesnec reference site. Reference documents every exported function, Articles covers single-model and multi-model usage, the model set, priors and comparing posterior predictions, and Changelog records what changed between versions.\n\n\n\nReference is the authoritative description of every argument, and is worth preferring over any transcription of it, including the ones in this course. Changelog matters more than it usually does for a package under active development: estimator behaviour and default priors have both changed between recent versions.\nThe package is developed in the open and feedback is wanted.\n\n\n\n\n\n\nFigure 5: The source repository. Problems are reported under Issues.\n\n\n\nA report is only actionable with a self-contained reproducible example: code and data that someone else can run to see the same behaviour. This matters particularly for a fit that fails to converge, because the cause is usually specific to the data. Without a reproducible example a convergence problem cannot be diagnosed by anyone who does not have your dataset.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "1. The software stack"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html",
+    "title": "Toxicity estimation and the model set",
+    "section": "",
+    "text": "Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module covers what is available and why it matters: the equations bayesnec can fit, how they differ, and which toxicity estimate each one supports.\nThe distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean. This figure, from Fisher and Fox (2023), is what the module builds towards.\n\n\n\n\n\n\n\n\nFigure 1",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#background",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#background",
+    "title": "Toxicity estimation and the model set",
+    "section": "",
+    "text": "Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module covers what is available and why it matters: the equations bayesnec can fit, how they differ, and which toxicity estimate each one supports.\nThe distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean. This figure, from Fisher and Fox (2023), is what the module builds towards.\n\n\n\n\n\n\n\n\nFigure 1",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-model-set",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-model-set",
+    "title": "Toxicity estimation and the model set",
+    "section": "The model set",
+    "text": "The model set\nThe model argument of a bayesnecformula names the equation or equations to fit. The complete set is:\n\nmodels()$all\n\n [1] \"nec3param\"     \"nec4param\"     \"nechorme\"      \"nechorme4\"    \n [5] \"necsigm\"       \"neclin\"        \"neclinhorme\"   \"nechormepwr\"  \n [9] \"nechorme4pwr\"  \"nechormepwr01\" \"ecxlin\"        \"ecxexp\"       \n[13] \"ecxsigm\"       \"ecx4param\"     \"ecxwb1\"        \"ecxwb2\"       \n[17] \"ecxwb1p3\"      \"ecxwb2p3\"      \"ecxll5\"        \"ecxll4\"       \n[21] \"ecxll3\"        \"ecxhormebc4\"   \"ecxhormebc5\"  \n\n\nThe names divide into two prefixes. Those beginning nec are threshold models; those beginning ecx are smooth models with no threshold.\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nNamed subsets of the full set are also available, and are how a group of equations is requested rather than a single one:\n\nnames(models())\n\n[1] \"nec\"          \"ecx\"          \"all\"          \"bot_free\"     \"zero_bounded\"\n[6] \"decline\"      \"hormesis\"    \n\n\nModule 4 covers fitting a set and averaging across it.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#parameter-definitions",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#parameter-definitions",
+    "title": "Toxicity estimation and the model set",
+    "section": "Parameter definitions",
+    "text": "Parameter definitions\nThe parameters have been given consistent meanings across equations wherever possible, so that a parameter named top means the same thing in every model that has one. Equations range from two parameters, in the linear and exponential decay models ecxlin and ecxexp, to five in nechorme4.\n\\(\\tau = \\text{top}\\), the y-intercept or upper plateau: the mean response at zero concentration.\n\\(\\eta = \\text{nec}\\), the no-effect concentration, the value of the predictor at which the threshold in the regression is estimated to lie.\n\\(\\beta = \\text{beta}\\), the exponential decay rate of the response, either from zero concentration or from \\(\\eta\\). The exception is neclinhorme, where it is a linear decay from \\(\\eta\\), because the slope \\(\\alpha\\) is already used for the linear increase.\n\\(\\delta = \\text{bot}\\), the lower plateau: the response at infinite concentration.\n\\(\\alpha = \\text{slope}\\), the linear decay rate in neclin and ecxlin, or the linear increase before \\(\\eta\\) in the hormesis models.\n\\(\\omega = \\text{ec50}\\), nominally the 50% effect concentration, though it is affected by scaling and should not be read strictly as an EC50.\n\\(\\epsilon = \\text{d}\\), the exponent in ecxsigm and necsigm.\n\\(\\zeta = \\text{f}\\), a scaling exponent used only by ecxll5.\nEvery nec model also uses a step function to define the breakpoint:\n\\[\nf(x_i, \\eta) = \\begin{cases}\n      0, & x_i - \\eta &lt; 0 \\\\\n      1, & x_i - \\eta \\geq 0 \\\\\n   \\end{cases}\n\\]",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#threshold-models",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#threshold-models",
+    "title": "Toxicity estimation and the model set",
+    "section": "Threshold models",
+    "text": "Threshold models\nIn models prefixed nec, the no-effect concentration is a parameter of the model, \\(\\eta\\), and is estimated directly, following Fox (2010).\n\n\n\n\n\n\n\n\nFigure 3\n\n\n\n\n\nThese models assume the response holds at a stable level, near the control mean, across the lower concentrations, until a threshold is reached. That threshold is the NEC. Beyond it the response declines with increasing concentration at some rate. The original formulation of Fox (2010) assumed exponential decline after the threshold, which is nec3param; bayesnec also provides a linear decline in neclin.\nThese models can be used to estimate an ECx, but their value is the estimate of the threshold. They are the only way to estimate a true no-effect concentration.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#smooth-models",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#smooth-models",
+    "title": "Toxicity estimation and the model set",
+    "section": "Smooth models",
+    "text": "Smooth models\nModels prefixed ecx are continuous curves. They have an intercept, the mean control response, but no threshold: the response begins to decline at any concentration above zero, at a rate set by the equation.\n\n\n\n\n\n\n\n\nFigure 4\n\n\n\n\n\nThey are appropriate where the data show no threshold, and are used to extract ECx values such as the EC10, which is widely used in species sensitivity distribution modelling.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-no-significant-effect-concentration",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-no-significant-effect-concentration",
+    "title": "Toxicity estimation and the model set",
+    "section": "The no-significant-effect concentration",
+    "text": "The no-significant-effect concentration\nA smooth model has no threshold parameter, so the NEC cannot be read from it. The NSEC is a way of obtaining a no-effect estimate from such a model (Fisher and Fox 2023).\n\n\n\n\n\n\n\n\nFigure 5\n\n\n\n\n\nThe construction starts from the fitted intercept, the mean response at the control. From the posterior of that parameter a lower bound on the control response is calculated. The NSEC is the concentration at which the fitted curve crosses that bound.\nBecause the calculation is done for every posterior draw, the result is a posterior distribution for the NSEC rather than a point estimate, and a credible interval follows from it directly. Module 6 covers what a posterior is and where it comes from.\nThe full derivation, in both frequentist and Bayesian form, is in Fisher and Fox (2023).",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#the-nsec-and-the-noec",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#the-nsec-and-the-noec",
+    "title": "Toxicity estimation and the model set",
+    "section": "The NSEC and the NOEC",
+    "text": "The NSEC and the NOEC\nThe NSEC is analogous to the NOEC: both identify the concentration at which the response becomes significantly different from the control.\n\n\n\n\n\n\n\n\nFigure 6\n\n\n\n\n\nThe difference is that the NSEC interpolates from a fitted curve, so it is not restricted to the concentrations that happen to have been tested. This removes the most serious defect of the NOEC, whose value can only ever be one of the treatment concentrations and is therefore determined by the experimental design as much as by the toxicity.\nBecause it rests on a comparison against control variability, the NSEC is sensitive to poorly designed experiments. High variability in the control produces a less conservative estimate, which is the opposite of what intuition suggests, and it is the single most important thing to watch when using it.\nA valid NSEC therefore depends on the control variability being a good representation of natural variability in an unimpacted population. That in turn depends on modelling the response with an appropriate statistical distribution, which module 5 covers.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#choosing-a-toxicity-estimate",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#choosing-a-toxicity-estimate",
+    "title": "Toxicity estimation and the model set",
+    "section": "Choosing a toxicity estimate",
+    "text": "Choosing a toxicity estimate\nWhere the data show a threshold, the NEC is the most defensible estimate of no effect. Threshold models do not always fit well, however, and fitting one to smoothly declining data produces estimates that are non-conservative — the estimated threshold sits above concentrations at which an effect is already occurring.\n\n\n\n\n\n\n\n\nFigure 7\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 8\n\n\n\n\n\nIn the cases examined there, an NEC taken from a threshold model fitted to smooth data implied an effect larger than 10%, and sometimes considerably larger. The question that follows is what to use instead when there is no threshold.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#nsec-against-ecx",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#nsec-against-ecx",
+    "title": "Toxicity estimation and the model set",
+    "section": "NSEC against ECx",
+    "text": "NSEC against ECx\nWhere no threshold can be estimated, the available options are the NOEC, an ECx at some low value of x, or the NSEC.\nThe NOEC has been discarded as a measure of toxicity and is the least preferred method in the current Australian and New Zealand guidelines (Warne and Van Dam 2008; Warne et al. 2018).\nECx, and the EC10 in particular, is the method those guidelines specify (Warne et al. 2018) and is widely used internationally. An ECx at x of 5 or 10 has been endorsed by the OECD since Van Der Hoeven et al. (1997).\nWhere an estimate of no effect is required, an ECx is arguably the wrong instrument, because it reports the concentration producing an effect of magnitude x. It is an effect concentration by construction.\nThe NSEC, like the NOEC before it (Mebane 2015), also represents some non-zero effect: for a smooth sigmoidal model any concentration above zero produces one. The difference is where the line is drawn. The NSEC is the concentration below which the response does not deviate significantly from the control, and a significant deviation can occur well before the effect reaches the 10% that an EC10 reports. Unless there is separate evidence that a 10% effect carries no consequence for the population, an EC10 cannot be assumed protective.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#hormesis",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#hormesis",
+    "title": "Toxicity estimation and the model set",
+    "section": "Hormesis",
+    "text": "Hormesis\nSome equations in both groups allow an initial increase in the response at low concentrations before the decline begins (see Mattson 2008). These are the hormesis models, and their names contain horme. The behaviour occurs for several reasons and is seen regularly in whole-effluent toxicity testing of mixed discharges.\nThe threshold hormesis models are:\n\nintersect(models()$horme, models()$nec)\n\n[1] \"nechorme\"      \"nechorme4\"     \"neclinhorme\"   \"nechormepwr\"  \n[5] \"nechorme4pwr\"  \"nechormepwr01\"\n\n\nThese assume a linear increase up to the threshold and allow various decay functions after it. Hormesis raises no difficulty for the NEC, which remains the concentration at which the response begins to decline.\nThe smooth hormesis models are:\n\nintersect(models()$horme, models()$ecx)\n\n[1] \"ecxhormebc4\" \"ecxhormebc5\"\n\n\n\n\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\n\n\n\n\n\n\nFigure 10\n\n\n\n\n\n\nThese do raise a difficulty for ECx, because an effect has to be measured against something, and a hormetic curve offers two candidates: the control, and the peak of the curve. bayesnec measures every ECx, NSEC and ECNSEC from the control — the predicted mean at the lowest concentration in the data, taken separately for each posterior draw. The two references coincide for a monotonically declining curve and differ for a hormetic one, so this choice changes the reported ECx for a hormesis equation and no other.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#extracting-estimates",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#extracting-estimates",
+    "title": "Toxicity estimation and the model set",
+    "section": "Extracting estimates",
+    "text": "Extracting estimates\nThree functions extract toxicity estimates from a fitted model: nec(), ecx() and nsec(). Their full documentation is in the help files, which are the authoritative source; what follows covers the arguments that carry a decision rather than every argument.\n\nnec()\nThe NEC is a parameter of the model, so the function has little to do beyond summarising its posterior.\n\nsignature(\"nec\")\n\nfunction (object, posterior = FALSE, xform = identity, prob_vals = c(0.5, \n    0.025, 0.975), ...)  \n\n\nposterior returns the full posterior sample rather than a summary. xform applies a function to the returned values, which is how estimates are returned to the original scale when the predictor was transformed in the formula. prob_vals sets the quantiles summarised, by default the median and a 95% credible interval.\nnec() applies only to models that have the parameter. Calling it on a smooth model is an error rather than a silent substitution.\n\n\necx()\n\nsignature(\"ecx\")\n\nfunction (object, ecx_val = 10, resolution = 200, posterior = FALSE, \n    type = \"absolute\", x_range = NA, xform = identity, prob_vals = c(0.5, \n        0.025, 0.975), ..., dpar = NULL)  \n\n\necx_val is the effect percentage, defaulting to 10 for an EC10.\ntype determines what the percentage is measured against, which is the substantive decision here. \"absolute\", the default, measures from the control to zero. \"relative\" measures from the control to the equation’s theoretical asymptote, the bot parameter where the equation has one. \"range\" measures from the control to the lowest response the fitted curve predicts. \"direct\" takes a response value rather than a percentage and returns the concentration at which the curve reaches it.\nresolution sets the number of predictor values over which the crossing is located. x_range allows estimates outside the observed range of the predictor, which should be used deliberately, since it extrapolates the fitted curve.\n\n\nnsec()\n\nsignature(\"nsec\")\n\nfunction (object, sig_val = 0.01, resolution = 200, x_range = NA, \n    xform = identity, prob_vals = c(0.5, 0.025, 0.975), ..., \n    posterior = FALSE, dpar = NULL)  \n\n\nsig_val is the quantile of the control posterior used to define a significant decline, defaulting to 0.01, that is 99% certainty of a decline relative to the control. That value generally produces sensible results. Where it does not, the better response in a guideline-derivation context is usually to reconsider whether the statistical model suits the data, rather than to adjust the significance level. Other values may be appropriate in other decision contexts.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/3Toxicity_estimation_and_available_models.html#references",
+    "href": "vignettes/3Toxicity_estimation_and_available_models.html#references",
+    "title": "Toxicity estimation and the model set",
+    "section": "References",
+    "text": "References\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFox, David R. 2010. “A Bayesian approach for determining the no effect concentration and hazardous concentration in ecotoxicology.” Ecotoxicology and Environmental Safety 73 (2): 123–31.\n\n\nMattson, Mark P. 2008. “Hormesis Defined.” Ageing Research Reviews 7 (1): 1–7. https://doi.org/https://doi.org/10.1016/j.arr.2007.08.007.\n\n\nMebane, Christopher A. 2015. “In Response: Biological Arguments for Selecting Effect Sizes in Ecotoxicological Testing—a Governmental Perspective.” Journal Article. Environmental Toxicology and Chemistry 34 (11): 2440–42.\n\n\nVan Der Hoeven, Nelly, Frank Noppert, and Annegaaike Leopold. 1997. “How to Measure No Effect. Part i: Towards a New Measure of Chronic Toxicity in Ecotoxicology. Introduction and Workshop Results.” Journal Article. Environmetrics 8 (3): 241–48. https://doi.org/https://doi.org/10.1002/(SICI)1099-095X(199705)8:3&lt;241::AID-ENV244&gt;3.0.CO;2-7.\n\n\nWarne, M, GE Batley, RA van Dam, et al. 2018. “Revised Method for Deriving Australian and New Zealand Water Quality Guideline Values for Toxicants – Update of 2015 Version.” Journal Article. Prepared for the Revision of the Australian and New Zealand Guidelines for Fresh and Marine Water Quality. Australian and New Zealand Governments and Australian State and Territory Governments, Canberra, 48 Pp.\n\n\nWarne, Michael St J, and Rick Van Dam. 2008. “NOEC and LOEC Data Should No Longer Be Generated or Used.” Journal Article. Australasian Journal of Ecotoxicology 14 (1): 1–5.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "3. Toxicity estimation and the model set"
     ]
   }
 ]

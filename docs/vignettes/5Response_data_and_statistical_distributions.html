@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Response data and statistical distributions – Concentration-response modelling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/3Toxicity_estimation_and_available_models.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Concentration-response modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/5Response_data_and_statistical_distributions.html">5. Response data and distributions</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Before you start</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#generalised-modelling" id="toc-generalised-modelling" class="nav-link" data-scroll-target="#generalised-modelling">Generalised modelling</a></li>
+  <li><a href="#families-available-in-brms" id="toc-families-available-in-brms" class="nav-link" data-scroll-target="#families-available-in-brms">Families available in <code>brms</code></a></li>
+  <li><a href="#link-functions" id="toc-link-functions" class="nav-link" data-scroll-target="#link-functions">Link functions</a></li>
+  <li><a href="#families-implemented-in-bayesnec" id="toc-families-implemented-in-bayesnec" class="nav-link" data-scroll-target="#families-implemented-in-bayesnec">Families implemented in <code>bayesnec</code></a></li>
+  <li><a href="#default-behaviour" id="toc-default-behaviour" class="nav-link" data-scroll-target="#default-behaviour">Default behaviour</a></li>
+  <li><a href="#binomial" id="toc-binomial" class="nav-link" data-scroll-target="#binomial">Binomial</a></li>
+  <li><a href="#beta-binomial" id="toc-beta-binomial" class="nav-link" data-scroll-target="#beta-binomial">Beta-binomial</a></li>
+  <li><a href="#beta" id="toc-beta" class="nav-link" data-scroll-target="#beta">Beta</a></li>
+  <li><a href="#poisson" id="toc-poisson" class="nav-link" data-scroll-target="#poisson">Poisson</a></li>
+  <li><a href="#negative-binomial" id="toc-negative-binomial" class="nav-link" data-scroll-target="#negative-binomial">Negative binomial</a></li>
+  <li><a href="#gamma" id="toc-gamma" class="nav-link" data-scroll-target="#gamma">Gamma</a></li>
+  <li><a href="#gaussian" id="toc-gaussian" class="nav-link" data-scroll-target="#gaussian">Gaussian</a></li>
+  <li><a href="#model-suitability-by-response-type" id="toc-model-suitability-by-response-type" class="nav-link" data-scroll-target="#model-suitability-by-response-type">Model suitability by response type</a></li>
+  <li><a href="#open-questions" id="toc-open-questions" class="nav-link" data-scroll-target="#open-questions">Open questions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/5Response_data_and_statistical_distributions.html">5. Response data and distributions</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Response data and statistical distributions</h1>
+<p class="subtitle lead">Matching the statistical family to the response being modelled</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.</p>
+<p><strong>Binary</strong>, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.</p>
+<p><strong>Bounded continuous</strong>, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.</p>
+<p><strong>Counts</strong>, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.</p>
+<p><strong>Positive continuous</strong>, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.</p>
+<p><strong>Unbounded continuous</strong>, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.</p>
+</section>
+<section id="generalised-modelling" class="level2">
+<h2 class="anchored" data-anchor-id="generalised-modelling">Generalised modelling</h2>
+<p>Generalised modelling fits data with a statistical distribution matched to the natural range and scaling of the response, rather than assuming one.</p>
+<p>Fitting a linear model with <code>lm()</code> assumes a Gaussian distribution, and so do many non-linear routines such as <code>nls()</code>. The normality assumption familiar from analysis of variance is the most common case of non-generalised modelling. It is sometimes reasonable, but it was adopted largely because it makes the mathematics of fitting and interval estimation tractable.</p>
+<p>That constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in <code>bayesnec</code> rather than with the underlying mathematics.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-glmbooks" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-glmbooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/glmbooks.jpg" id="fig-glmbooks" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-glmbooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="families-available-in-brms" class="level2">
+<h2 class="anchored" data-anchor-id="families-available-in-brms">Families available in <code>brms</code></h2>
+<p><code>brms</code> supports many families, including most of those in the base <code>stats</code> package that other R fitting routines use:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-statsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-statsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/statsfams.jpg" id="fig-statsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-statsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>and a number that are specific to it:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-brmsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-brmsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/brmsfams.jpg" id="fig-brmsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-brmsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="link-functions" class="level2">
+<h2 class="anchored" data-anchor-id="link-functions">Link functions</h2>
+<p>Every statistical family has a link function. A generalised linear model relates the linear predictor to the response through it — a logit link, for example, maps the probabilities of a binary response onto an unbounded continuous scale. Generalised linear models were formulated by Nelder and Wedderburn as a unification of linear regression, logistic regression and Poisson regression, with maximum likelihood estimation of the parameters. Logistic regression is the familiar case.</p>
+<p>The native link for a family — logit for the binomial, log for the Poisson — imposes a non-linear transformation. Concentration-response models are already non-linear and do not use linear predictors, so any further non-linearity from a link changes the model being fitted.</p>
+<p><strong><code>bayesnec</code> therefore uses the identity link for every family.</strong> The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps <code>top</code>, <code>bot</code> and <code>nec</code> on the scale of the response, where they are directly interpretable.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bayesnec<span class="sc">:::</span><span class="fu">supported_links</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "identity" "log"      "logit"   </code></pre>
+</div>
+</div>
+<p>This matters when comparing a <code>bayesnec</code> fit against a <code>brms</code> model written by hand. <code>brms</code> defaults to logit for a beta response and log for a Poisson, so unless the link is passed explicitly the two are different models. ECx and NSEC estimates from a fit using any link other than the identity may not behave as expected.</p>
+</section>
+<section id="families-implemented-in-bayesnec" class="level2">
+<h2 class="anchored" data-anchor-id="families-implemented-in-bayesnec">Families implemented in <code>bayesnec</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bayesnec<span class="sc">:::</span>mod_fams)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "gaussian"                  "Gamma"                    
+ [3] "poisson"                   "negbinomial"              
+ [5] "bernoulli"                 "binomial"                 
+ [7] "beta_binomial"             "beta"                     
+ [9] "hurdle_gamma"              "zero_inflated_beta"       
+[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"</code></pre>
+</div>
+</div>
+<p>The first eight are the ordinary cases covered below. <code>hurdle_gamma</code>, <code>zero_inflated_beta</code>, <code>zero_inflated_poisson</code> and <code>zero_inflated_negbinomial</code> handle responses with an excess of zeros — a separate topic, treated in the <code>bayesnec</code> article on hurdle families.</p>
+<p>Adding a family is not trivial, because <code>bayesnec</code> generates priors and initial values by algorithms specific to each one. Requests go to the <a href="https://github.com/open-AIMS/bayesnec/issues">issue tracker</a>.</p>
+</section>
+<section id="default-behaviour" class="level2">
+<h2 class="anchored" data-anchor-id="default-behaviour">Default behaviour</h2>
+<p>With default settings <code>bnec</code> infers the most likely distribution from the response. That inference must be checked rather than trusted. Two questions decide whether a distribution is adequate:</p>
+<ul>
+<li>does it capture the variability actually present in the data?</li>
+<li>does it produce sensibly shaped credible bounds across the whole curve?</li>
+</ul>
+<p>Getting the dispersion right matters directly for toxicity estimates, because it sets the width of their intervals. It matters most for the <em>NSEC</em>, which is defined against the estimated variability in the control: overstate that variability and the estimate becomes less conservative <span class="citation" data-cites="fisheretal2023 fisherfox2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>; <a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>.</p>
+<p>The sections below fit a threshold and a smooth model to each of several response types. Several of the examples come from <a href="https://github.com/gerard-ricardo/NECs/blob/master/NECs">Gerard Ricardo’s repository</a>.</p>
+</section>
+<section id="binomial" class="level2">
+<h2 class="anchored" data-anchor-id="binomial">Binomial</h2>
+<p>A response is binomial when it is a count out of a total, such as the number of survivors out of a number exposed.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>binom_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_binomial.csv"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(binom_data<span class="sc">$</span>raw_x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.10   10.94   37.50   99.23  125.00  400.00 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(binom_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  raw_x suc tot
+1   0.1 101 175
+2   0.1 106 112
+3   0.1 102 103
+4   0.1 112 114
+5   0.1  58  69
+6   0.1 158 165</code></pre>
+</div>
+</div>
+<p>The predictor runs from 0.1 to 400 and is strongly right skewed, which is typical of a dilution series. Transforming the predictor, usually by a logarithm, often makes fitting more stable, and the design is generally logarithmic in any case. This example uses the predictor untransformed.</p>
+<p><code>suc</code> holds the number of successes and <code>tot</code> the number of trials.</p>
+<p>For a binomial or beta-binomial response the formula takes a <code>trials</code> term, exactly as in <code>brms</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"your_model"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The column to the left of the <code>|</code> holds the successes — survivors, fertilised eggs — and the one inside <code>trials()</code> the total associated with each. The names are whatever they are in your data frame.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>exp_1nec <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"nec3param"</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 2 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+23 (47.9%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1nec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-binom-nec" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binom-nec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-binom-nec-1.png" id="fig-binom-nec" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-binom-nec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The credible bounds are very tight. The threshold model itself fits reasonably and the <em>NEC</em> is in a plausible place.</p>
+<p>Fitting a smooth curve to the same data instead:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>exp_1ecx <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"ecxll3"</span>),</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 1 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 79 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-binom-ecx" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binom-ecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-binom-ecx-1.png" id="fig-binom-ecx" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-binom-ecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="beta-binomial" class="level2">
+<h2 class="anchored" data-anchor-id="beta-binomial">Beta-binomial</h2>
+<p>The bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.</p>
+<p>The beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>exp_1b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> binom_data, <span class="at">family =</span> <span class="st">"beta_binomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a beta_binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta_binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta_binomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Setting all 'trials' variables to 1 by default if not specified otherwise.
+
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-betabinom" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-betabinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-betabinom-1.png" id="fig-betabinom" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-betabinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The bounds are now much wider, and they are a better description of the scatter in the data.</p>
+<p><code>bayesnec</code> once supplied this as a custom family called <code>beta_binomial2</code>, because <code>brms</code> did not provide one natively. It does now, and the family is named <code>beta_binomial</code>; code written against <code>beta_binomial2</code> will no longer run.</p>
+</section>
+<section id="beta" class="level2">
+<h2 class="anchored" data-anchor-id="beta">Beta</h2>
+<p>A response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>prop_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_proportion.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sqrt.x =</span> <span class="fu">sqrt</span>(raw_x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>exp_2 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(resp <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> prop_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 157 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The largest R-hat is 1.05, indicating chains have not mixed.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#r-hat</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>4: </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_2, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-beta" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-beta-1.png" id="fig-beta" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>exp_2<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              model      waic         wi dispersion_Estimate dispersion_Q2.5
+ecxll3       ecxll3 -412.4089 0.02275017                  NA              NA
+nec3param nec3param -423.8700 0.97724983                  NA              NA
+          dispersion_Q97.5 dispersion_P_over_1
+ecxll3                  NA                  NA
+nec3param               NA                  NA</code></pre>
+</div>
+</div>
+<p>The beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.</p>
+<p>Note that the predictor was square-root transformed in the formula. Estimates returned by <code>nec()</code>, <code>nsec()</code> and <code>ecx()</code> are then on the transformed scale, and must be back-transformed with the <code>xform</code> argument to be read as concentrations.</p>
+</section>
+<section id="poisson" class="level2">
+<h2 class="anchored" data-anchor-id="poisson">Poisson</h2>
+<p>Counts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> (y <span class="sc">*</span> <span class="dv">100</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(nec_data), <span class="dv">0</span>, <span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>() <span class="sc">|&gt;</span> <span class="fu">as.integer</span>() <span class="sc">|&gt;</span> <span class="fu">abs</span>()</span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   100 obs. of  2 variables:
+ $ x: num  1.019 0.816 0.371 0.401 1.295 ...
+ $ y: int  85 120 54 96 64 88 111 92 99 86 ...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>exp_3 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)), <span class="at">data =</span> count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a poisson distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a poisson distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a poisson distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-pois" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pois-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-pois-1.png" id="fig-pois" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pois-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="negative-binomial" class="level2">
+<h2 class="anchored" data-anchor-id="negative-binomial">Negative binomial</h2>
+<p>The Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>exp_3b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> count_data, <span class="at">family =</span> <span class="st">"negbinomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a negbinomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a negbinomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a negbinomial distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+4 (4.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-negbin" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-negbin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-negbin-1.png" id="fig-negbin" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-negbin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The bounds widen, as they did for the beta-binomial, and for the same reason.</p>
+</section>
+<section id="gamma" class="level2">
+<h2 class="anchored" data-anchor-id="gamma">Gamma</h2>
+<p>A continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>measure_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">measure =</span> <span class="fu">exp</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>exp_4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(measure <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> measure_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a Gamma distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a Gamma distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a Gamma distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_4, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-gamma" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gamma-1.png" id="fig-gamma" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="gaussian" class="level2">
+<h2 class="anchored" data-anchor-id="gaussian">Gaussian</h2>
+<p>A continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>gaussian_data <span class="ot">&lt;-</span> prop_data <span class="sc">|&gt;</span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> car<span class="sc">::</span><span class="fu">logit</span>(resp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb129-2"><a href="#cb129-2" aria-hidden="true" tabindex="-1"></a>exp_5 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll4"</span>, <span class="st">"nec4param"</span>)),</span>
+<span id="cb129-3"><a href="#cb129-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> gaussian_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 10 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll4 model using a gaussian distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec4param model and a gaussian distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 3 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.
+Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec4param model using a gaussian distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll4 nec4param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll4 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll4, nec4param.
+nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
+See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_5, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-gauss" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gauss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gauss-1.png" id="fig-gauss" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gauss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Transforming a bounded response onto an unbounded scale and modelling it as Gaussian is one way of handling proportion data, and it was standard practice before generalised methods were routine. Modelling the response on its own scale with the beta, as above, is preferable: it keeps the parameters interpretable as proportions, and it does not require the transformation to have made the variance constant.</p>
+</section>
+<section id="model-suitability-by-response-type" class="level2">
+<h2 class="anchored" data-anchor-id="model-suitability-by-response-type">Model suitability by response type</h2>
+<p>Not every equation suits every family. A model predicting negative values cannot be used with a response that must be positive, and <code>bayesnec</code> discards any model in a requested set that is unsuitable for the distribution of the response. This is why a set of twenty-three may return fewer than twenty-three fits, and why the <code>zero_bounded</code> set exists.</p>
+</section>
+<section id="open-questions" class="level2">
+<h2 class="anchored" data-anchor-id="open-questions">Open questions</h2>
+<p>The families implemented in <code>bayesnec</code> cover the common cases in concentration-response work. Responses with an excess of zeros need the hurdle and zero-inflated families listed above, which are covered separately.</p>
+<p>The important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience, not a substitute for that judgement.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-fisherfox2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant-Effect Concentration.”</span> <em>Environmental Toxicology and Chemistry</em> n/a (n/a). https://doi.org/<a href="https://doi.org/10.1002/etc.5610">https://doi.org/10.1002/etc.5610</a>.
+</div>
+<div id="ref-fisheretal2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. <span>“Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.”</span> <em>Integrated Environmental Assessment and Management</em>, ahead of print. https://doi.org/<a href="https://doi.org/10.1002/ieam.4809">https://doi.org/10.1002/ieam.4809</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/open-aims\.github\.io\/cr_modelling_training\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="pagination-link" aria-label="3. Toxicity estimation and the model set">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">3. Toxicity estimation and the model set</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Australian Institute of Marine Science</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
