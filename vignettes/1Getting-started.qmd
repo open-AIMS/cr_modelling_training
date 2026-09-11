@@ -2,12 +2,6 @@
 title: "Software setup"
 subtitle: "Concentration-response modelling with `bayesnec` --- SETAC Australasia 2026"
 date: today
-format:
-  html:
-    toc: true
-    toc-depth: 3
-    embed-resources: true
-    theme: cosmo
 execute:
   eval: false
 ---

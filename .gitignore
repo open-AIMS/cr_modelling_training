@@ -41,8 +41,7 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
+# pkgdown site (not used; docs/ is the published Quarto site)
 
 # translation temp files
 po/*~
@@ -61,3 +60,5 @@ ignore/
 # Quarto
 /.quarto/
 /_site/
+
+**/*.quarto_ipynb

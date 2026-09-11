@@ -1,0 +1,52 @@
+project:
+  type: website
+  output-dir: docs
+  # Modules are listed explicitly rather than discovered, so that the
+  # unconverted learnr .Rmd files are not picked up by the render. Add each
+  # module here as it is converted.
+  render:
+    - index.qmd
+    - vignettes/1Getting-started.qmd
+
+# Chunk output is stored under _freeze/ and committed. The Bayesian fits take
+# minutes to hours and need a Stan toolchain, so the site must be rebuildable
+# without re-running them. This is also why the site is rendered locally and
+# the built output published, rather than rendered by CI.
+execute:
+  freeze: auto
+
+website:
+  title: "Concentration-response modelling"
+  description: "Estimating no-effect toxicity values from concentration-response data in R"
+  site-url: "https://open-aims.github.io/cr_modelling_training/"
+  repo-url: "https://github.com/open-AIMS/cr_modelling_training"
+  repo-actions: [issue]
+  page-navigation: true
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: vignettes/1Getting-started.qmd
+        text: Setup
+  sidebar:
+    style: docked
+    contents:
+      - href: index.qmd
+        text: Overview
+      - section: "Before you start"
+        contents:
+          - href: vignettes/1Getting-started.qmd
+            text: Software setup
+  page-footer:
+    left: "Australian Institute of Marine Science"
+    right: "Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+
+bibliography: vignettes/bayesnec.bib

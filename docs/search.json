@@ -1,0 +1,170 @@
+[
+  {
+    "objectID": "vignettes/1Getting-started.html",
+    "href": "vignettes/1Getting-started.html",
+    "title": "Software setup",
+    "section": "",
+    "text": "ImportantComplete this before the workshop\n\n\n\nThis setup takes most people between thirty minutes and two hours, and some of it cannot be hurried: package installation and the CmdStan build both take time that depends on your machine and your network.\nThere is no time set aside during the workshop to install or repair software. If you arrive without a working installation you will be able to watch, but you will not be able to fit models alongside the demonstrations, and most of the day is spent fitting models.\nWork through this document, then run the verification check in the final section and send the output to the organisers. Doing that early leaves time for a problem to be resolved before the day.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#software-required",
+    "href": "vignettes/1Getting-started.html#software-required",
+    "title": "Software setup",
+    "section": "Software required",
+    "text": "Software required\n\n\n\nSoftware\nPurpose\n\n\n\n\nR\nthe language everything else runs in\n\n\nA C++ toolchain\ncompiles each Bayesian model before it is fitted\n\n\nCmdStan\nthe sampler that fits the models\n\n\nPositron\nthe editor used throughout the workshop\n\n\nGit\nretrieves the workshop materials\n\n\n\nThe C++ toolchain is the part that differs by operating system, and it is the part that fails most often. On Windows it is Rtools, on macOS the Xcode Command Line Tools, and on Linux the standard build tools.\nBayesian model fitting works differently from most R modelling. Each model is translated into C++, compiled into a program, and run. That is why a compiler is needed at all, and why the first fit of a session takes longer than later ones.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#route-by-operating-system",
+    "href": "vignettes/1Getting-started.html#route-by-operating-system",
+    "title": "Software setup",
+    "section": "Route by operating system",
+    "text": "Route by operating system\nWindows is the tested and recommended route, and it is the one described in most detail below. The difficulties Stan had on Windows historically came from an older interface, rstan, which required matched versions of several compiled packages. The current interface, cmdstanr, avoids most of that.\nLinux is also tested. macOS is not, because the workshop organisers have no Mac available. Mac users should follow the outline in the macOS section, which points to the authoritative upstream instructions, and then run the same verification check as everyone else. The check is what determines whether you are ready, not which instructions you followed.\nThe Windows Subsystem for Linux is a fallback for one situation only, described in its own section. Do not start there.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#r-and-rtools",
+    "href": "vignettes/1Getting-started.html#r-and-rtools",
+    "title": "Software setup",
+    "section": "R and Rtools",
+    "text": "R and Rtools\nInstall R first, then Rtools.\nDownload R from CRAN. The combination tested for this workshop is R 4.5.x.\nThen install Rtools45, from CRAN’s Rtools page. Accept the default installation location.\n\n\n\n\n\n\nWarningRtools must match your version of R\n\n\n\nRtools45 is for R 4.5.x. A different R minor version needs the matching Rtools: Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of setup failure, and the error it produces does not mention version numbers.\nIf you install a version of R other than 4.5.x, install the Rtools that matches it.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#positron",
+    "href": "vignettes/1Getting-started.html#positron",
+    "title": "Software setup",
+    "section": "Positron",
+    "text": "Positron\nDownload and install Positron. It will find your R installation automatically. If you installed R after Positron, restart Positron so that it detects it.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#git",
+    "href": "vignettes/1Getting-started.html#git",
+    "title": "Software setup",
+    "section": "Git",
+    "text": "Git\nInstall Git for Windows, accepting the defaults. Git is used to retrieve the workshop materials.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#r-packages",
+    "href": "vignettes/1Getting-started.html#r-packages",
+    "title": "Software setup",
+    "section": "R packages",
+    "text": "R packages\nOpen Positron and run the following in the R console.\ncmdstanr is not on CRAN, so it comes from the Stan project’s own repository:\ninstall.packages(\"cmdstanr\",\n                 repos = c(\"https://stan-dev.r-universe.dev\",\n                           getOption(\"repos\")))\nThen the rest:\ninstall.packages(c(\"brms\", \"posterior\", \"bayesplot\",\n                   \"ggplot2\", \"dplyr\", \"tidyr\", \"drc\"))\nbrms installs rstan as a dependency. That is expected. rstan must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly.\n\n\n\n\n\n\nNoteThe bayesnec version\n\n\n\nThe workshop teaches a specific version of bayesnec, and the functions that estimate toxicity values changed in it. Installing a different version will give you different results from the ones on screen.\n[TO BE CONFIRMED BEFORE THIS DOCUMENT IS ISSUED — do not send with this placeholder in place. The exact install command and version follow the release planned for Monday.]",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#cmdstan",
+    "href": "vignettes/1Getting-started.html#cmdstan",
+    "title": "Software setup",
+    "section": "CmdStan",
+    "text": "CmdStan\nFirst confirm the compiler is configured. fix = TRUE repairs the common problems rather than only reporting them:\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\nThen install CmdStan. Give it a plain installation path, rather than accepting the default:\ncmdstanr::install_cmdstan(dir = \"C:/cmdstan\")\nThe default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to C:/cmdstan avoids all three, and costs nothing if none of them applies to you.\nBecause that is not the default location, tell R where to find it in every future session. Run usethis::edit_r_profile(), or open .Rprofile in your home directory, and add the line below, replacing the version number with the one you installed:\noptions(cmdstanr_cmdstan_path = \"C:/cmdstan/cmdstan-2.39.0\")\nWithout this, every new session reports that CmdStan is not installed.\n\nRecurring problems on Windows\ninstall_cmdstan() fails. Run it again with these arguments:\ncmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = \"C:/cmdstan\")\nThis is the failure most recently observed on a fresh Windows machine, and this is what resolved it. overwrite = TRUE is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without overwrite declines to replace it, which produces an error resembling the original one. quiet = FALSE only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.\nCompiling is very slow. Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the C:/cmdstan directory from real-time scanning resolves it, where your organisation’s policy allows.\nCompiling is blocked entirely. Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. See the Windows Subsystem for Linux section.\n\n\n\n\n\n\nTipTime box the native route\n\n\n\nGive the steps above about thirty minutes. If the verification check passes, stop. If compilation fails for reasons of security policy rather than something you can configure, move to WSL rather than continuing to adjust settings.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "vignettes/1Getting-started.html#reporting-the-result",
+    "href": "vignettes/1Getting-started.html#reporting-the-result",
+    "title": "Software setup",
+    "section": "Reporting the result",
+    "text": "Reporting the result\nCopy the entire output, from the first line to the last, and send it to the organisers. Send it whether it passed or failed: a passing result confirms you are ready, and a failing one gives enough detail to identify the problem in advance.\nThe output contains your R version, your operating system, your package versions and your installation paths. It contains nothing else about your machine.\nSend it as early as you can. A problem found a week before the workshop can be resolved; the same problem found on the morning cannot.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Concentration-response modelling",
+    "section": "",
+    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#course-outcomes",
+    "href": "index.html#course-outcomes",
+    "title": "Concentration-response modelling",
+    "section": "Course outcomes",
+    "text": "Course outcomes\nOn completing the material you will be able to:\n\ndistinguish linear, non-linear and threshold concentration-response models, and say which is appropriate for a given endpoint;\nidentify the statistical distribution appropriate to a response variable, and fit a generalised model accordingly;\nfit concentration-response models in R and plot the results;\nderive NEC, NSEC and ECx estimates, and explain what each of them measures;\napply model averaging across a candidate set, and interpret the weights;\nproduce complete workflows for estimating no-effect toxicity suitable for use in species sensitivity distribution derivation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#modules",
+    "href": "index.html#modules",
+    "title": "Concentration-response modelling",
+    "section": "Modules",
+    "text": "Modules\n\n\n\n\nModule\nSubject\n\n\n\n\n1\nSoftware setup\nR, the C++ toolchain, CmdStan, Positron\n\n\n2\nFitting a single model\nthe bnec call, the fitted object, plotting\n\n\n3\nToxicity estimation and the model set\nNEC, NSEC and ECx, and the available equations\n\n\n4\nModel averaging and multi-model inference\ncandidate sets, weights, averaged estimates\n\n\n5\nResponse data and statistical distributions\nmatching the family to the endpoint\n\n\n6\nPriors and Bayesian inference\ndefault priors, checking them, changing them\n\n\n7\nA worked case study\nherbicide toxicity, start to finish\n\n\n8\nFactor covariates and groupings\ncomparing curves and estimates across groups\n\n\n\nModules 2 to 8 are being converted from the earlier version of this course and will appear here as they are completed. A frequentist treatment of the same material using drc is supplied separately as reference; it is not part of the taught sequence.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#working-through-the-material-independently",
+    "href": "index.html#working-through-the-material-independently",
+    "title": "Concentration-response modelling",
+    "section": "Working through the material independently",
+    "text": "Working through the material independently\nThe modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.\nFitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.\nIf you want to run the code yourself, work through the software setup first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#workshop-participants",
+    "href": "index.html#workshop-participants",
+    "title": "Concentration-response modelling",
+    "section": "Workshop participants",
+    "text": "Workshop participants\nThis material is taught as a full-day workshop at SETAC Australasia 2026.\nThe software setup is pre-work and must be completed beforehand. No time is set aside on the day to install or repair software, and a participant without a working installation will be able to follow the demonstrations but not fit models alongside them.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#source-and-citation",
+    "href": "index.html#source-and-citation",
+    "title": "Concentration-response modelling",
+    "section": "Source and citation",
+    "text": "Source and citation\nThe material is developed at the Australian Institute of Marine Science and the source is at open-AIMS/cr_modelling_training.\nbayesnec is documented at open-aims.github.io/bayesnec. The NSEC is introduced in Fisher and Fox (2023), Environmental Toxicology and Chemistry.\nCorrections and questions are welcome as issues.",
+    "crumbs": [
+      "Overview"
+    ]
+  }
+]
