@@ -66,51 +66,74 @@ download, extraction, build — failed.
 
 ## Windows verification, 2026-09-11
 
-`vignettes/check_setup.R` was run on Windows 11 (build 26200) with R 4.5.1,
-Rtools44, `cmdstanr` 0.8.0, CmdStan 2.36.0, `brms` 2.23.0 and `bayesnec`
-2.1.3.0. It halted at stage 5 with "No chains finished successfully" and never
-printed its summary. The full account is in
-`ignore/windows-checks/windows-setup-report.md`; that folder is not tracked.
+Two rounds were run on Windows 11 (build 26200). The full account is in
+`ignore/windows-checks/windows-setup-report.md`, which is not tracked; the report
+was rewritten after the first round and supersedes itself in three places.
 
-Two defects in the script were found and are fixed. `$sample()` does not throw
-when every chain fails to start, so stage 5 recorded PASS and then died reading
-the result outside its `tryCatch` — meaning a participant in exactly the state
-the script exists to detect had nothing to send back. And `cmdstan_model()`
-reuses any executable newer than the `.stan` file, so stage 4 reported PASS
-without invoking the compiler; the executable on that machine was dated June 2025
-and had been built by a toolchain since removed.
+### The specified route passes
 
-**A TBB PATH check was added and then removed, and the diagnosis behind it was
-wrong.** The sampling failure was first attributed to CmdStan's TBB directory
-being absent from `PATH`. The test supporting that was run in Git Bash, which
-carries `C:\Program Files\Git\mingw64\bin` and therefore supplies
-`libwinpthread-1.dll` — that DLL, not `tbb.dll`, was the one the stale executable
-could not find. `CmdStanRun` places the TBB directory on the PATH of the chain
-process itself, and sampling was measured to succeed with it removed from the
-user PATH entirely. The check warned on correctly installed machines. A comment
-in stage 3 records this so it is not added again.
+The combination module 1 instructs was run in full for the first time — R 4.5.1,
+Rtools45, `cmdstanr` 0.9.0, CmdStan 2.39.0 at `C:/cmdstan` — and every stage
+passed, with only the `bayesnec` 2.2.0 placeholder warning outstanding. No step
+beyond the module's own instructions was needed.
 
-Two machine faults that do not generalise: a User-scope `RTOOLS44_HOME` pointing
-at a directory that does not exist, overriding a correct Machine-scope value, and
-the stale executable above. One that does: `C:\rtools44\ucrt64\bin` was empty,
-and `check_cmdstan_toolchain(fix = TRUE)` populated it. `cmdstanr` ships
-`install_toolchain()` for this, which indicates a stock Rtools does not provide
-what it needs. Module 1 now describes that step as required rather than as a
-repair. A fresh Rtools install was not tested.
+### Two defects in module 1, both of which stop a participant
 
-### The Rtools pairing, resolved
+`install_cmdstan(dir = "C:/cmdstan")` fails when the directory does not exist:
+`cmdstanr` does not create it. Module 1 now calls `dir.create()` first.
 
-The report left open whether module 1's R 4.5.x with Rtools45 had ever been run:
-the test machine worked on Rtools44 because `cmdstanr` 0.8.0 mapped every R from
-4.4 onward to `RTOOLS44_HOME`.
+The CmdStan download exceeds R's default `options(timeout)` of 60 seconds. The
+archive is 48.6 MB; on a connection delivering about 500 KB/s the download failed
+at the default and completed in 4.9 minutes at `options(timeout = 1800)` with
+nothing else changed. The `timeout` argument of `install_cmdstan()` does not
+govern the download, and its default of 1200 was in force for the failed attempt.
+Conference and hotel networks are commonly slower, so this will affect more
+participants than it did there. Module 1 now sets the option and says why.
 
-Resolved by reading `cmdstanr:::rtools4x_version()` in 0.9.0, the version on the
-Stan r-universe: it returns "44" for an R minor below 5.0 and "45" otherwise, so
-R 4.5.x resolves to `RTOOLS45_HOME`. Module 1's pairing is correct **provided
-`cmdstanr` is 0.9.0 or later**. `check_setup.R` now reports the `cmdstanr`
-version on Windows, and module 1 states the requirement. This was established by
-inspecting the installed 0.9.0 source, not by running it on Windows.
+### Changing Rtools invalidates an existing CmdStan
 
+CmdStan builds its own `tbb.dll`, linked against the toolchain that built it. A
+CmdStan 2.36.0 built under Rtools44 requires `libgcc_s_seh-1.dll` and
+`libstdc++-6.dll` from `C:\rtools44\ucrt64\bin`, which Rtools45 does not
+provide. After installing Rtools45 the model still compiled and every chain
+exited with `STATUS_DLL_NOT_FOUND`, reported as "No chains finished
+successfully". Rebuilding CmdStan resolved it. Anyone upgrading R and Rtools
+between installing CmdStan and the workshop will meet this; it is now in module
+1's troubleshooting section.
+
+### Two claims retracted
+
+**The TBB PATH entry is not required.** `CmdStanRun` places that directory on the
+PATH of the chain process itself, and the passing run above had no TBB entry in
+the user PATH. The original evidence came from a test in Git Bash, which supplies
+`libwinpthread-1.dll` — that DLL, not `tbb.dll`, was what the stale executable
+could not find. The `tbb_path` check has been removed and a comment in stage 3
+records why.
+
+**`check_cmdstan_toolchain(fix = TRUE)` is not a required step.** It was reported
+as required because `C:\rtools44\ucrt64\bin` was empty on that machine. That
+applies only to `cmdstanr` 0.8.0, or to CmdStan older than 2.35.0. In 0.9.0,
+`rtools4x_toolchain_path()` selects `x86_64-w64-mingw32.static.posix`, which the
+Rtools installer ships populated, and the check passed against a stock Rtools45.
+A stock Rtools does have an empty `ucrt64\bin`; current `cmdstanr` does not use
+it. Module 1 has been reverted to describing the step as a check.
+
+### The cmdstanr version requirement
+
+`cmdstanr` 0.9.0 maps R 4.5.x to Rtools45 and refuses Rtools44 outright.
+`cmdstanr` 0.8.0 maps every R from 4.4 onward to Rtools44 and never looks for
+`RTOOLS45_HOME`, so a participant with an older copy who follows module 1 and
+installs Rtools45 is told Rtools44 is missing. Module 1 installs from the Stan
+r-universe, which serves 0.9.0, so a clean machine is unaffected and the exposure
+is to anyone with an existing installation.
+
+`check_setup.R` reports the `cmdstanr` version on Windows as a **warning below
+0.9.0, not a failure**. A warning is the right level: an older `cmdstanr` paired
+with the Rtools it expects is a working configuration, as the presenter's machine
+shows, so the mismatch is with module 1's instructions rather than with the
+machine.
+
+## Advice not yet observed here
 ## Advice not yet observed here
 ## The bayesnec version the site is built against
 
