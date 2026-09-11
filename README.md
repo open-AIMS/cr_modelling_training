@@ -1,24 +1,64 @@
-# Concentration Response Modelling Training Material
-The repository contains code and worked examples to demonstrate the estimation of no-effect toxicity estimates from concentration response data.
+# Concentration-response modelling training material
 
-# No- effects toxicity estimation
-Estimation of no-effect concentrations for substances of concern are integral to both risk assessment regulation and for the establishment of environmental quality standards.
+Code and worked examples for estimating no-effect toxicity values from
+concentration-response data in R, using Bayesian methods via
+[`bayesnec`](https://open-aims.github.io/bayesnec/).
 
-A range of new statistical approaches are being developed and/or adopted in ecotoxicology, that when combined, have the potential to greatly improve the estimation of no-effect toxicity values from Concentration-Response (CR) experimental data.
-This course will cover the most recent methods for estimating toxicity (and more specifically no-effect toxicity) from concentration response models using R. 
-The course will begin with an introduction to CR modelling, including: the difference between linear, non-linear and threshold models; natural scaling of response variables (endpoints) and generalised modelling; and the distinction between derived toxicity metrics (NEC, ECx). We will then introduce a new metric for estimating no-effect toxicity (the NSEC). Finally, we will demonstrate the application of CR models and the estimation of toxicity values in R, using frequentist approaches via the drc package, and within a Bayesian framework using the backage bayesnec. Finally, we will discuss and demonstrate the advantages of using the model averaging framework for toxicity estimating using CR data.
+**The material is published as a website:
+<https://open-aims.github.io/cr_modelling_training/>**
 
-## Outline
-Introduction to concentration response (CR) models and toxicity estimation 
-Frequentist application of CR models using DRC
-Bayesian application of CR models using bayesnec
+Start there. This repository holds the source; the site is what the material is
+written to be read as, and the modules are ordered and cross-linked on it.
 
-## Learning outcomes
-On completion of this course you will:
-•	understand the distinction between linear, non-linear and threshold models
-•	understand the concept of generalised modelling and know which statistical distributions apply to your response data
-•	be able to fit CR models in R using drc and bayesnec
-•	be able to plot fitted models from drc and bayesnec
-•	understand how model averaging applies to CR modelling
-•	have complete R workflows for estimating no-effect toxicity for appropriate use in SSD derivation using both drc and Bayesnec
+## Software setup
 
+Running the code requires R, a C++ compiler, CmdStan and several R packages. The
+[software setup
+module](https://open-aims.github.io/cr_modelling_training/vignettes/1Getting-started.html)
+covers the installation on Windows, macOS and Linux, and ends with a script that
+verifies it.
+
+Workshop participants must complete it beforehand. No time is set aside during
+the workshop for installing or repairing software.
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `index.qmd` | the site landing page |
+| `vignettes/` | the course modules, and `check_setup.R` |
+| `_quarto.yml` | the website definition, including the list of modules to render |
+| `docs/` | the built site, served by GitHub Pages |
+| `notes/` | decisions and the evidence behind them |
+| `ignore/` | local working material, not part of the course |
+
+Modules 2 to 8 are being converted from an earlier version of this course and
+are added to `_quarto.yml` as they are completed. A frequentist treatment of the
+same material using [`drc`](https://cran.r-project.org/package=drc) is supplied
+as reference rather than as part of the taught sequence.
+
+## Building the site
+
+```bash
+quarto render
+```
+
+The site is rendered locally and the built output in `docs/` is committed.
+It is not built by continuous integration, because fitting the Bayesian models
+requires a Stan toolchain and takes longer than any runner allows. Computed
+chunk output is stored in `_freeze/` and committed for the same reason, so the
+site rebuilds without re-fitting.
+
+Render deliberately rather than habitually. Each render rewrites every page, so
+a render commit is large; keeping it separate from source changes keeps those
+changes reviewable.
+
+## Licence and citation
+
+Released under [CC0 1.0 Universal](LICENSE). The no-significant-effect
+concentration is introduced in Fisher and Fox (2023), *Environmental Toxicology
+and Chemistry*.
+
+Developed at the [Australian Institute of Marine
+Science](https://www.aims.gov.au/). Corrections and questions are welcome as
+[issues](https://github.com/open-AIMS/cr_modelling_training/issues).
