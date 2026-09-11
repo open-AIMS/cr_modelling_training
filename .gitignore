@@ -62,3 +62,6 @@ ignore/
 /_site/
 
 **/*.quarto_ipynb
+
+# Quarto knitr intermediates
+*.rmarkdown

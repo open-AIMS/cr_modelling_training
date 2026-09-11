@@ -1,0 +1,370 @@
+---
+title: "Model averaging and multi-model inference"
+subtitle: "Using the whole candidate set rather than choosing one equation"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(bayesnec)
+options(mc.cores = 4)
+```
+
+## Background
+
+Modules 2 and 3 fitted single models and set out the equations available. Both
+`bayesnec` and `drc` [@Ritz2015] offer more than twenty non-linear functions for
+concentration-response data, in two broad shapes.
+
+```{r}
+#| label: fig-necmods
+#| out-width: "60%"
+#| fig-align: center
+#| fig-cap: "Threshold equations, which estimate an *NEC* directly."
+#| echo: false
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
+```
+
+```{r}
+#| label: fig-ecxmods
+#| out-width: "60%"
+#| fig-align: center
+#| fig-cap: "Smooth equations, from which an **EC~x~** or an *NSEC* is derived."
+#| echo: false
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg")
+```
+
+## Choosing among the equations
+
+Sometimes physiological or toxicological mechanism argues for a threshold
+(Chapman and Wang 2000). That is not always known, a threshold is not always visible in
+the data, and even where a threshold is appropriate the functional form of the
+decline after it may not be.
+
+Without a mechanistic argument, the choice has to be made from the data. Metrics
+exist for this — AICc in the frequentist setting, and WAIC, DIC, model
+probabilities and others in the Bayesian setting. The difficulty is that many of
+these curves are similar in shape, so several will often fit a dataset about
+equally well. Model uncertainty is then high and the selection is close to
+arbitrary, while the estimate reported depends on which equation was picked.
+
+## Multi-model inference
+
+The alternative is not to choose. All the plausible models are fitted and used
+together, which is multi-model inference, and it is useful in exactly the case
+above: several plausible models and no basis for preferring one.
+
+This is the basis of model averaging [@Burnham2002], which is long established
+in ecology [see @Dormann2018 for a review].
+
+```{r}
+#| label: fig-modav
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/modelave_ecol.jpg")
+```
+
+## Model averaging
+
+Model averaging fits a candidate set and combines the estimates of interest,
+weighted by how well each model fits the data [@Burnham2002]. In the frequentist
+case the weights are usually AICc weights.
+
+A well-fitting model takes a high weight and dominates the result. A poorly
+fitting one takes a weight near zero and has little influence. Where several
+models fit equally well they contribute comparably, and the resulting posterior
+carries the uncertainty in model shape as well as in the parameters. That is the
+substantive gain: an interval from a single chosen equation is conditional on
+that equation being right, and does not reflect the fact that it was chosen.
+
+AICc-based averaging has been adopted in ecotoxicology for species sensitivity
+distributions [@Thorley2018; @fox2020; @Dalgarno]. David Fox's course on [SSD
+model averaging in
+R](https://training.ecotox.science/courses/an-introduction-to-model-averaging-using-ssdtools-in-r/)
+covers that application.
+
+```{r}
+#| label: fig-ssd
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/ssd.jpg")
+```
+
+## Model averaging in `bayesnec`
+
+What `bnec` returns depends on how many equations it is given.
+
+A single recognised model name fits one model and returns a `bayesnecfit`, which
+is what modules 2 and 3 used. Two or more names, or the name of a model set,
+fits each in turn and returns a `bayesmanecfit` holding the Bayesian
+model-averaged predictions over those that fitted successfully.
+
+Both compute time and object size scale with the size of the set. Every model is
+sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is
+large. Module 2 measured a single `nec3param` fit of these data at a little over
+two minutes; a set of twenty-three is not twenty-three times more convenient.
+
+## Combining single fits
+
+Any model fitted by `bnec` inherits class `bnecfit`, which carries two methods of
+its own, `+` and `c`. Either will append fits to one another, so two or more
+`bayesnecfit` objects can be combined into a model-averaged `bayesmanecfit`.
+
+Starting from the `nec3param` fit of module 2:
+
+```{r}
+#| label: fit-nec3param
+set.seed(333)
+data(nec_data)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+```
+
+and adding a second equation of a different shape — `ecxll3`, a three-parameter
+log-logistic curve with no threshold:
+
+```{r}
+#| label: fit-ecxll3
+set.seed(333)
+bnec_fit_new <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
+```
+
+```{r}
+#| label: fig-ecxll3
+#| fig-height: 4.5
+#| fig-cap: "The `ecxll3` fit. The annotated no-effect estimate is an *NSEC*, because this equation has no threshold parameter."
+autoplot(bnec_fit_new)
+```
+
+The two are combined with `c()`:
+
+```{r}
+#| label: combine
+bmanecfit <- c(bnec_fit_new, bnec_fit)
+```
+
+```{r}
+#| label: classes
+#| results: hold
+class(bnec_fit_new)
+class(bnec_fit)
+class(bmanecfit)
+```
+
+`amend()` adds or drops models from an existing set, or changes the weighting
+method, and `pull_out()` extracts one or more models back out of it. Adding a
+third equation:
+
+```{r}
+#| label: amend
+bmanecfit_more <- amend(bmanecfit, add = "ecxexp")
+```
+
+## Plotting an averaged fit
+
+`autoplot()` works on a `bayesmanecfit` as it does on a single fit.
+
+```{r}
+#| label: fig-manec
+#| fig-height: 4.5
+#| fig-cap: "The model-averaged fit over three equations."
+autoplot(bmanecfit_more)
+```
+
+The plot looks like the single-model plot, but the curve and its interval are a
+weighted average over the set. The intervals often look less smooth than those
+from a single fit, because they now include uncertainty in the shape of the
+curve and not only in its parameters.
+
+The no-effect estimate annotated here, and reported in the summary below, mixes
+two quantities: *NEC* values from the threshold equations in the set, and *NSEC*
+values [@fisherfox2023] standing in for them in the smooth equations. Module 3
+covers why those are different.
+
+## The summary
+
+```{r}
+#| label: summary
+summary(bmanecfit_more)
+```
+
+The fitted models are listed with their weights. The summary warns that the
+averaged no-effect estimate contains *NSEC* values, and would warn again if any
+fit had divergent transitions.
+
+`nec3param` takes most of the weight here, which is what should happen: these
+data were simulated from that equation. The Bayesian R² values show how little of
+the variation the smooth exponential decline accounts for.
+
+## Elements of the fitted object
+
+`mod_stats` holds the fit statistics for every model in the set: the model name,
+the WAIC as returned by `brms`, the weight `wi`, and dispersion estimates where
+the response is modelled with a Poisson or binomial distribution.
+
+```{r}
+#| label: modstats
+bmanecfit_more$mod_stats
+```
+
+The individual fits are retained and can be extracted with `pull_out()`:
+
+```{r}
+#| label: pullout
+bmanec_ecxexp <- pull_out(bmanecfit_more, model = "ecxexp")
+```
+
+## Every model in the set
+
+```{r}
+#| label: fig-allmodels
+#| fig-height: 5
+#| fig-cap: "Each equation in the set plotted separately."
+autoplot(bmanecfit_more, all_models = TRUE)
+```
+
+`ecxexp` fits these data badly, which is why its weight is near zero. A poor
+model with a negligible weight does no harm, because it cannot influence the
+averaged prediction.
+
+The check that matters is whether a poor fit is a poor *shape* or a failed
+sampler. A model that has not converged should be removed; a converged model
+whose shape simply does not suit the data can be left in.
+
+## Diagnostics across a set
+
+`pull_out()` gives back a single fit, so any of the `brms` diagnostics apply.
+Taking the worst model in the set:
+
+```{r}
+#| label: fig-worstchains
+#| fig-height: 5
+#| fig-cap: "Chains for `ecxexp`, the worst-fitting equation in the set."
+plot(pull_brmsfit(bmanecfit_more, "ecxexp"))
+```
+
+The chains are well mixed. The model is a bad description of these data and a
+perfectly converged fit, which are different things.
+
+Checking every model this way does not scale. `check_chains()` handles a whole
+set, and given a `filename` it writes the plots to a PDF in the working
+directory rather than to the screen:
+
+```{r}
+#| label: checkchains-file
+#| eval: false
+check_chains(bmanecfit_more, filename = "bmanecfit_more_all_chains")
+```
+
+```{r}
+#| label: fig-checkchains
+#| fig-height: 5
+#| warning: false
+#| message: false
+check_chains(bmanecfit_more)
+```
+
+## Weighting methods
+
+```{r}
+#| label: fig-dumbbell
+#| out-width: "20%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/dumbbell.jpg")
+```
+
+In the frequentist setting AICc weights are standard and relate to the
+likelihood of the data given each model. The SSD course linked above treats them
+in detail.
+
+```{r}
+#| label: fig-weights
+#| out-width: "25%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/weights.jpg")
+```
+
+Bayesian weighting is less settled and there are many candidate methods. A full
+treatment is outside the scope of this course; what follows is what `bayesnec`
+does and why.
+
+## Weights in `bayesnec`
+
+`bayesnec` uses the weighting implemented in `loo` [@vehtari2020], which performs
+approximate leave-one-out cross-validation for models fitted by MCMC
+[@vehtari2017], using Pareto-smoothed importance sampling to regularise the
+importance weights [@Vehtari2019].
+
+`loo` offers two methods.
+
+**Stacking** minimises prediction error by maximising the leave-one-out
+predictive density of the combined distribution [@Yao2018; @vehtari2020]. It
+prioritises the accuracy of the joint prediction.
+
+**Pseudo-BMA** takes weights proportional to the expected log pointwise
+predictive density of each model [@vehtari2020], estimating relative predictive
+accuracy. It can be combined with a Bayesian bootstrap, which accounts for the
+uncertainty of a finite sample and pulls the weights away from 0 and 1.
+
+Stacking is the default. `bayesnec` passes no method of its own, so `loo`'s own
+default applies, and the summary above names it: `Method: stacking_weights`.
+Earlier versions of `bayesnec` documented pseudo-BMA with the Bayesian bootstrap
+as the default, on the grounds that it behaved much as AICc weights do. Weights
+from an older analysis are therefore not comparable with weights computed now,
+which is one more reason to record the version alongside the models fitted.
+
+The method is changed through the `loo_controls` argument of `bnec()` or
+`amend()`, which takes a named list with elements `fitting` and `weights`.
+
+## Model sets
+
+Rather than naming equations individually, a named set can be passed to `bnec()`:
+
+```{r}
+#| label: model-sets
+models()
+```
+
+The sets are not mutually exclusive, and `bayesnec` discards any model in the set
+that is unsuitable for the statistical distribution of the response, which module
+5 covers.
+
+`nec` and `ecx` are the threshold and smooth equations respectively.
+
+`all` is every available equation. It currently includes `necsigm`, which should
+not be used; remove it with `amend()` if fitting the whole set.
+
+`bot_free` are the equations with no lower asymptote, which are useful when the
+response curve is incomplete and estimates are needed beyond the observed range.
+
+`zero_bounded` are those for which negative response values are invalid.
+
+`decline` excludes the hormesis equations and is the most generally useful set
+where there is no evidence of hormesis.
+
+`hormesis` are the equations allowing an initial increase.
+
+## Open questions
+
+Model averaging is well established in ecology [@Dormann2018] but relatively new
+to ecotoxicology [see @Thorley2018; @fox2020; @Wheeler2009].
+
+How the composition of the candidate set affects inference is not settled. Some
+work suggests a broad set is preferable [@Wheeler2009]; other work indicates that
+including several equations of similar shape over-represents that shape in the
+averaged prediction [@fox2020]. Adding or removing models can change the
+averaged estimates substantially, ECx values included.
+
+The set available in `bayesnec` changes between versions. Record which equations
+were actually fitted in an analysis, not merely which set was requested, or the
+result cannot be reproduced later.
+
+## References
+
+::: {#refs}
+:::
