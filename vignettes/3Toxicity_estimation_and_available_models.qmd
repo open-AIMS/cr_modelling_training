@@ -1,0 +1,375 @@
+---
+title: "Toxicity estimation and the model set"
+subtitle: "What `bayesnec` can fit, and which toxicity estimate follows from each"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(bayesnec)
+
+# args() returns a function whose body is NULL, which print() then shows on its
+# own line. Deparsing and dropping that line gives the signature alone, which is
+# what these sections are for.
+signature <- function(fun, class = "bayesnecfit") {
+  txt <- deparse(args(getS3method(fun, class)))
+  cat(paste(utils::head(txt, -1), collapse = "\n"), "\n")
+}
+```
+
+## Background
+
+Module 2 fitted one model and extracted estimates from it without saying much
+about either choice. This module covers what is available and why it matters:
+the equations `bayesnec` can fit, how they differ, and which toxicity estimate
+each one supports.
+
+The distinction that organises everything below is between models with a
+threshold and models without one, and it determines what a no-effect estimate
+can mean. This figure, from @fisherfox2023, is what the module builds towards.
+
+```{r}
+#| label: fig-etnc2
+#| out-width: "60%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/etnc_fig2.jpg")
+```
+
+## The model set
+
+The `model` argument of a `bayesnecformula` names the equation or equations to
+fit. The complete set is:
+
+```{r}
+#| label: model-set
+models()$all
+```
+
+The names divide into two prefixes. Those beginning `nec` are threshold models;
+those beginning `ecx` are smooth models with no threshold.
+
+```{r}
+#| label: fig-etnc1
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/etnc_fig1.jpg")
+```
+
+Named subsets of the full set are also available, and are how a group of
+equations is requested rather than a single one:
+
+```{r}
+#| label: model-groups
+names(models())
+```
+
+Module 4 covers fitting a set and averaging across it.
+
+## Parameter definitions
+
+The parameters have been given consistent meanings across equations wherever
+possible, so that a parameter named `top` means the same thing in every model
+that has one. Equations range from two parameters, in the linear and exponential
+decay models `ecxlin` and `ecxexp`, to five in `nechorme4`.
+
+$\tau = \text{top}$, the y-intercept or upper plateau: the mean response at zero
+concentration.
+
+$\eta = \text{nec}$, the no-effect concentration, the value of the predictor at
+which the threshold in the regression is estimated to lie.
+
+$\beta = \text{beta}$, the exponential decay rate of the response, either from
+zero concentration or from $\eta$. The exception is `neclinhorme`, where it is a
+linear decay from $\eta$, because the slope $\alpha$ is already used for the
+linear increase.
+
+$\delta = \text{bot}$, the lower plateau: the response at infinite
+concentration.
+
+$\alpha = \text{slope}$, the linear decay rate in `neclin` and `ecxlin`, or the
+linear increase before $\eta$ in the hormesis models.
+
+$\omega = \text{ec50}$, nominally the 50% effect concentration, though it is
+affected by scaling and should not be read strictly as an EC50.
+
+$\epsilon = \text{d}$, the exponent in `ecxsigm` and `necsigm`.
+
+$\zeta = \text{f}$, a scaling exponent used only by `ecxll5`.
+
+Every `nec` model also uses a step function to define the breakpoint:
+
+$$
+f(x_i, \eta) = \begin{cases}
+      0, & x_i - \eta < 0 \\
+      1, & x_i - \eta \geq 0 \\
+   \end{cases}
+$$
+
+## Threshold models
+
+In models prefixed `nec`, the no-effect concentration is a parameter of the
+model, $\eta$, and is estimated directly, following @Fox2010.
+
+```{r}
+#| label: fig-necmod
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/necmod_fox2010.jpg")
+```
+
+These models assume the response holds at a stable level, near the control mean,
+across the lower concentrations, until a threshold is reached. That threshold is
+the *NEC*. Beyond it the response declines with increasing concentration at some
+rate. The original formulation of @Fox2010 assumed exponential decline after the
+threshold, which is `nec3param`; `bayesnec` also provides a linear decline in
+`neclin`.
+
+These models can be used to estimate an **EC~x~**, but their value is the
+estimate of the threshold. They are the only way to estimate a true no-effect
+concentration.
+
+## Smooth models
+
+Models prefixed `ecx` are continuous curves. They have an intercept, the mean
+control response, but no threshold: the response begins to decline at any
+concentration above zero, at a rate set by the equation.
+
+```{r}
+#| label: fig-ecxmod
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/ecxmod.jpg")
+```
+
+They are appropriate where the data show no threshold, and are used to extract
+**EC~x~** values such as the EC10, which is widely used in species sensitivity
+distribution modelling.
+
+## The no-significant-effect concentration
+
+A smooth model has no threshold parameter, so the *NEC* cannot be read from it.
+The *NSEC* is a way of obtaining a no-effect estimate from such a model
+[@fisherfox2023].
+
+```{r}
+#| label: fig-nsec
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/nsec.jpg")
+```
+
+The construction starts from the fitted intercept, the mean response at the
+control. From the posterior of that parameter a lower bound on the control
+response is calculated. The *NSEC* is the concentration at which the fitted
+curve crosses that bound.
+
+Because the calculation is done for every posterior draw, the result is a
+posterior distribution for the *NSEC* rather than a point estimate, and a
+credible interval follows from it directly. Module 6 covers what a posterior is
+and where it comes from.
+
+The full derivation, in both frequentist and Bayesian form, is in
+@fisherfox2023.
+
+## The NSEC and the NOEC
+
+The *NSEC* is analogous to the *NOEC*: both identify the concentration at which
+the response becomes significantly different from the control.
+
+```{r}
+#| label: fig-noec
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/noec.jpg")
+```
+
+The difference is that the *NSEC* interpolates from a fitted curve, so it is not
+restricted to the concentrations that happen to have been tested. This removes
+the most serious defect of the *NOEC*, whose value can only ever be one of the
+treatment concentrations and is therefore determined by the experimental design
+as much as by the toxicity.
+
+Because it rests on a comparison against control variability, the *NSEC* is
+sensitive to poorly designed experiments. High variability in the control
+produces a *less* conservative estimate, which is the opposite of what intuition
+suggests, and it is the single most important thing to watch when using it.
+
+A valid *NSEC* therefore depends on the control variability being a good
+representation of natural variability in an unimpacted population. That in turn
+depends on modelling the response with an appropriate statistical distribution,
+which module 5 covers.
+
+## Choosing a toxicity estimate
+
+Where the data show a threshold, the *NEC* is the most defensible estimate of
+no effect. Threshold models do not always fit well, however, and fitting one to
+smoothly declining data produces estimates that are *non-conservative* — the
+estimated threshold sits above concentrations at which an effect is already
+occurring.
+
+```{r}
+#| label: fig-ieam
+#| out-width: "58%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/ieam_head.jpg")
+```
+
+```{r}
+#| label: fig-svariolis
+#| out-width: "38%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/svariolis.jpg")
+```
+
+In the cases examined there, an *NEC* taken from a threshold model fitted to
+smooth data implied an effect larger than 10%, and sometimes considerably
+larger. The question that follows is what to use instead when there is no
+threshold.
+
+## NSEC against ECx
+
+Where no threshold can be estimated, the available options are the *NOEC*, an
+**EC~x~** at some low value of *x*, or the *NSEC*.
+
+The *NOEC* has been discarded as a measure of toxicity and is the least
+preferred method in the current Australian and New Zealand guidelines
+[@warne2008; @warne2018].
+
+**EC~x~**, and the EC10 in particular, is the method those guidelines specify
+[@warne2018] and is widely used internationally. An **EC~x~** at *x* of 5 or 10
+has been endorsed by the OECD since @vanderhoeven1997.
+
+Where an estimate of no effect is required, an **EC~x~** is arguably the wrong
+instrument, because it reports the concentration producing an effect of
+magnitude *x*. It is an effect concentration by construction.
+
+The *NSEC*, like the *NOEC* before it [@mebane2015], also represents some
+non-zero effect: for a smooth sigmoidal model any concentration above zero
+produces one. The difference is where the line is drawn. The *NSEC* is the
+concentration below which the response does not deviate significantly from the
+control, and a significant deviation can occur well before the effect reaches
+the 10% that an EC10 reports. Unless there is separate evidence that a 10%
+effect carries no consequence for the population, an EC10 cannot be assumed
+protective.
+
+## Hormesis
+
+Some equations in both groups allow an initial *increase* in the response at low
+concentrations before the decline begins [see @Mattson2008]. These are the
+hormesis models, and their names contain `horme`. The behaviour occurs for
+several reasons and is seen regularly in whole-effluent toxicity testing of
+mixed discharges.
+
+The threshold hormesis models are:
+
+```{r}
+#| label: horme-nec
+intersect(models()$horme, models()$nec)
+```
+
+These assume a linear increase up to the threshold and allow various decay
+functions after it. Hormesis raises no difficulty for the *NEC*, which remains
+the concentration at which the response begins to decline.
+
+The smooth hormesis models are:
+
+```{r}
+#| label: horme-ecx
+intersect(models()$horme, models()$ecx)
+```
+
+```{r}
+#| label: fig-horme
+#| out-width: "48%"
+#| fig-align: center
+#| layout-ncol: 2
+#| echo: false
+knitr::include_graphics(c("images/horme_nec.jpg", "images/horme_ecx.jpg"))
+```
+
+These do raise a difficulty for **EC~x~**, because an effect has to be measured
+against something, and a hormetic curve offers two candidates: the control, and
+the peak of the curve. `bayesnec` measures every **EC~x~**, *NSEC* and ECNSEC
+from the control — the predicted mean at the lowest concentration in the data,
+taken separately for each posterior draw. The two references coincide for a
+monotonically declining curve and differ for a hormetic one, so this choice
+changes the reported **EC~x~** for a hormesis equation and no other.
+
+## Extracting estimates
+
+Three functions extract toxicity estimates from a fitted model: `nec()`,
+`ecx()` and `nsec()`. Their full documentation is in the help files, which are
+the authoritative source; what follows covers the arguments that carry a
+decision rather than every argument.
+
+### `nec()`
+
+The *NEC* is a parameter of the model, so the function has little to do beyond
+summarising its posterior.
+
+```{r}
+#| label: nec-args
+#| comment: ""
+signature("nec")
+```
+
+`posterior` returns the full posterior sample rather than a summary. `xform`
+applies a function to the returned values, which is how estimates are returned
+to the original scale when the predictor was transformed in the formula.
+`prob_vals` sets the quantiles summarised, by default the median and a 95%
+credible interval.
+
+`nec()` applies only to models that have the parameter. Calling it on a smooth
+model is an error rather than a silent substitution.
+
+### `ecx()`
+
+```{r}
+#| label: ecx-args
+#| comment: ""
+signature("ecx")
+```
+
+`ecx_val` is the effect percentage, defaulting to 10 for an EC10.
+
+`type` determines what the percentage is measured against, which is the
+substantive decision here. `"absolute"`, the default, measures from the control
+to zero. `"relative"` measures from the control to the equation's theoretical
+asymptote, the `bot` parameter where the equation has one. `"range"` measures
+from the control to the lowest response the fitted curve predicts. `"direct"`
+takes a response value rather than a percentage and returns the concentration at
+which the curve reaches it.
+
+`resolution` sets the number of predictor values over which the crossing is
+located. `x_range` allows estimates outside the observed range of the predictor,
+which should be used deliberately, since it extrapolates the fitted curve.
+
+### `nsec()`
+
+```{r}
+#| label: nsec-args
+#| comment: ""
+signature("nsec")
+```
+
+`sig_val` is the quantile of the control posterior used to define a significant
+decline, defaulting to 0.01, that is 99% certainty of a decline relative to the
+control. That value generally produces sensible results. Where it does not, the
+better response in a guideline-derivation context is usually to reconsider
+whether the statistical model suits the data, rather than to adjust the
+significance level. Other values may be appropriate in other decision contexts.
+
+## References
+
+::: {#refs}
+:::

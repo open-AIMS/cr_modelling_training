@@ -82,27 +82,31 @@ before anything is compiled.
 
 ## The bayesnec version the site is built against
 
-The site is rendered against a named commit rather than against whatever happens
-to be installed, so that the published output and the version participants are
-told to install cannot diverge.
-
-**Current pin: `open-AIMS/bayesnec` at `fc33ca8424b7100dc53feed7f6538a9eac1a31ba`**,
-the head of `dev` on 2026-09-11, reporting version 2.1.3.33 and `NEWS.md` for
-2.2.0. Installed with:
+**The site tracks the head of `dev`** (RF, 2026-09-11). The 2.2.0 development
+work is close enough to settled that further API changes are expected to be few,
+so building against a frozen commit would hold the course behind the package for
+no benefit.
 
 ```r
-remotes::install_github("open-AIMS/bayesnec",
-                        ref = "fc33ca8424b7100dc53feed7f6538a9eac1a31ba")
+remotes::install_github("open-AIMS/bayesnec", ref = "dev")
 ```
 
-This is an interim pin. It is not the feature branch `issue-309-init-search`,
-which was the checkout in the local working tree on that date and which sat nine
-commits off `dev`; a course should not be built against unmerged work. It is
-expected to be replaced by a release tag once the 2.2.0 development work
-concludes, at which point module 1's placeholder is filled with the release
-version and every module is re-rendered.
+The commit each build actually used is recorded here rather than pinned, so a
+published page remains attributable to a state of the package.
 
-Two 2.2.0 changes were confirmed present at this commit by rendering module 2
+| Date | `dev` commit | Version | Modules rendered |
+|---|---|---|---|
+| 2026-09-11 | `fc33ca84` | 2.1.3.33 | 2, 3 |
+
+Re-check `dev` before a render, reinstall if it has moved, and clear `_freeze/`
+for every module that fits a model, because freeze does not notice a package
+upgrade. Add a row above when the commit changes.
+
+Module 1 is a separate matter. Participants are told to install a specific
+version, and that instruction cannot track a moving branch; its placeholder is
+filled from the release once the 2.2.0 work concludes.
+
+Two 2.2.0 changes were confirmed present at `fc33ca84` by rendering module 2
 against it: the default `resolution` in `ecx()` and `nsec()` is 200 rather than
 1000, and `hormesis_def` is absent from both while `ecnsec()` exists. The
 `ne_posterior` and `ne_type` elements of a `bayesnecfit`, and the `ecx()` default

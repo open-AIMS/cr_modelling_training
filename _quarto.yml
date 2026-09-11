@@ -10,6 +10,7 @@ project:
     - index.qmd
     - vignettes/1Getting-started.qmd
     - vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+    - vignettes/3Toxicity_estimation_and_available_models.qmd
 
 # Chunk output is stored under _freeze/ and committed. The Bayesian fits take
 # minutes to hours and need a Stan toolchain, so the site must be rebuildable
@@ -44,6 +45,8 @@ website:
         contents:
           - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
             text: "2. Fitting a single model"
+          - href: vignettes/3Toxicity_estimation_and_available_models.qmd
+            text: "3. Toxicity estimation and the model set"
   page-footer:
     left: "Australian Institute of Marine Science"
     right: "Built with [Quarto](https://quarto.org)"

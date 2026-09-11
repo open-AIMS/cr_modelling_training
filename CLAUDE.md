@@ -330,10 +330,11 @@ published page would have reported a superseded default as current.
 
 After any package upgrade, clear `_freeze/` for every module that fits a model.
 
-**The `bayesnec` version the site is built against is pinned.** Modules are rendered against
-a named commit, not against whatever is installed, so that the published output and the
-version participants are told to install are the same thing. The current pin is recorded in
-`notes/setup-evidence.md`. Re-render every module after changing it.
+**The site is built against the head of `bayesnec`'s `dev` branch.** Check `dev` before
+rendering, reinstall if it has moved, and record the commit used in the table in
+`notes/setup-evidence.md`. The commit is recorded rather than pinned, so a published page
+stays attributable without holding the course behind the package. Module 1 is the exception:
+it tells participants which version to install, so it names a release rather than a branch.
 
 **Prompt logging.** Parent §10 applies. Course modules are teaching material about the
 analyses, so a change to a module's explanation of a method, to its code, or to which model
