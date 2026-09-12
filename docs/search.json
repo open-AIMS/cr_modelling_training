@@ -1,206 +1,338 @@
 [
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html",
-    "title": "Response data and statistical distributions",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html",
+    "title": "Priors and Bayesian inference",
     "section": "",
-    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
+    "text": "This course uses Bayesian methods throughout, and from the installation onwards that can look like an unnecessary complication — frequentist solutions exist for most of it, drc among them. The extra overhead has probably held back the use of Bayesian methods for threshold derivation in ecotoxicology, where specialist statistical support is not usually available (Fisher et al. 2019).\nThree things justify the overhead: a stable and flexible fitting platform, estimates of uncertainty that mean what people assume they mean, and the posterior sample itself, which module 7 uses to compare toxicity between datasets.\n\n\n\n\n\n\n\n\nFigure 1",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#background",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#background",
-    "title": "Response data and statistical distributions",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#background",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#background",
+    "title": "Priors and Bayesian inference",
     "section": "",
-    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
+    "text": "This course uses Bayesian methods throughout, and from the installation onwards that can look like an unnecessary complication — frequentist solutions exist for most of it, drc among them. The extra overhead has probably held back the use of Bayesian methods for threshold derivation in ecotoxicology, where specialist statistical support is not usually available (Fisher et al. 2019).\nThree things justify the overhead: a stable and flexible fitting platform, estimates of uncertainty that mean what people assume they mean, and the posterior sample itself, which module 7 uses to compare toxicity between datasets.\n\n\n\n\n\n\n\n\nFigure 1",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
-    "title": "Response data and statistical distributions",
-    "section": "Generalised modelling",
-    "text": "Generalised modelling\nGeneralised modelling fits data with a statistical distribution matched to the natural range and scaling of the response, rather than assuming one.\nFitting a linear model with lm() assumes a Gaussian distribution, and so do many non-linear routines such as nls(). The normality assumption familiar from analysis of variance is the most common case of non-generalised modelling. It is sometimes reasonable, but it was adopted largely because it makes the mathematics of fitting and interval estimation tractable.\nThat constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in bayesnec rather than with the underlying mathematics.\n\n\n\n\n\n\n\n\nFigure 1",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#estimating-uncertainty",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#estimating-uncertainty",
+    "title": "Priors and Bayesian inference",
+    "section": "Estimating uncertainty",
+    "text": "Estimating uncertainty\nIn Bayesian inference the parameters and their uncertainty are estimated as probability distributions. Uncertainty in a derived threshold is what makes it usable in risk assessment and formal decision frameworks (Fisher et al. 2018), and Bayesian methods quantify it with a direct probabilistic meaning (Ellison 1996).\nThe distinction between the two paradigms, stated as simply as it can be:\n\nBayesian inference estimates the probability of the parameters, given the observed data and the prior information.\nFrequentist inference estimates the probability of the data, given the parameters.\n\nThat difference is why a Bayesian interval answers the question most people think a confidence interval answers. It holds provided the priors have been handled properly, which is the subject of this module.\nThis introduction covers the principles without the mathematics:",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
-    "title": "Response data and statistical distributions",
-    "section": "Families available in brms",
-    "text": "Families available in brms\nbrms supports many families, including most of those in the base stats package that other R fitting routines use:\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nand a number that are specific to it:\n\n\n\n\n\n\n\n\nFigure 3",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#sampling",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#sampling",
+    "title": "Priors and Bayesian inference",
+    "section": "Sampling",
+    "text": "Sampling\nThe posterior combines a prior distribution for each parameter, \\(p(\\theta)\\), with the likelihood of the observed data given those parameters, \\(p(D | \\theta)\\):\n\\[\np(\\theta | D) = \\frac{p(D | \\theta)\\, p(\\theta)}{\\int_{\\theta} p(D | \\theta)\\, p(\\theta)\\, d\\theta} \\propto p(D | \\theta)\\, p(\\theta)\n\\tag{1}\\]\nThe denominator is usually analytically intractable, which is why Bayesian fitting relies on numerical approximation by Markov chain Monte Carlo.\n\nMany packages implement MCMC — WinBUGS (Lunn et al. 2000), JAGS (Plummer 2003) and Stan (Carpenter et al. 2017), reached from R through R2WinBUGS, R2jags (Su and Yajima 2015) and rstan (Stan Development Team 2021).\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nThese require the model to be specified in a separate language, which is a real barrier. brms (Bürkner 2017) removes it for a wide range of models by generating that code from lme4-like formula syntax, fitting through rstan (Stan Development Team 2021) or cmdstanr (Gabry and Češnovar 2022). Even so, automating Bayesian fits across arbitrary use cases is difficult, particularly the initial values and the priors, and extracting NEC or ECx estimates with their uncertainty from a set of posterior draws is cumbersome without dedicated code. Those are the gaps bayesnec fills, as module 1 described.\nStan uses Hamiltonian Monte Carlo, tuning the discretisation time to an acceptance-rate target with the no-U-turn sampler (Hoffman and Gelman 2014).",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
-    "title": "Response data and statistical distributions",
-    "section": "Link functions",
-    "text": "Link functions\nEvery statistical family has a link function. A generalised linear model relates the linear predictor to the response through it — a logit link, for example, maps the probabilities of a binary response onto an unbounded continuous scale. Generalised linear models were formulated by Nelder and Wedderburn as a unification of linear regression, logistic regression and Poisson regression, with maximum likelihood estimation of the parameters. Logistic regression is the familiar case.\nThe native link for a family — logit for the binomial, log for the Poisson — imposes a non-linear transformation. Concentration-response models are already non-linear and do not use linear predictors, so any further non-linearity from a link changes the model being fitted.\nbayesnec therefore uses the identity link for every family. The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps top, bot and nec on the scale of the response, where they are directly interpretable.\n\nbayesnec:::supported_links()\n\n[1] \"identity\" \"log\"      \"logit\"   \n\n\nThis matters when comparing a bayesnec fit against a brms model written by hand. brms defaults to logit for a beta response and log for a Poisson, so unless the link is passed explicitly the two are different models. ECx and NSEC estimates from a fit using any link other than the identity may not behave as expected.",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#priors",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#priors",
+    "title": "Priors and Bayesian inference",
+    "section": "Priors",
+    "text": "Priors\nA Bayesian analysis requires a prior probability density for every parameter.\nWhere real prior knowledge exists — pilot data, or a previous experiment on the same response — the prior may reasonably be narrow, and will then be influential, especially if the new data are scarce or noisy. In ecology and ecotoxicology that situation is the exception.\nWhere no quantitative prior information exists it is common to use vague or weakly informative priors. The use of vague, diffuse or flat priors described as “uninformative” is no longer recommended (Banner et al. 2020). Such priors are the default in many packages and are often used without evaluation, sometimes from a concern about appearing subjective (Banner et al. 2020), and they can still influence the outcome substantially (Depaoli et al. 2020; Gelman et al. 2017).\nThe current recommendation is weakly informative, generative priors: priors that interact sensibly with the likelihood to produce a plausible data-generating mechanism (Gelman et al. 2017).",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
-    "title": "Response data and statistical distributions",
-    "section": "Families implemented in bayesnec",
-    "text": "Families implemented in bayesnec\n\nnames(bayesnec:::mod_fams)\n\n [1] \"gaussian\"                  \"Gamma\"                    \n [3] \"poisson\"                   \"negbinomial\"              \n [5] \"bernoulli\"                 \"binomial\"                 \n [7] \"beta_binomial\"             \"beta\"                     \n [9] \"hurdle_gamma\"              \"zero_inflated_beta\"       \n[11] \"zero_inflated_poisson\"     \"zero_inflated_negbinomial\"\n\n\nThe first eight are the ordinary cases covered below. hurdle_gamma, zero_inflated_beta, zero_inflated_poisson and zero_inflated_negbinomial handle responses with an excess of zeros — a separate topic, treated in the bayesnec article on hurdle families.\nAdding a family is not trivial, because bayesnec generates priors and initial values by algorithms specific to each one. Requests go to the issue tracker.",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#priors-in-bayesnec",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#priors-in-bayesnec",
+    "title": "Priors and Bayesian inference",
+    "section": "Priors in bayesnec",
+    "text": "Priors in bayesnec\nbayesnec builds weakly informative priors by algorithm, on two principles:\n\nuse a statistical family appropriate to the parameter’s theoretical distribution;\nuse the observed data to centre the density near the plausible parameter space, and to constrain it to sensible bounds.\n\nThe purpose is to keep the sampler away from values the researcher would regard as implausible, which is also where non-linear fits become unstable. For complex non-linear models this matters for convergence rather than only for inference. In comparisons against drc, bayesnec often finds a sensible fit where drc does not, and the bounds these priors place on the parameter space are part of the reason.\nPriors of this kind describe the shape and bounds of a parameter’s density while staying broad enough not to determine its posterior, given a reasonable amount of data. Used that way they give results about as objective as the frequentist equivalent, while yielding intervals that can be read as probabilities.\nThey still need interrogating — by sensitivity analysis (Depaoli et al. 2020) and by checking they suit the data (Gelman et al. 2017). As a rule the defaults behave well where there are enough data, which includes a reasonable number of treatment concentrations. Where data are sparse the defaults can be influential; but sparse data usually need informative priors to fit at all, and then the influence of prior knowledge should be acknowledged rather than avoided.\n\nTwo prior sets\n\nformals(bnec)$prior_type\n\n[1] \"uninformative\"\n\n\n\"uninformative\" is the default and is described below. \"regularizing\" is a deliberately narrower set, defined by a location and a spread and derived per family, with the location read from the ends of the predictor — the control group for top. It is the stricter option where a default fit is unstable.\nThe descriptions that follow are of the default set. Rather than relying on them, read the priors off a fitted model with pull_prior(), as below: the construction has changed between versions and will change again.\n\n\nResponse-scaled parameters\nOnly \\(\\tau = \\text{top}\\) and \\(\\delta = \\text{bot}\\) relate directly to the response, so their priors depend on the family.\nFor a Gaussian response, or any response whose link admits values from \\(-\\infty\\) to \\(\\infty\\), the priors are Gaussian with means at the 90th and 10th quantiles of the response for top and bot, and a standard deviation of 2.5 times that of the response. That scales with the data, puts the density near the plausible region, and is broad enough to have little influence on the posterior.\nFor Poisson, negative binomial and gamma responses, negative values are impossible and a Gaussian is unsuitable. Gamma priors are used instead, with means at the 75th and 25th quantiles of the response. The mean relates to the shape \\(s\\) and rate \\(r\\) by \\(\\mu = s(1/r)\\) (Becker et al. 1988), with the shape set to 2 — a value chosen by testing, as broad while still centred on feasible values.\nFor binomial, beta and beta-binomial families, top and bot are necessarily between 0 and 1 on the identity link, so no scaling to the response is needed. beta(5, 2) and beta(2, 5) give broad densities over the upper and lower parts of that range respectively.\n\n\nPredictor-scaled parameters\n\\(\\eta = \\text{nec}\\) and \\(\\omega = \\text{ec50}\\) are estimated in units of the predictor. Both are truncated to the observed range of the predictor, on the assumption that the concentrations tested covered the full range of the response. That assumption fails for a badly designed experiment, so an estimate sitting at the edge of the tested range should be treated with suspicion rather than reported.\nThe prior itself is built on the log of the predictor where the predictor is non-negative, giving a lognormal located at the median of the logged predictor, with a spread taken from the observed range. Where the predictor spans negative values it is used directly, giving a normal located at the median with a standard deviation ten times that of the predictor.\nThis replaced an earlier scheme that selected among a gamma, a beta(2, 2) and a normal according to the predictor’s support. A gamma cannot describe a logarithmically spaced concentration series, because its spread is tied to its shape: gamma(5, 4/m) places its central 95% interval between 0.41m and 2.56m whatever the data are. Concentration series are usually logarithmic, so this matters in practice rather than in principle.\n\n\nOther parameters\nFor \\(\\beta = \\text{beta}\\), \\(\\alpha = \\text{slope}\\) and \\(\\epsilon = \\text{d}\\) the model formula is written so that values from \\(-\\infty\\) to \\(\\infty\\) are admissible, and normal(0, 5) is used.\nIn nec3param, for example, beta is an exponential decay rate and must lie between 0 and \\(\\infty\\). The formula calls exp(beta), which enforces that, and a normal(0, 5) on the exponent is broad in practice.",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
-    "title": "Response data and statistical distributions",
-    "section": "Default behaviour",
-    "text": "Default behaviour\nWith default settings bnec infers the most likely distribution from the response. That inference must be checked rather than trusted. Two questions decide whether a distribution is adequate:\n\ndoes it capture the variability actually present in the data?\ndoes it produce sensibly shaped credible bounds across the whole curve?\n\nGetting the dispersion right matters directly for toxicity estimates, because it sets the width of their intervals. It matters most for the NSEC, which is defined against the estimated variability in the control: overstate that variability and the estimate becomes less conservative (Fisher et al. 2023; Fisher and Fox 2023).\nThe sections below fit a threshold and a smooth model to each of several response types. Several of the examples come from Gerard Ricardo’s repository.",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#when-the-defaults-do-not-suit",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#when-the-defaults-do-not-suit",
+    "title": "Priors and Bayesian inference",
+    "section": "When the defaults do not suit",
+    "text": "When the defaults do not suit\nThe defaults are data-dependent and are designed to be informative enough, relative to each parameter’s plausible region, to return fits without divergent transitions where the data are sufficient. brms provides no blanket defaults for non-linear models, and how vague a prior is depends on the likelihood in any case (Gelman et al. 2017).\nThree ways they can fail. They may be too informative, giving unreasonably tight bounds, which happens mainly with few data or few unique predictor values. They may be too vague, giving poor convergence. Or they may be of the wrong family, if the data did not contain enough information for bayesnec to infer the right one.",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
-    "title": "Response data and statistical distributions",
-    "section": "Binomial",
-    "text": "Binomial\nA response is binomial when it is a count out of a total, such as the number of survivors out of a number exposed.\n\nbinom_data &lt;- read.csv(\"example_binomial.csv\")\nsummary(binom_data$raw_x)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n   0.10   10.94   37.50   99.23  125.00  400.00 \n\nhead(binom_data)\n\n  raw_x suc tot\n1   0.1 101 175\n2   0.1 106 112\n3   0.1 102 103\n4   0.1 112 114\n5   0.1  58  69\n6   0.1 158 165\n\n\nThe predictor runs from 0.1 to 400 and is strongly right skewed, which is typical of a dilution series. Transforming the predictor, usually by a logarithm, often makes fitting more stable, and the design is generally logarithmic in any case. This example uses the predictor untransformed.\nsuc holds the number of successes and tot the number of trials.\nFor a binomial or beta-binomial response the formula takes a trials term, exactly as in brms:\n\nsuc | trials(tot) ~ crf(raw_x, model = \"your_model\")\n\nThe column to the left of the | holds the successes — survivors, fertilised eggs — and the one inside trials() the total associated with each. The names are whatever they are in your data frame.\n\nset.seed(333)\nexp_1nec &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"nec3param\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a binomial distribution.\n\n\nWarning: Found 2 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n23 (47.9%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\n\nautoplot(exp_1nec)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 4\n\n\n\n\n\nThe credible bounds are very tight. The threshold model itself fits reasonably and the NEC is in a plausible place.\nFitting a smooth curve to the same data instead:\n\nset.seed(333)\nexp_1ecx &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"ecxll3\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 1 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll3 model using a binomial distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 79 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\n\nautoplot(exp_1ecx)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 5",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#inspecting-the-priors",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#inspecting-the-priors",
+    "title": "Priors and Bayesian inference",
+    "section": "Inspecting the priors",
+    "text": "Inspecting the priors\nA fitted model to work from:\n\nset.seed(333)\ndata(nec_data)\nbnec_fit &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nsample_priors() draws from the priors held in the brms fit, which shows their shape directly:\n\nsample_priors(pull_brmsfit(bnec_fit)$prior)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\nFigure 3\n\n\n\n\n\ncheck_priors(), which builds on the hypothesis() function of brms, plots the prior against the posterior for each parameter. That comparison is the point: a posterior that has moved well away from its prior is being determined by the data, and one that follows the prior closely is not.\n\ncheck_priors(bnec_fit)\n\n\n\n\n\n\n\nFigure 4",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
-    "title": "Response data and statistical distributions",
-    "section": "Beta-binomial",
-    "text": "Beta-binomial\nThe bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.\nThe beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.\n\nset.seed(333)\nexp_1b &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = c(\"ecxll3\", \"nec3param\")),\n               data = binom_data, family = \"beta_binomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a beta_binomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta_binomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_1b, all_models = TRUE)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 6\n\n\n\n\n\nThe bounds are now much wider, and they are a better description of the scatter in the data.\nbayesnec once supplied this as a custom family called beta_binomial2, because brms did not provide one natively. It does now, and the family is named beta_binomial; code written against beta_binomial2 will no longer run.",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#specifying-priors",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#specifying-priors",
+    "title": "Priors and Bayesian inference",
+    "section": "Specifying priors",
+    "text": "Specifying priors\nThe simplest way to write custom priors is to let bnec build its own first and then modify them.\n\nset.seed(333)\nexmp_a &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data,\n               family = Beta(link = \"identity\"),\n               iter = 1e4, control = list(adapt_delta = 0.99))\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\npull_prior() reports what it chose:\n\npull_prior(exmp_a)\n\n[[1]]\n                                           prior class      coef group resp\n                                    normal(0, 5)     b                     \n                                    normal(0, 5)     b Intercept           \n lognormal(-0.132723577442522, 1.68292842267636)     b                     \n lognormal(-0.132723577442522, 1.68292842267636)     b Intercept           \n                                      beta(5, 2)     b                     \n                                      beta(5, 2)     b Intercept           \n                               gamma(0.01, 0.01)   phi                     \n dpar nlpar               lb               ub tag       source\n       beta                                               user\n       beta                                       (vectorized)\n        nec 0.03234801324009 3.22051966293556             user\n        nec 0.03234801324009 3.22051966293556     (vectorized)\n        top                0                1             user\n        top                0                1     (vectorized)\n                           0                           default\n\n\nThe prior on nec is a lognormal, because nec_data$x is strictly positive. Suppose the predictor could in principle have been negative and simply was not in this dataset. A normal with a larger variance can be substituted:\n\nset.seed(333)\nmy_prior &lt;- c(prior_string(\"beta(5, 1)\", nlpar = \"top\"),\n              prior_string(\"normal(1.3, 2.7)\", nlpar = \"nec\"),\n              prior_string(\"gamma(0.5, 2)\", nlpar = \"beta\"))\nexmp_b &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data,\n               family = Beta(link = \"identity\"), prior = my_prior,\n               iter = 1e4, control = list(adapt_delta = 0.99))\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nWarning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.\nIf this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_beta ~ gamma(0.5, 2)\n\n\nWarning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.\nIf this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nTwo things follow from that. Priors must be given for every parameter of the model, not only the ones being changed. And pull_prior() reports the priors of a model that has already been fitted, so to find the parameters beforehand use show_params():\n\nshow_params(model = \"nec3param\")\n\n[[1]]\ny ~ top * exp(-exp(beta) * (x - nec) * step(x - nec)) \ntop ~ 1\nbeta ~ 1\nnec ~ 1\n\n\n\nComparing the two fits\n\npar(mfrow = c(1, 2))\nhist(exmp_a$ne_posterior, main = \"Default priors\", xlab = \"NEC\")\nhist(exmp_b$ne_posterior, main = \"User priors\", xlab = \"NEC\")\n\n\n\n\n\n\n\nFigure 5\n\n\n\n\n\nThe posteriors are similar, which is what should happen when the data are informative enough that the priors are not driving the result. A large difference would be the signal to look harder.",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta",
-    "title": "Response data and statistical distributions",
-    "section": "Beta",
-    "text": "Beta\nA response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.\n\nprop_data &lt;- read.csv(\"example_proportion.csv\") |&gt;\n  mutate(sqrt.x = sqrt(raw_x))\n\n\nset.seed(333)\nexp_2 &lt;- bnec(resp ~ crf(sqrt.x, model = c(\"ecxll3\", \"nec3param\")),\n              data = prop_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 157 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nWarning: The largest R-hat is 1.05, indicating chains have not mixed.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#r-hat\n\n\nWarning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#bulk-ess\n\n\nWarning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#tail-ess\n\n\nResponse variable modelled as a ecxll3 model using a beta distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\n4: \n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_2, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 7\n\n\n\n\n\n\nexp_2$mod_stats\n\n              model      waic         wi dispersion_Estimate dispersion_Q2.5\necxll3       ecxll3 -412.4089 0.02275017                  NA              NA\nnec3param nec3param -423.8700 0.97724983                  NA              NA\n          dispersion_Q97.5 dispersion_P_over_1\necxll3                  NA                  NA\nnec3param               NA                  NA\n\n\nThe beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.\nNote that the predictor was square-root transformed in the formula. Estimates returned by nec(), nsec() and ecx() are then on the transformed scale, and must be back-transformed with the xform argument to be read as concentrations.",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#priors-for-a-model-set",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#priors-for-a-model-set",
+    "title": "Priors and Bayesian inference",
+    "section": "Priors for a model set",
+    "text": "Priors for a model set\nA named list supplies priors per model when several are fitted together.\n\nset.seed(333)\nmy_priors &lt;- list(\n  nec3param = c(prior_string(\"beta(5, 1)\", nlpar = \"top\"),\n                prior_string(\"normal(1.3, 2.7)\", nlpar = \"nec\"),\n                prior_string(\"gamma(0.5, 2)\", nlpar = \"beta\")),\n  nec4param = c(prior_string(\"beta(5, 1)\", nlpar = \"top\"),\n                prior_string(\"normal(1.3, 2.7)\", nlpar = \"nec\"),\n                prior_string(\"gamma(0.5, 2)\", nlpar = \"beta\"),\n                prior_string(\"beta(1, 5)\", nlpar = \"bot\")))\nexmp_c &lt;- bnec(y ~ crf(x, model = c(\"nec3param\", \"nec4param\")), data = nec_data,\n               family = Beta(link = \"identity\"), prior = my_priors,\n               iter = 1e4, control = list(adapt_delta = 0.99))\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nWarning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.\nIf this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_beta ~ gamma(0.5, 2)\n\n\nWarning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.\nIf this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec4param model and a beta distribution.\n\n\nWarning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.\nIf this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_beta ~ gamma(0.5, 2)\nb_bot ~ beta(1, 5)\n\n\nWarning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.\nIf this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_bot ~ beta(1, 5)\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 4979 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: There were 1988 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See\nhttps://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nWarning: The largest R-hat is 1.05, indicating chains have not mixed.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#r-hat\n\n\nWarning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#bulk-ess\n\n\nWarning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#tail-ess\n\n\nResponse variable modelled as a nec4param model using a beta distribution.\n\n\nFitted models are: nec3param nec4param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\npull_prior() works on a bayesmanecfit, and so does check_priors(), which takes a filename to write the prior and posterior plots to a PDF rather than the screen.\n\npull_prior(exmp_c)\n\n$nec3param\n             prior class      coef group resp dpar nlpar lb ub tag       source\n     gamma(0.5, 2)     b                            beta                   user\n     gamma(0.5, 2)     b Intercept                  beta           (vectorized)\n  normal(1.3, 2.7)     b                             nec                   user\n  normal(1.3, 2.7)     b Intercept                   nec           (vectorized)\n        beta(5, 1)     b                             top                   user\n        beta(5, 1)     b Intercept                   top           (vectorized)\n gamma(0.01, 0.01)   phi                                  0             default\n\n$nec4param\n             prior class      coef group resp dpar nlpar lb ub tag       source\n     gamma(0.5, 2)     b                            beta                   user\n     gamma(0.5, 2)     b Intercept                  beta           (vectorized)\n        beta(1, 5)     b                             bot                   user\n        beta(1, 5)     b Intercept                   bot           (vectorized)\n  normal(1.3, 2.7)     b                             nec                   user\n  normal(1.3, 2.7)     b Intercept                   nec           (vectorized)\n        beta(5, 1)     b                             top                   user\n        beta(5, 1)     b Intercept                   top           (vectorized)\n gamma(0.01, 0.01)   phi                                  0             default\n\n\n\nPriors for part of a set\nPriors can be given for some models and left to bayesnec for the rest. Where they are missing, or ill-formed, it reports that it is finding its own.\n\nset.seed(333)\nexmp_d &lt;- bnec(y ~ crf(x, model = c(\"nec3param\", \"nec4param\")), data = nec_data,\n               family = Beta(link = \"identity\"), prior = my_priors[1],\n               iter = 1e4, control = list(adapt_delta = 0.99))\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nWarning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.\nIf this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_beta ~ gamma(0.5, 2)\n\n\nWarning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.\nIf this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nNamed prior list does not contain priors for model nec4param.\nUsing bayesnec default priors.\n\n\nFinding initial values which allow the response to be fitted using a nec4param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec4param model using a beta distribution.\n\n\nFitted models are: nec3param nec4param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nmy_priors[[1]] would also work: the prior argument takes either a brmsprior object directly or a named list of them.\n\n\nPriors when extending a set\namend() adds a model to an existing bayesmanecfit, with priors supplied for the model being added.\n\nset.seed(333)\nnecsigm_priors &lt;- c(prior_string(\"beta(5, 1)\", nlpar = \"top\"),\n                    prior_string(\"gamma(2, 6.5)\", nlpar = \"beta\"),\n                    prior_string(\"normal(1.3, 2.7)\", nlpar = \"nec\"),\n                    prior_string(\"normal(0, 2)\", nlpar = \"d\"))\nexmp_e &lt;- amend(exmp_d, add = \"necsigm\", priors = necsigm_priors)\n\nFinding initial values which allow the response to be fitted using a necsigm model and a beta distribution.\n\n\nWarning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.\nIf this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\nb_beta ~ gamma(2, 6.5)\n\n\nWarning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.\nIf this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.\nWarning occurred for prior \nb_top ~ beta(5, 1)\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 3 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a necsigm model using a beta distribution.\n\n\nFitted models are: nec3param nec4param necsigm\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'necsigm'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nnecsigm is used here to demonstrate the mechanism. As module 4 notes, it is not recommended for inference and should be dropped from the all set.",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
     ]
   },
   {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
-    "title": "Response data and statistical distributions",
-    "section": "Poisson",
-    "text": "Poisson\nCounts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.\n\nset.seed(333)\ndata(nec_data)\ncount_data &lt;- nec_data |&gt;\n  mutate(\n    y = (y * 100 + rnorm(nrow(nec_data), 0, 15)) |&gt;\n      round() |&gt; as.integer() |&gt; abs()\n  )\nstr(count_data)\n\n'data.frame':   100 obs. of  2 variables:\n $ x: num  1.019 0.816 0.371 0.401 1.295 ...\n $ y: int  85 120 54 96 64 88 111 92 99 86 ...\n\n\n\nset.seed(333)\nexp_3 &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")), data = count_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a poisson distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a poisson distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 8",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
-    "title": "Response data and statistical distributions",
-    "section": "Negative binomial",
-    "text": "Negative binomial\nThe Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.\n\nset.seed(333)\nexp_3b &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n               data = count_data, family = \"negbinomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a negbinomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a negbinomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (4.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3b, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\nThe bounds widen, as they did for the beta-binomial, and for the same reason.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
-    "title": "Response data and statistical distributions",
-    "section": "Gamma",
-    "text": "Gamma\nA continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.\n\ndata(nec_data)\nmeasure_data &lt;- nec_data |&gt;\n  mutate(measure = exp(y))\n\n\nset.seed(333)\nexp_4 &lt;- bnec(measure ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n              data = measure_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a Gamma distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a Gamma distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_4, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 10",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
-    "title": "Response data and statistical distributions",
-    "section": "Gaussian",
-    "text": "Gaussian\nA continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.\n\ngaussian_data &lt;- prop_data |&gt;\n  mutate(y = car::logit(resp))\n\n\nset.seed(333)\nexp_5 &lt;- bnec(y ~ crf(sqrt.x, model = c(\"ecxll4\", \"nec4param\")),\n              data = gaussian_data)\n\nFinding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 10 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll4 model using a gaussian distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec4param model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 3 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a nec4param model using a gaussian distribution.\n\n\nFitted models are: ecxll4 nec4param\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll4 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll4, nec4param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_5, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 11\n\n\n\n\n\nTransforming a bounded response onto an unbounded scale and modelling it as Gaussian is one way of handling proportion data, and it was standard practice before generalised methods were routine. Modelling the response on its own scale with the beta, as above, is preferable: it keeps the parameters interpretable as proportions, and it does not require the transformation to have made the variance constant.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
-    "title": "Response data and statistical distributions",
-    "section": "Model suitability by response type",
-    "text": "Model suitability by response type\nNot every equation suits every family. A model predicting negative values cannot be used with a response that must be positive, and bayesnec discards any model in a requested set that is unsuitable for the distribution of the response. This is why a set of twenty-three may return fewer than twenty-three fits, and why the zero_bounded set exists.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
-    "title": "Response data and statistical distributions",
-    "section": "Open questions",
-    "text": "Open questions\nThe families implemented in bayesnec cover the common cases in concentration-response work. Responses with an excess of zeros need the hurdle and zero-inflated families listed above, which are covered separately.\nThe important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience, not a substitute for that judgement.",
-    "crumbs": [
-      "Overview",
-      "Modules",
-      "5. Response data and distributions"
-    ]
-  },
-  {
-    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#references",
-    "href": "vignettes/5Response_data_and_statistical_distributions.html#references",
-    "title": "Response data and statistical distributions",
+    "objectID": "vignettes/6Priors_and_Bayesian_inference.html#references",
+    "href": "vignettes/6Priors_and_Bayesian_inference.html#references",
+    "title": "Priors and Bayesian inference",
     "section": "References",
-    "text": "References\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. “Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.” Integrated Environmental Assessment and Management, ahead of print. https://doi.org/https://doi.org/10.1002/ieam.4809.",
+    "text": "References\n\n\nBanner, Katharine M., Kathryn M. Irvine, and Thomas J. Rodhouse. 2020. “The Use of Bayesian Priors in Ecology: The Good, the Bad and the Not Great.” Methods in Ecology and Evolution 11: 882–89. https://doi.org/10.1111/2041-210X.13407.\n\n\nBecker, R. A, J. M Chambers, and A. R Wilks. 1988. The New Language. Wadsworth; Brooks/Cole.\n\n\nBürkner, Paul Christian. 2017. “brms: An R package for Bayesian multilevel models using Stan.” Journal of Statistical Software 80 (1): 1–28. https://doi.org/10.18637/jss.v080.i01.\n\n\nCarpenter, Bob, Andrew Gelman, Matthew D. Hoffman, et al. 2017. “: A Probabilistic Programming Language.” Journal of Statistical Software, Articles 76 (1): 1–32. https://doi.org/10.18637/jss.v076.i01.\n\n\nDepaoli, Sarah, Sonja D Winter, and Marieke Visser. 2020. “The Importance of Prior Sensitivity Analysis in Bayesian Statistics: Demonstrations Using an Interactive Shiny App.” Frontiers in Psychology 11: 608045.\n\n\nEllison, Aaron M. 1996. “An Introduction to Bayesian Inference for Ecological Research and Environmental Decision-Making.” Ecological Applications 6 (4): 1036–46. https://doi.org/10.2307/2269588.\n\n\nFisher, R, R. A van Dam, G. E Batley, et al. 2019. Key Issues in the Derivation of Water Quality Guideline Values: A Workshop Report. Australian Institute of Marine Science Report, Crawley, WA, Australia. 57 pp. https://doi.org/10.13140/RG.2.2.29774.82241.\n\n\nFisher, Rebecca, Terry Walshe, Pia Bessell-Browne, and Ross Jones. 2018. “Accounting for Environmental Uncertainty in the Management of Dredging Impacts Using Probabilistic Dose–Response Relationships and Thresholds.” Journal of Applied Ecology 55 (1): 415–25. https://doi.org/10.1111/1365-2664.12936.\n\n\nGabry, Jonah, and Rok Češnovar. 2022. : Interface to .\n\n\nGelman, Andrew, Daniel Simpson, and Michael Betancourt. 2017. “The Prior Can Often Only Be Understood in the Context of the Likelihood.” Entropy 19 (10). https://doi.org/10.3390/e19100555.\n\n\nHoffman, Matthew D., and Andrew Gelman. 2014. “The No-u-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo.” Journal of Machine Learning Research 15 (47): 1593–623. http://jmlr.org/papers/v15/hoffman14a.html.\n\n\nLunn, David J., Andrew Thomas, Nicky Best, and David Spiegelhalter. 2000.“ - a Bayesian Modelling Framework: Concepts, Structure, and Extensibility.” Statistics and Computing 10 (4): 325–37. https://doi.org/10.1023/A:1008929526011.\n\n\nPlummer, Martyn. 2003. “JAGS: A program for analysis of Bayesian graphical models using Gibbs sampling.” Proceedings of the 3rd International Workshop on Distributed Statistical Computing (DSC 2003) (Technische Universität Wien, Vienna, Austria), 1–10.\n\n\nStan Development Team. 2021. : The Interface to . http://mc-stan.org/.\n\n\nSu, Yu-Sung, and Masanao Yajima. 2015. R2jags: Using R to Run ’JAGS’. https://CRAN.R-project.org/package=R2jags.",
     "crumbs": [
       "Overview",
       "Modules",
-      "5. Response data and distributions"
+      "6. Priors and Bayesian inference"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html",
+    "title": "Model averaging and multi-model inference",
+    "section": "",
+    "text": "Modules 2 and 3 fitted single models and set out the equations available. Both bayesnec and drc (Ritz et al. 2015) offer more than twenty non-linear functions for concentration-response data, in two broad shapes.\n\n\n\n\n\n\n\n\nFigure 1: Threshold equations, which estimate an NEC directly.\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: Smooth equations, from which an ECx or an NSEC is derived.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#background",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#background",
+    "title": "Model averaging and multi-model inference",
+    "section": "",
+    "text": "Modules 2 and 3 fitted single models and set out the equations available. Both bayesnec and drc (Ritz et al. 2015) offer more than twenty non-linear functions for concentration-response data, in two broad shapes.\n\n\n\n\n\n\n\n\nFigure 1: Threshold equations, which estimate an NEC directly.\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: Smooth equations, from which an ECx or an NSEC is derived.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#choosing-among-the-equations",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#choosing-among-the-equations",
+    "title": "Model averaging and multi-model inference",
+    "section": "Choosing among the equations",
+    "text": "Choosing among the equations\nSometimes physiological or toxicological mechanism argues for a threshold (Chapman and Wang 2000). That is not always known, a threshold is not always visible in the data, and even where a threshold is appropriate the functional form of the decline after it may not be.\nWithout a mechanistic argument, the choice has to be made from the data. Metrics exist for this — AICc in the frequentist setting, and WAIC, DIC, model probabilities and others in the Bayesian setting. The difficulty is that many of these curves are similar in shape, so several will often fit a dataset about equally well. Model uncertainty is then high and the selection is close to arbitrary, while the estimate reported depends on which equation was picked.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#multi-model-inference",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#multi-model-inference",
+    "title": "Model averaging and multi-model inference",
+    "section": "Multi-model inference",
+    "text": "Multi-model inference\nThe alternative is not to choose. All the plausible models are fitted and used together, which is multi-model inference, and it is useful in exactly the case above: several plausible models and no basis for preferring one.\nThis is the basis of model averaging (Burnham and Anderson 2002), which is long established in ecology (see Dormann et al. 2018 for a review).\n\n\n\n\n\n\n\n\nFigure 3",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#model-averaging",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#model-averaging",
+    "title": "Model averaging and multi-model inference",
+    "section": "Model averaging",
+    "text": "Model averaging\nModel averaging fits a candidate set and combines the estimates of interest, weighted by how well each model fits the data (Burnham and Anderson 2002). In the frequentist case the weights are usually AICc weights.\nA well-fitting model takes a high weight and dominates the result. A poorly fitting one takes a weight near zero and has little influence. Where several models fit equally well they contribute comparably, and the resulting posterior carries the uncertainty in model shape as well as in the parameters. That is the substantive gain: an interval from a single chosen equation is conditional on that equation being right, and does not reflect the fact that it was chosen.\nAICc-based averaging has been adopted in ecotoxicology for species sensitivity distributions (Thorley and Schwarz 2018; Fox et al. 2021; Dalgarno 2021). David Fox’s course on SSD model averaging in R covers that application.\n\n\n\n\n\n\n\n\nFigure 4",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#model-averaging-in-bayesnec",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#model-averaging-in-bayesnec",
+    "title": "Model averaging and multi-model inference",
+    "section": "Model averaging in bayesnec",
+    "text": "Model averaging in bayesnec\nWhat bnec returns depends on how many equations it is given.\nA single recognised model name fits one model and returns a bayesnecfit, which is what modules 2 and 3 used. Two or more names, or the name of a model set, fits each in turn and returns a bayesmanecfit holding the Bayesian model-averaged predictions over those that fitted successfully.\nBoth compute time and object size scale with the size of the set. Every model is sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is large. Module 2 measured a single nec3param fit of these data at a little over two minutes; a set of twenty-three is not twenty-three times more convenient.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#combining-single-fits",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#combining-single-fits",
+    "title": "Model averaging and multi-model inference",
+    "section": "Combining single fits",
+    "text": "Combining single fits\nAny model fitted by bnec inherits class bnecfit, which carries two methods of its own, + and c. Either will append fits to one another, so two or more bayesnecfit objects can be combined into a model-averaged bayesmanecfit.\nStarting from the nec3param fit of module 2:\n\nset.seed(333)\ndata(nec_data)\nbnec_fit &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nand adding a second equation of a different shape — ecxll3, a three-parameter log-logistic curve with no threshold:\n\nset.seed(333)\nbnec_fit_new &lt;- bnec(y ~ crf(x, model = \"ecxll3\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a beta distribution.\n\n\nWarning: \n3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\n\nautoplot(bnec_fit_new)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 5: The ecxll3 fit. The annotated no-effect estimate is an NSEC, because this equation has no threshold parameter.\n\n\n\n\n\nThe two are combined with c():\n\nbmanecfit &lt;- c(bnec_fit_new, bnec_fit)\n\nFitted models are: ecxll3 nec3param\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\n\nclass(bnec_fit_new)\nclass(bnec_fit)\nclass(bmanecfit)\n\n[1] \"bayesnecfit\" \"bnecfit\"    \n[1] \"bayesnecfit\" \"bnecfit\"    \n[1] \"bayesmanecfit\" \"bnecfit\"      \n\n\namend() adds or drops models from an existing set, or changes the weighting method, and pull_out() extracts one or more models back out of it. Adding a third equation:\n\nbmanecfit_more &lt;- amend(bmanecfit, add = \"ecxexp\")\n\nFinding initial values which allow the response to be fitted using a ecxexp model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxexp model using a beta distribution.\n\n\nFitted models are: ecxll3 nec3param ecxexp\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxexp'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxexp curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#plotting-an-averaged-fit",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#plotting-an-averaged-fit",
+    "title": "Model averaging and multi-model inference",
+    "section": "Plotting an averaged fit",
+    "text": "Plotting an averaged fit\nautoplot() works on a bayesmanecfit as it does on a single fit.\n\nautoplot(bmanecfit_more)\n\n\n\n\n\n\n\nFigure 6: The model-averaged fit over three equations.\n\n\n\n\n\nThe plot looks like the single-model plot, but the curve and its interval are a weighted average over the set. The intervals often look less smooth than those from a single fit, because they now include uncertainty in the shape of the curve and not only in its parameters.\nThe no-effect estimate annotated here, and reported in the summary below, mixes two quantities: NEC values from the threshold equations in the set, and NSEC values (Fisher and Fox 2023) standing in for them in the smooth equations. Module 3 covers why those are different.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#the-summary",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#the-summary",
+    "title": "Model averaging and multi-model inference",
+    "section": "The summary",
+    "text": "The summary\n\nsummary(bmanecfit_more)\n\nObject of class bayesmanecfit\n\n Family: beta  \n  Links: mu = identity  \n\nNumber of posterior draws per model:  8000\n\nModel weights (Method: pseudobma_bb_weights):\n             waic   wi\necxll3    -314.17 0.20\nnec3param -332.36 0.80\necxexp    -119.80 0.00\n\n\nSummary of weighted N(S)EC posterior estimates:\nNB: Model set contains a combination of ECx and NEC\n    models, and is therefore a model averaged\n    combination of NEC and NSEC estimates.\n       Estimate Q2.5 Q97.5\nN(S)EC     1.53 0.91  1.57\n\n\nBayesian R2 estimates:\n          Estimate Est.Error Q2.5 Q97.5\necxll3        0.94      0.01 0.93  0.95\nnec3param     0.96      0.00 0.96  0.97\necxexp        0.38      0.06 0.24  0.49\n\n\nWarning in print.manecsummary(x): control observed/simulated ratio beyond 1.15 (see ?check_fit):\n  -  ecxexp\nThis is a modelling result rather than a fault; inspect with check_fit().\n\n\nThe fitted models are listed with their weights. The summary warns that the averaged no-effect estimate contains NSEC values, and would warn again if any fit had divergent transitions.\nnec3param takes most of the weight here, which is what should happen: these data were simulated from that equation. The Bayesian R² values show how little of the variation the smooth exponential decline accounts for.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#elements-of-the-fitted-object",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#elements-of-the-fitted-object",
+    "title": "Model averaging and multi-model inference",
+    "section": "Elements of the fitted object",
+    "text": "Elements of the fitted object\nmod_stats holds the fit statistics for every model in the set: the model name, the WAIC as returned by brms, the weight wi, and dispersion estimates where the response is modelled with a Poisson or binomial distribution.\n\nbmanecfit_more$mod_stats\n\n              model      waic           wi dispersion_Estimate dispersion_Q2.5\necxll3       ecxll3 -314.1675 1.981754e-01                  NA              NA\nnec3param nec3param -332.3612 8.018246e-01                  NA              NA\necxexp       ecxexp -119.7985 8.427134e-39                  NA              NA\n          dispersion_Q97.5 dispersion_P_over_1\necxll3                  NA                  NA\nnec3param               NA                  NA\necxexp                  NA                  NA\n\n\nThe individual fits are retained and can be extracted with pull_out():\n\nbmanec_ecxexp &lt;- pull_out(bmanecfit_more, model = \"ecxexp\")\n\nPulling out model(s): ecxexp",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#every-model-in-the-set",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#every-model-in-the-set",
+    "title": "Model averaging and multi-model inference",
+    "section": "Every model in the set",
+    "text": "Every model in the set\n\nautoplot(bmanecfit_more, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 7: Each equation in the set plotted separately.\n\n\n\n\n\necxexp fits these data badly, which is why its weight is near zero. A poor model with a negligible weight does no harm, because it cannot influence the averaged prediction.\nThe check that matters is whether a poor fit is a poor shape or a failed sampler. A model that has not converged should be removed; a converged model whose shape simply does not suit the data can be left in.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#diagnostics-across-a-set",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#diagnostics-across-a-set",
+    "title": "Model averaging and multi-model inference",
+    "section": "Diagnostics across a set",
+    "text": "Diagnostics across a set\npull_out() gives back a single fit, so any of the brms diagnostics apply. Taking the worst model in the set:\n\nplot(pull_brmsfit(bmanecfit_more, \"ecxexp\"))\n\n\n\n\n\n\n\nFigure 8: Chains for ecxexp, the worst-fitting equation in the set.\n\n\n\n\n\nThe chains are well mixed. The model is a bad description of these data and a perfectly converged fit, which are different things.\nChecking every model this way does not scale. check_chains() handles a whole set, and given a filename it writes the plots to a PDF in the working directory rather than to the screen:\n\ncheck_chains(bmanecfit_more, filename = \"bmanecfit_more_all_chains\")\n\n\ncheck_chains(bmanecfit_more)\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\n\n\n\n\n\n\nFigure 10\n\n\n\n\n\n\n\n\n\n\n\nFigure 11",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#weighting-methods",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#weighting-methods",
+    "title": "Model averaging and multi-model inference",
+    "section": "Weighting methods",
+    "text": "Weighting methods\n\n\n\n\n\n\n\n\nFigure 12\n\n\n\n\n\nIn the frequentist setting AICc weights are standard and relate to the likelihood of the data given each model. The SSD course linked above treats them in detail.\n\n\n\n\n\n\n\n\nFigure 13\n\n\n\n\n\nBayesian weighting is less settled and there are many candidate methods. A full treatment is outside the scope of this course; what follows is what bayesnec does and why.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#weights-in-bayesnec",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#weights-in-bayesnec",
+    "title": "Model averaging and multi-model inference",
+    "section": "Weights in bayesnec",
+    "text": "Weights in bayesnec\nbayesnec uses the weighting implemented in loo (Vehtari et al. 2020), which performs approximate leave-one-out cross-validation for models fitted by MCMC (Vehtari et al. 2017), using Pareto-smoothed importance sampling to regularise the importance weights (Vehtari et al. 2019).\nloo offers two methods.\nStacking minimises prediction error by maximising the leave-one-out predictive density of the combined distribution (Yao et al. 2018; Vehtari et al. 2020). It prioritises the accuracy of the joint prediction.\nPseudo-BMA takes weights proportional to the expected log pointwise predictive density of each model (Vehtari et al. 2020), estimating relative predictive accuracy. It can be combined with a Bayesian bootstrap, which accounts for the uncertainty of a finite sample and pulls the weights away from 0 and 1.\nStacking is the default. bayesnec passes no method of its own, so loo’s own default applies, and the summary above names it: Method: stacking_weights. Earlier versions of bayesnec documented pseudo-BMA with the Bayesian bootstrap as the default, on the grounds that it behaved much as AICc weights do. Weights from an older analysis are therefore not comparable with weights computed now, which is one more reason to record the version alongside the models fitted.\nThe method is changed through the loo_controls argument of bnec() or amend(), which takes a named list with elements fitting and weights.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#model-sets",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#model-sets",
+    "title": "Model averaging and multi-model inference",
+    "section": "Model sets",
+    "text": "Model sets\nRather than naming equations individually, a named set can be passed to bnec():\n\nmodels()\n\n$nec\n [1] \"nec3param\"     \"nec4param\"     \"nechorme\"      \"nechorme4\"    \n [5] \"necsigm\"       \"neclin\"        \"neclinhorme\"   \"nechormepwr\"  \n [9] \"nechorme4pwr\"  \"nechormepwr01\"\n\n$ecx\n [1] \"ecx4param\"   \"ecxlin\"      \"ecxexp\"      \"ecxsigm\"     \"ecxwb1\"     \n [6] \"ecxwb2\"      \"ecxwb1p3\"    \"ecxwb2p3\"    \"ecxll5\"      \"ecxll4\"     \n[11] \"ecxll3\"      \"ecxhormebc4\" \"ecxhormebc5\"\n\n$all\n [1] \"nec3param\"     \"nec4param\"     \"nechorme\"      \"nechorme4\"    \n [5] \"necsigm\"       \"neclin\"        \"neclinhorme\"   \"nechormepwr\"  \n [9] \"nechorme4pwr\"  \"nechormepwr01\" \"ecxlin\"        \"ecxexp\"       \n[13] \"ecxsigm\"       \"ecx4param\"     \"ecxwb1\"        \"ecxwb2\"       \n[17] \"ecxwb1p3\"      \"ecxwb2p3\"      \"ecxll5\"        \"ecxll4\"       \n[21] \"ecxll3\"        \"ecxhormebc4\"   \"ecxhormebc5\"  \n\n$bot_free\n [1] \"nec3param\"     \"nechorme\"      \"necsigm\"       \"neclin\"       \n [5] \"neclinhorme\"   \"nechormepwr\"   \"ecxlin\"        \"ecxexp\"       \n [9] \"ecxsigm\"       \"ecxwb1p3\"      \"ecxwb2p3\"      \"ecxll3\"       \n[13] \"ecxhormebc4\"   \"nechormepwr01\"\n\n$zero_bounded\n [1] \"nec3param\"     \"nechorme\"      \"necsigm\"       \"nechormepwr\"  \n [5] \"nechormepwr01\" \"ecxexp\"        \"ecxsigm\"       \"ecxwb1p3\"     \n [9] \"ecxwb2p3\"      \"ecxll3\"        \"ecxhormebc4\"  \n\n$decline\n [1] \"nec3param\" \"nec4param\" \"neclin\"    \"ecxlin\"    \"ecxexp\"    \"ecxsigm\"  \n [7] \"ecx4param\" \"ecxwb1\"    \"ecxwb2\"    \"ecxwb1p3\"  \"ecxwb2p3\"  \"ecxll5\"   \n[13] \"ecxll4\"    \"ecxll3\"   \n\n$hormesis\n[1] \"nechorme\"      \"nechorme4\"     \"neclinhorme\"   \"nechormepwr\"  \n[5] \"nechorme4pwr\"  \"nechormepwr01\" \"ecxhormebc4\"   \"ecxhormebc5\"  \n\n\nThe sets are not mutually exclusive, and bayesnec discards any model in the set that is unsuitable for the statistical distribution of the response, which module 5 covers.\nnec and ecx are the threshold and smooth equations respectively.\nall is every available equation. It currently includes necsigm, which should not be used; remove it with amend() if fitting the whole set.\nbot_free are the equations with no lower asymptote, which are useful when the response curve is incomplete and estimates are needed beyond the observed range.\nzero_bounded are those for which negative response values are invalid.\ndecline excludes the hormesis equations and is the most generally useful set where there is no evidence of hormesis.\nhormesis are the equations allowing an initial increase.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#open-questions",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#open-questions",
+    "title": "Model averaging and multi-model inference",
+    "section": "Open questions",
+    "text": "Open questions\nModel averaging is well established in ecology (Dormann et al. 2018) but relatively new to ecotoxicology (see Thorley and Schwarz 2018; Fox et al. 2021; Wheeler and Bailer 2009).\nHow the composition of the candidate set affects inference is not settled. Some work suggests a broad set is preferable (Wheeler and Bailer 2009); other work indicates that including several equations of similar shape over-represents that shape in the averaged prediction (Fox et al. 2021). Adding or removing models can change the averaged estimates substantially, ECx values included.\nThe set available in bayesnec changes between versions. Record which equations were actually fitted in an analysis, not merely which set was requested, or the result cannot be reproduced later.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
+    ]
+  },
+  {
+    "objectID": "vignettes/4Model_averaging_and_multimodel_inference.html#references",
+    "href": "vignettes/4Model_averaging_and_multimodel_inference.html#references",
+    "title": "Model averaging and multi-model inference",
+    "section": "References",
+    "text": "References\n\n\nBurnham, K P, and D R Anderson. 2002. Model Selection and Multimodel Inference; A Practical Information-Theoretic Approach. 2nd ed. Springer.\n\n\nDalgarno, Seb. 2021. “: A Web Application for Fitting Species Sensitivity Distributions (SSDs).” Journal of Open Source Software 6 (57): 2848. https://doi.org/10.21105/joss.02848.\n\n\nDormann, Carsten F., Justin M. Calabrese, Gurutzeta Guillera-Arroita, et al. 2018. “Model Averaging in Ecology: A Review of Bayesian, Information-Theoretic, and Tactical Approaches for Predictive Inference.” Ecological Monographs 88 (4): 485–504. https://doi.org/10.1002/ecm.1309.\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFox, D R, R A van Dam, R Fisher, et al. 2021. “Recent developments in Species Sensitivity Distribution Modeling.” Environmental Toxicology and Chemistry 40 (2): 293–308. https://doi.org/https://doi.org/10.1002/etc.4925.\n\n\nRitz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. “Dose-Response Analysis Using R.” PLoS ONE 10 (12): e0146021. https://doi.org/10.1371/journal.pone.0146021.\n\n\nThorley, Joe, and Carl Schwarz. 2018. ssdtools: Species Sensitivity Distributions. https://CRAN.R-project.org/package=ssdtools.\n\n\nVehtari, Aki, Jonah Gabry, Mans Magnusson, et al. 2020. Loo: Efficient Leave-One-Out Cross-Validation and WAIC for Bayesian Models. https://mc-stan.org/loo/.\n\n\nVehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. “Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.” Statistics and Computing 27: 1413–32. https://doi.org/10.1007/s11222-016-9696-4.\n\n\nVehtari, Aki, Daniel Simpson, Andrew Gelman, Yuling Yao, and Jonah Gabry. 2019. Pareto Smoothed Importance Sampling. arXiv. https://doi.org/10.48550/ARXIV.1507.02646.\n\n\nWheeler, Matthew W., and A. John Bailer. 2009. “Comparing Model Averaging with Other Model Selection Strategies for Benchmark Dose Estimation.” Environmental and Ecological Statistics 16: 37–51. https://doi.org/10.1007/s10651-007-0071-7.\n\n\nYao, Yuling, Aki Vehtari, Daniel Simpson, and Andrew Gelman. 2018. “Using Stacking to Average Bayesian Predictive Distributions (with Discussion).” Bayesian Analysis 13: 917–1007.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "4. Model averaging"
     ]
   },
   {
@@ -753,6 +885,210 @@
       "Overview",
       "Modules",
       "3. Toxicity estimation and the model set"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html",
+    "title": "Response data and statistical distributions",
+    "section": "",
+    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#background",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#background",
+    "title": "Response data and statistical distributions",
+    "section": "",
+    "text": "Concentration-response data are of varied kinds, and the measured response follows a correspondingly wide range of natural distributions. The examples below are drawn at random to show the shape of each.\nBinary, modelled by the binomial or beta-binomial. Individual survival, 0 0 1 1 0 1 1 0 0 0, or counts of survivors out of a total.\nBounded continuous, modelled by the beta. Proportions or ratios that are not counts out of a total: 0.458 0.861 0.246 0.043 0.1 0.697 0.232 0.74 0.866 0.704.\nCounts, modelled by the Poisson or negative binomial. Numbers of whole animals: 7 2 3 3 3 8 6 4 3 1.\nPositive continuous, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.\nUnbounded continuous, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#generalised-modelling",
+    "title": "Response data and statistical distributions",
+    "section": "Generalised modelling",
+    "text": "Generalised modelling\nGeneralised modelling fits data with a statistical distribution matched to the natural range and scaling of the response, rather than assuming one.\nFitting a linear model with lm() assumes a Gaussian distribution, and so do many non-linear routines such as nls(). The normality assumption familiar from analysis of variance is the most common case of non-generalised modelling. It is sometimes reasonable, but it was adopted largely because it makes the mathematics of fitting and interval estimation tractable.\nThat constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in bayesnec rather than with the underlying mathematics.\n\n\n\n\n\n\n\n\nFigure 1",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-available-in-brms",
+    "title": "Response data and statistical distributions",
+    "section": "Families available in brms",
+    "text": "Families available in brms\nbrms supports many families, including most of those in the base stats package that other R fitting routines use:\n\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\n\nand a number that are specific to it:\n\n\n\n\n\n\n\n\nFigure 3",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#link-functions",
+    "title": "Response data and statistical distributions",
+    "section": "Link functions",
+    "text": "Link functions\nEvery statistical family has a link function. A generalised linear model relates the linear predictor to the response through it — a logit link, for example, maps the probabilities of a binary response onto an unbounded continuous scale. Generalised linear models were formulated by Nelder and Wedderburn as a unification of linear regression, logistic regression and Poisson regression, with maximum likelihood estimation of the parameters. Logistic regression is the familiar case.\nThe native link for a family — logit for the binomial, log for the Poisson — imposes a non-linear transformation. Concentration-response models are already non-linear and do not use linear predictors, so any further non-linearity from a link changes the model being fitted.\nbayesnec therefore uses the identity link for every family. The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps top, bot and nec on the scale of the response, where they are directly interpretable.\n\nbayesnec:::supported_links()\n\n[1] \"identity\" \"log\"      \"logit\"   \n\n\nThis matters when comparing a bayesnec fit against a brms model written by hand. brms defaults to logit for a beta response and log for a Poisson, so unless the link is passed explicitly the two are different models. ECx and NSEC estimates from a fit using any link other than the identity may not behave as expected.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#families-implemented-in-bayesnec",
+    "title": "Response data and statistical distributions",
+    "section": "Families implemented in bayesnec",
+    "text": "Families implemented in bayesnec\n\nnames(bayesnec:::mod_fams)\n\n [1] \"gaussian\"                  \"Gamma\"                    \n [3] \"poisson\"                   \"negbinomial\"              \n [5] \"bernoulli\"                 \"binomial\"                 \n [7] \"beta_binomial\"             \"beta\"                     \n [9] \"hurdle_gamma\"              \"zero_inflated_beta\"       \n[11] \"zero_inflated_poisson\"     \"zero_inflated_negbinomial\"\n\n\nThe first eight are the ordinary cases covered below. hurdle_gamma, zero_inflated_beta, zero_inflated_poisson and zero_inflated_negbinomial handle responses with an excess of zeros — a separate topic, treated in the bayesnec article on hurdle families.\nAdding a family is not trivial, because bayesnec generates priors and initial values by algorithms specific to each one. Requests go to the issue tracker.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#default-behaviour",
+    "title": "Response data and statistical distributions",
+    "section": "Default behaviour",
+    "text": "Default behaviour\nWith default settings bnec infers the most likely distribution from the response. That inference must be checked rather than trusted. Two questions decide whether a distribution is adequate:\n\ndoes it capture the variability actually present in the data?\ndoes it produce sensibly shaped credible bounds across the whole curve?\n\nGetting the dispersion right matters directly for toxicity estimates, because it sets the width of their intervals. It matters most for the NSEC, which is defined against the estimated variability in the control: overstate that variability and the estimate becomes less conservative (Fisher et al. 2023; Fisher and Fox 2023).\nThe sections below fit a threshold and a smooth model to each of several response types. Several of the examples come from Gerard Ricardo’s repository.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Binomial",
+    "text": "Binomial\nA response is binomial when it is a count out of a total, such as the number of survivors out of a number exposed.\n\nbinom_data &lt;- read.csv(\"example_binomial.csv\")\nsummary(binom_data$raw_x)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n   0.10   10.94   37.50   99.23  125.00  400.00 \n\nhead(binom_data)\n\n  raw_x suc tot\n1   0.1 101 175\n2   0.1 106 112\n3   0.1 102 103\n4   0.1 112 114\n5   0.1  58  69\n6   0.1 158 165\n\n\nThe predictor runs from 0.1 to 400 and is strongly right skewed, which is typical of a dilution series. Transforming the predictor, usually by a logarithm, often makes fitting more stable, and the design is generally logarithmic in any case. This example uses the predictor untransformed.\nsuc holds the number of successes and tot the number of trials.\nFor a binomial or beta-binomial response the formula takes a trials term, exactly as in brms:\n\nsuc | trials(tot) ~ crf(raw_x, model = \"your_model\")\n\nThe column to the left of the | holds the successes — survivors, fertilised eggs — and the one inside trials() the total associated with each. The names are whatever they are in your data frame.\n\nset.seed(333)\nexp_1nec &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"nec3param\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a binomial distribution.\n\n\nWarning: Found 2 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n23 (47.9%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\n\nautoplot(exp_1nec)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 4\n\n\n\n\n\nThe credible bounds are very tight. The threshold model itself fits reasonably and the NEC is in a plausible place.\nFitting a smooth curve to the same data instead:\n\nset.seed(333)\nexp_1ecx &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = \"ecxll3\"),\n                 data = binom_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 1 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll3 model using a binomial distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 79 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\n\nautoplot(exp_1ecx)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 5",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta-binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Beta-binomial",
+    "text": "Beta-binomial\nThe bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.\nThe beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.\n\nset.seed(333)\nexp_1b &lt;- bnec(suc | trials(tot) ~ crf(raw_x, model = c(\"ecxll3\", \"nec3param\")),\n               data = binom_data, family = \"beta_binomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a beta_binomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta_binomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta_binomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_1b, all_models = TRUE)\n\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nSetting all 'trials' variables to 1 by default if not specified otherwise.\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 6\n\n\n\n\n\nThe bounds are now much wider, and they are a better description of the scatter in the data.\nbayesnec once supplied this as a custom family called beta_binomial2, because brms did not provide one natively. It does now, and the family is named beta_binomial; code written against beta_binomial2 will no longer run.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#beta",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#beta",
+    "title": "Response data and statistical distributions",
+    "section": "Beta",
+    "text": "Beta\nA response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.\n\nprop_data &lt;- read.csv(\"example_proportion.csv\") |&gt;\n  mutate(sqrt.x = sqrt(raw_x))\n\n\nset.seed(333)\nexp_2 &lt;- bnec(resp ~ crf(sqrt.x, model = c(\"ecxll3\", \"nec3param\")),\n              data = prop_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 157 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nWarning: The largest R-hat is 1.05, indicating chains have not mixed.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#r-hat\n\n\nWarning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#bulk-ess\n\n\nWarning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.\nRunning the chains for more iterations may help. See\nhttps://mc-stan.org/misc/warnings.html#tail-ess\n\n\nResponse variable modelled as a ecxll3 model using a beta distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\n4: \n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_2, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 7\n\n\n\n\n\n\nexp_2$mod_stats\n\n              model      waic         wi dispersion_Estimate dispersion_Q2.5\necxll3       ecxll3 -412.4089 0.02275017                  NA              NA\nnec3param nec3param -423.8700 0.97724983                  NA              NA\n          dispersion_Q97.5 dispersion_P_over_1\necxll3                  NA                  NA\nnec3param               NA                  NA\n\n\nThe beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.\nNote that the predictor was square-root transformed in the formula. Estimates returned by nec(), nsec() and ecx() are then on the transformed scale, and must be back-transformed with the xform argument to be read as concentrations.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#poisson",
+    "title": "Response data and statistical distributions",
+    "section": "Poisson",
+    "text": "Poisson\nCounts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.\n\nset.seed(333)\ndata(nec_data)\ncount_data &lt;- nec_data |&gt;\n  mutate(\n    y = (y * 100 + rnorm(nrow(nec_data), 0, 15)) |&gt;\n      round() |&gt; as.integer() |&gt; abs()\n  )\nstr(count_data)\n\n'data.frame':   100 obs. of  2 variables:\n $ x: num  1.019 0.816 0.371 0.401 1.295 ...\n $ y: int  85 120 54 96 64 88 111 92 99 86 ...\n\n\n\nset.seed(333)\nexp_3 &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")), data = count_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a poisson distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a poisson distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a poisson distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: \n9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 8",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#negative-binomial",
+    "title": "Response data and statistical distributions",
+    "section": "Negative binomial",
+    "text": "Negative binomial\nThe Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.\n\nset.seed(333)\nexp_3b &lt;- bnec(y ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n               data = count_data, family = \"negbinomial\")\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a negbinomial distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a negbinomial distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a negbinomial distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (4.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_3b, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 9\n\n\n\n\n\nThe bounds widen, as they did for the beta-binomial, and for the same reason.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#gamma",
+    "title": "Response data and statistical distributions",
+    "section": "Gamma",
+    "text": "Gamma\nA continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.\n\ndata(nec_data)\nmeasure_data &lt;- nec_data |&gt;\n  mutate(measure = exp(y))\n\n\nset.seed(333)\nexp_4 &lt;- bnec(measure ~ crf(x, model = c(\"ecxll3\", \"nec3param\")),\n              data = measure_data)\n\nFinding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a ecxll3 model using a Gamma distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec3param model and a Gamma distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a Gamma distribution.\n\n\nFitted models are: ecxll3 nec3param\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_4, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 10",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#gaussian",
+    "title": "Response data and statistical distributions",
+    "section": "Gaussian",
+    "text": "Gaussian\nA continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.\n\ngaussian_data &lt;- prop_data |&gt;\n  mutate(y = car::logit(resp))\n\n\nset.seed(333)\nexp_5 &lt;- bnec(y ~ crf(sqrt.x, model = c(\"ecxll4\", \"nec4param\")),\n              data = gaussian_data)\n\nFinding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 10 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\n\n\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a ecxll4 model using a gaussian distribution.\n\n\nFinding initial values which allow the response to be fitted using a nec4param model and a gaussian distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nWarning: There were 3 divergent transitions after warmup. See\nhttps://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup\nto find out why this is a problem and how to eliminate them.\nWarning: Examine the pairs() plot to diagnose sampling problems\n\n\nResponse variable modelled as a nec4param model using a gaussian distribution.\n\n\nFitted models are: ecxll4 nec4param\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe fitted ecxll4 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.\n\n\nWarning: \n4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe control group's observed and simulated response differ by more than 15% for: ecxll4, nec4param.\nnsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.\nSee check_fit() for the per-group table. This is a modelling result, not a fault.\n\n\n\nautoplot(exp_5, all_models = TRUE)\n\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\nIgnoring unknown labels:\n• fill : \"NA\"\n• colour : \"NA\"\n\n\n\n\n\n\n\n\nFigure 11\n\n\n\n\n\nTransforming a bounded response onto an unbounded scale and modelling it as Gaussian is one way of handling proportion data, and it was standard practice before generalised methods were routine. Modelling the response on its own scale with the beta, as above, is preferable: it keeps the parameters interpretable as proportions, and it does not require the transformation to have made the variance constant.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#model-suitability-by-response-type",
+    "title": "Response data and statistical distributions",
+    "section": "Model suitability by response type",
+    "text": "Model suitability by response type\nNot every equation suits every family. A model predicting negative values cannot be used with a response that must be positive, and bayesnec discards any model in a requested set that is unsuitable for the distribution of the response. This is why a set of twenty-three may return fewer than twenty-three fits, and why the zero_bounded set exists.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#open-questions",
+    "title": "Response data and statistical distributions",
+    "section": "Open questions",
+    "text": "Open questions\nThe families implemented in bayesnec cover the common cases in concentration-response work. Responses with an excess of zeros need the hurdle and zero-inflated families listed above, which are covered separately.\nThe important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience, not a substitute for that judgement.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
+    ]
+  },
+  {
+    "objectID": "vignettes/5Response_data_and_statistical_distributions.html#references",
+    "href": "vignettes/5Response_data_and_statistical_distributions.html#references",
+    "title": "Response data and statistical distributions",
+    "section": "References",
+    "text": "References\n\n\nFisher, Rebecca, and David R. Fox. 2023. “Introducing the No-Significant-Effect Concentration.” Environmental Toxicology and Chemistry n/a (n/a). https://doi.org/https://doi.org/10.1002/etc.5610.\n\n\nFisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. “Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.” Integrated Environmental Assessment and Management, ahead of print. https://doi.org/https://doi.org/10.1002/ieam.4809.",
+    "crumbs": [
+      "Overview",
+      "Modules",
+      "5. Response data and distributions"
     ]
   }
 ]

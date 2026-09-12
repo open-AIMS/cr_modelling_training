@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Priors and Bayesian inference – Concentration-response modelling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/5Response_data_and_statistical_distributions.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Concentration-response modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/6Priors_and_Bayesian_inference.html">6. Priors and Bayesian inference</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Before you start</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/4Model_averaging_and_multimodel_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. Model averaging</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#estimating-uncertainty" id="toc-estimating-uncertainty" class="nav-link" data-scroll-target="#estimating-uncertainty">Estimating uncertainty</a></li>
+  <li><a href="#sampling" id="toc-sampling" class="nav-link" data-scroll-target="#sampling">Sampling</a></li>
+  <li><a href="#priors" id="toc-priors" class="nav-link" data-scroll-target="#priors">Priors</a></li>
+  <li><a href="#priors-in-bayesnec" id="toc-priors-in-bayesnec" class="nav-link" data-scroll-target="#priors-in-bayesnec">Priors in <code>bayesnec</code></a>
+  <ul class="collapse">
+  <li><a href="#two-prior-sets" id="toc-two-prior-sets" class="nav-link" data-scroll-target="#two-prior-sets">Two prior sets</a></li>
+  <li><a href="#response-scaled-parameters" id="toc-response-scaled-parameters" class="nav-link" data-scroll-target="#response-scaled-parameters">Response-scaled parameters</a></li>
+  <li><a href="#predictor-scaled-parameters" id="toc-predictor-scaled-parameters" class="nav-link" data-scroll-target="#predictor-scaled-parameters">Predictor-scaled parameters</a></li>
+  <li><a href="#other-parameters" id="toc-other-parameters" class="nav-link" data-scroll-target="#other-parameters">Other parameters</a></li>
+  </ul></li>
+  <li><a href="#when-the-defaults-do-not-suit" id="toc-when-the-defaults-do-not-suit" class="nav-link" data-scroll-target="#when-the-defaults-do-not-suit">When the defaults do not suit</a></li>
+  <li><a href="#inspecting-the-priors" id="toc-inspecting-the-priors" class="nav-link" data-scroll-target="#inspecting-the-priors">Inspecting the priors</a></li>
+  <li><a href="#specifying-priors" id="toc-specifying-priors" class="nav-link" data-scroll-target="#specifying-priors">Specifying priors</a>
+  <ul class="collapse">
+  <li><a href="#comparing-the-two-fits" id="toc-comparing-the-two-fits" class="nav-link" data-scroll-target="#comparing-the-two-fits">Comparing the two fits</a></li>
+  </ul></li>
+  <li><a href="#priors-for-a-model-set" id="toc-priors-for-a-model-set" class="nav-link" data-scroll-target="#priors-for-a-model-set">Priors for a model set</a>
+  <ul class="collapse">
+  <li><a href="#priors-for-part-of-a-set" id="toc-priors-for-part-of-a-set" class="nav-link" data-scroll-target="#priors-for-part-of-a-set">Priors for part of a set</a></li>
+  <li><a href="#priors-when-extending-a-set" id="toc-priors-when-extending-a-set" class="nav-link" data-scroll-target="#priors-when-extending-a-set">Priors when extending a set</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/6Priors_and_Bayesian_inference.html">6. Priors and Bayesian inference</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Priors and Bayesian inference</h1>
+<p class="subtitle lead">What the priors do, how <code>bayesnec</code> builds them, and how to change them</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>This course uses Bayesian methods throughout, and from the installation onwards that can look like an unnecessary complication — frequentist solutions exist for most of it, <code>drc</code> among them. The extra overhead has probably held back the use of Bayesian methods for threshold derivation in ecotoxicology, where specialist statistical support is not usually available <span class="citation" data-cites="Fisher2019">(<a href="#ref-Fisher2019" role="doc-biblioref">Fisher et al. 2019</a>)</span>.</p>
+<p>Three things justify the overhead: a stable and flexible fitting platform, estimates of uncertainty that mean what people assume they mean, and the posterior sample itself, which module 7 uses to compare toxicity between datasets.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-bayes" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="80%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bayes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/bayesian_stats.jpg" id="fig-bayes" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-bayes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimating-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-uncertainty">Estimating uncertainty</h2>
+<p>In Bayesian inference the parameters and their uncertainty are estimated as probability distributions. Uncertainty in a derived threshold is what makes it usable in risk assessment and formal decision frameworks <span class="citation" data-cites="fisher2018c">(<a href="#ref-fisher2018c" role="doc-biblioref">Fisher et al. 2018</a>)</span>, and Bayesian methods quantify it with a direct probabilistic meaning <span class="citation" data-cites="Ellison1996">(<a href="#ref-Ellison1996" role="doc-biblioref">Ellison 1996</a>)</span>.</p>
+<p>The distinction between the two paradigms, stated as simply as it can be:</p>
+<ul>
+<li>Bayesian inference estimates the probability of the parameters, given the observed data and the prior information.</li>
+<li>Frequentist inference estimates the probability of the data, given the parameters.</li>
+</ul>
+<p>That difference is why a Bayesian interval answers the question most people think a confidence interval answers. It holds provided the priors have been handled properly, which is the subject of this module.</p>
+<p>This introduction covers the principles without the mathematics:</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/0F0QoMCSKJ4" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="sampling" class="level2">
+<h2 class="anchored" data-anchor-id="sampling">Sampling</h2>
+<p>The posterior combines a prior distribution for each parameter, <span class="math inline">\(p(\theta)\)</span>, with the likelihood of the observed data given those parameters, <span class="math inline">\(p(D | \theta)\)</span>:</p>
+<p><span id="eq-bayes"><span class="math display">\[
+p(\theta | D) = \frac{p(D | \theta)\, p(\theta)}{\int_{\theta} p(D | \theta)\, p(\theta)\, d\theta} \propto p(D | \theta)\, p(\theta)
+\tag{1}\]</span></span></p>
+<p>The denominator is usually analytically intractable, which is why Bayesian fitting relies on numerical approximation by Markov chain Monte Carlo.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/OTO1DygELpY" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Many packages implement MCMC — <code>WinBUGS</code> <span class="citation" data-cites="Lunn2000">(<a href="#ref-Lunn2000" role="doc-biblioref">Lunn et al. 2000</a>)</span>, <code>JAGS</code> <span class="citation" data-cites="Plummer2003">(<a href="#ref-Plummer2003" role="doc-biblioref">Plummer 2003</a>)</span> and <code>Stan</code> <span class="citation" data-cites="Carpenter2017">(<a href="#ref-Carpenter2017" role="doc-biblioref">Carpenter et al. 2017</a>)</span>, reached from R through <code>R2WinBUGS</code>, <code>R2jags</code> <span class="citation" data-cites="Su2015">(<a href="#ref-Su2015" role="doc-biblioref">Su and Yajima 2015</a>)</span> and <code>rstan</code> <span class="citation" data-cites="rstan2021">(<a href="#ref-rstan2021" role="doc-biblioref">Stan Development Team 2021</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-mctools" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="30%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mctools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/mctools.jpg" id="fig-mctools" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:30.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-mctools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>These require the model to be specified in a separate language, which is a real barrier. <code>brms</code> <span class="citation" data-cites="Burkner2017">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>)</span> removes it for a wide range of models by generating that code from <code>lme4</code>-like formula syntax, fitting through <code>rstan</code> <span class="citation" data-cites="rstan2021">(<a href="#ref-rstan2021" role="doc-biblioref">Stan Development Team 2021</a>)</span> or <code>cmdstanr</code> <span class="citation" data-cites="cmdstanr2022">(<a href="#ref-cmdstanr2022" role="doc-biblioref">Gabry and Češnovar 2022</a>)</span>. Even so, automating Bayesian fits across arbitrary use cases is difficult, particularly the initial values and the priors, and extracting NEC or ECx estimates with their uncertainty from a set of posterior draws is cumbersome without dedicated code. Those are the gaps <code>bayesnec</code> fills, as module 1 described.</p>
+<p><code>Stan</code> uses Hamiltonian Monte Carlo, tuning the discretisation time to an acceptance-rate target with the no-U-turn sampler <span class="citation" data-cites="hoffman2014">(<a href="#ref-hoffman2014" role="doc-biblioref">Hoffman and Gelman 2014</a>)</span>.</p>
+</section>
+<section id="priors" class="level2">
+<h2 class="anchored" data-anchor-id="priors">Priors</h2>
+<p>A Bayesian analysis requires a prior probability density for every parameter.</p>
+<p>Where real prior knowledge exists — pilot data, or a previous experiment on the same response — the prior may reasonably be narrow, and will then be influential, especially if the new data are scarce or noisy. In ecology and ecotoxicology that situation is the exception.</p>
+<p>Where no quantitative prior information exists it is common to use vague or weakly informative priors. The use of vague, diffuse or flat priors described as “uninformative” is no longer recommended <span class="citation" data-cites="Banner2020">(<a href="#ref-Banner2020" role="doc-biblioref">Banner et al. 2020</a>)</span>. Such priors are the default in many packages and are often used without evaluation, sometimes from a concern about appearing subjective <span class="citation" data-cites="Banner2020">(<a href="#ref-Banner2020" role="doc-biblioref">Banner et al. 2020</a>)</span>, and they can still influence the outcome substantially <span class="citation" data-cites="depaoli2020importance gelman2017entropy">(<a href="#ref-depaoli2020importance" role="doc-biblioref">Depaoli et al. 2020</a>; <a href="#ref-gelman2017entropy" role="doc-biblioref">Gelman et al. 2017</a>)</span>.</p>
+<p>The current recommendation is weakly informative, generative priors: priors that interact sensibly with the likelihood to produce a plausible data-generating mechanism <span class="citation" data-cites="gelman2017entropy">(<a href="#ref-gelman2017entropy" role="doc-biblioref">Gelman et al. 2017</a>)</span>.</p>
+</section>
+<section id="priors-in-bayesnec" class="level2">
+<h2 class="anchored" data-anchor-id="priors-in-bayesnec">Priors in <code>bayesnec</code></h2>
+<p><code>bayesnec</code> builds weakly informative priors by algorithm, on two principles:</p>
+<ul>
+<li>use a statistical family appropriate to the parameter’s theoretical distribution;</li>
+<li>use the observed data to centre the density near the plausible parameter space, and to constrain it to sensible bounds.</li>
+</ul>
+<p>The purpose is to keep the sampler away from values the researcher would regard as implausible, which is also where non-linear fits become unstable. For complex non-linear models this matters for convergence rather than only for inference. In comparisons against <code>drc</code>, <code>bayesnec</code> often finds a sensible fit where <code>drc</code> does not, and the bounds these priors place on the parameter space are part of the reason.</p>
+<p>Priors of this kind describe the shape and bounds of a parameter’s density while staying broad enough not to determine its posterior, given a reasonable amount of data. Used that way they give results about as objective as the frequentist equivalent, while yielding intervals that can be read as probabilities.</p>
+<p>They still need interrogating — by sensitivity analysis <span class="citation" data-cites="depaoli2020importance">(<a href="#ref-depaoli2020importance" role="doc-biblioref">Depaoli et al. 2020</a>)</span> and by checking they suit the data <span class="citation" data-cites="gelman2017entropy">(<a href="#ref-gelman2017entropy" role="doc-biblioref">Gelman et al. 2017</a>)</span>. As a rule the defaults behave well where there are enough data, which includes a reasonable number of treatment concentrations. Where data are sparse the defaults can be influential; but sparse data usually need informative priors to fit at all, and then the influence of prior knowledge should be acknowledged rather than avoided.</p>
+<section id="two-prior-sets" class="level3">
+<h3 class="anchored" data-anchor-id="two-prior-sets">Two prior sets</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">formals</span>(bnec)<span class="sc">$</span>prior_type</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "uninformative"</code></pre>
+</div>
+</div>
+<p><code>"uninformative"</code> is the default and is described below. <code>"regularizing"</code> is a deliberately narrower set, defined by a location and a spread and derived per family, with the location read from the ends of the predictor — the control group for <code>top</code>. It is the stricter option where a default fit is unstable.</p>
+<p>The descriptions that follow are of the default set. Rather than relying on them, read the priors off a fitted model with <code>pull_prior()</code>, as below: the construction has changed between versions and will change again.</p>
+</section>
+<section id="response-scaled-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="response-scaled-parameters">Response-scaled parameters</h3>
+<p>Only <span class="math inline">\(\tau = \text{top}\)</span> and <span class="math inline">\(\delta = \text{bot}\)</span> relate directly to the response, so their priors depend on the family.</p>
+<p>For a Gaussian response, or any response whose link admits values from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(\infty\)</span>, the priors are Gaussian with means at the 90th and 10th quantiles of the response for <code>top</code> and <code>bot</code>, and a standard deviation of 2.5 times that of the response. That scales with the data, puts the density near the plausible region, and is broad enough to have little influence on the posterior.</p>
+<p>For Poisson, negative binomial and gamma responses, negative values are impossible and a Gaussian is unsuitable. Gamma priors are used instead, with means at the 75th and 25th quantiles of the response. The mean relates to the shape <span class="math inline">\(s\)</span> and rate <span class="math inline">\(r\)</span> by <span class="math inline">\(\mu = s(1/r)\)</span> <span class="citation" data-cites="Becker1988">(<a href="#ref-Becker1988" role="doc-biblioref">Becker et al. 1988</a>)</span>, with the shape set to 2 — a value chosen by testing, as broad while still centred on feasible values.</p>
+<p>For binomial, beta and beta-binomial families, <code>top</code> and <code>bot</code> are necessarily between 0 and 1 on the identity link, so no scaling to the response is needed. <code>beta(5, 2)</code> and <code>beta(2, 5)</code> give broad densities over the upper and lower parts of that range respectively.</p>
+</section>
+<section id="predictor-scaled-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="predictor-scaled-parameters">Predictor-scaled parameters</h3>
+<p><span class="math inline">\(\eta = \text{nec}\)</span> and <span class="math inline">\(\omega = \text{ec50}\)</span> are estimated in units of the predictor. Both are truncated to the observed range of the predictor, on the assumption that the concentrations tested covered the full range of the response. That assumption fails for a badly designed experiment, so an estimate sitting at the edge of the tested range should be treated with suspicion rather than reported.</p>
+<p>The prior itself is built on the log of the predictor where the predictor is non-negative, giving a <strong>lognormal</strong> located at the median of the logged predictor, with a spread taken from the observed range. Where the predictor spans negative values it is used directly, giving a <strong>normal</strong> located at the median with a standard deviation ten times that of the predictor.</p>
+<p>This replaced an earlier scheme that selected among a gamma, a <code>beta(2, 2)</code> and a normal according to the predictor’s support. A gamma cannot describe a logarithmically spaced concentration series, because its spread is tied to its shape: <code>gamma(5, 4/m)</code> places its central 95% interval between <code>0.41m</code> and <code>2.56m</code> whatever the data are. Concentration series are usually logarithmic, so this matters in practice rather than in principle.</p>
+</section>
+<section id="other-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="other-parameters">Other parameters</h3>
+<p>For <span class="math inline">\(\beta = \text{beta}\)</span>, <span class="math inline">\(\alpha = \text{slope}\)</span> and <span class="math inline">\(\epsilon = \text{d}\)</span> the model formula is written so that values from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(\infty\)</span> are admissible, and <code>normal(0, 5)</code> is used.</p>
+<p>In <code>nec3param</code>, for example, <code>beta</code> is an exponential decay rate and must lie between 0 and <span class="math inline">\(\infty\)</span>. The formula calls <code>exp(beta)</code>, which enforces that, and a <code>normal(0, 5)</code> on the exponent is broad in practice.</p>
+</section>
+</section>
+<section id="when-the-defaults-do-not-suit" class="level2">
+<h2 class="anchored" data-anchor-id="when-the-defaults-do-not-suit">When the defaults do not suit</h2>
+<p>The defaults are data-dependent and are designed to be informative enough, relative to each parameter’s plausible region, to return fits without divergent transitions where the data are sufficient. <code>brms</code> provides no blanket defaults for non-linear models, and how vague a prior is depends on the likelihood in any case <span class="citation" data-cites="gelman2017entropy">(<a href="#ref-gelman2017entropy" role="doc-biblioref">Gelman et al. 2017</a>)</span>.</p>
+<p>Three ways they can fail. They may be too informative, giving unreasonably tight bounds, which happens mainly with few data or few unique predictor values. They may be too vague, giving poor convergence. Or they may be of the wrong family, if the data did not contain enough information for <code>bayesnec</code> to infer the right one.</p>
+</section>
+<section id="inspecting-the-priors" class="level2">
+<h2 class="anchored" data-anchor-id="inspecting-the-priors">Inspecting the priors</h2>
+<p>A fitted model to work from:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>sample_priors()</code> draws from the priors held in the <code>brms</code> fit, which shows their shape directly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sample_priors</span>(<span class="fu">pull_brmsfit</span>(bnec_fit)<span class="sc">$</span>prior)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-sample-priors" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sample-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="6Priors_and_Bayesian_inference_files/figure-html/fig-sample-priors-1.png" id="fig-sample-priors" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-sample-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>check_priors()</code>, which builds on the <code>hypothesis()</code> function of <code>brms</code>, plots the prior against the posterior for each parameter. That comparison is the point: a posterior that has moved well away from its prior is being determined by the data, and one that follows the prior closely is not.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_priors</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-check-priors" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-check-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="6Priors_and_Bayesian_inference_files/figure-html/fig-check-priors-1.png" id="fig-check-priors" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-check-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="specifying-priors" class="level2">
+<h2 class="anchored" data-anchor-id="specifying-priors">Specifying priors</h2>
+<p>The simplest way to write custom priors is to let <code>bnec</code> build its own first and then modify them.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>exmp_a <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">iter =</span> <span class="fl">1e4</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>pull_prior()</code> reports what it chose:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pull_prior</span>(exmp_a)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+                                           prior class      coef group resp
+                                    normal(0, 5)     b                     
+                                    normal(0, 5)     b Intercept           
+ lognormal(-0.132723577442522, 1.68292842267636)     b                     
+ lognormal(-0.132723577442522, 1.68292842267636)     b Intercept           
+                                      beta(5, 2)     b                     
+                                      beta(5, 2)     b Intercept           
+                               gamma(0.01, 0.01)   phi                     
+ dpar nlpar               lb               ub tag       source
+       beta                                               user
+       beta                                       (vectorized)
+        nec 0.03234801324009 3.22051966293556             user
+        nec 0.03234801324009 3.22051966293556     (vectorized)
+        top                0                1             user
+        top                0                1     (vectorized)
+                           0                           default</code></pre>
+</div>
+</div>
+<p>The prior on <code>nec</code> is a lognormal, because <code>nec_data$x</code> is strictly positive. Suppose the predictor could in principle have been negative and simply was not in this dataset. A normal with a larger variance can be substituted:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>my_prior <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">prior_string</span>(<span class="st">"beta(5, 1)"</span>, <span class="at">nlpar =</span> <span class="st">"top"</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">prior_string</span>(<span class="st">"normal(1.3, 2.7)"</span>, <span class="at">nlpar =</span> <span class="st">"nec"</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">prior_string</span>(<span class="st">"gamma(0.5, 2)"</span>, <span class="at">nlpar =</span> <span class="st">"beta"</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>exmp_b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>), <span class="at">prior =</span> my_prior,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">iter =</span> <span class="fl">1e4</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.
+If this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_beta ~ gamma(0.5, 2)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.
+If this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p>Two things follow from that. Priors must be given for <strong>every</strong> parameter of the model, not only the ones being changed. And <code>pull_prior()</code> reports the priors of a model that has already been fitted, so to find the parameters beforehand use <code>show_params()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">show_params</span>(<span class="at">model =</span> <span class="st">"nec3param"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec)) 
+top ~ 1
+beta ~ 1
+nec ~ 1</code></pre>
+</div>
+</div>
+<section id="comparing-the-two-fits" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-the-two-fits">Comparing the two fits</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(exmp_a<span class="sc">$</span>ne_posterior, <span class="at">main =</span> <span class="st">"Default priors"</span>, <span class="at">xlab =</span> <span class="st">"NEC"</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(exmp_b<span class="sc">$</span>ne_posterior, <span class="at">main =</span> <span class="st">"User priors"</span>, <span class="at">xlab =</span> <span class="st">"NEC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-compare-priors" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-compare-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="6Priors_and_Bayesian_inference_files/figure-html/fig-compare-priors-1.png" id="fig-compare-priors" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-compare-priors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The posteriors are similar, which is what should happen when the data are informative enough that the priors are not driving the result. A large difference would be the signal to look harder.</p>
+</section>
+</section>
+<section id="priors-for-a-model-set" class="level2">
+<h2 class="anchored" data-anchor-id="priors-for-a-model-set">Priors for a model set</h2>
+<p>A named list supplies priors per model when several are fitted together.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>my_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">nec3param =</span> <span class="fu">c</span>(<span class="fu">prior_string</span>(<span class="st">"beta(5, 1)"</span>, <span class="at">nlpar =</span> <span class="st">"top"</span>),</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">prior_string</span>(<span class="st">"normal(1.3, 2.7)"</span>, <span class="at">nlpar =</span> <span class="st">"nec"</span>),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                <span class="fu">prior_string</span>(<span class="st">"gamma(0.5, 2)"</span>, <span class="at">nlpar =</span> <span class="st">"beta"</span>)),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">nec4param =</span> <span class="fu">c</span>(<span class="fu">prior_string</span>(<span class="st">"beta(5, 1)"</span>, <span class="at">nlpar =</span> <span class="st">"top"</span>),</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">prior_string</span>(<span class="st">"normal(1.3, 2.7)"</span>, <span class="at">nlpar =</span> <span class="st">"nec"</span>),</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">prior_string</span>(<span class="st">"gamma(0.5, 2)"</span>, <span class="at">nlpar =</span> <span class="st">"beta"</span>),</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">prior_string</span>(<span class="st">"beta(1, 5)"</span>, <span class="at">nlpar =</span> <span class="st">"bot"</span>)))</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>exmp_c <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"nec3param"</span>, <span class="st">"nec4param"</span>)), <span class="at">data =</span> nec_data,</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>), <span class="at">prior =</span> my_priors,</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">iter =</span> <span class="fl">1e4</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.
+If this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_beta ~ gamma(0.5, 2)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.
+If this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec4param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.
+If this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_beta ~ gamma(0.5, 2)
+b_bot ~ beta(1, 5)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.
+If this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_bot ~ beta(1, 5)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 4979 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 1988 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The largest R-hat is 1.05, indicating chains have not mixed.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#r-hat</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec4param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: nec3param nec4param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>pull_prior()</code> works on a <code>bayesmanecfit</code>, and so does <code>check_priors()</code>, which takes a <code>filename</code> to write the prior and posterior plots to a PDF rather than the screen.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pull_prior</span>(exmp_c)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$nec3param
+             prior class      coef group resp dpar nlpar lb ub tag       source
+     gamma(0.5, 2)     b                            beta                   user
+     gamma(0.5, 2)     b Intercept                  beta           (vectorized)
+  normal(1.3, 2.7)     b                             nec                   user
+  normal(1.3, 2.7)     b Intercept                   nec           (vectorized)
+        beta(5, 1)     b                             top                   user
+        beta(5, 1)     b Intercept                   top           (vectorized)
+ gamma(0.01, 0.01)   phi                                  0             default
+
+$nec4param
+             prior class      coef group resp dpar nlpar lb ub tag       source
+     gamma(0.5, 2)     b                            beta                   user
+     gamma(0.5, 2)     b Intercept                  beta           (vectorized)
+        beta(1, 5)     b                             bot                   user
+        beta(1, 5)     b Intercept                   bot           (vectorized)
+  normal(1.3, 2.7)     b                             nec                   user
+  normal(1.3, 2.7)     b Intercept                   nec           (vectorized)
+        beta(5, 1)     b                             top                   user
+        beta(5, 1)     b Intercept                   top           (vectorized)
+ gamma(0.01, 0.01)   phi                                  0             default</code></pre>
+</div>
+</div>
+<section id="priors-for-part-of-a-set" class="level3">
+<h3 class="anchored" data-anchor-id="priors-for-part-of-a-set">Priors for part of a set</h3>
+<p>Priors can be given for some models and left to <code>bayesnec</code> for the rest. Where they are missing, or ill-formed, it reports that it is finding its own.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>exmp_d <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"nec3param"</span>, <span class="st">"nec4param"</span>)), <span class="at">data =</span> nec_data,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>), <span class="at">prior =</span> my_priors[<span class="dv">1</span>],</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">iter =</span> <span class="fl">1e4</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.
+If this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_beta ~ gamma(0.5, 2)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.
+If this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Named prior list does not contain priors for model nec4param.
+Using bayesnec default priors.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec4param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec4param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: nec3param nec4param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>my_priors[[1]]</code> would also work: the <code>prior</code> argument takes either a <code>brmsprior</code> object directly or a named list of them.</p>
+</section>
+<section id="priors-when-extending-a-set" class="level3">
+<h3 class="anchored" data-anchor-id="priors-when-extending-a-set">Priors when extending a set</h3>
+<p><code>amend()</code> adds a model to an existing <code>bayesmanecfit</code>, with priors supplied for the model being added.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>necsigm_priors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">prior_string</span>(<span class="st">"beta(5, 1)"</span>, <span class="at">nlpar =</span> <span class="st">"top"</span>),</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">prior_string</span>(<span class="st">"gamma(2, 6.5)"</span>, <span class="at">nlpar =</span> <span class="st">"beta"</span>),</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">prior_string</span>(<span class="st">"normal(1.3, 2.7)"</span>, <span class="at">nlpar =</span> <span class="st">"nec"</span>),</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">prior_string</span>(<span class="st">"normal(0, 2)"</span>, <span class="at">nlpar =</span> <span class="st">"d"</span>))</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>exmp_e <span class="ot">&lt;-</span> <span class="fu">amend</span>(exmp_d, <span class="at">add =</span> <span class="st">"necsigm"</span>, <span class="at">priors =</span> necsigm_priors)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a necsigm model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified a lower bounded prior on a parameter that has no natural lower bound.
+If this is really what you want, please specify argument 'lb' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)
+b_beta ~ gamma(2, 6.5)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: It appears as if you have specified an upper bounded prior on a parameter that has no natural upper bound.
+If this is really what you want, please specify argument 'ub' of 'set_prior' appropriately.
+Warning occurred for prior 
+b_top ~ beta(5, 1)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 3 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a necsigm model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: nec3param nec4param necsigm</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec4param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'necsigm'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>necsigm</code> is used here to demonstrate the mechanism. As module 4 notes, it is not recommended for inference and should be dropped from the <code>all</code> set.</p>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Banner2020" class="csl-entry" role="listitem">
+Banner, Katharine M., Kathryn M. Irvine, and Thomas J. Rodhouse. 2020. <span>“The Use of <span>Bayesian</span> Priors in <span>Ecology</span>: <span>The</span> Good, the Bad and the Not Great.”</span> <em>Methods in Ecology and Evolution</em> 11: 882–89. <a href="https://doi.org/10.1111/2041-210X.13407">https://doi.org/10.1111/2041-210X.13407</a>.
+</div>
+<div id="ref-Becker1988" class="csl-entry" role="listitem">
+Becker, R. A, J. M Chambers, and A. R Wilks. 1988. <em>The New Language.</em> Wadsworth; Brooks/Cole.
+</div>
+<div id="ref-Burkner2017" class="csl-entry" role="listitem">
+Bürkner, Paul Christian. 2017. <span>“<span class="nocase">brms: An R package for Bayesian multilevel models using Stan</span>.”</span> <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01">https://doi.org/10.18637/jss.v080.i01</a>.
+</div>
+<div id="ref-Carpenter2017" class="csl-entry" role="listitem">
+Carpenter, Bob, Andrew Gelman, Matthew D. Hoffman, et al. 2017. <span>“: A Probabilistic Programming Language.”</span> <em>Journal of Statistical Software, Articles</em> 76 (1): 1–32. <a href="https://doi.org/10.18637/jss.v076.i01">https://doi.org/10.18637/jss.v076.i01</a>.
+</div>
+<div id="ref-depaoli2020importance" class="csl-entry" role="listitem">
+Depaoli, Sarah, Sonja D Winter, and Marieke Visser. 2020. <span>“The Importance of Prior Sensitivity Analysis in Bayesian Statistics: Demonstrations Using an Interactive Shiny App.”</span> <em>Frontiers in Psychology</em> 11: 608045.
+</div>
+<div id="ref-Ellison1996" class="csl-entry" role="listitem">
+Ellison, Aaron M. 1996. <span>“An Introduction to <span>Bayesian</span> Inference for Ecological Research and Environmental Decision-Making.”</span> <em>Ecological Applications</em> 6 (4): 1036–46. <a href="https://doi.org/10.2307/2269588">https://doi.org/10.2307/2269588</a>.
+</div>
+<div id="ref-Fisher2019" class="csl-entry" role="listitem">
+Fisher, R, R. A van Dam, G. E Batley, et al. 2019. <em>Key Issues in the Derivation of Water Quality Guideline Values: A Workshop Report.</em> Australian Institute of Marine Science Report, Crawley, WA, Australia. 57 pp. <a href="https://doi.org/10.13140/RG.2.2.29774.82241">https://doi.org/10.13140/RG.2.2.29774.82241</a>.
+</div>
+<div id="ref-fisher2018c" class="csl-entry" role="listitem">
+Fisher, Rebecca, Terry Walshe, Pia Bessell-Browne, and Ross Jones. 2018. <span>“Accounting for Environmental Uncertainty in the Management of Dredging Impacts Using Probabilistic Dose–Response Relationships and Thresholds.”</span> <em>Journal of Applied Ecology</em> 55 (1): 415–25. <a href="https://doi.org/10.1111/1365-2664.12936">https://doi.org/10.1111/1365-2664.12936</a>.
+</div>
+<div id="ref-cmdstanr2022" class="csl-entry" role="listitem">
+Gabry, Jonah, and Rok Češnovar. 2022. <em>: Interface to </em>.
+</div>
+<div id="ref-gelman2017entropy" class="csl-entry" role="listitem">
+Gelman, Andrew, Daniel Simpson, and Michael Betancourt. 2017. <span>“The Prior Can Often Only Be Understood in the Context of the Likelihood.”</span> <em>Entropy</em> 19 (10). <a href="https://doi.org/10.3390/e19100555">https://doi.org/10.3390/e19100555</a>.
+</div>
+<div id="ref-hoffman2014" class="csl-entry" role="listitem">
+Hoffman, Matthew D., and Andrew Gelman. 2014. <span>“The No-u-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo.”</span> <em>Journal of Machine Learning Research</em> 15 (47): 1593–623. <a href="http://jmlr.org/papers/v15/hoffman14a.html">http://jmlr.org/papers/v15/hoffman14a.html</a>.
+</div>
+<div id="ref-Lunn2000" class="csl-entry" role="listitem">
+Lunn, David J., Andrew Thomas, Nicky Best, and David Spiegelhalter. 2000.<span>“ - a Bayesian Modelling Framework: Concepts, Structure, and Extensibility.”</span> <em>Statistics and Computing</em> 10 (4): 325–37. <a href="https://doi.org/10.1023/A:1008929526011">https://doi.org/10.1023/A:1008929526011</a>.
+</div>
+<div id="ref-Plummer2003" class="csl-entry" role="listitem">
+Plummer, Martyn. 2003. <span>“<span class="nocase">JAGS: A program for analysis of Bayesian graphical models using Gibbs sampling</span>.”</span> <em><span class="nocase">Proceedings of the 3rd International Workshop on Distributed Statistical Computing (DSC 2003)</span></em> (Technische Universität Wien, Vienna, Austria), 1–10.
+</div>
+<div id="ref-rstan2021" class="csl-entry" role="listitem">
+Stan Development Team. 2021. <em>: The Interface to </em>. <a href="http://mc-stan.org/">http://mc-stan.org/</a>.
+</div>
+<div id="ref-Su2015" class="csl-entry" role="listitem">
+Su, Yu-Sung, and Masanao Yajima. 2015. <em><span class="nocase">R2jags: Using R to Run ’JAGS’</span></em>. <a href="https://CRAN.R-project.org/package=R2jags">https://CRAN.R-project.org/package=R2jags</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/open-aims\.github\.io\/cr_modelling_training\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="pagination-link" aria-label="5. Response data and distributions">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">5. Response data and distributions</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Australian Institute of Marine Science</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

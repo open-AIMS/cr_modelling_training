@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Model averaging and multi-model inference – Concentration-response modelling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/5Response_data_and_statistical_distributions.html" rel="next">
+<link href="../vignettes/3Toxicity_estimation_and_available_models.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Concentration-response modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/4Model_averaging_and_multimodel_inference.html">4. Model averaging</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Before you start</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/4Model_averaging_and_multimodel_inference.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">4. Model averaging</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#choosing-among-the-equations" id="toc-choosing-among-the-equations" class="nav-link" data-scroll-target="#choosing-among-the-equations">Choosing among the equations</a></li>
+  <li><a href="#multi-model-inference" id="toc-multi-model-inference" class="nav-link" data-scroll-target="#multi-model-inference">Multi-model inference</a></li>
+  <li><a href="#model-averaging" id="toc-model-averaging" class="nav-link" data-scroll-target="#model-averaging">Model averaging</a></li>
+  <li><a href="#model-averaging-in-bayesnec" id="toc-model-averaging-in-bayesnec" class="nav-link" data-scroll-target="#model-averaging-in-bayesnec">Model averaging in <code>bayesnec</code></a></li>
+  <li><a href="#combining-single-fits" id="toc-combining-single-fits" class="nav-link" data-scroll-target="#combining-single-fits">Combining single fits</a></li>
+  <li><a href="#plotting-an-averaged-fit" id="toc-plotting-an-averaged-fit" class="nav-link" data-scroll-target="#plotting-an-averaged-fit">Plotting an averaged fit</a></li>
+  <li><a href="#the-summary" id="toc-the-summary" class="nav-link" data-scroll-target="#the-summary">The summary</a></li>
+  <li><a href="#elements-of-the-fitted-object" id="toc-elements-of-the-fitted-object" class="nav-link" data-scroll-target="#elements-of-the-fitted-object">Elements of the fitted object</a></li>
+  <li><a href="#every-model-in-the-set" id="toc-every-model-in-the-set" class="nav-link" data-scroll-target="#every-model-in-the-set">Every model in the set</a></li>
+  <li><a href="#diagnostics-across-a-set" id="toc-diagnostics-across-a-set" class="nav-link" data-scroll-target="#diagnostics-across-a-set">Diagnostics across a set</a></li>
+  <li><a href="#weighting-methods" id="toc-weighting-methods" class="nav-link" data-scroll-target="#weighting-methods">Weighting methods</a></li>
+  <li><a href="#weights-in-bayesnec" id="toc-weights-in-bayesnec" class="nav-link" data-scroll-target="#weights-in-bayesnec">Weights in <code>bayesnec</code></a></li>
+  <li><a href="#model-sets" id="toc-model-sets" class="nav-link" data-scroll-target="#model-sets">Model sets</a></li>
+  <li><a href="#open-questions" id="toc-open-questions" class="nav-link" data-scroll-target="#open-questions">Open questions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/4Model_averaging_and_multimodel_inference.html">4. Model averaging</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Model averaging and multi-model inference</h1>
+<p class="subtitle lead">Using the whole candidate set rather than choosing one equation</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Modules 2 and 3 fitted single models and set out the equations available. Both <code>bayesnec</code> and <code>drc</code> <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span> offer more than twenty non-linear functions for concentration-response data, in two broad shapes.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-necmods" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/vignette-fig-exmp2b-theoretical_nec_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Threshold equations, which estimate an <em>NEC</em> directly.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ecxmods" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Smooth equations, from which an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> is derived.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="choosing-among-the-equations" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-among-the-equations">Choosing among the equations</h2>
+<p>Sometimes physiological or toxicological mechanism argues for a threshold (Chapman and Wang 2000). That is not always known, a threshold is not always visible in the data, and even where a threshold is appropriate the functional form of the decline after it may not be.</p>
+<p>Without a mechanistic argument, the choice has to be made from the data. Metrics exist for this — AICc in the frequentist setting, and WAIC, DIC, model probabilities and others in the Bayesian setting. The difficulty is that many of these curves are similar in shape, so several will often fit a dataset about equally well. Model uncertainty is then high and the selection is close to arbitrary, while the estimate reported depends on which equation was picked.</p>
+</section>
+<section id="multi-model-inference" class="level2">
+<h2 class="anchored" data-anchor-id="multi-model-inference">Multi-model inference</h2>
+<p>The alternative is not to choose. All the plausible models are fitted and used together, which is multi-model inference, and it is useful in exactly the case above: several plausible models and no basis for preferring one.</p>
+<p>This is the basis of model averaging <span class="citation" data-cites="Burnham2002">(<a href="#ref-Burnham2002" role="doc-biblioref">Burnham and Anderson 2002</a>)</span>, which is long established in ecology <span class="citation" data-cites="Dormann2018">(see <a href="#ref-Dormann2018" role="doc-biblioref">Dormann et al. 2018</a> for a review)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-modav" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-modav-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/modelave_ecol.jpg" id="fig-modav" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-modav-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-averaging" class="level2">
+<h2 class="anchored" data-anchor-id="model-averaging">Model averaging</h2>
+<p>Model averaging fits a candidate set and combines the estimates of interest, weighted by how well each model fits the data <span class="citation" data-cites="Burnham2002">(<a href="#ref-Burnham2002" role="doc-biblioref">Burnham and Anderson 2002</a>)</span>. In the frequentist case the weights are usually AICc weights.</p>
+<p>A well-fitting model takes a high weight and dominates the result. A poorly fitting one takes a weight near zero and has little influence. Where several models fit equally well they contribute comparably, and the resulting posterior carries the uncertainty in model shape as well as in the parameters. That is the substantive gain: an interval from a single chosen equation is conditional on that equation being right, and does not reflect the fact that it was chosen.</p>
+<p>AICc-based averaging has been adopted in ecotoxicology for species sensitivity distributions <span class="citation" data-cites="Thorley2018 fox2020 Dalgarno">(<a href="#ref-Thorley2018" role="doc-biblioref">Thorley and Schwarz 2018</a>; <a href="#ref-fox2020" role="doc-biblioref">Fox et al. 2021</a>; <a href="#ref-Dalgarno" role="doc-biblioref">Dalgarno 2021</a>)</span>. David Fox’s course on <a href="https://training.ecotox.science/courses/an-introduction-to-model-averaging-using-ssdtools-in-r/">SSD model averaging in R</a> covers that application.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ssd" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ssd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ssd.jpg" id="fig-ssd" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ssd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-averaging-in-bayesnec" class="level2">
+<h2 class="anchored" data-anchor-id="model-averaging-in-bayesnec">Model averaging in <code>bayesnec</code></h2>
+<p>What <code>bnec</code> returns depends on how many equations it is given.</p>
+<p>A single recognised model name fits one model and returns a <code>bayesnecfit</code>, which is what modules 2 and 3 used. Two or more names, or the name of a model set, fits each in turn and returns a <code>bayesmanecfit</code> holding the Bayesian model-averaged predictions over those that fitted successfully.</p>
+<p>Both compute time and object size scale with the size of the set. Every model is sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is large. Module 2 measured a single <code>nec3param</code> fit of these data at a little over two minutes; a set of twenty-three is not twenty-three times more convenient.</p>
+</section>
+<section id="combining-single-fits" class="level2">
+<h2 class="anchored" data-anchor-id="combining-single-fits">Combining single fits</h2>
+<p>Any model fitted by <code>bnec</code> inherits class <code>bnecfit</code>, which carries two methods of its own, <code>+</code> and <code>c</code>. Either will append fits to one another, so two or more <code>bayesnecfit</code> objects can be combined into a model-averaged <code>bayesmanecfit</code>.</p>
+<p>Starting from the <code>nec3param</code> fit of module 2:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p>and adding a second equation of a different shape — <code>ecxll3</code>, a three-parameter log-logistic curve with no threshold:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>bnec_fit_new <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecxll3"</span>), <span class="at">data =</span> nec_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxll3 model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bnec_fit_new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-ecxll3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-ecxll3-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The <code>ecxll3</code> fit. The annotated no-effect estimate is an <em>NSEC</em>, because this equation has no threshold parameter.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The two are combined with <code>c()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>bmanecfit <span class="ot">&lt;-</span> <span class="fu">c</span>(bnec_fit_new, bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit_new)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bmanecfit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "bayesnecfit" "bnecfit"    
+[1] "bayesnecfit" "bnecfit"    
+[1] "bayesmanecfit" "bnecfit"      </code></pre>
+</div>
+</div>
+<p><code>amend()</code> adds or drops models from an existing set, or changes the weighting method, and <code>pull_out()</code> extracts one or more models back out of it. Adding a third equation:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>bmanecfit_more <span class="ot">&lt;-</span> <span class="fu">amend</span>(bmanecfit, <span class="at">add =</span> <span class="st">"ecxexp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Finding initial values which allow the response to be fitted using a ecxexp model and a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling Stan program...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Start sampling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Response variable modelled as a ecxexp model using a beta distribution.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param ecxexp</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxexp'. We
+recommend to set 'moment_match = TRUE' in order to perform moment matching for
+problematic observations.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The fitted ecxexp curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
+</div>
+</div>
+</section>
+<section id="plotting-an-averaged-fit" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-an-averaged-fit">Plotting an averaged fit</h2>
+<p><code>autoplot()</code> works on a <code>bayesmanecfit</code> as it does on a single fit.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-manec" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-manec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-manec-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-manec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: The model-averaged fit over three equations.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot looks like the single-model plot, but the curve and its interval are a weighted average over the set. The intervals often look less smooth than those from a single fit, because they now include uncertainty in the shape of the curve and not only in its parameters.</p>
+<p>The no-effect estimate annotated here, and reported in the summary below, mixes two quantities: <em>NEC</em> values from the threshold equations in the set, and <em>NSEC</em> values <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span> standing in for them in the smooth equations. Module 3 covers why those are different.</p>
+</section>
+<section id="the-summary" class="level2">
+<h2 class="anchored" data-anchor-id="the-summary">The summary</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Object of class bayesmanecfit
+
+ Family: beta  
+  Links: mu = identity  
+
+Number of posterior draws per model:  8000
+
+Model weights (Method: pseudobma_bb_weights):
+             waic   wi
+ecxll3    -314.17 0.20
+nec3param -332.36 0.80
+ecxexp    -119.80 0.00
+
+
+Summary of weighted N(S)EC posterior estimates:
+NB: Model set contains a combination of ECx and NEC
+    models, and is therefore a model averaged
+    combination of NEC and NSEC estimates.
+       Estimate Q2.5 Q97.5
+N(S)EC     1.53 0.91  1.57
+
+
+Bayesian R2 estimates:
+          Estimate Est.Error Q2.5 Q97.5
+ecxll3        0.94      0.01 0.93  0.95
+nec3param     0.96      0.00 0.96  0.97
+ecxexp        0.38      0.06 0.24  0.49</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in print.manecsummary(x): control observed/simulated ratio beyond 1.15 (see ?check_fit):
+  -  ecxexp
+This is a modelling result rather than a fault; inspect with check_fit().</code></pre>
+</div>
+</div>
+<p>The fitted models are listed with their weights. The summary warns that the averaged no-effect estimate contains <em>NSEC</em> values, and would warn again if any fit had divergent transitions.</p>
+<p><code>nec3param</code> takes most of the weight here, which is what should happen: these data were simulated from that equation. The Bayesian R² values show how little of the variation the smooth exponential decline accounts for.</p>
+</section>
+<section id="elements-of-the-fitted-object" class="level2">
+<h2 class="anchored" data-anchor-id="elements-of-the-fitted-object">Elements of the fitted object</h2>
+<p><code>mod_stats</code> holds the fit statistics for every model in the set: the model name, the WAIC as returned by <code>brms</code>, the weight <code>wi</code>, and dispersion estimates where the response is modelled with a Poisson or binomial distribution.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>bmanecfit_more<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              model      waic           wi dispersion_Estimate dispersion_Q2.5
+ecxll3       ecxll3 -314.1675 1.981754e-01                  NA              NA
+nec3param nec3param -332.3612 8.018246e-01                  NA              NA
+ecxexp       ecxexp -119.7985 8.427134e-39                  NA              NA
+          dispersion_Q97.5 dispersion_P_over_1
+ecxll3                  NA                  NA
+nec3param               NA                  NA
+ecxexp                  NA                  NA</code></pre>
+</div>
+</div>
+<p>The individual fits are retained and can be extracted with <code>pull_out()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>bmanec_ecxexp <span class="ot">&lt;-</span> <span class="fu">pull_out</span>(bmanecfit_more, <span class="at">model =</span> <span class="st">"ecxexp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Pulling out model(s): ecxexp</code></pre>
+</div>
+</div>
+</section>
+<section id="every-model-in-the-set" class="level2">
+<h2 class="anchored" data-anchor-id="every-model-in-the-set">Every model in the set</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bmanecfit_more, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"
+Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-allmodels" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-allmodels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-allmodels-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-allmodels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Each equation in the set plotted separately.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>ecxexp</code> fits these data badly, which is why its weight is near zero. A poor model with a negligible weight does no harm, because it cannot influence the averaged prediction.</p>
+<p>The check that matters is whether a poor fit is a poor <em>shape</em> or a failed sampler. A model that has not converged should be removed; a converged model whose shape simply does not suit the data can be left in.</p>
+</section>
+<section id="diagnostics-across-a-set" class="level2">
+<h2 class="anchored" data-anchor-id="diagnostics-across-a-set">Diagnostics across a set</h2>
+<p><code>pull_out()</code> gives back a single fit, so any of the <code>brms</code> diagnostics apply. Taking the worst model in the set:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">pull_brmsfit</span>(bmanecfit_more, <span class="st">"ecxexp"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-worstchains" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-worstchains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-worstchains-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-worstchains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Chains for <code>ecxexp</code>, the worst-fitting equation in the set.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The chains are well mixed. The model is a bad description of these data and a perfectly converged fit, which are different things.</p>
+<p>Checking every model this way does not scale. <code>check_chains()</code> handles a whole set, and given a <code>filename</code> it writes the plots to a PDF in the working directory rather than to the screen:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_chains</span>(bmanecfit_more, <span class="at">filename =</span> <span class="st">"bmanecfit_more_all_chains"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_chains</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-checkchains-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkchains-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-1.png" id="fig-checkchains-1" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-checkchains-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkchains-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-2.png" id="fig-checkchains-2" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-checkchains-3" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkchains-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-3.png" id="fig-checkchains-3" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="weighting-methods" class="level2">
+<h2 class="anchored" data-anchor-id="weighting-methods">Weighting methods</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-dumbbell" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="20%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dumbbell-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/dumbbell.jpg" id="fig-dumbbell" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:20.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-dumbbell-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In the frequentist setting AICc weights are standard and relate to the likelihood of the data given each model. The SSD course linked above treats them in detail.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-weights" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="25%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/weights.jpg" id="fig-weights" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:25.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Bayesian weighting is less settled and there are many candidate methods. A full treatment is outside the scope of this course; what follows is what <code>bayesnec</code> does and why.</p>
+</section>
+<section id="weights-in-bayesnec" class="level2">
+<h2 class="anchored" data-anchor-id="weights-in-bayesnec">Weights in <code>bayesnec</code></h2>
+<p><code>bayesnec</code> uses the weighting implemented in <code>loo</code> <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, which performs approximate leave-one-out cross-validation for models fitted by MCMC <span class="citation" data-cites="vehtari2017">(<a href="#ref-vehtari2017" role="doc-biblioref">Vehtari et al. 2017</a>)</span>, using Pareto-smoothed importance sampling to regularise the importance weights <span class="citation" data-cites="Vehtari2019">(<a href="#ref-Vehtari2019" role="doc-biblioref">Vehtari et al. 2019</a>)</span>.</p>
+<p><code>loo</code> offers two methods.</p>
+<p><strong>Stacking</strong> minimises prediction error by maximising the leave-one-out predictive density of the combined distribution <span class="citation" data-cites="Yao2018 vehtari2020">(<a href="#ref-Yao2018" role="doc-biblioref">Yao et al. 2018</a>; <a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>. It prioritises the accuracy of the joint prediction.</p>
+<p><strong>Pseudo-BMA</strong> takes weights proportional to the expected log pointwise predictive density of each model <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, estimating relative predictive accuracy. It can be combined with a Bayesian bootstrap, which accounts for the uncertainty of a finite sample and pulls the weights away from 0 and 1.</p>
+<p>Stacking is the default. <code>bayesnec</code> passes no method of its own, so <code>loo</code>’s own default applies, and the summary above names it: <code>Method: stacking_weights</code>. Earlier versions of <code>bayesnec</code> documented pseudo-BMA with the Bayesian bootstrap as the default, on the grounds that it behaved much as AICc weights do. Weights from an older analysis are therefore not comparable with weights computed now, which is one more reason to record the version alongside the models fitted.</p>
+<p>The method is changed through the <code>loo_controls</code> argument of <code>bnec()</code> or <code>amend()</code>, which takes a named list with elements <code>fitting</code> and <code>weights</code>.</p>
+</section>
+<section id="model-sets" class="level2">
+<h2 class="anchored" data-anchor-id="model-sets">Model sets</h2>
+<p>Rather than naming equations individually, a named set can be passed to <code>bnec()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">models</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$nec
+ [1] "nec3param"     "nec4param"     "nechorme"      "nechorme4"    
+ [5] "necsigm"       "neclin"        "neclinhorme"   "nechormepwr"  
+ [9] "nechorme4pwr"  "nechormepwr01"
+
+$ecx
+ [1] "ecx4param"   "ecxlin"      "ecxexp"      "ecxsigm"     "ecxwb1"     
+ [6] "ecxwb2"      "ecxwb1p3"    "ecxwb2p3"    "ecxll5"      "ecxll4"     
+[11] "ecxll3"      "ecxhormebc4" "ecxhormebc5"
+
+$all
+ [1] "nec3param"     "nec4param"     "nechorme"      "nechorme4"    
+ [5] "necsigm"       "neclin"        "neclinhorme"   "nechormepwr"  
+ [9] "nechorme4pwr"  "nechormepwr01" "ecxlin"        "ecxexp"       
+[13] "ecxsigm"       "ecx4param"     "ecxwb1"        "ecxwb2"       
+[17] "ecxwb1p3"      "ecxwb2p3"      "ecxll5"        "ecxll4"       
+[21] "ecxll3"        "ecxhormebc4"   "ecxhormebc5"  
+
+$bot_free
+ [1] "nec3param"     "nechorme"      "necsigm"       "neclin"       
+ [5] "neclinhorme"   "nechormepwr"   "ecxlin"        "ecxexp"       
+ [9] "ecxsigm"       "ecxwb1p3"      "ecxwb2p3"      "ecxll3"       
+[13] "ecxhormebc4"   "nechormepwr01"
+
+$zero_bounded
+ [1] "nec3param"     "nechorme"      "necsigm"       "nechormepwr"  
+ [5] "nechormepwr01" "ecxexp"        "ecxsigm"       "ecxwb1p3"     
+ [9] "ecxwb2p3"      "ecxll3"        "ecxhormebc4"  
+
+$decline
+ [1] "nec3param" "nec4param" "neclin"    "ecxlin"    "ecxexp"    "ecxsigm"  
+ [7] "ecx4param" "ecxwb1"    "ecxwb2"    "ecxwb1p3"  "ecxwb2p3"  "ecxll5"   
+[13] "ecxll4"    "ecxll3"   
+
+$hormesis
+[1] "nechorme"      "nechorme4"     "neclinhorme"   "nechormepwr"  
+[5] "nechorme4pwr"  "nechormepwr01" "ecxhormebc4"   "ecxhormebc5"  </code></pre>
+</div>
+</div>
+<p>The sets are not mutually exclusive, and <code>bayesnec</code> discards any model in the set that is unsuitable for the statistical distribution of the response, which module 5 covers.</p>
+<p><code>nec</code> and <code>ecx</code> are the threshold and smooth equations respectively.</p>
+<p><code>all</code> is every available equation. It currently includes <code>necsigm</code>, which should not be used; remove it with <code>amend()</code> if fitting the whole set.</p>
+<p><code>bot_free</code> are the equations with no lower asymptote, which are useful when the response curve is incomplete and estimates are needed beyond the observed range.</p>
+<p><code>zero_bounded</code> are those for which negative response values are invalid.</p>
+<p><code>decline</code> excludes the hormesis equations and is the most generally useful set where there is no evidence of hormesis.</p>
+<p><code>hormesis</code> are the equations allowing an initial increase.</p>
+</section>
+<section id="open-questions" class="level2">
+<h2 class="anchored" data-anchor-id="open-questions">Open questions</h2>
+<p>Model averaging is well established in ecology <span class="citation" data-cites="Dormann2018">(<a href="#ref-Dormann2018" role="doc-biblioref">Dormann et al. 2018</a>)</span> but relatively new to ecotoxicology <span class="citation" data-cites="Thorley2018 fox2020 Wheeler2009">(see <a href="#ref-Thorley2018" role="doc-biblioref">Thorley and Schwarz 2018</a>; <a href="#ref-fox2020" role="doc-biblioref">Fox et al. 2021</a>; <a href="#ref-Wheeler2009" role="doc-biblioref">Wheeler and Bailer 2009</a>)</span>.</p>
+<p>How the composition of the candidate set affects inference is not settled. Some work suggests a broad set is preferable <span class="citation" data-cites="Wheeler2009">(<a href="#ref-Wheeler2009" role="doc-biblioref">Wheeler and Bailer 2009</a>)</span>; other work indicates that including several equations of similar shape over-represents that shape in the averaged prediction <span class="citation" data-cites="fox2020">(<a href="#ref-fox2020" role="doc-biblioref">Fox et al. 2021</a>)</span>. Adding or removing models can change the averaged estimates substantially, ECx values included.</p>
+<p>The set available in <code>bayesnec</code> changes between versions. Record which equations were actually fitted in an analysis, not merely which set was requested, or the result cannot be reproduced later.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Burnham2002" class="csl-entry" role="listitem">
+Burnham, K P, and D R Anderson. 2002. <em><span class="nocase">Model Selection and Multimodel Inference; A Practical Information-Theoretic Approach</span></em>. 2nd ed. Springer.
+</div>
+<div id="ref-Dalgarno" class="csl-entry" role="listitem">
+Dalgarno, Seb. 2021. <span>“: A Web Application for Fitting Species Sensitivity Distributions (SSDs).”</span> <em>Journal of Open Source Software</em> 6 (57): 2848. <a href="https://doi.org/10.21105/joss.02848">https://doi.org/10.21105/joss.02848</a>.
+</div>
+<div id="ref-Dormann2018" class="csl-entry" role="listitem">
+Dormann, Carsten F., Justin M. Calabrese, Gurutzeta Guillera-Arroita, et al. 2018. <span>“Model Averaging in Ecology: A Review of Bayesian, Information-Theoretic, and Tactical Approaches for Predictive Inference.”</span> <em>Ecological Monographs</em> 88 (4): 485–504. <a href="https://doi.org/10.1002/ecm.1309">https://doi.org/10.1002/ecm.1309</a>.
+</div>
+<div id="ref-fisherfox2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant-Effect Concentration.”</span> <em>Environmental Toxicology and Chemistry</em> n/a (n/a). https://doi.org/<a href="https://doi.org/10.1002/etc.5610">https://doi.org/10.1002/etc.5610</a>.
+</div>
+<div id="ref-fox2020" class="csl-entry" role="listitem">
+Fox, D R, R A van Dam, R Fisher, et al. 2021. <span>“<span class="nocase">Recent developments in Species Sensitivity Distribution Modeling</span>.”</span> <em>Environmental Toxicology and Chemistry</em> 40 (2): 293–308. https://doi.org/<a href="https://doi.org/10.1002/etc.4925">https://doi.org/10.1002/etc.4925</a>.
+</div>
+<div id="ref-Ritz2015" class="csl-entry" role="listitem">
+Ritz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. <span>“<span>Dose-Response Analysis Using R</span>.”</span> <em>PLoS ONE</em> 10 (12): e0146021. <a href="https://doi.org/10.1371/journal.pone.0146021">https://doi.org/10.1371/journal.pone.0146021</a>.
+</div>
+<div id="ref-Thorley2018" class="csl-entry" role="listitem">
+Thorley, Joe, and Carl Schwarz. 2018. <em><span class="nocase">ssdtools: Species Sensitivity Distributions</span></em>. <a href="https://CRAN.R-project.org/package=ssdtools">https://CRAN.R-project.org/package=ssdtools</a>.
+</div>
+<div id="ref-vehtari2020" class="csl-entry" role="listitem">
+Vehtari, Aki, Jonah Gabry, Mans Magnusson, et al. 2020. <em>Loo: Efficient Leave-One-Out Cross-Validation and WAIC for Bayesian Models</em>. <a href="https://mc-stan.org/loo/">https://mc-stan.org/loo/</a>.
+</div>
+<div id="ref-vehtari2017" class="csl-entry" role="listitem">
+Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”</span> <em>Statistics and Computing</em> 27: 1413–32. <a href="https://doi.org/10.1007/s11222-016-9696-4">https://doi.org/10.1007/s11222-016-9696-4</a>.
+</div>
+<div id="ref-Vehtari2019" class="csl-entry" role="listitem">
+Vehtari, Aki, Daniel Simpson, Andrew Gelman, Yuling Yao, and Jonah Gabry. 2019. <em>Pareto Smoothed Importance Sampling</em>. arXiv. <a href="https://doi.org/10.48550/ARXIV.1507.02646">https://doi.org/10.48550/ARXIV.1507.02646</a>.
+</div>
+<div id="ref-Wheeler2009" class="csl-entry" role="listitem">
+Wheeler, Matthew W., and A. John Bailer. 2009. <span>“Comparing Model Averaging with Other Model Selection Strategies for Benchmark Dose Estimation.”</span> <em>Environmental and Ecological Statistics</em> 16: 37–51. <a href="https://doi.org/10.1007/s10651-007-0071-7">https://doi.org/10.1007/s10651-007-0071-7</a>.
+</div>
+<div id="ref-Yao2018" class="csl-entry" role="listitem">
+Yao, Yuling, Aki Vehtari, Daniel Simpson, and Andrew Gelman. 2018. <span>“<span class="nocase">Using Stacking to Average Bayesian Predictive Distributions (with Discussion)</span>.”</span> <em>Bayesian Analysis</em> 13: 917–1007.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/open-aims\.github\.io\/cr_modelling_training\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="pagination-link" aria-label="3. Toxicity estimation and the model set">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">3. Toxicity estimation and the model set</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="pagination-link" aria-label="5. Response data and distributions">
+        <span class="nav-page-text">5. Response data and distributions</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Australian Institute of Marine Science</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
