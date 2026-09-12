@@ -1,0 +1,33 @@
+/* Code and console output.
+   The default Quarto sizing sets output at the body size, so a page of console
+   output competes visually with the prose and is hard to tell apart from the
+   code that produced it. Output is set smaller than the code, and given a rule
+   down the left so the eye can separate the two at a glance. */
+
+div.cell-code,
+pre.sourceCode {
+  font-size: 0.85rem;
+}
+
+div.cell-output pre,
+div.cell-output-stdout pre,
+div.cell-output-stderr pre {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  background-color: var(--bs-gray-100, #f8f9fa);
+  border-left: 3px solid var(--bs-gray-400, #ced4da);
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+  color: #333;
+}
+
+/* Errors and warnings are output too, but should not read as ordinary results. */
+div.cell-output-stderr pre {
+  border-left-color: #d9822b;
+  background-color: #fdf6ec;
+}
+
+/* Tables produced by knitr::kable sit better a little smaller as well. */
+.cell-output-display table {
+  font-size: 0.85rem;
+}

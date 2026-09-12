@@ -1,0 +1,83 @@
+# Development profile.
+#
+# `_quarto.yml` builds the APPROVED site, which is what the public link points
+# at. This profile builds everything, including modules still under revision,
+# into a subdirectory of it.
+#
+#   quarto render                 # approved site  -> docs/
+#   quarto render --profile dev   # full site      -> docs/dev/
+#
+# Render in that order. The approved render clears docs/, so building it second
+# would delete the development site.
+#
+# GitHub Pages serves one source per repository, so both live under the same
+# published site. The approved site is at the root and this one is at /dev/.
+# Anyone who finds it can read it; it is not in the link that gets circulated.
+
+project:
+  output-dir: docs/dev
+  render:
+    - index.qmd
+    - vignettes/0Software-setup.qmd
+    - vignettes/1Software-stack.qmd
+    - vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+    - vignettes/3Toxicity_estimation_and_available_models.qmd
+    - vignettes/4Model_averaging_and_multimodel_inference.qmd
+    - vignettes/5Response_data_and_statistical_distributions.qmd
+    - vignettes/6Priors_and_Bayesian_inference.qmd
+    - vignettes/drc-reference.qmd
+
+website:
+  title: "Concentration-response modelling (in development)"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: vignettes/0Software-setup.qmd
+        text: Setup
+      - href: vignettes/1Software-stack.qmd
+        text: Modules
+    right:
+      - icon: github
+        href: https://github.com/open-AIMS/cr_modelling_training/issues
+        text: "Questions and corrections"
+  sidebar:
+    style: docked
+    contents:
+      - href: index.qmd
+        text: Overview
+      - section: "Before you start"
+        contents:
+          - href: vignettes/0Software-setup.qmd
+            text: Software setup
+      - section: "Modules"
+        contents:
+          - href: vignettes/1Software-stack.qmd
+            text: "1. The software stack"
+          - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
+            text: "2. Fitting a single model"
+          - href: vignettes/3Toxicity_estimation_and_available_models.qmd
+            text: "3. Toxicity estimation and the model set"
+          - href: vignettes/4Model_averaging_and_multimodel_inference.qmd
+            text: "4. Model averaging"
+          - href: vignettes/5Response_data_and_statistical_distributions.qmd
+            text: "5. Response data and distributions"
+          - href: vignettes/6Priors_and_Bayesian_inference.qmd
+            text: "6. Priors and Bayesian inference"
+      - section: "Frequentist comparison"
+        contents:
+          - href: vignettes/drc-reference.qmd
+            text: "Fitting the same models with drc"
+  page-footer:
+    left: "Australian Institute of Marine Science — development build, not reviewed"
+    right: "Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    include-before-body:
+      text: |
+        <div style="background:#fdf6ec;border-left:4px solid #d9822b;padding:0.6rem 0.9rem;margin-bottom:1rem;font-size:0.9rem;">
+          <strong>Development build.</strong> These pages are being revised and have not
+          been reviewed. The current course material is at
+          <a href="https://open-aims.github.io/cr_modelling_training/">open-aims.github.io/cr_modelling_training</a>.
+        </div>

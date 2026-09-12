@@ -39,6 +39,28 @@ Before the modules: [software setup](vignettes/0Software-setup.qmd) installs R,
 a C++ compiler, CmdStan and the R packages, and verifies the installation. It is
 not taught; it is done beforehand.
 
+::: {.content-visible unless-profile="dev"}
+
+| | Module | Subject |
+|---|---|---|
+| 1 | The software stack | R, Stan, `brms` and `bayesnec`, and Positron |
+| 2 | Fitting a single model | the `bnec` call, the fitted object, plotting |
+| 3 | Toxicity estimation and the model set | NEC, NSEC and ECx, and the available equations |
+| 4 | Model averaging and multi-model inference | candidate sets, weights, averaged estimates |
+| 5 | Response data and statistical distributions | matching the family to the endpoint |
+| 6 | Priors and Bayesian inference | default priors, checking them, changing them |
+| 7 | A worked case study | herbicide toxicity, start to finish |
+| 8 | Factor covariates and groupings | comparing curves and estimates across groups |
+
+The modules are being revised for this year's course and are published as each
+is finished. Until then the working versions, including material still under
+revision and not yet reviewed, are at
+[open-aims.github.io/cr_modelling_training/dev](https://open-aims.github.io/cr_modelling_training/dev/).
+
+:::
+
+::: {.content-visible when-profile="dev"}
+
 | | Module | Subject |
 |---|---|---|
 | 1 | [The software stack](vignettes/1Software-stack.qmd) | R, Stan, `brms` and `bayesnec`, and Positron |
@@ -57,6 +79,8 @@ are linked here as they are completed.
 reference rather than taught. It shows the same questions asked of a
 maximum-likelihood engine, and is explicit about where the two engines answer
 the same question and where they do not.
+
+:::
 
 ## Working through the material independently
 

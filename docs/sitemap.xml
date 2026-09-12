@@ -1,39 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/drc-reference.html</loc>
-    <lastmod>2026-09-12T02:47:47.614Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/5Response_data_and_statistical_distributions.html</loc>
-    <lastmod>2026-09-11T08:41:25.347Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/3Toxicity_estimation_and_available_models.html</loc>
-    <lastmod>2026-09-11T06:11:16.109Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/1Software-stack.html</loc>
-    <lastmod>2026-09-11T07:34:42.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
-    <lastmod>2026-09-12T02:35:46.115Z</lastmod>
-  </url>
-  <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/0Software-setup.html</loc>
     <lastmod>2026-09-11T06:54:45.293Z</lastmod>
   </url>
   <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/2Fitting-a-CR-model-using-bayesnec.html</loc>
-    <lastmod>2026-09-12T08:18:49.341Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/4Model_averaging_and_multimodel_inference.html</loc>
-    <lastmod>2026-09-11T07:54:43.660Z</lastmod>
-  </url>
-  <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/6Priors_and_Bayesian_inference.html</loc>
-    <lastmod>2026-09-11T09:24:10.915Z</lastmod>
+    <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
+    <lastmod>2026-09-12T08:26:28.319Z</lastmod>
   </url>
 </urlset>

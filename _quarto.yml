@@ -9,13 +9,6 @@ project:
   render:
     - index.qmd
     - vignettes/0Software-setup.qmd
-    - vignettes/1Software-stack.qmd
-    - vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
-    - vignettes/3Toxicity_estimation_and_available_models.qmd
-    - vignettes/4Model_averaging_and_multimodel_inference.qmd
-    - vignettes/5Response_data_and_statistical_distributions.qmd
-    - vignettes/6Priors_and_Bayesian_inference.qmd
-    - vignettes/drc-reference.qmd
 
 # Chunk output is stored under _freeze/ and committed. The Bayesian fits take
 # minutes to hours and need a Stan toolchain, so the site must be rebuildable
@@ -37,8 +30,6 @@ website:
         text: Overview
       - href: vignettes/0Software-setup.qmd
         text: Setup
-      - href: vignettes/1Software-stack.qmd
-        text: Modules
     right:
       - icon: github
         href: https://github.com/open-AIMS/cr_modelling_training/issues
@@ -52,24 +43,6 @@ website:
         contents:
           - href: vignettes/0Software-setup.qmd
             text: Software setup
-      - section: "Modules"
-        contents:
-          - href: vignettes/1Software-stack.qmd
-            text: "1. The software stack"
-          - href: vignettes/2Fitting-a-CR-model-using-bayesnec.qmd
-            text: "2. Fitting a single model"
-          - href: vignettes/3Toxicity_estimation_and_available_models.qmd
-            text: "3. Toxicity estimation and the model set"
-          - href: vignettes/4Model_averaging_and_multimodel_inference.qmd
-            text: "4. Model averaging"
-          - href: vignettes/5Response_data_and_statistical_distributions.qmd
-            text: "5. Response data and distributions"
-          - href: vignettes/6Priors_and_Bayesian_inference.qmd
-            text: "6. Priors and Bayesian inference"
-      - section: "Frequentist comparison"
-        contents:
-          - href: vignettes/drc-reference.qmd
-            text: "Fitting the same models with drc"
   page-footer:
     left: "Australian Institute of Marine Science"
     right: "Built with [Quarto](https://quarto.org)"
