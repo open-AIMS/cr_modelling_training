@@ -39,6 +39,10 @@ website:
         text: Setup
       - href: vignettes/1Software-stack.qmd
         text: Modules
+    right:
+      - icon: github
+        href: https://github.com/open-AIMS/cr_modelling_training/issues
+        text: "Questions and corrections"
   sidebar:
     style: docked
     contents:
@@ -62,10 +66,10 @@ website:
             text: "5. Response data and distributions"
           - href: vignettes/6Priors_and_Bayesian_inference.qmd
             text: "6. Priors and Bayesian inference"
-      - section: "Reference"
+      - section: "Frequentist comparison"
         contents:
           - href: vignettes/drc-reference.qmd
-            text: "Frequentist fitting with drc"
+            text: "Fitting the same models with drc"
   page-footer:
     left: "Australian Institute of Marine Science"
     right: "Built with [Quarto](https://quarto.org)"
@@ -73,6 +77,7 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
     toc: true
     toc-depth: 3
     code-copy: true

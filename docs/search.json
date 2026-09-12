@@ -7,8 +7,8 @@
     "text": "This is reference material, not part of the taught course.\ndrc (Ritz et al. 2015) fits concentration-response models by maximum likelihood. It is mature, widely used, and has far more in it than is shown here. The purpose of this page is narrow: to show that most of what the course does with bayesnec can also be done frequentist, and to be precise about where the two engines answer the same question and where they do not.\nFor drc itself, better sources exist:\n\nChristian Ritz’s dose-response site\nthe drc paper in PLoS ONE, and its supplement of worked examples (Ritz et al. 2015)\ncommunity material at rstats4ag.org\n\nThe section on differences at the end is the part that is specific to this course, and is the reason this page exists.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -19,8 +19,8 @@
     "text": "This is reference material, not part of the taught course.\ndrc (Ritz et al. 2015) fits concentration-response models by maximum likelihood. It is mature, widely used, and has far more in it than is shown here. The purpose of this page is narrow: to show that most of what the course does with bayesnec can also be done frequentist, and to be precise about where the two engines answer the same question and where they do not.\nFor drc itself, better sources exist:\n\nChristian Ritz’s dose-response site\nthe drc paper in PLoS ONE, and its supplement of worked examples (Ritz et al. 2015)\ncommunity material at rstats4ag.org\n\nThe section on differences at the end is the part that is specific to this course, and is the reason this page exists.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -31,8 +31,8 @@
     "text": "Fitting\ndrm() is the fitting function. It takes a formula, the data, and a mean function through fct. Here is the dataset used in module 2, fitted with a four-parameter log-logistic curve.\n\ndata(nec_data)\nmodel_LL4 &lt;- drm(y ~ x, data = nec_data, fct = LL.4())\n\nLL.4() is one of a large catalogue of mean functions. getMeanFunctions() lists them.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -43,8 +43,8 @@
     "text": "Reading the fit\n\nsummary(model_LL4)\n\n\nModel fitted: Log-logistic (ED50 as parameter) (4 parms)\n\nParameter estimates:\n\n                Estimate Std. Error  t-value p-value    \nb:(Intercept) 7.8488e+00 6.4920e-01  12.0898  &lt;2e-16 ***\nc:(Intercept) 2.0154e-05 4.3897e-02   0.0005  0.9996    \nd:(Intercept) 8.9732e-01 6.0071e-03 149.3778  &lt;2e-16 ***\ne:(Intercept) 1.9950e+00 3.5440e-02  56.2917  &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error:\n\n 0.04775948 (96 degrees of freedom)\n\n\nThe parameters of a four-parameter drc model are labelled b, c, d and e:\n\n\n\n\nmeaning\nbayesnec equivalent\n\n\n\n\nb\nslope, sometimes the hill slope\nbeta or slope\n\n\nc\nlower asymptote\nbot\n\n\nd\nupper asymptote\ntop\n\n\ne\ninflection point\nec50\n\n\n\nWhere the asymptotes span the full possible response range, e is the EC50.\nThe summary reports a standard error and a test of whether each parameter differs from zero. That test is rarely the question of interest — a lower asymptote indistinguishable from zero is a reason to fit a three-parameter model, not evidence of anything about toxicity.\nResiduals can be extracted and checked, which is meaningful for a continuous response and not for binomial or count data:\n\nhist(residuals(model_LL4), main = \"\", xlab = \"Residual\", col = \"grey80\",\n     border = \"white\")\nshapiro.test(residuals(model_LL4))\n\n\n    Shapiro-Wilk normality test\n\ndata:  residuals(model_LL4)\nW = 0.98855, p-value = 0.5498\n\n\n\n\n\n\n\n\nFigure 1",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -55,8 +55,8 @@
     "text": "Effect concentrations\nED() returns effect concentrations. Two of its arguments decide what is actually being computed, and both matter more than they appear to.\n\nargs(drc:::ED.drc)\n\nfunction (object, respLev, interval = c(\"none\", \"delta\", \"fls\", \n    \"tfls\"), clevel = NULL, level = ifelse(!(interval == \"none\"), \n    0.95, NULL), reference = c(\"control\", \"upper\"), type = c(\"relative\", \n    \"absolute\"), lref, uref, bound = TRUE, od = FALSE, vcov. = vcov, \n    display = TRUE, pool = TRUE, logBase = NULL, multcomp = FALSE, \n    ...) \nNULL\n\n\nreference chooses what the effect is measured from, and defaults to \"control\" — the fitted response at dose zero. type chooses what it is measured to, and defaults to \"relative\", meaning a percentage of the fitted response range, from the upper asymptote down to the lower one.\n\nED(model_LL4, c(10, 50))\n\n\nEstimated effective doses\n\n       Estimate Std. Error\ne:1:10 1.507871   0.023089\ne:1:50 1.995000   0.035440\n\n\n\nThe word type does not mean the same thing in the two packages\nThis is the trap worth carrying away from this page.\nbayesnec::ecx() also has a type argument, and its values do not correspond to drc’s:\n\ndrc \"relative\", the default, is a percentage of the fitted range. The closest bayesnec value is \"range\", not \"relative\".\ndrc \"absolute\" means an absolute response value, so it corresponds to bayesnec’s \"direct\".\nbayesnec \"absolute\", the default there, is a percentage decline from the control to zero. drc has no equivalent.\n\nTranslating ecx(fit, type = \"absolute\") into ED(m, 10, type = \"absolute\") therefore does not ask the same question. It asks for the concentration at which the response equals 10, which for a response bounded near 1 does not exist:\n\ntry(ED(model_LL4, 10, type = \"absolute\", display = FALSE))\n\n\n\nWhen the two definitions coincide, and when they do not\nThey coincide exactly wherever the fitted lower limit is zero, because the range then is the distance from the control to zero.\n\ncoef(model_LL4)[[\"c:(Intercept)\"]]\n\n[1] 2.015351e-05\n\n\nThat is the case here, which is why this dataset gives the same EC10 either way, and it is why three-parameter models with the lower limit fixed at zero are unambiguous.\nGive the response a genuine non-zero floor and the two part company:\n\nfloored &lt;- nec_data\nfloored$y &lt;- 0.3 + 0.6 * floored$y\nm_floor &lt;- drm(y ~ x, data = floored, fct = LL.4())\n\ncc &lt;- coef(m_floor)[[\"c:(Intercept)\"]]\ndd &lt;- coef(m_floor)[[\"d:(Intercept)\"]]\n\n# drc's default: 10% of the fitted range\nec10_range &lt;- ED(m_floor, 10, display = FALSE)[1, 1]\n\n# the same fit, asked for a 10% decline from the control, expressed as the\n# equivalent percentage of the fitted range\nlevel &lt;- 100 * (dd - (dd - 0.10 * dd)) / (dd - cc)\nec10_control &lt;- ED(m_floor, level, display = FALSE)[1, 1]\n\nc(fitted_lower = cc, fitted_upper = dd,\n  EC10_range_referenced = ec10_range,\n  EC10_control_referenced = ec10_control)\n\n           fitted_lower            fitted_upper   EC10_range_referenced \n              0.3443691               0.8376138               1.5110272 \nEC10_control_referenced \n              1.6199901 \n\n\nThe same fitted curve yields two different EC10s, differing here by about seven per cent. Neither is wrong; they are answers to different questions. What is wrong is reporting one and calling it the other.\nThe practical rule: when comparing an ED() result against an ecx() result, establish first that both are referenced the same way, and say in the write-up which convention was used.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -67,8 +67,8 @@
     "text": "A no-effect estimate\ndrc reports no threshold parameter, so there is no NEC to be had from it. The NSEC can be computed from a drc fit, because it is defined from the fitted curve and the control variability rather than from a model parameter, and toxval provides it:\n\ntoxval::nsec(model_LL4, x_var = \"x\")\n\n[1] 1.1788306 0.9617242 1.2842021\nattr(,\"ecnsec_relativeP\")\nPrediction      Lower      Upper \n 1.6207422  0.2443135  3.1976479 \nattr(,\"resolution\")\n[1] 1000\nattr(,\"sig_val\")\n[1] 0.01\nattr(,\"toxicity_estimate\")\n[1] \"nsec\"\n\n\nThis is the one place where the frequentist route reaches a no-effect estimate of the kind module 3 describes.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -79,8 +79,8 @@
     "text": "Binomial data\nA binomial response is given as successes over totals, with weights and type = \"binomial\":\n\ndata(daphnids)\ndaphnids.m1 &lt;- drm(no / total ~ dose, weights = total, curveid = time,\n                   data = daphnids, fct = LL.2(), type = \"binomial\")\nED(daphnids.m1, 50)\n\n\nEstimated effective doses\n\n         Estimate Std. Error\ne:24h:50  5134.03    1056.74\ne:48h:50  1509.07     187.76",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -91,8 +91,8 @@
     "text": "Model selection and averaging\ndrc selects among candidates by information criterion rather than averaging over them.\n\nmselect(model_LL4, list(LL.3(), W1.4(), W2.4()))\n\n       logLik        IC Lack of fit     Res var\nW2.4 174.0792 -338.1584          NA 0.001875953\nLL.3 164.3041 -320.6081          NA 0.002257496\nLL.4 164.3050 -318.6100          NA 0.002280968\nW1.4 157.1969 -304.3938          NA 0.002629416\n\n\ndrc does provide maED() for model-averaged effect concentrations, using Akaike weights and a Buckland unconditional interval. Two things about it are worth knowing before relying on it, and both are visible in drc::maED itself.\nIt takes na.rm = FALSE and threads that through every sum(), so a single candidate that converges but whose effect-concentration root-finder fails renders every averaged value missing rather than being dropped from the average.\nAnd it forms its weights as exp(-AIC/2) with no centring on the minimum AIC. Once AIC reaches a few thousand, as it does on individual-level rather than summarised data, every term underflows to zero in double precision and the weights become 0/0. Centring on the minimum fixes it and changes nothing where the uncentred form works.\nThis is a genuine difference in philosophy rather than only in implementation. bayesnec averages by default over a candidate set; drc selects by default, and the selection is itself a source of uncertainty that the reported interval does not include.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -103,8 +103,8 @@
     "text": "Comparing groups\nEDcomp() compares effect concentrations between curves fitted with curveid:\n\nEDcomp(daphnids.m1, c(50, 50))\n\n\nEstimated ratios of effect doses\n\n               Estimate Std. Error   t-value   p-value\n24h/48h:50/50 3.4021279  0.8182594 2.9356556 0.0033284\n\n\nThis is the frequentist counterpart to comparing posteriors, which module 7 covers. It returns a ratio with a confidence interval and a p-value, rather than a probability that one estimate is lower than the other.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -115,8 +115,8 @@
     "text": "Where the engines agree and where they differ\n\n\n\n\n\n\n\n\n\ndrc\nbayesnec\n\n\n\n\nEstimation\nmaximum likelihood\nBayesian, HMC via Stan\n\n\nInterval\ndelta-method confidence interval\ncredible interval from the posterior\n\n\nThreshold estimate\nnone\nNEC from threshold equations\n\n\nNo-effect estimate\nNSEC via toxval\nNEC or NSEC\n\n\nECx reference\nf(0), the fitted response at dose zero\npredicted mean at the lowest observed concentration\n\n\nECx default\npercentage of the fitted range\npercentage decline from control to zero\n\n\nCandidate set\nselect one by AIC\naverage over the set by weight\n\n\nGroup comparison\nratio, confidence interval, p-value\nprobability of difference from the posteriors\n\n\n\nFour differences are worth stating in full.\nA confidence interval and a credible interval are different quantities. They are often of similar width and they do not mean the same thing. Label which one a table reports.\nThe control is a fitted value in drc. ED(reference = \"control\") uses f(0), the value the fitted curve takes at dose zero, whether or not dose zero was tested. Where the lowest tested concentration is well above zero, or the curve is still declining there, that is an extrapolation, and the ECx inherits it. bayesnec reads the control from the predicted mean at the lowest observed concentration instead. On a well-behaved curve with a flat lower end the two agree closely; on the shipped example above they agree to four decimal places.\nThe distributional assumptions differ, and so will the estimates. For a continuous positive response drc will commonly be fitted Gaussian where bayesnec chooses a gamma. The Gaussian fit is influenced more by the high-response observations. Neither is an error, but the two engines will not return the same point estimate, and a difference between them is not by itself evidence that one is wrong.\ndrc’s intervals can be too narrow, or absent. With type = \"Poisson\" the variance is fixed equal to the mean, so an over-dispersed count response gets intervals narrower than the data support, by roughly the square root of the dispersion. The remedy is to report the dispersion alongside the interval rather than to rescale it, since changing the variance assumption is a change to the model. Separately, the delta-method standard error is NaN wherever the variance calculation goes negative, which is not rare and not confined to poor fits; each one arrives as its own \"NaNs produced\" warning. Where standard errors feed a model average, dropping candidates as they become unavailable silently changes what the average is an average of, so fix the candidate set for the whole curve rather than point by point.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -127,8 +127,8 @@
     "text": "When to use which\nFor a well-determined monotonic curve with adequate replication and a response that suits the same distribution in both, the two engines give much the same answer, and drc gets there in seconds rather than minutes.\nThe Bayesian route earns its overhead where the model is harder: where priors are needed to make a non-linear fit stable, where the candidate set genuinely does not identify one curve, where a threshold estimate is wanted, or where the posterior itself is the thing needed — to propagate uncertainty into a species sensitivity distribution, or to state the probability that one substance is more toxic than another.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -139,8 +139,8 @@
     "text": "Provenance\n\nfor (p in c(\"drc\", \"toxval\", \"bayesnec\")) {\n  cat(sprintf(\"%-10s %s\\n\", p, as.character(packageVersion(p))))\n}\n\ndrc        3.0.1\ntoxval     1.0.0\nbayesnec   2.1.3.34\n\ncat(sprintf(\"%-10s %s\\n\", \"R\", getRversion()))\n\nR          4.6.1\n\n\nEvery figure and number on this page is produced when it is built.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -151,8 +151,8 @@
     "text": "References\n\n\nRitz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. “Dose-Response Analysis Using R.” PLoS ONE 10 (12): e0146021. https://doi.org/10.1371/journal.pone.0146021.",
     "crumbs": [
       "Overview",
-      "Reference",
-      "Frequentist fitting with drc"
+      "Frequentist comparison",
+      "Fitting the same models with drc"
     ]
   },
   {
@@ -832,7 +832,7 @@
     "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#calling-bnec",
     "title": "Fitting a single model",
     "section": "Calling bnec",
-    "text": "Calling bnec\nSupplying a formula and a data frame is enough; everything else takes a default.\n\nset.seed(333)\nbnec_fit &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe first thing that happens is compilation. Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.\nSampling follows. How long the whole thing takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores. Use at least as many cores as you have chains:\n\noptions(mc.cores = 4)\n\nMore cores than chains gives no benefit without additional configuration.\nWhen the fit completes, bayesnec reports which model was fitted and which statistical distribution was used. Here it is a nec3param model with a beta distribution.\nWarnings may also appear. The two above concern the Pareto k diagnostic and p_waic, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.",
+    "text": "Calling bnec\nSupplying a formula and a data frame is enough; everything else takes a default.\n\nset.seed(333)\nbnec_fit &lt;- bnec(y ~ crf(x, model = \"nec3param\"), data = nec_data)\n\nFinding initial values which allow the response to be fitted using a nec3param model and a beta distribution.\n\n\nCompiling Stan program...\n\n\nStart sampling\n\n\nResponse variable modelled as a nec3param model using a beta distribution.\n\n\nWarning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We\nrecommend to set 'moment_match = TRUE' in order to perform moment matching for\nproblematic observations.\n\n\nWarning: \n2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.\n\n\nThe first thing that happens is compilation. Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.\nSampling follows. How long the whole thing takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores.\nA model is fitted by running several chains, and those chains are independent of one another until the results are combined. Run in series they wait their turn and the fit takes as long as all of them added together; run in parallel they run at the same time on different processor cores and the fit takes about as long as the slowest one. Setting mc.cores is what allows the second, so use at least as many cores as you have chains:\n\noptions(mc.cores = 4)\n\nMore cores than chains gives no benefit here, because there is nothing else to run at the same time. There is a second level of parallelism once a set of models is being fitted rather than one — the models can run alongside each other as well as the chains within them — and module 4 covers it.\nWhen the fit completes, bayesnec reports which model was fitted and which statistical distribution was used. Here it is a nec3param model with a beta distribution.\nWarnings may also appear. The two above concern the Pareto k diagnostic and p_waic, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.",
     "crumbs": [
       "Overview",
       "Modules",
@@ -856,7 +856,7 @@
     "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#the-summary",
     "title": "Fitting a single model",
     "section": "The summary",
-    "text": "The summary\n\nsummary(bnec_fit)\n\nObject of class bayesnecfit containing the nec3param model\n\n Family: beta \n  Links: mu = identity \nFormula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec)) \n         top ~ 1\n         beta ~ 1\n         nec ~ 1\n   Data: data (Number of observations: 100) \n  Draws: 4 chains, each with iter = 10000; warmup = 8000; thin = 1;\n         total post-warmup draws = 8000\n\nRegression Coefficients:\n     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\ntop      0.89      0.01     0.88     0.90 1.00     6828     5349\nbeta     0.54      0.06     0.42     0.65 1.00     6079     5455\nnec      1.53      0.02     1.50     1.57 1.00     5747     4693\n\nFurther Distributional Parameters:\n    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\nphi    51.98      7.68    38.33    68.51 1.00     6774     5628\n\nDraws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\nand Tail_ESS are effective sample size measures, and Rhat is the potential\nscale reduction factor on split chains (at convergence, Rhat = 1).\n\n    Estimate Q2.5 Q97.5\nNEC     1.53 1.50  1.57\n\n\nBayesian R2 estimates:\n   Estimate Est.Error Q2.5 Q97.5\nR2     0.96      0.00 0.96  0.97\n\n\nThere is a lot here, and each part is worth reading.\nThe object is of class bayesnecfit, containing the nec3param model. bayesnec returns a bayesnecfit when one model is fitted, and a bayesmanecfit when a set is fitted.\nThe family is the beta distribution with an identity link. This is deliberate and it is not the brms default, which for a beta response is the logit. bayesnec uses the identity link for every family, so that the top, bot and nec parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a bayesnec fit against a brm model you have written yourself: unless you pass the link explicitly, the two are different models.\nThe brms formula that was actually fitted is printed. For nec3param it is a constant top until the concentration reaches nec, followed by exponential decay, with the switch implemented by step(). Module 3 sets out the equations.\nRhat is a convergence diagnostic and should be close to 1. All three parameters here are at 1.00, and the effective sample sizes are in the thousands, both of which indicate the sampler explored the posterior properly.\nThe NEC estimate is given below the coefficients, as a median with a 95% credible interval, and the Bayesian R² gives an indication of fit. The value here is high, as you would expect of a simulated example where the curve is well-determined; real data rarely look this tidy.",
+    "text": "The summary\n\nsummary(bnec_fit)\n\nObject of class bayesnecfit containing the nec3param model\n\n Family: beta \n  Links: mu = identity \nFormula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec)) \n         top ~ 1\n         beta ~ 1\n         nec ~ 1\n   Data: data (Number of observations: 100) \n  Draws: 4 chains, each with iter = 10000; warmup = 8000; thin = 1;\n         total post-warmup draws = 8000\n\nRegression Coefficients:\n     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\ntop      0.89      0.00     0.88     0.90 1.00     6786     5107\nbeta     0.54      0.06     0.42     0.65 1.00     5364     5147\nnec      1.54      0.02     1.50     1.57 1.00     5592     4618\n\nFurther Distributional Parameters:\n    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\nphi    52.00      7.44    38.84    68.17 1.00     6368     5474\n\nDraws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\nand Tail_ESS are effective sample size measures, and Rhat is the potential\nscale reduction factor on split chains (at convergence, Rhat = 1).\n\n    Estimate Q2.5 Q97.5\nNEC     1.54 1.50  1.57\n\n\nBayesian R2 estimates:\n   Estimate Est.Error Q2.5 Q97.5\nR2     0.96      0.00 0.96  0.97\n\n\nThere is a lot here, and each part is worth reading.\nThe object is of class bayesnecfit, containing the nec3param model. bayesnec returns a bayesnecfit when one model is fitted, and a bayesmanecfit when a set is fitted.\nThe family is the beta distribution with an identity link. This is deliberate and it is not the brms default, which for a beta response is the logit. bayesnec uses the identity link for every family, so that the top, bot and nec parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a bayesnec fit against a brm model you have written yourself: unless you pass the link explicitly, the two are different models.\nThe brms formula that was actually fitted is printed. For nec3param it is a constant top until the concentration reaches nec, followed by exponential decay, with the switch implemented by step(). Module 3 sets out the equations.\nRhat is a convergence diagnostic and should be close to 1. All three parameters here are at 1.00, and the effective sample sizes are in the thousands, both of which indicate the sampler explored the posterior properly.\nThe NEC estimate is given below the coefficients, as a median with a 95% credible interval, and the Bayesian R² gives an indication of fit. The value here is high, as you would expect of a simulated example where the curve is well-determined; real data rarely look this tidy.",
     "crumbs": [
       "Overview",
       "Modules",
@@ -880,7 +880,7 @@
     "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#inside-the-fitted-object",
     "title": "Fitting a single model",
     "section": "Inside the fitted object",
-    "text": "Inside the fitted object\nA bayesnecfit is a list holding the brms fit and a set of derived quantities.\n\nnames(bnec_fit)\n\n [1] \"fit\"             \"model\"           \"init\"            \"bayesnecformula\"\n [5] \"pred_vals\"       \"top\"             \"beta\"            \"ne\"             \n [9] \"f\"               \"bot\"             \"d\"               \"slope\"          \n[13] \"ec50\"            \"dispersion\"      \"predicted_y\"     \"residuals\"      \n[17] \"ne_posterior\"    \"ne_type\"        \n\n\npred_vals holds fitted values across the range of the predictor, which is what the plotting methods use and what you would use for a custom figure:\n\nhead(bnec_fit$pred_vals$data)\n\n           x  Estimate      Q2.5     Q97.5\n1 0.03234801 0.8891093 0.8787846 0.8988074\n2 0.03553938 0.8891093 0.8787846 0.8988074\n3 0.03873074 0.8891093 0.8787846 0.8988074\n4 0.04192210 0.8891093 0.8787846 0.8988074\n5 0.04511347 0.8891093 0.8787846 0.8988074\n6 0.04830483 0.8891093 0.8787846 0.8988074\n\n\nEvery fitted model carries a posterior for the no-effect estimate, in ne_posterior, with ne_type recording what kind of estimate it is. For models in the nec group this is the posterior of the nec parameter itself. For models in the ecx group, which have no threshold parameter, it is the posterior of the NSEC (Fisher and Fox 2023). Module 3 explains why those are different things.\n\nhist(bnec_fit$ne_posterior,\n     main = \"\", xlab = \"No-effect concentration\", col = \"grey80\", border = \"white\")",
+    "text": "Inside the fitted object\nA bayesnecfit is a list holding the brms fit and a set of derived quantities.\n\nnames(bnec_fit)\n\n [1] \"fit\"             \"model\"           \"init\"            \"bayesnecformula\"\n [5] \"pred_vals\"       \"top\"             \"beta\"            \"ne\"             \n [9] \"f\"               \"bot\"             \"d\"               \"slope\"          \n[13] \"ec50\"            \"dispersion\"      \"predicted_y\"     \"residuals\"      \n[17] \"ne_posterior\"    \"ne_type\"        \n\n\npred_vals holds fitted values across the range of the predictor, which is what the plotting methods use and what you would use for a custom figure:\n\nhead(bnec_fit$pred_vals$data)\n\n           x  Estimate      Q2.5     Q97.5\n1 0.03234801 0.8890694 0.8787696 0.8984862\n2 0.03553938 0.8890694 0.8787696 0.8984862\n3 0.03873074 0.8890694 0.8787696 0.8984862\n4 0.04192210 0.8890694 0.8787696 0.8984862\n5 0.04511347 0.8890694 0.8787696 0.8984862\n6 0.04830483 0.8890694 0.8787696 0.8984862\n\n\nEvery fitted model carries a posterior for the no-effect estimate, in ne_posterior, with ne_type recording what kind of estimate it is. For models in the nec group this is the posterior of the nec parameter itself. For models in the ecx group, which have no threshold parameter, it is the posterior of the NSEC (Fisher and Fox 2023). Module 3 explains why those are different things.\n\nhist(bnec_fit$ne_posterior,\n     main = \"\", xlab = \"No-effect concentration\", col = \"grey80\", border = \"white\")",
     "crumbs": [
       "Overview",
       "Modules",
@@ -904,7 +904,7 @@
     "href": "vignettes/2Fitting-a-CR-model-using-bayesnec.html#toxicity-estimates",
     "title": "Fitting a single model",
     "section": "Toxicity estimates",
-    "text": "Toxicity estimates\nThree functions extract estimates from a fitted model: ecx(), nec() and nsec().\n\necx(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.596165 1.563258 1.627328 \nattr(,\"resolution\")\n[1] 200\nattr(,\"ecx_val\")\n[1] 10\nattr(,\"toxicity_estimate\")\n[1] \"ecx\"\n\nnec(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.534904 1.496877 1.569845 \nattr(,\"toxicity_estimate\")\n[1] \"nec\"\n\nnsec(bnec_fit)\n\nWarning: The nec3param curve does not fall below the control's 0.01 quantile\nanywhere in the predictor range for 80 of 8000 draws, which return NA. The NSEC\nis censored above 3.22.\n\n\n     Q50     Q2.5    Q97.5 \n1.542563 1.506558 1.575238 \nattr(,\"resolution\")\n[1] 200\nattr(,\"sig_val\")\n[1] 0.01\nattr(,\"toxicity_estimate\")\n[1] \"nsec\"\nattr(,\"ecnsec_relativeP\")\n     50%     2.5%    97.5% \n1.378365 0.219677 2.442490 \n\n\nEach returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: ecx() returns an EC10 unless told otherwise, and nsec() uses a significance value of 0.01.\nFor this dataset the three estimates are close together, which happens when the curve declines sharply from a well-defined threshold. They are not interchangeable, and on other data they separate widely. Module 3 covers what each of them measures and when each is appropriate.",
+    "text": "Toxicity estimates\nThree functions extract estimates from a fitted model: ecx(), nec() and nsec().\n\necx(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.596415 1.564697 1.627441 \nattr(,\"resolution\")\n[1] 200\nattr(,\"ecx_val\")\n[1] 10\nattr(,\"toxicity_estimate\")\n[1] \"ecx\"\n\nnec(bnec_fit)\n\n     Q50     Q2.5    Q97.5 \n1.535122 1.498373 1.569592 \nattr(,\"toxicity_estimate\")\n[1] \"nec\"\n\nnsec(bnec_fit)\n\nWarning: The nec3param curve does not fall below the control's 0.01 quantile\nanywhere in the predictor range for 80 of 8000 draws, which return NA. The NSEC\nis censored above 3.22.\n\n\n     Q50     Q2.5    Q97.5 \n1.542553 1.507039 1.575130 \nattr(,\"resolution\")\n[1] 200\nattr(,\"sig_val\")\n[1] 0.01\nattr(,\"toxicity_estimate\")\n[1] \"nsec\"\nattr(,\"ecnsec_relativeP\")\n      50%      2.5%     97.5% \n1.3447033 0.1883934 2.3786853 \n\n\nEach returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: ecx() returns an EC10 unless told otherwise, and nsec() uses a significance value of 0.01.\nFor this dataset the three estimates are close together, which happens when the curve declines sharply from a well-defined threshold. They are not interchangeable, and on other data they separate widely. Module 3 covers what each of them measures and when each is appropriate.",
     "crumbs": [
       "Overview",
       "Modules",

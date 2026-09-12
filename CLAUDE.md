@@ -276,7 +276,19 @@ doing anything.
 
 ---
 
-## 8. Known defects in the current material
+## 8. Outstanding work
+
+**Module 4 must cover parallel fitting.** `bayesnec` #184 landed on `dev` on 2026-09-12:
+`bnec()` and `amend()` now fit a model set under whatever `future` plan is set, so
+`plan(multisession, workers = 4)` fits four models at a time. The two levels nest — under a
+multi-worker plan `bnec()` passes `cores = 1` to `brm()`, because `workers x chains` would
+otherwise be requested. Module 2 explains chain-level parallelism and forward-references
+module 4 for this; module 4 does not yet deliver it.
+
+**The `drc` comparison needs its ECx section rewritten.** See §7 for the correct account of
+what `ED()` computes.
+
+## 9. Known defects in the current material
 
 Found by inspection on 2026-09-11 and not yet fixed. These are recorded so that the
 migration does not reproduce them. The revision plan itself is decided separately.
@@ -303,7 +315,7 @@ migration does not reproduce them. The revision plan itself is decided separatel
 
 ---
 
-## 9. Working in this repository
+## 10. Working in this repository
 
 **Line endings.** The working tree is CRLF and the index is LF, so `git status` reports all
 26 tracked text files as modified while `git diff --ignore-cr-at-eol` reports nothing. The

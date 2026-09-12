@@ -131,6 +131,7 @@ div.csl-indent {
 }</script>
 
 
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar docked nav-fixed quarto-light">
@@ -161,6 +162,13 @@ div.csl-indent {
   <li class="nav-item">
     <a class="nav-link" href="../vignettes/1Software-stack.html"> 
 <span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/open-AIMS/cr_modelling_training/issues"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">Questions and corrections</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -258,7 +266,7 @@ div.csl-indent {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Reference</span></a>
+ <span class="menu-text">Frequentist comparison</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -267,7 +275,7 @@ div.csl-indent {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/drc-reference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Frequentist fitting with drc</span></a>
+ <span class="menu-text">Fitting the same models with drc</span></a>
   </div>
 </li>
       </ul>
@@ -418,11 +426,12 @@ problematic observations.</code></pre>
 </div>
 </div>
 <p>The first thing that happens is compilation. Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.</p>
-<p>Sampling follows. How long the whole thing takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores. Use at least as many cores as you have chains:</p>
+<p>Sampling follows. How long the whole thing takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores.</p>
+<p>A model is fitted by running several chains, and those chains are independent of one another until the results are combined. Run in <strong>series</strong> they wait their turn and the fit takes as long as all of them added together; run in <strong>parallel</strong> they run at the same time on different processor cores and the fit takes about as long as the slowest one. Setting <code>mc.cores</code> is what allows the second, so use at least as many cores as you have chains:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>More cores than chains gives no benefit without additional configuration.</p>
+<p>More cores than chains gives no benefit here, because there is nothing else to run at the same time. There is a second level of parallelism once a <em>set</em> of models is being fitted rather than one — the models can run alongside each other as well as the chains within them — and module 4 covers it.</p>
 <p>When the fit completes, <code>bayesnec</code> reports which model was fitted and which statistical distribution was used. Here it is a <code>nec3param</code> model with a beta distribution.</p>
 <p>Warnings may also appear. The two above concern the Pareto <em>k</em> diagnostic and <code>p_waic</code>, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.</p>
 </section>
@@ -454,20 +463,20 @@ Formula: y ~ top * exp(-exp(beta) * (x - nec) * step(x - nec))
 
 Regression Coefficients:
      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-top      0.89      0.01     0.88     0.90 1.00     6828     5349
-beta     0.54      0.06     0.42     0.65 1.00     6079     5455
-nec      1.53      0.02     1.50     1.57 1.00     5747     4693
+top      0.89      0.00     0.88     0.90 1.00     6786     5107
+beta     0.54      0.06     0.42     0.65 1.00     5364     5147
+nec      1.54      0.02     1.50     1.57 1.00     5592     4618
 
 Further Distributional Parameters:
     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-phi    51.98      7.68    38.33    68.51 1.00     6774     5628
+phi    52.00      7.44    38.84    68.17 1.00     6368     5474
 
 Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 
     Estimate Q2.5 Q97.5
-NEC     1.53 1.50  1.57
+NEC     1.54 1.50  1.57
 
 
 Bayesian R2 estimates:
@@ -519,12 +528,12 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           x  Estimate      Q2.5     Q97.5
-1 0.03234801 0.8891093 0.8787846 0.8988074
-2 0.03553938 0.8891093 0.8787846 0.8988074
-3 0.03873074 0.8891093 0.8787846 0.8988074
-4 0.04192210 0.8891093 0.8787846 0.8988074
-5 0.04511347 0.8891093 0.8787846 0.8988074
-6 0.04830483 0.8891093 0.8787846 0.8988074</code></pre>
+1 0.03234801 0.8890694 0.8787696 0.8984862
+2 0.03553938 0.8890694 0.8787696 0.8984862
+3 0.03873074 0.8890694 0.8787696 0.8984862
+4 0.04192210 0.8890694 0.8787696 0.8984862
+5 0.04511347 0.8890694 0.8787696 0.8984862
+6 0.04830483 0.8890694 0.8787696 0.8984862</code></pre>
 </div>
 </div>
 <p>Every fitted model carries a posterior for the no-effect estimate, in <code>ne_posterior</code>, with <code>ne_type</code> recording what kind of estimate it is. For models in the <code>nec</code> group this is the posterior of the <code>nec</code> parameter itself. For models in the <code>ecx</code> group, which have no threshold parameter, it is the posterior of the <em>NSEC</em> <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Module 3 explains why those are different things.</p>
@@ -569,7 +578,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.596165 1.563258 1.627328 
+1.596415 1.564697 1.627441 
 attr(,"resolution")
 [1] 200
 attr(,"ecx_val")
@@ -580,7 +589,7 @@ attr(,"toxicity_estimate")
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.534904 1.496877 1.569845 
+1.535122 1.498373 1.569592 
 attr(,"toxicity_estimate")
 [1] "nec"</code></pre>
 </div>
@@ -592,7 +601,7 @@ is censored above 3.22.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.542563 1.506558 1.575238 
+1.542553 1.507039 1.575130 
 attr(,"resolution")
 [1] 200
 attr(,"sig_val")
@@ -600,8 +609,8 @@ attr(,"sig_val")
 attr(,"toxicity_estimate")
 [1] "nsec"
 attr(,"ecnsec_relativeP")
-     50%     2.5%    97.5% 
-1.378365 0.219677 2.442490 </code></pre>
+      50%      2.5%     97.5% 
+1.3447033 0.1883934 2.3786853 </code></pre>
 </div>
 </div>
 <p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <strong>EC10</strong> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>

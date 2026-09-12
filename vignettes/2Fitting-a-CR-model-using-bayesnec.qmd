@@ -141,7 +141,14 @@ why a compiler is needed at all.
 
 Sampling follows. How long the whole thing takes depends on the machine, the
 number of chains and the number of iterations. The fit above took a little over
-two minutes on four cores. Use at least as many cores as you have chains:
+two minutes on four cores.
+
+A model is fitted by running several chains, and those chains are independent of
+one another until the results are combined. Run in **series** they wait their
+turn and the fit takes as long as all of them added together; run in
+**parallel** they run at the same time on different processor cores and the fit
+takes about as long as the slowest one. Setting `mc.cores` is what allows the
+second, so use at least as many cores as you have chains:
 
 ```{r}
 #| label: cores
@@ -149,7 +156,10 @@ two minutes on four cores. Use at least as many cores as you have chains:
 options(mc.cores = 4)
 ```
 
-More cores than chains gives no benefit without additional configuration.
+More cores than chains gives no benefit here, because there is nothing else to
+run at the same time. There is a second level of parallelism once a *set* of
+models is being fitted rather than one — the models can run alongside each other
+as well as the chains within them — and module 4 covers it.
 
 When the fit completes, `bayesnec` reports which model was fitted and which
 statistical distribution was used. Here it is a `nec3param` model with a beta
