@@ -203,3 +203,26 @@ installation. The observed failure and its fix are first-hand. The four
 conditions in "Advice not yet observed here" are from the same conversation but
 are general guidance rather than observations from that machine, and are
 labelled as such above.
+
+## Module 7 is on hold
+
+**RF, 2026-09-12.** Conversion is written and committed but is not registered on
+the site, and the fit-generation run was stopped after a few minutes.
+
+The reason is not the fits. Module 7 fits seven herbicides by splitting the data
+and mapping `bnec()` over the pieces, which is what the 2023 analysis did and
+what `scripts/generate_herbicide_fits.R` reproduces. `bayesnec` now exports
+`bnec_group(formula, data, group_var, family, ...)`, which fits the levels of a
+grouping variable in one call and returns one object, together with
+`crossed_group_weights`, `compare_estimates` and `compare_fitted`. The
+split-and-map pattern is superseded, and teaching it would teach the old way of
+working.
+
+The new grouping vignette on PR #228 is the reference for how this should now be
+written. Module 7 should be rewritten around `bnec_group()` once that vignette
+has settled, and the generation script rewritten with it or dropped.
+
+Module 8 is the grouping and factor-covariate module and is the same PR's
+subject, so 7 and 8 should be planned together rather than separately. Module 8
+should also no longer need the raw `brms` helpers in `vignettes/functions.R`,
+which were written before this functionality existed.

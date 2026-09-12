@@ -101,7 +101,7 @@ same subject, and the two are taught back to back.
 | 4d | `4dModel_averaging_and_multimodel_inference` | Model averaging in drc | **not learnr**, see §7 |
 | 5 | `5Response_data_and_statistical_distributions` | Modelling your response using the right statistical family | |
 | 6 | `6Priors_and_Bayesian_inference` | Priors and Bayesian inference | |
-| 7 | `7Example_case_study` | Worked example and comparing toxicity | |
+| 7 | `7Example_case_study` | A worked case study | **converted but on hold**, rewrite around `bnec_group()` |
 | 7d | `7dExample_case_study` | — | **source deleted**, recoverable, see §7 |
 | 8 | `8Factor_covariates_and_groupings` | Factor covariates and gruopings | title typo |
 | 8d | `8dFactor_covariates_and_groupings` | Are these ECx values different? | |
