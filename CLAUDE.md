@@ -188,7 +188,28 @@ figure from its underlying quantities over reproducing a publisher's rendering.
 
 ---
 
-## 6. Prose and register
+## 6. What may be published here
+
+**The repository is public, and nothing from client or unpublished work in this working
+directory may reach it.** That includes project and client names, dataset names peculiar to
+an engagement, and measurements taken from such work — a measured percentage change is as
+identifying as a name once someone has the report.
+
+Other repositories under `C:/Rworking/` are a legitimate source of *understanding*: they
+record traps and engine differences that took real work to establish, and reading them
+avoids rediscovering the same things. What may cross over is the mechanism, not the
+evidence.
+
+**Every number on a page is produced by that page, or comes from a published source.** Where
+a claim was learned from unpublished work, either demonstrate it here on data the course
+already ships, or verify it against the public package's own source and say so. Both routes
+were used on the `drc` reference page: the ECx divergence is demonstrated on `nec_data`, and
+the `maED()` limitations are verifiable in `drc::maED` itself.
+
+This was not hypothetical. An earlier version of this file named a client re-analysis
+project and its date, in prose about writing style, and that text was committed and pushed.
+
+## 7. Prose and register
 
 Parent §12 applies in full: plain scientific register, no idiom, Australian spelling, and
 the ruled corrections for *carry*, *move*, *cost*, *help/hurt* and *cut both ways*. Parent
@@ -215,8 +236,8 @@ module.
 ### Patterns to remove on sight
 
 These are the ones that make revised teaching prose read as machine-written. Every one has
-been corrected in this working directory before, in the `bayesnec` vignettes (August 2026)
-and in the `ndorsatus` reanalysis report (2026-08-14).
+been corrected elsewhere in this working directory before, the `bayesnec` vignettes
+included.
 
 | Pattern | Instead |
 |---|---|
@@ -255,7 +276,7 @@ doing anything.
 
 ---
 
-## 7. Known defects in the current material
+## 8. Known defects in the current material
 
 Found by inspection on 2026-09-11 and not yet fixed. These are recorded so that the
 migration does not reproduce them. The revision plan itself is decided separately.
@@ -282,7 +303,7 @@ migration does not reproduce them. The revision plan itself is decided separatel
 
 ---
 
-## 8. Working in this repository
+## 9. Working in this repository
 
 **Line endings.** The working tree is CRLF and the index is LF, so `git status` reports all
 26 tracked text files as modified while `git diff --ignore-cr-at-eol` reports nothing. The

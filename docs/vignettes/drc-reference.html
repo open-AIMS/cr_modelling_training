@@ -560,7 +560,9 @@ LL.4 164.3050 -318.6100          NA 0.002280968
 W1.4 157.1969 -304.3938          NA 0.002629416</code></pre>
 </div>
 </div>
-<p><code>drc</code> does provide <code>maED()</code> for model-averaged effect concentrations, using Akaike weights and a Buckland unconditional interval. It is worth knowing two things about it before relying on it. It sums without removing missing values, so a single candidate whose root-finder fails renders the whole average missing. And it forms its weights as <code>exp(-AIC/2)</code> without centring on the minimum AIC, which underflows to zero for every candidate once AIC reaches a few thousand, as it does on individual-level data.</p>
+<p><code>drc</code> does provide <code>maED()</code> for model-averaged effect concentrations, using Akaike weights and a Buckland unconditional interval. Two things about it are worth knowing before relying on it, and both are visible in <code>drc::maED</code> itself.</p>
+<p>It takes <code>na.rm = FALSE</code> and threads that through every <code>sum()</code>, so a single candidate that converges but whose effect-concentration root-finder fails renders every averaged value missing rather than being dropped from the average.</p>
+<p>And it forms its weights as <code>exp(-AIC/2)</code> with no centring on the minimum AIC. Once AIC reaches a few thousand, as it does on individual-level rather than summarised data, every term underflows to zero in double precision and the weights become <code>0/0</code>. Centring on the minimum fixes it and changes nothing where the uncentred form works.</p>
 <p>This is a genuine difference in philosophy rather than only in implementation. <code>bayesnec</code> averages by default over a candidate set; <code>drc</code> selects by default, and the selection is itself a source of uncertainty that the reported interval does not include.</p>
 </section>
 <section id="comparing-groups" class="level2">

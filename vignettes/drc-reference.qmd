@@ -213,12 +213,18 @@ mselect(model_LL4, list(LL.3(), W1.4(), W2.4()))
 ```
 
 `drc` does provide `maED()` for model-averaged effect concentrations, using
-Akaike weights and a Buckland unconditional interval. It is worth knowing two
-things about it before relying on it. It sums without removing missing values,
-so a single candidate whose root-finder fails renders the whole average missing.
-And it forms its weights as `exp(-AIC/2)` without centring on the minimum AIC,
-which underflows to zero for every candidate once AIC reaches a few thousand, as
-it does on individual-level data.
+Akaike weights and a Buckland unconditional interval. Two things about it are
+worth knowing before relying on it, and both are visible in `drc::maED` itself.
+
+It takes `na.rm = FALSE` and threads that through every `sum()`, so a single
+candidate that converges but whose effect-concentration root-finder fails renders
+every averaged value missing rather than being dropped from the average.
+
+And it forms its weights as `exp(-AIC/2)` with no centring on the minimum AIC.
+Once AIC reaches a few thousand, as it does on individual-level rather than
+summarised data, every term underflows to zero in double precision and the
+weights become `0/0`. Centring on the minimum fixes it and changes nothing where
+the uncentred form works.
 
 This is a genuine difference in philosophy rather than only in implementation.
 `bayesnec` averages by default over a candidate set; `drc` selects by default,
