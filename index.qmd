@@ -50,10 +50,13 @@ not taught; it is done beforehand.
 | 7 | A worked case study | herbicide toxicity, start to finish |
 | 8 | Factor covariates and groupings | comparing curves and estimates across groups |
 
-Modules 4 to 8 are being converted from the earlier version of this course and
-are linked here as they are completed. A frequentist treatment of the same
-material using `drc` is supplied separately as reference; it is not part of the
-taught sequence.
+Modules 7 and 8 are being converted from the earlier version of this course and
+are linked here as they are completed.
+
+[Frequentist fitting with `drc`](vignettes/drc-reference.qmd) is supplied as
+reference rather than taught. It shows the same questions asked of a
+maximum-likelihood engine, and is explicit about where the two engines answer
+the same question and where they do not.
 
 ## Working through the material independently
 

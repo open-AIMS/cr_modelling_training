@@ -1,0 +1,316 @@
+---
+title: "Frequentist fitting with `drc`"
+subtitle: "The same questions asked of a maximum-likelihood engine, and where the answers differ"
+bibliography: bayesnec.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+library(drc)
+library(bayesnec)
+library(toxval)
+```
+
+## Scope
+
+This is reference material, not part of the taught course.
+
+`drc` [@Ritz2015] fits concentration-response models by maximum likelihood. It is
+mature, widely used, and has far more in it than is shown here. The purpose of
+this page is narrow: to show that most of what the course does with `bayesnec`
+can also be done frequentist, and to be precise about where the two engines
+answer the same question and where they do not.
+
+For `drc` itself, better sources exist:
+
+- Christian Ritz's [dose-response site](https://bioassay.dk/)
+- the `drc` paper in *PLoS ONE*, and its supplement of worked examples
+  [@Ritz2015]
+- community material at [rstats4ag.org](https://rstats4ag.org/dose-response-curves.html)
+
+The section on differences at the end is the part that is specific to this
+course, and is the reason this page exists.
+
+## Fitting
+
+`drm()` is the fitting function. It takes a formula, the data, and a mean
+function through `fct`. Here is the dataset used in module 2, fitted with a
+four-parameter log-logistic curve.
+
+```{r}
+#| label: fit
+data(nec_data)
+model_LL4 <- drm(y ~ x, data = nec_data, fct = LL.4())
+```
+
+`LL.4()` is one of a large catalogue of mean functions. `getMeanFunctions()`
+lists them.
+
+## Reading the fit
+
+```{r}
+#| label: summary
+summary(model_LL4)
+```
+
+The parameters of a four-parameter `drc` model are labelled `b`, `c`, `d` and
+`e`:
+
+| | meaning | `bayesnec` equivalent |
+|---|---|---|
+| `b` | slope, sometimes the hill slope | `beta` or `slope` |
+| `c` | lower asymptote | `bot` |
+| `d` | upper asymptote | `top` |
+| `e` | inflection point | `ec50` |
+
+Where the asymptotes span the full possible response range, `e` is the EC50.
+
+The summary reports a standard error and a test of whether each parameter
+differs from zero. That test is rarely the question of interest — a lower
+asymptote indistinguishable from zero is a reason to fit a three-parameter model,
+not evidence of anything about toxicity.
+
+Residuals can be extracted and checked, which is meaningful for a continuous
+response and not for binomial or count data:
+
+```{r}
+#| label: fig-resid
+#| fig-height: 3.5
+hist(residuals(model_LL4), main = "", xlab = "Residual", col = "grey80",
+     border = "white")
+shapiro.test(residuals(model_LL4))
+```
+
+## Effect concentrations
+
+`ED()` returns effect concentrations. Two of its arguments decide what is
+actually being computed, and both matter more than they appear to.
+
+```{r}
+#| label: ed-args
+#| comment: ""
+args(drc:::ED.drc)
+```
+
+`reference` chooses what the effect is measured **from**, and defaults to
+`"control"` — the fitted response at dose zero. `type` chooses what it is
+measured **to**, and defaults to `"relative"`, meaning a percentage of the
+fitted response range, from the upper asymptote down to the lower one.
+
+```{r}
+#| label: ed
+ED(model_LL4, c(10, 50))
+```
+
+### The word `type` does not mean the same thing in the two packages
+
+This is the trap worth carrying away from this page.
+
+`bayesnec::ecx()` also has a `type` argument, and its values do not correspond
+to `drc`'s:
+
+- `drc` `"relative"`, the default, is a percentage of the fitted **range**. The
+  closest `bayesnec` value is `"range"`, not `"relative"`.
+- `drc` `"absolute"` means an absolute **response value**, so it corresponds to
+  `bayesnec`'s `"direct"`.
+- `bayesnec` `"absolute"`, the default there, is a percentage decline from the
+  control **to zero**. `drc` has no equivalent.
+
+Translating `ecx(fit, type = "absolute")` into `ED(m, 10, type = "absolute")`
+therefore does not ask the same question. It asks for the concentration at which
+the response equals 10, which for a response bounded near 1 does not exist:
+
+```{r}
+#| label: ed-absolute
+#| warning: false
+try(ED(model_LL4, 10, type = "absolute", display = FALSE))
+```
+
+### When the two definitions coincide, and when they do not
+
+They coincide exactly wherever the fitted lower limit is zero, because the
+range then *is* the distance from the control to zero.
+
+```{r}
+#| label: coincide
+coef(model_LL4)[["c:(Intercept)"]]
+```
+
+That is the case here, which is why this dataset gives the same EC10 either way,
+and it is why three-parameter models with the lower limit fixed at zero are
+unambiguous.
+
+Give the response a genuine non-zero floor and the two part company:
+
+```{r}
+#| label: diverge
+floored <- nec_data
+floored$y <- 0.3 + 0.6 * floored$y
+m_floor <- drm(y ~ x, data = floored, fct = LL.4())
+
+cc <- coef(m_floor)[["c:(Intercept)"]]
+dd <- coef(m_floor)[["d:(Intercept)"]]
+
+# drc's default: 10% of the fitted range
+ec10_range <- ED(m_floor, 10, display = FALSE)[1, 1]
+
+# the same fit, asked for a 10% decline from the control, expressed as the
+# equivalent percentage of the fitted range
+level <- 100 * (dd - (dd - 0.10 * dd)) / (dd - cc)
+ec10_control <- ED(m_floor, level, display = FALSE)[1, 1]
+
+c(fitted_lower = cc, fitted_upper = dd,
+  EC10_range_referenced = ec10_range,
+  EC10_control_referenced = ec10_control)
+```
+
+The same fitted curve yields two different EC10s, differing here by about seven
+per cent. Neither is wrong; they are answers to different questions. What is
+wrong is reporting one and calling it the other.
+
+The practical rule: when comparing an `ED()` result against an `ecx()` result,
+establish first that both are referenced the same way, and say in the write-up
+which convention was used.
+
+## A no-effect estimate
+
+`drc` reports no threshold parameter, so there is no *NEC* to be had from it.
+The *NSEC* can be computed from a `drc` fit, because it is defined from the
+fitted curve and the control variability rather than from a model parameter, and
+`toxval` provides it:
+
+```{r}
+#| label: nsec
+toxval::nsec(model_LL4, x_var = "x")
+```
+
+This is the one place where the frequentist route reaches a no-effect estimate
+of the kind module 3 describes.
+
+## Binomial data
+
+A binomial response is given as successes over totals, with `weights` and
+`type = "binomial"`:
+
+```{r}
+#| label: binom
+data(daphnids)
+daphnids.m1 <- drm(no / total ~ dose, weights = total, curveid = time,
+                   data = daphnids, fct = LL.2(), type = "binomial")
+ED(daphnids.m1, 50)
+```
+
+## Model selection and averaging
+
+`drc` selects among candidates by information criterion rather than averaging
+over them.
+
+```{r}
+#| label: mselect
+mselect(model_LL4, list(LL.3(), W1.4(), W2.4()))
+```
+
+`drc` does provide `maED()` for model-averaged effect concentrations, using
+Akaike weights and a Buckland unconditional interval. It is worth knowing two
+things about it before relying on it. It sums without removing missing values,
+so a single candidate whose root-finder fails renders the whole average missing.
+And it forms its weights as `exp(-AIC/2)` without centring on the minimum AIC,
+which underflows to zero for every candidate once AIC reaches a few thousand, as
+it does on individual-level data.
+
+This is a genuine difference in philosophy rather than only in implementation.
+`bayesnec` averages by default over a candidate set; `drc` selects by default,
+and the selection is itself a source of uncertainty that the reported interval
+does not include.
+
+## Comparing groups
+
+`EDcomp()` compares effect concentrations between curves fitted with `curveid`:
+
+```{r}
+#| label: edcomp
+EDcomp(daphnids.m1, c(50, 50))
+```
+
+This is the frequentist counterpart to comparing posteriors, which module 7
+covers. It returns a ratio with a confidence interval and a p-value, rather than
+a probability that one estimate is lower than the other.
+
+## Where the engines agree and where they differ
+
+| | `drc` | `bayesnec` |
+|---|---|---|
+| Estimation | maximum likelihood | Bayesian, HMC via Stan |
+| Interval | delta-method confidence interval | credible interval from the posterior |
+| Threshold estimate | none | *NEC* from threshold equations |
+| No-effect estimate | *NSEC* via `toxval` | *NEC* or *NSEC* |
+| ECx reference | `f(0)`, the fitted response at dose zero | predicted mean at the lowest observed concentration |
+| ECx default | percentage of the fitted **range** | percentage decline from control to zero |
+| Candidate set | select one by AIC | average over the set by weight |
+| Group comparison | ratio, confidence interval, p-value | probability of difference from the posteriors |
+
+Four differences are worth stating in full.
+
+**A confidence interval and a credible interval are different quantities.** They
+are often of similar width and they do not mean the same thing. Label which one
+a table reports.
+
+**The control is a fitted value in `drc`.** `ED(reference = "control")` uses
+`f(0)`, the value the fitted curve takes at dose zero, whether or not dose zero
+was tested. Where the lowest tested concentration is well above zero, or the
+curve is still declining there, that is an extrapolation, and the ECx inherits
+it. `bayesnec` reads the control from the predicted mean at the lowest observed
+concentration instead. On a well-behaved curve with a flat lower end the two
+agree closely; on the shipped example above they agree to four decimal places.
+
+**The distributional assumptions differ, and so will the estimates.** For a
+continuous positive response `drc` will commonly be fitted Gaussian where
+`bayesnec` chooses a gamma. The Gaussian fit is influenced more by the
+high-response observations. Neither is an error, but the two engines will not
+return the same point estimate, and a difference between them is not by itself
+evidence that one is wrong.
+
+**`drc`'s intervals can be too narrow, or absent.** With `type = "Poisson"` the
+variance is fixed equal to the mean, so an over-dispersed count response gets
+intervals narrower than the data support, by roughly the square root of the
+dispersion. The remedy is to report the dispersion alongside the interval rather
+than to rescale it, since changing the variance assumption is a change to the
+model. Separately, the delta-method standard error is `NaN` wherever the variance
+calculation goes negative, which is not rare and not confined to poor fits; each
+one arrives as its own `"NaNs produced"` warning. Where standard errors feed a
+model average, dropping candidates as they become unavailable silently changes
+what the average is an average of, so fix the candidate set for the whole curve
+rather than point by point.
+
+## When to use which
+
+For a well-determined monotonic curve with adequate replication and a response
+that suits the same distribution in both, the two engines give much the same
+answer, and `drc` gets there in seconds rather than minutes.
+
+The Bayesian route earns its overhead where the model is harder: where priors are
+needed to make a non-linear fit stable, where the candidate set genuinely does
+not identify one curve, where a threshold estimate is wanted, or where the
+posterior itself is the thing needed — to propagate uncertainty into a species
+sensitivity distribution, or to state the probability that one substance is more
+toxic than another.
+
+## Provenance
+
+```{r}
+#| label: versions
+#| comment: ""
+for (p in c("drc", "toxval", "bayesnec")) {
+  cat(sprintf("%-10s %s\n", p, as.character(packageVersion(p))))
+}
+cat(sprintf("%-10s %s\n", "R", getRversion()))
+```
+
+Every figure and number on this page is produced when it is built.
+
+## References
+
+::: {#refs}
+:::
