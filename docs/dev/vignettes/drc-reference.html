@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Frequentist fitting with drc – Concentration-response modelling (in development)</title>
+<title>Fitting the same models with drc – Concentration-response modelling (in development)</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -290,19 +290,22 @@ div.csl-indent {
    
   <ul>
   <li><a href="#scope" id="toc-scope" class="nav-link active" data-scroll-target="#scope">Scope</a></li>
-  <li><a href="#fitting" id="toc-fitting" class="nav-link" data-scroll-target="#fitting">Fitting</a></li>
+  <li><a href="#fitting-a-curve" id="toc-fitting-a-curve" class="nav-link" data-scroll-target="#fitting-a-curve">Fitting a curve</a></li>
   <li><a href="#reading-the-fit" id="toc-reading-the-fit" class="nav-link" data-scroll-target="#reading-the-fit">Reading the fit</a></li>
+  <li><a href="#threshold-models" id="toc-threshold-models" class="nav-link" data-scroll-target="#threshold-models">Threshold models</a></li>
   <li><a href="#effect-concentrations" id="toc-effect-concentrations" class="nav-link" data-scroll-target="#effect-concentrations">Effect concentrations</a>
   <ul class="collapse">
-  <li><a href="#the-word-type-does-not-mean-the-same-thing-in-the-two-packages" id="toc-the-word-type-does-not-mean-the-same-thing-in-the-two-packages" class="nav-link" data-scroll-target="#the-word-type-does-not-mean-the-same-thing-in-the-two-packages">The word <code>type</code> does not mean the same thing in the two packages</a></li>
-  <li><a href="#when-the-two-definitions-coincide-and-when-they-do-not" id="toc-when-the-two-definitions-coincide-and-when-they-do-not" class="nav-link" data-scroll-target="#when-the-two-definitions-coincide-and-when-they-do-not">When the two definitions coincide, and when they do not</a></li>
+  <li><a href="#the-basis-of-the-percentage" id="toc-the-basis-of-the-percentage" class="nav-link" data-scroll-target="#the-basis-of-the-percentage">The basis of the percentage</a></li>
+  <li><a href="#the-reference-argument" id="toc-the-reference-argument" class="nav-link" data-scroll-target="#the-reference-argument">The <code>reference</code> argument</a></li>
+  <li><a href="#values-of-type-in-each-package" id="toc-values-of-type-in-each-package" class="nav-link" data-scroll-target="#values-of-type-in-each-package">Values of <code>type</code> in each package</a></li>
+  <li><a href="#agreement-between-the-engines" id="toc-agreement-between-the-engines" class="nav-link" data-scroll-target="#agreement-between-the-engines">Agreement between the engines</a></li>
+  <li><a href="#divergence-between-the-engines" id="toc-divergence-between-the-engines" class="nav-link" data-scroll-target="#divergence-between-the-engines">Divergence between the engines</a></li>
   </ul></li>
-  <li><a href="#a-no-effect-estimate" id="toc-a-no-effect-estimate" class="nav-link" data-scroll-target="#a-no-effect-estimate">A no-effect estimate</a></li>
-  <li><a href="#binomial-data" id="toc-binomial-data" class="nav-link" data-scroll-target="#binomial-data">Binomial data</a></li>
-  <li><a href="#model-selection-and-averaging" id="toc-model-selection-and-averaging" class="nav-link" data-scroll-target="#model-selection-and-averaging">Model selection and averaging</a></li>
+  <li><a href="#a-no-significant-effect-concentration" id="toc-a-no-significant-effect-concentration" class="nav-link" data-scroll-target="#a-no-significant-effect-concentration">A no-significant-effect concentration</a></li>
+  <li><a href="#model-averaging" id="toc-model-averaging" class="nav-link" data-scroll-target="#model-averaging">Model averaging</a></li>
   <li><a href="#comparing-groups" id="toc-comparing-groups" class="nav-link" data-scroll-target="#comparing-groups">Comparing groups</a></li>
-  <li><a href="#where-the-engines-agree-and-where-they-differ" id="toc-where-the-engines-agree-and-where-they-differ" class="nav-link" data-scroll-target="#where-the-engines-agree-and-where-they-differ">Where the engines agree and where they differ</a></li>
-  <li><a href="#when-to-use-which" id="toc-when-to-use-which" class="nav-link" data-scroll-target="#when-to-use-which">When to use which</a></li>
+  <li><a href="#agreement-and-divergence" id="toc-agreement-and-divergence" class="nav-link" data-scroll-target="#agreement-and-divergence">Agreement and divergence</a></li>
+  <li><a href="#choosing-between-them" id="toc-choosing-between-them" class="nav-link" data-scroll-target="#choosing-between-them">Choosing between them</a></li>
   <li><a href="#provenance" id="toc-provenance" class="nav-link" data-scroll-target="#provenance">Provenance</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -318,8 +321,8 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/drc-reference.html">Frequentist comparison</a></li><li class="breadcrumb-item"><a href="../vignettes/drc-reference.html">Fitting the same models with drc</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Frequentist fitting with <code>drc</code></h1>
-<p class="subtitle lead">The same questions asked of a maximum-likelihood engine, and where the answers differ</p>
+<h1 class="title">Fitting the same models with <code>drc</code></h1>
+<p class="subtitle lead">A frequentist engine asked the same questions, and where its answers differ</p>
 </div>
 
 
@@ -338,29 +341,49 @@ div.csl-indent {
 
 <section id="scope" class="level2">
 <h2 class="anchored" data-anchor-id="scope">Scope</h2>
-<p>This is reference material, not part of the taught course.</p>
-<p><code>drc</code> <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span> fits concentration-response models by maximum likelihood. It is mature, widely used, and has far more in it than is shown here. The purpose of this page is narrow: to show that most of what the course does with <code>bayesnec</code> can also be done frequentist, and to be precise about where the two engines answer the same question and where they do not.</p>
-<p>For <code>drc</code> itself, better sources exist:</p>
+<p>This page is supplied for interest and is not taught.</p>
+<p><code>drc</code> <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span> fits concentration-response models by maximum likelihood. It is mature, widely used, and contains a great deal more than is shown here. What follows asks it the questions the course asks of <code>bayesnec</code>, and sets out where the two engines answer the same question and where they answer different ones.</p>
+<p>Better sources exist for <code>drc</code> itself:</p>
 <ul>
 <li>Christian Ritz’s <a href="https://bioassay.dk/">dose-response site</a></li>
-<li>the <code>drc</code> paper in <em>PLoS ONE</em>, and its supplement of worked examples <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span></li>
+<li>the <code>drc</code> paper in <em>PLoS ONE</em> and its supplement of worked examples <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span></li>
 <li>community material at <a href="https://rstats4ag.org/dose-response-curves.html">rstats4ag.org</a></li>
 </ul>
-<p>The section on differences at the end is the part that is specific to this course, and is the reason this page exists.</p>
 </section>
-<section id="fitting" class="level2">
-<h2 class="anchored" data-anchor-id="fitting">Fitting</h2>
-<p><code>drm()</code> is the fitting function. It takes a formula, the data, and a mean function through <code>fct</code>. Here is the dataset used in module 2, fitted with a four-parameter log-logistic curve.</p>
+<section id="fitting-a-curve" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-a-curve">Fitting a curve</h2>
+<p><code>drm()</code> takes a formula, the data, and a mean function through <code>fct</code>. This is the dataset from module 2, fitted with a four-parameter log-logistic curve.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>model_LL4 <span class="ot">&lt;-</span> <span class="fu">drm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> nec_data, <span class="at">fct =</span> <span class="fu">LL.4</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><code>LL.4()</code> is one of a large catalogue of mean functions. <code>getMeanFunctions()</code> lists them.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nec_data, <span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> <span class="fu">curve_data</span>(model_LL4, <span class="fu">min</span>(nec_data<span class="sc">$</span>x), <span class="fu">max</span>(nec_data<span class="sc">$</span>x)),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(x, fit), <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">colour =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-ll4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ll4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="drc-reference_files/figure-html/fig-ll4-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ll4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A four-parameter log-logistic curve fitted to <code>nec_data</code>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The curve declines from about 0.9 at the lowest concentrations to near zero at the highest, with the steep part between roughly 1 and 3.</p>
 </section>
 <section id="reading-the-fit" class="level2">
 <h2 class="anchored" data-anchor-id="reading-the-fit">Reading the fit</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_LL4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_LL4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Model fitted: Log-logistic (ED50 as parameter) (4 parms)
@@ -380,7 +403,7 @@ Residual standard error:
  0.04775948 (96 degrees of freedom)</code></pre>
 </div>
 </div>
-<p>The parameters of a four-parameter <code>drc</code> model are labelled <code>b</code>, <code>c</code>, <code>d</code> and <code>e</code>:</p>
+<p>A four-parameter <code>drc</code> model reports parameters named <code>b</code>, <code>c</code>, <code>d</code> and <code>e</code>:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -412,13 +435,15 @@ Residual standard error:
 </tr>
 </tbody>
 </table>
-<p>Where the asymptotes span the full possible response range, <code>e</code> is the EC50.</p>
-<p>The summary reports a standard error and a test of whether each parameter differs from zero. That test is rarely the question of interest — a lower asymptote indistinguishable from zero is a reason to fit a three-parameter model, not evidence of anything about toxicity.</p>
-<p>Residuals can be extracted and checked, which is meaningful for a continuous response and not for binomial or count data:</p>
+<p>The estimates above are a slope of 7.85, a lower asymptote indistinguishable from zero, an upper asymptote of 0.897, and an inflection at 1.995. Where the asymptotes span the full possible response range, <code>e</code> is the EC50, and that holds here because the lower asymptote is zero.</p>
+<p>Each parameter comes with a test of whether it differs from zero. That test is seldom the question of interest. A lower asymptote indistinguishable from zero, as here, is a reason to consider a three-parameter model with the lower limit fixed, not evidence about toxicity.</p>
+<p>Residuals can be examined for a continuous response, though not for binomial or count data:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(model_LL4), <span class="at">main =</span> <span class="st">""</span>, <span class="at">xlab =</span> <span class="st">"Residual"</span>, <span class="at">col =</span> <span class="st">"grey80"</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">border =</span> <span class="st">"white"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(<span class="fu">residuals</span>(model_LL4))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">r =</span> <span class="fu">residuals</span>(model_LL4)), <span class="fu">aes</span>(r)) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">fill =</span> <span class="st">"grey80"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Residual"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(<span class="fu">residuals</span>(model_LL4))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Wilk normality test
@@ -433,31 +458,77 @@ W = 0.98855, p-value = 0.5498</code></pre>
 <img src="drc-reference_files/figure-html/fig-resid-1.png" id="fig-resid" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-resid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1
+Figure&nbsp;2
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+<p>The residuals are roughly symmetric about zero and the Shapiro-Wilk test returns a p-value of 0.55, so there is no evidence against normality for this fit.</p>
+</section>
+<section id="threshold-models" class="level2">
+<h2 class="anchored" data-anchor-id="threshold-models">Threshold models</h2>
+<p><code>drc</code> provides threshold mean functions as well as smooth ones: <code>NEC.2</code>, <code>NEC.3</code> and <code>NEC.4</code>. These estimate a breakpoint directly, in the same sense as the <code>nec</code> equations of <code>bayesnec</code>, so a <em>NEC</em> is available from either engine.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_NEC3 <span class="ot">&lt;-</span> <span class="fu">drm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> nec_data, <span class="at">fct =</span> <span class="fu">NEC.3</span>())</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_NEC3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Model fitted: NEC with lower limit at 0 (3 parms)
+
+Parameter estimates:
+
+               Estimate Std. Error t-value   p-value    
+b:(Intercept) 1.5672051  0.0726125  21.583 &lt; 2.2e-16 ***
+d:(Intercept) 0.8902215  0.0048855 182.217 &lt; 2.2e-16 ***
+e:(Intercept) 1.5228700  0.0142273 107.039 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error:
+
+ 0.04145488 (97 degrees of freedom)</code></pre>
+</div>
+</div>
+<p>The threshold is the <code>e</code> parameter, estimated at 1.523, with <code>d</code> the level of the response below it.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(model_NEC3)[<span class="st">"e:(Intercept)"</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   2.5 %   97.5 % 
+1.494633 1.551107 </code></pre>
+</div>
+</div>
+<p>Module 2 fitted <code>nec3param</code> to these same data with <code>bayesnec</code> and reported a <em>NEC</em> of 1.54 with a 95% credible interval of 1.50 to 1.57. The <code>drc</code> threshold above is 1.52 with a confidence interval of 1.49 to 1.55. The two engines are estimating the same quantity here and they agree to within about one per cent.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nec_data, <span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> <span class="fu">curve_data</span>(model_NEC3, <span class="fu">min</span>(nec_data<span class="sc">$</span>x), <span class="fu">max</span>(nec_data<span class="sc">$</span>x)),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(x, fit), <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">colour =</span> <span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">coef</span>(model_NEC3)[[<span class="st">"e:(Intercept)"</span>]],</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nec3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nec3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="drc-reference_files/figure-html/fig-nec3-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nec3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: <code>NEC.3</code> fitted to the same data. The dashed line is the estimated threshold.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The fitted curve holds flat at 0.890 until the threshold and declines exponentially after it, which is the shape <code>nec3param</code> also fits.</p>
 </section>
 <section id="effect-concentrations" class="level2">
 <h2 class="anchored" data-anchor-id="effect-concentrations">Effect concentrations</h2>
-<p><code>ED()</code> returns effect concentrations. Two of its arguments decide what is actually being computed, and both matter more than they appear to.</p>
+<p><code>ED()</code> returns effect concentrations, and two of its arguments determine what is computed.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">args</span>(drc<span class="sc">:::</span>ED.drc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>function (object, respLev, interval = c("none", "delta", "fls", 
-    "tfls"), clevel = NULL, level = ifelse(!(interval == "none"), 
-    0.95, NULL), reference = c("control", "upper"), type = c("relative", 
-    "absolute"), lref, uref, bound = TRUE, od = FALSE, vcov. = vcov, 
-    display = TRUE, pool = TRUE, logBase = NULL, multcomp = FALSE, 
-    ...) 
-NULL</code></pre>
-</div>
-</div>
-<p><code>reference</code> chooses what the effect is measured <strong>from</strong>, and defaults to <code>"control"</code> — the fitted response at dose zero. <code>type</code> chooses what it is measured <strong>to</strong>, and defaults to <code>"relative"</code>, meaning a percentage of the fitted response range, from the upper asymptote down to the lower one.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ED</span>(model_LL4, <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">50</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ED</span>(model_LL4, <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">50</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Estimated effective doses
@@ -467,104 +538,231 @@ e:1:10 1.507871   0.023089
 e:1:50 1.995000   0.035440</code></pre>
 </div>
 </div>
-<section id="the-word-type-does-not-mean-the-same-thing-in-the-two-packages" class="level3">
-<h3 class="anchored" data-anchor-id="the-word-type-does-not-mean-the-same-thing-in-the-two-packages">The word <code>type</code> does not mean the same thing in the two packages</h3>
-<p>This is the trap worth carrying away from this page.</p>
-<p><code>bayesnec::ecx()</code> also has a <code>type</code> argument, and its values do not correspond to <code>drc</code>’s:</p>
-<ul>
-<li><code>drc</code> <code>"relative"</code>, the default, is a percentage of the fitted <strong>range</strong>. The closest <code>bayesnec</code> value is <code>"range"</code>, not <code>"relative"</code>.</li>
-<li><code>drc</code> <code>"absolute"</code> means an absolute <strong>response value</strong>, so it corresponds to <code>bayesnec</code>’s <code>"direct"</code>.</li>
-<li><code>bayesnec</code> <code>"absolute"</code>, the default there, is a percentage decline from the control <strong>to zero</strong>. <code>drc</code> has no equivalent.</li>
-</ul>
-<p>Translating <code>ecx(fit, type = "absolute")</code> into <code>ED(m, 10, type = "absolute")</code> therefore does not ask the same question. It asks for the concentration at which the response equals 10, which for a response bounded near 1 does not exist:</p>
+<section id="the-basis-of-the-percentage" class="level3">
+<h3 class="anchored" data-anchor-id="the-basis-of-the-percentage">The basis of the percentage</h3>
+<p>For <code>type = "relative"</code>, which is the default, the percentage is a fraction of the fitted response range, measured from the upper asymptote <code>d</code> down to the lower asymptote <code>c</code>. This can be checked directly against the curve:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">try</span>(<span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">type =</span> <span class="st">"absolute"</span>, <span class="at">display =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="when-the-two-definitions-coincide-and-when-they-do-not" class="level3">
-<h3 class="anchored" data-anchor-id="when-the-two-definitions-coincide-and-when-they-do-not">When the two definitions coincide, and when they do not</h3>
-<p>They coincide exactly wherever the fitted lower limit is zero, because the range then <em>is</em> the distance from the control to zero.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model_LL4)[[<span class="st">"c:(Intercept)"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">coef</span>(model_LL4)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>c_lo <span class="ot">&lt;-</span> cf[[<span class="st">"c:(Intercept)"</span>]]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>d_hi <span class="ot">&lt;-</span> cf[[<span class="st">"d:(Intercept)"</span>]]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>ec10 <span class="ot">&lt;-</span> <span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ec50 <span class="ot">&lt;-</span> <span class="fu">ED</span>(model_LL4, <span class="dv">50</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">response_at_EC10 =</span> <span class="fu">predict</span>(model_LL4, <span class="fu">data.frame</span>(<span class="at">x =</span> ec10)),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_minus_10pc_of_range =</span> d_hi <span class="sc">-</span> <span class="fl">0.10</span> <span class="sc">*</span> (d_hi <span class="sc">-</span> c_lo),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">response_at_EC50 =</span> <span class="fu">predict</span>(model_LL4, <span class="fu">data.frame</span>(<span class="at">x =</span> ec50)),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">midpoint_of_range =</span> c_lo <span class="sc">+</span> (d_hi <span class="sc">-</span> c_lo) <span class="sc">/</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.015351e-05</code></pre>
+<pre><code>response_at_EC10.Prediction       d_minus_10pc_of_range 
+                  0.8075928                   0.8075928 
+response_at_EC50.Prediction           midpoint_of_range 
+                  0.4486716                   0.4486716 </code></pre>
 </div>
 </div>
-<p>That is the case here, which is why this dataset gives the same EC10 either way, and it is why three-parameter models with the lower limit fixed at zero are unambiguous.</p>
-<p>Give the response a genuine non-zero floor and the two part company:</p>
+<p>The response at <code>ED10</code> is 0.8076, which is exactly <code>d</code> minus a tenth of the range, and the response at <code>ED50</code> is 0.4487, exactly the midpoint. The percentage is therefore a percentage of <code>d − c</code>.</p>
+<p>Both ends of that range are fitted parameters. <code>d</code> is the level the curve approaches as concentration falls, whether or not anything was measured there, and <code>c</code> is the level it approaches as concentration rises, which may lie beyond the highest concentration tested. A design that does not reach either plateau estimates that end by extrapolation, and every ECx inherits it.</p>
+<p><code>bayesnec</code> anchors differently. Its <code>ecx()</code> measures the decline from the control, defined as the predicted mean at the lowest observed concentration, which is a point inside the data rather than a fitted limit.</p>
+</section>
+<section id="the-reference-argument" class="level3">
+<h3 class="anchored" data-anchor-id="the-reference-argument">The <code>reference</code> argument</h3>
+<p>The name suggests <code>reference</code> chooses the anchor. It does not. Its only effect is a direction convention for increasing curves:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>floored <span class="ot">&lt;-</span> nec_data</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>floored<span class="sc">$</span>y <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="sc">+</span> <span class="fl">0.6</span> <span class="sc">*</span> floored<span class="sc">$</span>y</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>m_floor <span class="ot">&lt;-</span> <span class="fu">drm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> floored, <span class="at">fct =</span> <span class="fu">LL.4</span>())</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_floor)[[<span class="st">"c:(Intercept)"</span>]]</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_floor)[[<span class="st">"d:(Intercept)"</span>]]</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># drc's default: 10% of the fitted range</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ec10_range <span class="ot">&lt;-</span> <span class="fu">ED</span>(m_floor, <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># the same fit, asked for a 10% decline from the control, expressed as the</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># equivalent percentage of the fitted range</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>level <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="sc">*</span> (dd <span class="sc">-</span> (dd <span class="sc">-</span> <span class="fl">0.10</span> <span class="sc">*</span> dd)) <span class="sc">/</span> (dd <span class="sc">-</span> cc)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>ec10_control <span class="ot">&lt;-</span> <span class="fu">ED</span>(m_floor, level, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">fitted_lower =</span> cc, <span class="at">fitted_upper =</span> dd,</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC10_range_referenced =</span> ec10_range,</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC10_control_referenced =</span> ec10_control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>increasing <span class="ot">&lt;-</span> <span class="fu">transform</span>(nec_data, <span class="at">y =</span> <span class="dv">1</span> <span class="sc">-</span> y)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>model_up <span class="ot">&lt;-</span> <span class="fu">drm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> increasing, <span class="at">fct =</span> <span class="fu">LL.4</span>())</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">decreasing =</span> <span class="fu">c</span>(<span class="at">control =</span> <span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">reference =</span> <span class="st">"control"</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>],</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">upper   =</span> <span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">reference =</span> <span class="st">"upper"</span>,   <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">increasing =</span> <span class="fu">c</span>(<span class="at">control =</span> <span class="fu">ED</span>(model_up,  <span class="dv">10</span>, <span class="at">reference =</span> <span class="st">"control"</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>],</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">upper   =</span> <span class="fu">ED</span>(model_up,  <span class="dv">10</span>, <span class="at">reference =</span> <span class="st">"upper"</span>,   <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           fitted_lower            fitted_upper   EC10_range_referenced 
-              0.3443691               0.8376138               1.5110272 
-EC10_control_referenced 
-              1.6199901 </code></pre>
+<pre><code>            control    upper
+decreasing 1.507871 1.507871
+increasing 1.511092 2.494251</code></pre>
 </div>
 </div>
-<p>The same fitted curve yields two different EC10s, differing here by about seven per cent. Neither is wrong; they are answers to different questions. What is wrong is reporting one and calling it the other.</p>
-<p>The practical rule: when comparing an <code>ED()</code> result against an <code>ecx()</code> result, establish first that both are referenced the same way, and say in the write-up which convention was used.</p>
+<p>On the decreasing curve both settings return 1.508. On the increasing curve they return 1.511 and 2.494. For an ordinary concentration-response curve, which declines, changing <code>reference</code> changes nothing.</p>
 </section>
-</section>
-<section id="a-no-effect-estimate" class="level2">
-<h2 class="anchored" data-anchor-id="a-no-effect-estimate">A no-effect estimate</h2>
-<p><code>drc</code> reports no threshold parameter, so there is no <em>NEC</em> to be had from it. The <em>NSEC</em> can be computed from a <code>drc</code> fit, because it is defined from the fitted curve and the control variability rather than from a model parameter, and <code>toxval</code> provides it:</p>
+<section id="values-of-type-in-each-package" class="level3">
+<h3 class="anchored" data-anchor-id="values-of-type-in-each-package">Values of <code>type</code> in each package</h3>
+<p><code>bayesnec::ecx()</code> also takes a <code>type</code> argument and its values do not line up with <code>drc</code>’s.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>drc</code> <code>type</code></th>
+<th>what it means</th>
+<th>nearest <code>bayesnec</code> <code>type</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"relative"</code> (default)</td>
+<td>percentage of the fitted range <code>d − c</code></td>
+<td><code>"range"</code></td>
+</tr>
+<tr class="even">
+<td><code>"absolute"</code></td>
+<td>an absolute response value</td>
+<td><code>"direct"</code></td>
+</tr>
+<tr class="odd">
+<td>—</td>
+<td>percentage decline from the control to zero</td>
+<td><code>"absolute"</code> (default)</td>
+</tr>
+</tbody>
+</table>
+<p><code>drc</code>’s <code>"absolute"</code> asks for the concentration at which the response equals the number supplied, so <code>ED(model_LL4, 10, type = "absolute")</code> asks where the response equals 10. This response is bounded near 1, so no such concentration exists and the call fails:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>toxval<span class="sc">::</span><span class="fu">nsec</span>(model_LL4, <span class="at">x_var =</span> <span class="st">"x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">type =</span> <span class="st">"absolute"</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(exp(-tempVal/parmVec[5]) - 1): NaNs produced</code></pre>
+</div>
+</div>
+<p>The error is the correct behaviour. It is shown because the same word is the default in <code>bayesnec</code> and means a percentage there, so translating <code>ecx(fit, type = "absolute")</code> into <code>ED(m, 10, type = "absolute")</code> changes the question being asked.</p>
+</section>
+<section id="agreement-between-the-engines" class="level3">
+<h3 class="anchored" data-anchor-id="agreement-between-the-engines">Agreement between the engines</h3>
+<p>Where the fitted lower asymptote is zero and the curve is flat across the lowest concentrations tested, the fitted range and the distance from the control to zero are the same interval, and the two engines estimate the same quantity. <code>nec_data</code> satisfies both conditions.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>bnec_ecx4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecx4param"</span>), <span class="at">data =</span> nec_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantity =</span> <span class="fu">c</span>(<span class="st">"EC10"</span>, <span class="st">"EC50"</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">drc_relative =</span> <span class="fu">c</span>(<span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>],</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">ED</span>(model_LL4, <span class="dv">50</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">bayesnec_range =</span> <span class="fu">c</span>(<span class="fu">ecx</span>(bnec_ecx4, <span class="at">ecx_val =</span> <span class="dv">10</span>, <span class="at">type =</span> <span class="st">"range"</span>)[<span class="dv">1</span>],</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">ecx</span>(bnec_ecx4, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">type =</span> <span class="st">"range"</span>)[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.1788306 0.9617242 1.2842021
-attr(,"ecnsec_relativeP")
-Prediction      Lower      Upper 
- 1.6207422  0.2443135  3.1976479 
-attr(,"resolution")
-[1] 1000
-attr(,"sig_val")
-[1] 0.01
-attr(,"toxicity_estimate")
-[1] "nsec"</code></pre>
+<pre><code>  quantity drc_relative bayesnec_range
+1     EC10     1.507871       1.514334
+2     EC50     1.995000       1.995818</code></pre>
 </div>
 </div>
-<p>This is the one place where the frequentist route reaches a no-effect estimate of the kind module 3 describes.</p>
+<p>The EC50 estimates agree to three decimal places. The EC10 estimates differ by about half a per cent, and the <code>drc</code> estimate falls inside the <code>bayesnec</code> credible interval. Two different engines, fitting two differently parameterised four-parameter curves by two different methods, return the same numbers to the precision anyone would report.</p>
 </section>
-<section id="binomial-data" class="level2">
-<h2 class="anchored" data-anchor-id="binomial-data">Binomial data</h2>
-<p>A binomial response is given as successes over totals, with <code>weights</code> and <code>type = "binomial"</code>:</p>
+<section id="divergence-between-the-engines" class="level3">
+<h3 class="anchored" data-anchor-id="divergence-between-the-engines">Divergence between the engines</h3>
+<p>Give the response a floor that is not zero and the fitted range is no longer the distance from the control to zero. The two anchors then measure different things.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(daphnids)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>daphnids.m1 <span class="ot">&lt;-</span> <span class="fu">drm</span>(no <span class="sc">/</span> total <span class="sc">~</span> dose, <span class="at">weights =</span> total, <span class="at">curveid =</span> time,</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> daphnids, <span class="at">fct =</span> <span class="fu">LL.2</span>(), <span class="at">type =</span> <span class="st">"binomial"</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ED</span>(daphnids.m1, <span class="dv">50</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>floored <span class="ot">&lt;-</span> <span class="fu">transform</span>(nec_data, <span class="at">y =</span> <span class="fl">0.3</span> <span class="sc">+</span> <span class="fl">0.6</span> <span class="sc">*</span> y)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>model_floor <span class="ot">&lt;-</span> <span class="fu">drm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> floored, <span class="at">fct =</span> <span class="fu">LL.4</span>())</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>cf_f <span class="ot">&lt;-</span> <span class="fu">coef</span>(model_floor)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>c_f <span class="ot">&lt;-</span> cf_f[[<span class="st">"c:(Intercept)"</span>]]</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>d_f <span class="ot">&lt;-</span> cf_f[[<span class="st">"d:(Intercept)"</span>]]</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># A 10% decline from the control, expressed as the percentage of the fitted</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># range that drc needs, so that both quantities come from the same fit.</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>level_from_control <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="sc">*</span> (<span class="fl">0.10</span> <span class="sc">*</span> d_f) <span class="sc">/</span> (d_f <span class="sc">-</span> c_f)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">fitted_lower =</span> c_f,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">fitted_upper =</span> d_f,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC10_of_the_range =</span> <span class="fu">ED</span>(model_floor, <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>],</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC10_from_control =</span> <span class="fu">ED</span>(model_floor, level_from_control, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
-Estimated effective doses
-
-         Estimate Std. Error
-e:24h:50  5134.03    1056.74
-e:48h:50  1509.07     187.76</code></pre>
+<pre><code>     fitted_lower      fitted_upper EC10_of_the_range EC10_from_control 
+        0.3443691         0.8376138         1.5110272         1.6199901 </code></pre>
 </div>
 </div>
-</section>
-<section id="model-selection-and-averaging" class="level2">
-<h2 class="anchored" data-anchor-id="model-selection-and-averaging">Model selection and averaging</h2>
-<p><code>drc</code> selects among candidates by information criterion rather than averaging over them.</p>
+<p>The fitted range runs from 0.344 to 0.838. A decline of ten per cent of that range reaches a response of 0.789 and is met at a concentration of 1.511. A decline of ten per cent from the control reaches 0.754 and is met at 1.620, some seven per cent higher.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mselect</span>(model_LL4, <span class="fu">list</span>(<span class="fu">LL.3</span>(), <span class="fu">W1.4</span>(), <span class="fu">W2.4</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>gr <span class="ot">&lt;-</span> <span class="fu">curve_data</span>(model_floor, <span class="fu">min</span>(floored<span class="sc">$</span>x), <span class="fu">max</span>(floored<span class="sc">$</span>x))</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>ec_range <span class="ot">&lt;-</span> <span class="fu">ED</span>(model_floor, <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>ec_ctrl  <span class="ot">&lt;-</span> <span class="fu">ED</span>(model_floor, level_from_control, <span class="at">display =</span> <span class="cn">FALSE</span>)[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(floored, <span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> gr, <span class="fu">aes</span>(x, fit), <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">colour =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> d_f <span class="sc">-</span> <span class="fl">0.10</span> <span class="sc">*</span> (d_f <span class="sc">-</span> c_f), <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> d_f <span class="sc">-</span> <span class="fl">0.10</span> <span class="sc">*</span> d_f, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> ec_range, <span class="at">linetype =</span> <span class="dv">3</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> ec_ctrl,  <span class="at">linetype =</span> <span class="dv">3</span>, <span class="at">colour =</span> <span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">min</span>(floored<span class="sc">$</span>x), <span class="at">y =</span> c_f <span class="sc">+</span> <span class="fl">0.01</span>,</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"fitted lower asymptote"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>) <span class="sc">+</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-anchors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anchors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="drc-reference_files/figure-html/fig-anchors-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anchors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The same fitted curve, with the two targets a ten per cent effect can mean. The upper dashed line is ten per cent of the fitted range below the control; the lower is ten per cent of the control.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Both estimates are correct, and they answer different questions. The range-referenced EC10 is the concentration at which the response has fallen by a tenth of the range the fitted curve spans, from its upper asymptote to its lower. The control-referenced EC10 is the concentration at which the response has fallen to nine tenths of its control level. Where a guideline value is being derived the second is normally what is meant, and it is what <code>bayesnec</code> returns by default.</p>
+<p>The practical rule when comparing an <code>ED()</code> result against an <code>ecx()</code> result is to establish that both are anchored the same way, and to record in the write-up which convention was used.</p>
+</section>
+</section>
+<section id="a-no-significant-effect-concentration" class="level2">
+<h2 class="anchored" data-anchor-id="a-no-significant-effect-concentration">A no-significant-effect concentration</h2>
+<p>The <em>NSEC</em> is defined from the fitted curve and the variability of the control rather than from a model parameter <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>, so it can be derived from a frequentist fit. Take the control level and a lower bound on it, then find the concentration at which the curve crosses that bound.</p>
+<p>For the threshold model the control level is the <code>d</code> parameter, and its standard error is reported in the summary.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>sig_val <span class="ot">&lt;-</span> <span class="fl">0.01</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">summary</span>(model_NEC3)<span class="sc">$</span>coefficients</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>d_est <span class="ot">&lt;-</span> pars[<span class="st">"d:(Intercept)"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>d_se  <span class="ot">&lt;-</span> pars[<span class="st">"d:(Intercept)"</span>, <span class="st">"Std. Error"</span>]</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co"># One-sided lower bound on the control at the 1 - sig_val level. This is the</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># frequentist counterpart of the control posterior quantile bayesnec uses.</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>lower_bound <span class="ot">&lt;-</span> d_est <span class="sc">-</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> sig_val) <span class="sc">*</span> d_se</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>crossing <span class="ot">&lt;-</span> <span class="cf">function</span>(z) <span class="fu">predict</span>(model_NEC3, <span class="fu">data.frame</span>(<span class="at">x =</span> z)) <span class="sc">-</span> lower_bound</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>nsec <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(crossing, <span class="at">interval =</span> <span class="fu">range</span>(nec_data<span class="sc">$</span>x))<span class="sc">$</span>root</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">control =</span> d_est, <span class="at">control_se =</span> d_se, <span class="at">lower_bound =</span> lower_bound, <span class="at">NSEC =</span> nsec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    control  control_se lower_bound        NSEC 
+0.890221527 0.004885504 0.878856146 1.531069897 </code></pre>
+</div>
+</div>
+<p>The control is estimated at 0.8902 with a standard error of 0.0049, giving a lower 99 per cent bound of 0.8789. The curve crosses that bound at 1.531, which is the <em>NSEC</em>. The threshold estimated by the same model is 1.523, slightly lower, because the curve has to decline a little past the threshold before it falls below the control’s lower bound.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nec_data, <span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> <span class="fu">curve_data</span>(model_NEC3, <span class="fu">min</span>(nec_data<span class="sc">$</span>x), <span class="fu">max</span>(nec_data<span class="sc">$</span>x)),</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(x, fit), <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">colour =</span> <span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> lower_bound, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> nsec, <span class="at">linetype =</span> <span class="dv">3</span>, <span class="at">colour =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nsec" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="drc-reference_files/figure-html/fig-nsec-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The derived NSEC. The horizontal line is the lower bound on the control and the vertical line marks where the curve crosses it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The derivation above reads the control’s uncertainty off the <code>d</code> parameter because <code>predict(model_NEC3, se.fit = TRUE)</code> returns no standard error for this fit. That is one instance of a wider problem with <code>drc</code> standard errors, described at the end of this page.</p>
+<p>Two things separate this from the <code>bayesnec</code> <em>NSEC</em>. The bound here is a normal approximation from one standard error, where <code>bayesnec</code> takes a quantile of the control posterior. And there is no interval on the result, because propagating the uncertainty in both the control and the curve through the crossing would require the delta method or a bootstrap.</p>
+</section>
+<section id="model-averaging" class="level2">
+<h2 class="anchored" data-anchor-id="model-averaging">Model averaging</h2>
+<p><code>drc</code> selects among candidates by information criterion:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mselect</span>(model_LL4, <span class="fu">list</span>(<span class="fu">LL.3</span>(), <span class="fu">W1.4</span>(), <span class="fu">W2.4</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       logLik        IC Lack of fit     Res var
 W2.4 174.0792 -338.1584          NA 0.001875953
@@ -573,16 +771,27 @@ LL.4 164.3050 -318.6100          NA 0.002280968
 W1.4 157.1969 -304.3938          NA 0.002629416</code></pre>
 </div>
 </div>
-<p><code>drc</code> does provide <code>maED()</code> for model-averaged effect concentrations, using Akaike weights and a Buckland unconditional interval. Two things about it are worth knowing before relying on it, and both are visible in <code>drc::maED</code> itself.</p>
-<p>It takes <code>na.rm = FALSE</code> and threads that through every <code>sum()</code>, so a single candidate that converges but whose effect-concentration root-finder fails renders every averaged value missing rather than being dropped from the average.</p>
-<p>And it forms its weights as <code>exp(-AIC/2)</code> with no centring on the minimum AIC. Once AIC reaches a few thousand, as it does on individual-level rather than summarised data, every term underflows to zero in double precision and the weights become <code>0/0</code>. Centring on the minimum fixes it and changes nothing where the uncentred form works.</p>
-<p>This is a genuine difference in philosophy rather than only in implementation. <code>bayesnec</code> averages by default over a candidate set; <code>drc</code> selects by default, and the selection is itself a source of uncertainty that the reported interval does not include.</p>
+<p><code>W2.4</code> has the lowest information criterion at −338.2, followed by <code>LL.3</code> at −320.6.</p>
+<p>It also averages, through <code>maED()</code>, using Akaike weights and a Buckland unconditional interval:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">maED</span>(model_LL4, <span class="fu">list</span>(<span class="fu">LL.3</span>(), <span class="fu">LL.4</span>(), <span class="fu">W1.4</span>(), <span class="fu">W2.4</span>()), <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Estimate
+e:1:10 1.564547</code></pre>
+</div>
+</div>
+<p>The averaged EC10 is 1.565. The four candidates individually give 1.508, 1.508, 1.462 and 1.565, so the average sits at the value from <code>W2.4</code>, which took almost all of the Akaike weight because its information criterion is nearly twenty units below the others.</p>
+<p>Two properties of <code>maED()</code> are visible in <code>drc::maED</code> itself and matter before relying on it. It takes <code>na.rm = FALSE</code> and threads that through every <code>sum()</code>, so one candidate whose root-finder fails renders every averaged value missing rather than being dropped. And it forms weights as <code>exp(-AIC/2)</code> without centring on the minimum AIC, so once AIC reaches a few thousand every term underflows to zero in double precision and the weights become <code>0/0</code>. Centring on the minimum resolves this and changes nothing where the uncentred form works.</p>
+<p>The difference from <code>bayesnec</code> is one of default rather than of capability. <code>bayesnec</code> averages unless asked to fit a single equation; <code>drc</code> fits one equation unless asked to average, and the uncertainty in which equation was selected does not appear in the interval of a single selected fit.</p>
 </section>
 <section id="comparing-groups" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-groups">Comparing groups</h2>
 <p><code>EDcomp()</code> compares effect concentrations between curves fitted with <code>curveid</code>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">EDcomp</span>(daphnids.m1, <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(daphnids)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>daphnids.m1 <span class="ot">&lt;-</span> <span class="fu">drm</span>(no <span class="sc">/</span> total <span class="sc">~</span> dose, <span class="at">weights =</span> total, <span class="at">curveid =</span> time,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> daphnids, <span class="at">fct =</span> <span class="fu">LL.2</span>(), <span class="at">type =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">EDcomp</span>(daphnids.m1, <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Estimated ratios of effect doses
@@ -591,10 +800,10 @@ Estimated ratios of effect doses
 24h/48h:50/50 3.4021279  0.8182594 2.9356556 0.0033284</code></pre>
 </div>
 </div>
-<p>This is the frequentist counterpart to comparing posteriors, which module 7 covers. It returns a ratio with a confidence interval and a p-value, rather than a probability that one estimate is lower than the other.</p>
+<p>The ratio of the two EC50 values is 3.40 with a p-value of 0.003, so the 24-hour and 48-hour curves differ. <code>bayesnec</code> answers the same question by comparing posteriors and returns a probability that one estimate is lower than the other, which module 7 covers.</p>
 </section>
-<section id="where-the-engines-agree-and-where-they-differ" class="level2">
-<h2 class="anchored" data-anchor-id="where-the-engines-agree-and-where-they-differ">Where the engines agree and where they differ</h2>
+<section id="agreement-and-divergence" class="level2">
+<h2 class="anchored" data-anchor-id="agreement-and-divergence">Agreement and divergence</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -616,73 +825,69 @@ Estimated ratios of effect doses
 </tr>
 <tr class="even">
 <td>Interval</td>
-<td>delta-method confidence interval</td>
+<td>confidence interval, delta method</td>
 <td>credible interval from the posterior</td>
 </tr>
 <tr class="odd">
-<td>Threshold estimate</td>
-<td>none</td>
-<td><em>NEC</em> from threshold equations</td>
+<td>Threshold equations</td>
+<td><code>NEC.2</code>, <code>NEC.3</code>, <code>NEC.4</code></td>
+<td>the ten <code>nec</code> equations</td>
 </tr>
 <tr class="even">
-<td>No-effect estimate</td>
-<td><em>NSEC</em> via <code>toxval</code></td>
-<td><em>NEC</em> or <em>NSEC</em></td>
+<td><em>NSEC</em></td>
+<td>derived by hand, as above</td>
+<td><code>nsec()</code>, with an interval</td>
 </tr>
 <tr class="odd">
-<td>ECx reference</td>
-<td><code>f(0)</code>, the fitted response at dose zero</td>
-<td>predicted mean at the lowest observed concentration</td>
+<td>ECx anchor</td>
+<td>the fitted range, <code>d</code> to <code>c</code></td>
+<td>the control, at the lowest observed concentration</td>
 </tr>
 <tr class="even">
-<td>ECx default</td>
-<td>percentage of the fitted <strong>range</strong></td>
-<td>percentage decline from control to zero</td>
-</tr>
-<tr class="odd">
 <td>Candidate set</td>
-<td>select one by AIC</td>
-<td>average over the set by weight</td>
+<td>one selected by AIC, or averaged with <code>maED()</code></td>
+<td>averaged by default</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Group comparison</td>
 <td>ratio, confidence interval, p-value</td>
 <td>probability of difference from the posteriors</td>
 </tr>
 </tbody>
 </table>
-<p>Four differences are worth stating in full.</p>
-<p><strong>A confidence interval and a credible interval are different quantities.</strong> They are often of similar width and they do not mean the same thing. Label which one a table reports.</p>
-<p><strong>The control is a fitted value in <code>drc</code>.</strong> <code>ED(reference = "control")</code> uses <code>f(0)</code>, the value the fitted curve takes at dose zero, whether or not dose zero was tested. Where the lowest tested concentration is well above zero, or the curve is still declining there, that is an extrapolation, and the ECx inherits it. <code>bayesnec</code> reads the control from the predicted mean at the lowest observed concentration instead. On a well-behaved curve with a flat lower end the two agree closely; on the shipped example above they agree to four decimal places.</p>
-<p><strong>The distributional assumptions differ, and so will the estimates.</strong> For a continuous positive response <code>drc</code> will commonly be fitted Gaussian where <code>bayesnec</code> chooses a gamma. The Gaussian fit is influenced more by the high-response observations. Neither is an error, but the two engines will not return the same point estimate, and a difference between them is not by itself evidence that one is wrong.</p>
-<p><strong><code>drc</code>’s intervals can be too narrow, or absent.</strong> With <code>type = "Poisson"</code> the variance is fixed equal to the mean, so an over-dispersed count response gets intervals narrower than the data support, by roughly the square root of the dispersion. The remedy is to report the dispersion alongside the interval rather than to rescale it, since changing the variance assumption is a change to the model. Separately, the delta-method standard error is <code>NaN</code> wherever the variance calculation goes negative, which is not rare and not confined to poor fits; each one arrives as its own <code>"NaNs produced"</code> warning. Where standard errors feed a model average, dropping candidates as they become unavailable silently changes what the average is an average of, so fix the candidate set for the whole curve rather than point by point.</p>
+<p>A confidence interval and a credible interval are not the same quantity. A credible interval states where the parameter lies with a given probability, given the data, the model and the priors. A confidence interval states that the procedure producing it would contain the true value in that proportion of repeated experiments. The sentence a risk assessment usually wants — that there is a 95 per cent probability the <em>NEC</em> lies between two values — follows from the first and not from the second. Both are abbreviated CI, and <code>brms</code> prints <code>l-95% CI</code>, so the interval type is worth naming in a results table.</p>
+<p>The distributional assumptions differ and the point estimates will differ with them. A continuous positive response will commonly be fitted Gaussian in <code>drc</code> where <code>bayesnec</code> selects a gamma, and the Gaussian fit is influenced more by the high-response observations. A difference between the engines is not by itself evidence that either is wrong.</p>
+<p><code>drc</code> intervals can be too narrow, or missing. Under <code>type = "Poisson"</code> the variance is fixed equal to the mean, so an over-dispersed count response gets intervals narrower than the data support by roughly the square root of the dispersion; report the dispersion alongside the interval rather than rescaling it, since changing the variance assumption changes the model. Separately, the delta-method standard error is <code>NaN</code> wherever the variance calculation goes negative, which is neither rare nor confined to poor fits, and each occurrence arrives as its own <code>"NaNs produced"</code> warning. The NSEC derivation above met this in a mild form. Where standard errors feed a model average, dropping candidates as their errors become unavailable changes what the average is an average of, so fix the candidate set for the whole curve rather than point by point.</p>
 </section>
-<section id="when-to-use-which" class="level2">
-<h2 class="anchored" data-anchor-id="when-to-use-which">When to use which</h2>
-<p>For a well-determined monotonic curve with adequate replication and a response that suits the same distribution in both, the two engines give much the same answer, and <code>drc</code> gets there in seconds rather than minutes.</p>
-<p>The Bayesian route earns its overhead where the model is harder: where priors are needed to make a non-linear fit stable, where the candidate set genuinely does not identify one curve, where a threshold estimate is wanted, or where the posterior itself is the thing needed — to propagate uncertainty into a species sensitivity distribution, or to state the probability that one substance is more toxic than another.</p>
+<section id="choosing-between-them" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-between-them">Choosing between them</h2>
+<p>For a well-determined monotonic curve with adequate replication, fitted with the same distribution in both, the two engines return much the same answer, as the EC50 comparison above shows, and <code>drc</code> returns it in seconds rather than minutes.</p>
+<p>The Bayesian route repays its overhead where the problem is harder: where priors are needed to stabilise a non-linear fit, where the candidate set does not identify one curve, where an interval is wanted on a derived quantity such as the <em>NSEC</em>, or where the posterior itself is needed to propagate uncertainty into a species sensitivity distribution or to state the probability that one substance is more toxic than another.</p>
 </section>
 <section id="provenance" class="level2">
 <h2 class="anchored" data-anchor-id="provenance">Provenance</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"drc"</span>, <span class="st">"toxval"</span>, <span class="st">"bayesnec"</span>)) {</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, p, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(p))))</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"drc"</span>, <span class="st">"bayesnec"</span>, <span class="st">"brms"</span>)) {</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, p, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(p))))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>drc        3.0.1
-toxval     1.0.0
-bayesnec   2.1.3.34</code></pre>
+bayesnec   2.1.3.34
+brms       2.23.0</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>R          4.6.1</code></pre>
 </div>
 </div>
-<p>Every figure and number on this page is produced when it is built.</p>
+<p>Every number and figure on this page is produced when it is built.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-fisherfox2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant-Effect Concentration.”</span> <em>Environmental Toxicology and Chemistry</em> n/a (n/a). https://doi.org/<a href="https://doi.org/10.1002/etc.5610">https://doi.org/10.1002/etc.5610</a>.
+</div>
 <div id="ref-Ritz2015" class="csl-entry" role="listitem">
 Ritz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. <span>“<span>Dose-Response Analysis Using R</span>.”</span> <em>PLoS ONE</em> 10 (12): e0146021. <a href="https://doi.org/10.1371/journal.pone.0146021">https://doi.org/10.1371/journal.pone.0146021</a>.
 </div>
