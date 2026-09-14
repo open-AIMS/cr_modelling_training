@@ -46,11 +46,12 @@ head(nec_data)
 The response here is a proportion bounded by zero and one, which matters for the
 statistical distribution used to model it. `bayesnec` will choose a distribution
 from the characteristics of the data unless told otherwise, and module 5 covers
-that choice in full.
+that choice in more detail.
 
 ## Reproducibility
 
-A Bayesian model is fitted by drawing samples, so running the same code twice
+A Bayesian model is fitted by drawing samples (which I will explain in more detail in Module 6), 
+so running the same code twice
 gives slightly different numbers unless the random number generator is set to a
 known state. `set.seed()` does that, and every fit in this course is preceded by
 one.
@@ -121,12 +122,14 @@ than a single one:
 names(models())
 ```
 
-Module 3 describes what each model does and which toxicity estimates follow from
-it. Module 4 covers fitting a set rather than a single model.
+Module 3 describes what each model is and which toxicity estimates can be derived from
+it. Module 4 covers fitting a set of models rather than a single model.
 
 ## Calling `bnec`
 
-Supplying a formula and a data frame is enough; everything else takes a default.
+Supplying a formula and a data frame is the minimum reqired to fit a `bayesnec` model; 
+everything else is supplied by a default setting. You should always understand
+what these default settings are and if they are adequate for your data, but for this example they are.
 
 ```{r}
 #| label: fit
@@ -168,7 +171,7 @@ distribution.
 Warnings may also appear. The two above concern the Pareto *k* diagnostic and
 `p_waic`, both of which relate to the leave-one-out cross-validation used to
 compute model weights. Weights are irrelevant when a single model has been
-fitted, and module 4 returns to them when they are not.
+fitted, and module 4 returns to them when they are not. 
 
 ## Saving the fit
 
@@ -197,13 +200,15 @@ configurations it interferes with writing the file at all.
 summary(bnec_fit)
 ```
 
-There is a lot here, and each part is worth reading.
+There is a lot here, so we'll go through each part.
 
 The object is of class `bayesnecfit`, containing the `nec3param` model.
 `bayesnec` returns a `bayesnecfit` when one model is fitted, and a
 `bayesmanecfit` when a set is fitted.
 
-The family is the beta distribution with an **identity link**. This is
+The family is the beta distribution with an **identity link**. This will only mean
+something to those familiar with generalized linear models, as they are usually parameterized
+for linear modelling. This is
 deliberate and it is not the `brms` default, which for a beta response is the
 logit. `bayesnec` uses the identity link for every family, so that the `top`,
 `bot` and `nec` parameters stay on the scale of the response and remain directly
@@ -296,9 +301,8 @@ most `ggplot2` functions will work on it.
 
 By default the plot is annotated with the fitted no-effect estimate and its 95%
 credible interval, and labelled with the model that was fitted. The annotation
-is labelled N(S)EC, because the same plotting code serves both model groups. For
-a `nec3param` fit the quantity is an *NEC*, and it is worth relabelling it as
-such in anything you present.
+is labelled NEC, because for a `nec3param` model the no-effect estimate is the *NEC*. We will discuss this in more 
+detail in module 3, and how these are handled in model averaging in module 4.
 
 ## Toxicity estimates
 
@@ -319,5 +323,5 @@ value of 0.01.
 
 For this dataset the three estimates are close together, which happens when the
 curve declines sharply from a well-defined threshold. They are not
-interchangeable, and on other data they separate widely. Module 3 covers what
+interchangeable, and on other data they can differ. Module 3 covers what
 each of them measures and when each is appropriate.
