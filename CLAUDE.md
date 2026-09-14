@@ -259,11 +259,15 @@ failed at something easy. State what to run, and what to do when it does not wor
 
 **A claim about a package's behaviour is checked before it is written.** These modules are
 teaching material, so an inaccuracy propagates into other people's analyses. Run the code,
-or cite the help page or the paper. Parent §11 records six traps in `bayesnec` and `drc`
-that are counter-intuitive and easy to state wrongly — read it before writing about links,
-transformed predictors, `dispersion()`, `drc` standard errors or `type = "Poisson"`.
+or cite the help page or the paper. The traps that are counter-intuitive and easy to state
+wrongly are recorded in the repository each belongs to, which parent §11 indexes:
+`C:/Rworking/bayesnec/CLAUDE.md` for the identity link forced on every family, estimates
+and plot data on different scales, and `dispersion()`; `C:/Rworking/CR_workflows/CLAUDE.md`
+for the `drc` standard error that is unavailable over part of the range and the variance
+fixed at the mean under `type = "Poisson"`. Neither file loads in a session started here,
+so read them before writing about any of those.
 
-**Name model equations precisely.** Parent §12 "Naming models precisely" applies with
+**Name model equations precisely.** Parent §12 rule 6, "Name models precisely", applies with
 particular force here: this course is where participants learn the vocabulary. Never write
 "the nec model" for a specific equation; write `nec3param`, `nec4param`, `nechorme`. Keep
 the three senses of `ecx` distinct — the equation group, the `ecx()` function, and an ECx
