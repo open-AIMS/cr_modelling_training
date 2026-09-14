@@ -353,7 +353,7 @@ div.csl-indent {
 <p>That constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in <code>bayesnec</code> rather than with the underlying mathematics.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-glmbooks" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<div id="fig-glmbooks" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-glmbooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/glmbooks.jpg" id="fig-glmbooks" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
@@ -371,7 +371,7 @@ Figure&nbsp;1
 <p><code>brms</code> supports many families, including most of those in the base <code>stats</code> package that other R fitting routines use:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-statsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<div id="fig-statsfams" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-statsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/statsfams.jpg" id="fig-statsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
@@ -386,7 +386,7 @@ Figure&nbsp;2
 <p>and a number that are specific to it:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-brmsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
+<div id="fig-brmsfams" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-brmsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/brmsfams.jpg" id="fig-brmsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
@@ -483,7 +483,7 @@ Figure&nbsp;3
 <pre><code>Response variable modelled as a nec3param model using a binomial distribution.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 2 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
+<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
 recommend to set 'moment_match = TRUE' in order to perform moment matching for
 problematic observations.</code></pre>
 </div>
@@ -542,7 +542,7 @@ to find out why this is a problem and how to eliminate them.</code></pre>
 <pre><code>Response variable modelled as a ecxll3 model using a binomial distribution.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
+<pre><code>Warning: Found 2 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
 recommend to set 'moment_match = TRUE' in order to perform moment matching for
 problematic observations.</code></pre>
 </div>
@@ -550,12 +550,9 @@ problematic observations.</code></pre>
 <pre><code>Warning: 
 22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 79 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
 </div>
@@ -583,9 +580,9 @@ Figure&nbsp;5
 <p>The bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.</p>
 <p>The beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>exp_1b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> binom_data, <span class="at">family =</span> <span class="st">"beta_binomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>exp_1b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> binom_data, <span class="at">family =</span> <span class="st">"beta_binomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.</code></pre>
 </div>
@@ -618,16 +615,13 @@ Figure&nbsp;5
 1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
 nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
 See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
 </div>
@@ -661,13 +655,13 @@ Figure&nbsp;6
 <h2 class="anchored" data-anchor-id="beta">Beta</h2>
 <p>A response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>prop_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_proportion.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sqrt.x =</span> <span class="fu">sqrt</span>(raw_x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>prop_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_proportion.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sqrt.x =</span> <span class="fu">sqrt</span>(raw_x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>exp_2 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(resp <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> prop_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>exp_2 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(resp <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> prop_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.</code></pre>
 </div>
@@ -678,17 +672,12 @@ Figure&nbsp;6
 <pre><code>Start sampling</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 157 divergent transitions after warmup. See
+<pre><code>Warning: There were 58 divergent transitions after warmup. See
 https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 to find out why this is a problem and how to eliminate them.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: The largest R-hat is 1.05, indicating chains have not mixed.
-Running the chains for more iterations may help. See
-https://mc-stan.org/misc/warnings.html#r-hat</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
@@ -713,7 +702,8 @@ https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
 <pre><code>Start sampling</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>4: </code></pre>
+<pre><code>)
+Chain 4: </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
@@ -726,9 +716,6 @@ https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
 1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>Warning: 
 1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
@@ -739,7 +726,7 @@ See check_fit() for the per-group table. This is a modelling result, not a fault
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_2, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_2, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -762,11 +749,11 @@ Figure&nbsp;7
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>exp_2<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>exp_2<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              model      waic         wi dispersion_Estimate dispersion_Q2.5
-ecxll3       ecxll3 -412.4089 0.02275017                  NA              NA
-nec3param nec3param -423.8700 0.97724983                  NA              NA
+<pre><code>              model      waic        wi dispersion_Estimate dispersion_Q2.5
+ecxll3       ecxll3 -412.2139 0.0169356                  NA              NA
+nec3param nec3param -424.0696 0.9830644                  NA              NA
           dispersion_Q97.5 dispersion_P_over_1
 ecxll3                  NA                  NA
 nec3param               NA                  NA</code></pre>
@@ -779,14 +766,14 @@ nec3param               NA                  NA</code></pre>
 <h2 class="anchored" data-anchor-id="poisson">Poisson</h2>
 <p>Counts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> (y <span class="sc">*</span> <span class="dv">100</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(nec_data), <span class="dv">0</span>, <span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>() <span class="sc">|&gt;</span> <span class="fu">as.integer</span>() <span class="sc">|&gt;</span> <span class="fu">abs</span>()</span>
-<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> (y <span class="sc">*</span> <span class="dv">100</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(nec_data), <span class="dv">0</span>, <span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>() <span class="sc">|&gt;</span> <span class="fu">as.integer</span>() <span class="sc">|&gt;</span> <span class="fu">abs</span>()</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   100 obs. of  2 variables:
  $ x: num  1.019 0.816 0.371 0.401 1.295 ...
@@ -794,8 +781,8 @@ nec3param               NA                  NA</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>exp_3 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)), <span class="at">data =</span> count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>exp_3 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)), <span class="at">data =</span> count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.</code></pre>
 </div>
@@ -828,9 +815,6 @@ nec3param               NA                  NA</code></pre>
 9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>Warning: 
 7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
@@ -841,7 +825,7 @@ See check_fit() for the per-group table. This is a modelling result, not a fault
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -868,9 +852,9 @@ Figure&nbsp;8
 <h2 class="anchored" data-anchor-id="negative-binomial">Negative binomial</h2>
 <p>The Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>exp_3b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> count_data, <span class="at">family =</span> <span class="st">"negbinomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>exp_3b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> count_data, <span class="at">family =</span> <span class="st">"negbinomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.</code></pre>
 </div>
@@ -905,14 +889,9 @@ problematic observations.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: 
+5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.
+Warning: 
 5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-4 (4.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
@@ -921,7 +900,7 @@ See check_fit() for the per-group table. This is a modelling result, not a fault
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -949,14 +928,14 @@ Figure&nbsp;9
 <h2 class="anchored" data-anchor-id="gamma">Gamma</h2>
 <p>A continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
-<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>measure_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
-<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">measure =</span> <span class="fu">exp</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>measure_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">measure =</span> <span class="fu">exp</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>exp_4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(measure <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> measure_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>exp_4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(measure <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> measure_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.</code></pre>
 </div>
@@ -994,16 +973,13 @@ problematic observations.</code></pre>
 2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll3 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
 recommend to set 'moment_match = TRUE' in order to perform moment matching for
 problematic observations.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: 
-3 (3.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
@@ -1012,7 +988,7 @@ See check_fit() for the per-group table. This is a modelling result, not a fault
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_4, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_4, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -1039,13 +1015,13 @@ Figure&nbsp;10
 <h2 class="anchored" data-anchor-id="gaussian">Gaussian</h2>
 <p>A continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>gaussian_data <span class="ot">&lt;-</span> prop_data <span class="sc">|&gt;</span></span>
-<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> car<span class="sc">::</span><span class="fu">logit</span>(resp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>gaussian_data <span class="ot">&lt;-</span> prop_data <span class="sc">|&gt;</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> car<span class="sc">::</span><span class="fu">logit</span>(resp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb129-2"><a href="#cb129-2" aria-hidden="true" tabindex="-1"></a>exp_5 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll4"</span>, <span class="st">"nec4param"</span>)),</span>
-<span id="cb129-3"><a href="#cb129-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> gaussian_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>exp_5 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll4"</span>, <span class="st">"nec4param"</span>)),</span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> gaussian_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Finding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.</code></pre>
 </div>
@@ -1056,7 +1032,7 @@ Figure&nbsp;10
 <pre><code>Start sampling</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 10 divergent transitions after warmup. See
+<pre><code>Warning: There were 4 divergent transitions after warmup. See
 https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 to find out why this is a problem and how to eliminate them.</code></pre>
 </div>
@@ -1076,7 +1052,7 @@ to find out why this is a problem and how to eliminate them.</code></pre>
 <pre><code>Start sampling</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 3 divergent transitions after warmup. See
+<pre><code>Warning: There were 1 divergent transitions after warmup. See
 https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 to find out why this is a problem and how to eliminate them.
 Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
@@ -1092,9 +1068,6 @@ Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The fitted ecxll4 curve does not fall to the control's 0.01 quantile within the predictor range for 80 of 8000 draws. Those draws are excluded from the NSEC summary, which is therefore censored above the highest concentration tested.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>Warning: 
 4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
 </div>
@@ -1105,7 +1078,7 @@ See check_fit() for the per-group table. This is a modelling result, not a fault
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_5, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_5, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
