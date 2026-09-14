@@ -65,3 +65,6 @@ ignore/
 
 # Quarto knitr intermediates
 *.rmarkdown
+
+# Codex instruction file, local to this machine
+AGENTS.md
