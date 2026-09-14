@@ -19,8 +19,8 @@ watch, but you will not be able to fit models alongside the demonstrations, and
 most of the day is spent fitting models.
 
 Work through this document, then run the verification check in the final
-section and send the output to the organisers. Doing that early leaves time for
-a problem to be resolved before the day.
+section. Do it early, so that a problem has time to be resolved before the
+day.
 :::
 
 ## Software required
@@ -54,8 +54,11 @@ points to the authoritative upstream instructions, and then run the same
 verification check as everyone else. The check is what determines whether you
 are ready, not which instructions you followed.
 
-The Windows Subsystem for Linux is a fallback for one situation only, described
-in its own section. Do not start there.
+The Windows Subsystem for Linux is a fallback for one situation only, where
+compilation on Windows is blocked by security policy on a machine you cannot
+change. It is not a simpler route: it means a second installation of R, a second
+package library and a different way of referring to your files. Do not start
+there.
 
 ---
 
@@ -117,16 +120,22 @@ install.packages(c("brms", "posterior", "bayesplot",
 installed, but the workshop does not use it as the sampler, so it does not
 matter if you never call it directly.
 
+`bayesnec` is installed from the development branch, which contains changes not
+yet released to CRAN and is what the course material is built against:
+
+```r
+remotes::install_github("open-AIMS/bayesnec", ref = "dev")
+```
+
+If `remotes` is not already installed, `install.packages("remotes")` first.
+
 ::: {.callout-note}
-## The `bayesnec` version
+## Estimates may differ slightly from the course pages
 
-The workshop teaches a specific version of `bayesnec`, and the functions that
-estimate toxicity values changed in it. Installing a different version will give
-you different results from the ones on screen.
-
-**[TO BE CONFIRMED BEFORE THIS DOCUMENT IS ISSUED --- do not send with this
-placeholder in place. The exact install command and version follow the release
-planned for Monday.]**
+`dev` changes as the package is developed, so a fit made now will not always
+reproduce the numbers printed on the course pages to the last decimal place.
+Estimates should agree to well within the width of their credible intervals. A
+difference larger than that is worth raising rather than accepting.
 :::
 
 ## CmdStan
@@ -222,15 +231,16 @@ organisation's policy allows.
 
 **Compiling is blocked entirely.** Some managed machines prevent newly compiled
 programs from running at all. This is a policy decision rather than a
-configuration problem and cannot be worked around from within R. See the
-Windows Subsystem for Linux section.
+configuration problem and cannot be worked around from within R. Contact the
+organisers before the workshop rather than attempting a fix on the day.
 
 ::: {.callout-tip}
 ## Time box the native route
 
 Give the steps above about thirty minutes. If the verification check passes,
 stop. If compilation fails for reasons of security policy rather than something
-you can configure, move to WSL rather than continuing to adjust settings.
+you can configure, no further adjustment will resolve it; contact the
+organisers.
 :::
 
 ---
@@ -273,22 +283,6 @@ not a problem here either.
 This route was verified on 2026-09-11 under Debian with R 4.6.1 and CmdStan
 2.39.0.
 
----
-
-# Windows Subsystem for Linux
-
-WSL runs a Linux system inside Windows. **Use it only if compilation on Windows
-is blocked by security policy on a machine you cannot change.** It is not a
-simpler route, and it is not recommended otherwise.
-
-What it involves: a second installation of R inside Linux, a second package
-library to keep track of, a different way of referring to your files, and
-additional configuration in Positron to work with the Linux session. If you are
-not already comfortable at a command line, this gives you a second system to
-learn at the same time as the modelling.
-
-If you are in this position, contact the organisers before the workshop rather
-than attempting it on the day.
 
 ---
 
@@ -318,19 +312,7 @@ READY. Every check passed.
 ```
 
 A warning rather than a failure means you can follow the workshop but something
-is not as expected --- most often a `bayesnec` version other than the one being
-taught. Read the warning and act on it if you can.
+is not as expected --- a home directory the CmdStan build cannot use, or a
+`cmdstanr` too old for the Rtools these instructions specify. Read the warning
+and act on it if you can.
 
-## Reporting the result
-
-Copy the entire output, from the first line to the last, and send it to the
-organisers. Send it whether it passed or failed: a passing result confirms you
-are ready, and a failing one gives enough detail to identify the problem in
-advance.
-
-The output contains your R version, your operating system, your package
-versions and your installation paths. It contains nothing else about your
-machine.
-
-Send it as early as you can. A problem found a week before the workshop can be
-resolved; the same problem found on the morning cannot.

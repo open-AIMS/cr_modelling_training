@@ -9,10 +9,10 @@
 # diagnose installations on the day.
 # ---------------------------------------------------------------------------
 
-# The version the course is taught against. Set before the instructions are
-# issued; a participant on a different version will see different results from
-# ecx(), nsec() and the default priors.
-REQUIRED_BAYESNEC <- "2.2.0"
+# bayesnec is installed from its development branch, so there is no fixed
+# version to check against: dev moves, and pinning a number here would report a
+# mismatch for everyone the day after it was written. The version is recorded
+# instead, so that a result can be attributed to a state of the package.
 
 # Stages run in increasing order of expense, so a failure is localised to the
 # cheapest stage that shows it. Compilation is stage 4 and sampling stage 5;
@@ -81,11 +81,10 @@ record("packages", length(missing) == 0,
        else "all present")
 
 bn <- versions[["bayesnec"]]
-record("bayesnec_version",
-       if (is.na(bn)) FALSE else if (bn == REQUIRED_BAYESNEC) TRUE else NA,
-       if (is.na(bn)) "not installed"
-       else if (bn == REQUIRED_BAYESNEC) bn
-       else paste0("have ", bn, ", course is taught against ", REQUIRED_BAYESNEC))
+record("bayesnec_version", !is.na(bn),
+       if (is.na(bn))
+         "not installed; see the setup instructions for the dev install"
+       else paste0(bn, " (from the dev branch)"))
 
 # --- Stage 3: C++ toolchain and CmdStan ---------------------------------------
 rule("Stage 3: toolchain and CmdStan")
