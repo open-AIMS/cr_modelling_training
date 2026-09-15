@@ -1,6 +1,6 @@
 ---
 title: "Toxicity estimation and the model set"
-subtitle: "What `bayesnec` can fit, and which toxicity estimate follows from each"
+subtitle: "What `bayesnec` can fit, and which toxicity estimates can be derived from each"
 bibliography: bayesnec.bib
 ---
 
@@ -28,11 +28,13 @@ each one supports.
 
 The distinction that organises everything below is between models with a
 threshold and models without one, and it determines what a no-effect estimate
-can mean. This figure, from @fisherfox2023, is what the module builds towards.
+can mean. This figure, from @fisherfox2023, is what the module builds towards,
+and explains graphically the difference between the NEC, NSEC, and ECx and hows
+these relate to a NOEC.
 
 ```{r}
 #| label: fig-etnc2
-#| out-width: "60%"
+#| out-width: "100%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/etnc_fig2.jpg")
@@ -53,7 +55,7 @@ those beginning `ecx` are smooth models with no threshold.
 
 ```{r}
 #| label: fig-etnc1
-#| out-width: "50%"
+#| out-width: "100%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/etnc_fig1.jpg")
@@ -67,14 +69,16 @@ equations is requested rather than a single one:
 names(models())
 ```
 
-Module 4 covers fitting a set and averaging across it.
+Module 4 covers fitting a set and averaging across it to dervied a model averaged toxicity estimate.
 
 ## Parameter definitions
 
 The parameters have been given consistent meanings across equations wherever
 possible, so that a parameter named `top` means the same thing in every model
-that has one. Equations range from two parameters, in the linear and exponential
-decay models `ecxlin` and `ecxexp`, to five in `nechorme4`.
+that has that parameter. 
+
+The included model equations range from having as few as two parameters, in the linear and exponential
+decay models `ecxlin` and `ecxexp`, up to five such as `nechorme4` and `ecxll5`, for example. 
 
 $\tau = \text{top}$, the y-intercept or upper plateau: the mean response at zero
 concentration.
@@ -111,18 +115,18 @@ $$
 
 ## Threshold models
 
-In models prefixed `nec`, the no-effect concentration is a parameter of the
-model, $\eta$, and is estimated directly, following @Fox2010.
+For models prefixed `nec`, the no-effect concentration is a parameter of the
+model itself, $\eta$, and is estimated directly, following the approach of @Fox2010.
 
 ```{r}
 #| label: fig-necmod
-#| out-width: "50%"
+#| out-width: "70%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/necmod_fox2010.jpg")
 ```
 
-These models assume the response holds at a stable level, near the control mean,
+These models assume the response remains at a stable level, near the control mean,
 across the lower concentrations, until a threshold is reached. That threshold is
 the *NEC*. Beyond it the response declines with increasing concentration at some
 rate. The original formulation of @Fox2010 assumed exponential decline after the
@@ -130,26 +134,29 @@ threshold, which is `nec3param`; `bayesnec` also provides a linear decline in
 `neclin`.
 
 These models can be used to estimate an **EC~x~**, but their value is the
-estimate of the threshold. They are the only way to estimate a true no-effect
+estimate of the NEC threshold value. They are the only way to estimate a true no-effect
 concentration.
 
 ## Smooth models
 
-Models prefixed `ecx` are continuous curves. They have an intercept, the mean
+Models prefixed with `ecx` are continuous or "smooth" curves. They have an intercept, the mean
 control response, but no threshold: the response begins to decline at any
-concentration above zero, at a rate set by the equation.
+concentration above zero, at a rate set by the equation for that specific model.
 
 ```{r}
 #| label: fig-ecxmod
-#| out-width: "50%"
+#| out-width: "70%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/ecxmod.jpg")
 ```
 
 They are appropriate where the data show no threshold, and are used to extract
-**EC~x~** values such as the EC10, which is widely used in species sensitivity
-distribution modelling.
+**EC~x~** values such as the EC10, or EC50, which are widely used in species sensitivity
+distribution modelling for deriving water quality criteria. 
+
+In the strictest sense, they are in fact not appropriate for estimating a no-effect concentration, 
+because and ECx value, by definition, represents an effect of size *x*. 
 
 ## The no-significant-effect concentration
 
@@ -159,7 +166,7 @@ The *NSEC* is a way of obtaining a no-effect estimate from such a model
 
 ```{r}
 #| label: fig-nsec
-#| out-width: "50%"
+#| out-width: "70%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/nsec.jpg")
@@ -185,7 +192,7 @@ the response becomes significantly different from the control.
 
 ```{r}
 #| label: fig-noec
-#| out-width: "50%"
+#| out-width: "70%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/noec.jpg")
