@@ -68,22 +68,31 @@ there.
 
 Install R first, then Rtools.
 
-Download R from [CRAN](https://cran.r-project.org/bin/windows/base/). The
-combination tested for this workshop is **R 4.5.x**.
+Download R from [CRAN](https://cran.r-project.org/bin/windows/base/) and
+install whichever version CRAN currently offers — do not go looking for an
+older one. This document was written against R 4.5.x, and has since been
+re-verified against R 4.6.1 (see the Linux section below); either is fine.
+What matters is that Rtools matches the R you install, not which minor version
+that is.
 
-Then install **Rtools45**, from
-[CRAN's Rtools page](https://cran.r-project.org/bin/windows/Rtools/). Accept the
-default installation location.
+Then install the matching **Rtools**, from
+[CRAN's Rtools page](https://cran.r-project.org/bin/windows/Rtools/). CRAN's
+own page names it inconsistently — you may see "Rtools45", "RTools 4.5" or
+"Rtools for R 4.5.x" — these all mean the same installer. Rtools version
+numbers do not track R's one-for-one: **Rtools 4.5 is current for every R
+version from 4.5.0 onward**, including R 4.6.x, so do not go looking for a
+separate "Rtools 4.6" — there is not one as of this writing. Check CRAN's
+Rtools page for the current mapping, since this changes as new R and Rtools
+versions are released. Accept the default installation location.
 
 ::: {.callout-warning}
 ## Rtools must match your version of R
 
-Rtools45 is for R 4.5.x. A different R minor version needs the matching Rtools:
-Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of
-setup failure, and the error it produces does not mention version numbers.
-
-If you install a version of R other than 4.5.x, install the Rtools that matches
-it.
+An Rtools built for an earlier R than the one you installed is the most common
+single cause of setup failure, and the error it produces does not mention
+version numbers. Check CRAN's Rtools page for which Rtools release currently
+covers your R version — do not assume the two version numbers must match
+exactly, since one Rtools release can cover several R releases.
 :::
 
 ## Positron
@@ -116,18 +125,33 @@ install.packages(c("brms", "posterior", "bayesplot",
                    "ggplot2", "dplyr", "tidyr", "drc"))
 ```
 
-`brms` installs `rstan` as a dependency. That is expected. `rstan` must be
+::: {.callout-note}
+## rstan is a dependency, not a step
+
+`brms` installs `rstan` as a dependency. That is expected: `rstan` must be
 installed, but the workshop does not use it as the sampler, so it does not
-matter if you never call it directly.
+matter if you never call it directly. No further action is needed here — the
+next step is `bayesnec`, below.
+:::
 
 `bayesnec` is installed from the development branch, which contains changes not
-yet released to CRAN and is what the course material is built against:
+yet released to CRAN and is what the course material is built against. This
+needs the `remotes` package first — install it if you have not already:
+
+```r
+install.packages("remotes")
+```
+
+Then install `bayesnec` itself:
 
 ```r
 remotes::install_github("open-AIMS/bayesnec", ref = "dev")
 ```
 
-If `remotes` is not already installed, `install.packages("remotes")` first.
+If you paste this last command in *before* installing `remotes`, R replies
+that it could not find the function `install_github` (or that there is no
+package called `remotes`). That is not a sign anything is broken — install
+`remotes` with the command above and then re-run this one.
 
 ::: {.callout-note}
 ## Estimates may differ slightly from the course pages
@@ -288,16 +312,44 @@ This route was verified on 2026-09-11 under Debian with R 4.6.1 and CmdStan
 
 # The verification check
 
-`check_setup.R` is supplied with this document. It installs nothing. It reports
-what you have, compiles and fits a small model, and finishes with either READY
-or NOT READY.
+`check_setup.R` is supplied alongside this document, in the same `vignettes/`
+folder. It installs nothing. It reports what you have, compiles and fits a
+small model, and finishes with either READY or NOT READY.
 
-Open it in Positron and run the whole file, or run this in the R console with
-the path adjusted:
+The most reliable way to run it is to open `check_setup.R` itself in Positron
+(not just this document) and run the whole file from there — for example with
+Positron's "Source" button, or by selecting all the code and running it.
+Positron then runs it from the folder the file is saved in, which avoids the
+error below.
+
+If you instead want to run it from the R console with `source()`, R needs to
+be told where the file is. Pasting
 
 ```r
 source("check_setup.R", echo = FALSE)
 ```
+
+only works if your R console's *working directory* is already the
+`vignettes/` folder — otherwise you will see:
+
+```
+Warning message:
+In file(filename, "r", encoding = encoding) :
+  cannot open file 'check_setup.R': No such file or directory
+Error in `file()`:
+! cannot open the connection
+```
+
+This is not a sign of a broken installation; it means R was looking in the
+wrong folder. Either open `check_setup.R` in Positron and run it from there
+(the first option above), or give `source()` the full path to the file, for
+example:
+
+```r
+source("C:/path/to/cr_modelling_training/vignettes/check_setup.R", echo = FALSE)
+```
+
+replacing the path with wherever you saved the workshop materials.
 
 Every run takes a few minutes, because it compiles a model each time rather than
 reusing an earlier build. That is deliberate: reusing a build would let the check

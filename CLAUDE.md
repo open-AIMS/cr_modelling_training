@@ -356,6 +356,13 @@ superseded drafts, background reading, the installer bundle and the 2023 build a
 It is git-ignored in full, so nothing placed there is backed up by the remote. This is the
 repository's equivalent of the `superceded/` folder in parent §7.
 
+**Review drafts render to `ignore/render_artefacts_2026/`.** When a module or vignette is
+rendered ad hoc so a person can read it (as opposed to a `quarto render` of the published
+site), put the output HTML there rather than in a system temp directory, since the user
+cannot easily open temp paths. Created 2026-09-15 with a render of
+`vignettes/0Software-setup.qmd`. Keep this separate from `ignore/render_artefacts_2023/`,
+which holds the retired learnr build artefacts, not review drafts.
+
 **Freeze does not notice a package upgrade.** `execute: freeze: auto` keys on the source
 document, not on the environment that rendered it. Upgrading `bayesnec`, `brms` or Stan
 leaves every frozen result in place, so the site keeps publishing output from the previous

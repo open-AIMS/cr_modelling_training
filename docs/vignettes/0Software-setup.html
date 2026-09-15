@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-14">
+<meta name="dcterms.date" content="2026-09-15">
 
 <title>Software setup – Concentration-response modelling</title>
 <style>
@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 14, 2026</p>
+      <p class="date">September 15, 2026</p>
     </div>
   </div>
   
@@ -313,8 +313,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="r-and-rtools" class="level2">
 <h2 class="anchored" data-anchor-id="r-and-rtools">R and Rtools</h2>
 <p>Install R first, then Rtools.</p>
-<p>Download R from <a href="https://cran.r-project.org/bin/windows/base/">CRAN</a>. The combination tested for this workshop is <strong>R 4.5.x</strong>.</p>
-<p>Then install <strong>Rtools45</strong>, from <a href="https://cran.r-project.org/bin/windows/Rtools/">CRAN’s Rtools page</a>. Accept the default installation location.</p>
+<p>Download R from <a href="https://cran.r-project.org/bin/windows/base/">CRAN</a> and install whichever version CRAN currently offers — do not go looking for an older one. This document was written against R 4.5.x, and has since been re-verified against R 4.6.1 (see the Linux section below); either is fine. What matters is that Rtools matches the R you install, not which minor version that is.</p>
+<p>Then install the matching <strong>Rtools</strong>, from <a href="https://cran.r-project.org/bin/windows/Rtools/">CRAN’s Rtools page</a>. CRAN’s own page names it inconsistently — you may see “Rtools45”, “RTools 4.5” or “Rtools for R 4.5.x” — these all mean the same installer. Rtools version numbers do not track R’s one-for-one: <strong>Rtools 4.5 is current for every R version from 4.5.0 onward</strong>, including R 4.6.x, so do not go looking for a separate “Rtools 4.6” — there is not one as of this writing. Check CRAN’s Rtools page for the current mapping, since this changes as new R and Rtools versions are released. Accept the default installation location.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -325,8 +325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Rtools45 is for R 4.5.x. A different R minor version needs the matching Rtools: Rtools44 for R 4.4.x, and so on. A mismatch is the most common single cause of setup failure, and the error it produces does not mention version numbers.</p>
-<p>If you install a version of R other than 4.5.x, install the Rtools that matches it.</p>
+<p>An Rtools built for an earlier R than the one you installed is the most common single cause of setup failure, and the error it produces does not mention version numbers. Check CRAN’s Rtools page for which Rtools release currently covers your R version — do not assume the two version numbers must match exactly, since one Rtools release can cover several R releases.</p>
 </div>
 </div>
 </section>
@@ -348,10 +347,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Then the rest:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"brms"</span>, <span class="st">"posterior"</span>, <span class="st">"bayesplot"</span>,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"ggplot2"</span>, <span class="st">"dplyr"</span>, <span class="st">"tidyr"</span>, <span class="st">"drc"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>brms</code> installs <code>rstan</code> as a dependency. That is expected. <code>rstan</code> must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly.</p>
-<p><code>bayesnec</code> is installed from the development branch, which contains changes not yet released to CRAN and is what the course material is built against:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"open-AIMS/bayesnec"</span>, <span class="at">ref =</span> <span class="st">"dev"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>If <code>remotes</code> is not already installed, <code>install.packages("remotes")</code> first.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>rstan is a dependency, not a step
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>brms</code> installs <code>rstan</code> as a dependency. That is expected: <code>rstan</code> must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly. No further action is needed here — the next step is <code>bayesnec</code>, below.</p>
+</div>
+</div>
+<p><code>bayesnec</code> is installed from the development branch, which contains changes not yet released to CRAN and is what the course material is built against. This needs the <code>remotes</code> package first — install it if you have not already:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"remotes"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then install <code>bayesnec</code> itself:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"open-AIMS/bayesnec"</span>, <span class="at">ref =</span> <span class="st">"dev"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If you paste this last command in <em>before</em> installing <code>remotes</code>, R replies that it could not find the function <code>install_github</code> (or that there is no package called <code>remotes</code>). That is not a sign anything is broken — install <code>remotes</code> with the command above and then re-run this one.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -369,24 +382,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cmdstan" class="level2">
 <h2 class="anchored" data-anchor-id="cmdstan">CmdStan</h2>
 <p>First confirm the compiler is configured. On a current Rtools this passes without doing anything; <code>fix = TRUE</code> repairs the problems it can rather than only reporting them:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">check_cmdstan_toolchain</span>(<span class="at">fix =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">check_cmdstan_toolchain</span>(<span class="at">fix =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then install CmdStan. Three things need setting, and all three have been observed to stop a fresh installation:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"C:/cmdstan"</span>)           <span class="co"># cmdstanr will not create it</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">1800</span>)            <span class="co"># the default of 60 seconds is far too short</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"C:/cmdstan"</span>)           <span class="co"># cmdstanr will not create it</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">1800</span>)            <span class="co"># the default of 60 seconds is far too short</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>The directory must exist first.</strong> <code>install_cmdstan()</code> does not create it, and stops with <code>Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.</code></p>
 <p><strong>The download needs a longer timeout.</strong> The CmdStan archive is about 49 MB, and R’s default <code>options(timeout)</code> is 60 seconds, which is not enough on any ordinary connection. The <code>timeout</code> argument of <code>install_cmdstan()</code> does not govern the download — the option does. Measured on a connection delivering about 500 KB/s: the download failed with <code>Download of CmdStan failed with error</code> at the default, and completed in 4.9 minutes at <code>timeout = 1800</code> with nothing else changed. Conference and hotel networks are commonly slower than that, so set it.</p>
 <p>The default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to <code>C:/cmdstan</code> avoids all three, and costs nothing if none of them applies to you.</p>
 <p>Because that is not the default location, tell R where to find it in every future session. Run <code>usethis::edit_r_profile()</code>, or open <code>.Rprofile</code> in your home directory, and add the line below, replacing the version number with the one you installed:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">cmdstanr_cmdstan_path =</span> <span class="st">"C:/cmdstan/cmdstan-2.39.0"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">cmdstanr_cmdstan_path =</span> <span class="st">"C:/cmdstan/cmdstan-2.39.0"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Without this, every new session reports that CmdStan is not installed.</p>
 <section id="recurring-problems-on-windows" class="level3">
 <h3 class="anchored" data-anchor-id="recurring-problems-on-windows">Recurring problems on Windows</h3>
 <p><strong><code>install_cmdstan()</code> fails.</strong> Run it again with these arguments:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is the failure most recently observed on a fresh Windows machine, and this is what resolved it. <code>overwrite = TRUE</code> is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without <code>overwrite</code> declines to replace it, which produces an error resembling the original one. <code>quiet = FALSE</code> only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.</p>
 <p><strong>A model compiles but no chains run.</strong> <code>cmdstanr</code> reports “No chains finished successfully”, which names neither a cause nor a file. The usual reason is that Rtools changed after CmdStan was installed. CmdStan builds its own <code>tbb.dll</code>, linked against the toolchain that built it, so a CmdStan built under Rtools44 requires libraries that Rtools45 does not provide; the model still compiles and then every chain exits immediately with <code>STATUS_DLL_NOT_FOUND</code>. Rebuild CmdStan:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Anyone who upgrades R and Rtools between installing CmdStan and the workshop will meet this.</p>
 <p><strong>Rtools is installed but <code>cmdstanr</code> cannot find it.</strong> <code>cmdstanr</code> chooses which Rtools to look for from your R version, and the mapping changed between releases. Version 0.9.0 sends R 4.5.x to Rtools45; 0.8.0 sent every R from 4.4 onward to Rtools44. With an older <code>cmdstanr</code> and the Rtools45 this document specifies, it searches for a toolchain you were never asked to install and reports it missing. Install <code>cmdstanr</code> 0.9.0 or later, which is what the r-universe repository above supplies. <code>check_setup.R</code> reports the version.</p>
 <p><strong>Compiling is very slow.</strong> Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the <code>C:/cmdstan</code> directory from real-time scanning resolves it, where your organisation’s policy allows.</p>
@@ -440,9 +453,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="the-verification-check" class="level1">
 <h1>The verification check</h1>
-<p><code>check_setup.R</code> is supplied with this document. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
-<p>Open it in Positron and run the whole file, or run this in the R console with the path adjusted:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>check_setup.R</code> is supplied alongside this document, in the same <code>vignettes/</code> folder. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
+<p>The most reliable way to run it is to open <code>check_setup.R</code> itself in Positron (not just this document) and run the whole file from there — for example with Positron’s “Source” button, or by selecting all the code and running it. Positron then runs it from the folder the file is saved in, which avoids the error below.</p>
+<p>If you instead want to run it from the R console with <code>source()</code>, R needs to be told where the file is. Pasting</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>only works if your R console’s <em>working directory</em> is already the <code>vignettes/</code> folder — otherwise you will see:</p>
+<pre><code>Warning message:
+In file(filename, "r", encoding = encoding) :
+  cannot open file 'check_setup.R': No such file or directory
+Error in `file()`:
+! cannot open the connection</code></pre>
+<p>This is not a sign of a broken installation; it means R was looking in the wrong folder. Either open <code>check_setup.R</code> in Positron and run it from there (the first option above), or give <code>source()</code> the full path to the file, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/path/to/cr_modelling_training/vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>replacing the path with wherever you saved the workshop materials.</p>
 <p>Every run takes a few minutes, because it compiles a model each time rather than reusing an earlier build. That is deliberate: reusing a build would let the check pass without ever invoking the compiler, which is the thing being tested.</p>
 <p>A successful run ends like this:</p>
 <pre><code>Summary
