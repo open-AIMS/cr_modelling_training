@@ -384,3 +384,15 @@ it tells participants which version to install, so it names a release rather tha
 analyses, so a change to a module's explanation of a method, to its code, or to which model
 is fitted **is** logged. Fixing a typo, restyling, or converting a document's format is
 not. Log to `prompts/`, which does not exist yet.
+
+---
+
+## 11. The reference library
+
+The papers behind this course and the `bayesnec` package are in
+`C:/Rworking/references/`, outside every repository so that they are never
+committed, and reached from here through `ignore/references`. Read one by that
+path rather than the absolute one, so the read stays inside the working
+directory. `C:/Rworking/bayesnec/notes/references.md` lists what is there and
+gives the key in `vignettes/bayesnec.bib` for each paper that package cites.
+They are publisher PDFs of copyrighted articles, so they stay local.
