@@ -104,7 +104,8 @@ so that it detects it.
 ## Git
 
 Install [Git for Windows](https://git-scm.com/download/win), accepting the
-defaults. Git is used to retrieve the workshop materials.
+defaults. Git is used to retrieve the workshop materials, as described in
+the workshop materials section below.
 
 ## R packages
 
@@ -310,10 +311,57 @@ This route was verified on 2026-09-11 under Debian with R 4.6.1 and CmdStan
 
 ---
 
+# The workshop materials
+
+The modules, the example data and `check_setup.R` are in a public GitHub
+repository, <https://github.com/open-AIMS/cr_modelling_training>. Retrieve them
+before the workshop and put the folder somewhere you can find again. Avoid a
+folder that a cloud service synchronises while you work, such as OneDrive or
+Dropbox, because a synchronising folder can lock files while R is reading them.
+
+## Retrieval with Git
+
+This is the route the Git installation above is for. Open a terminal --- the
+Terminal pane in Positron, or Git Bash on Windows --- change to the folder you
+want the materials in, and run:
+
+```bash
+git clone https://github.com/open-AIMS/cr_modelling_training.git
+```
+
+That creates a folder `cr_modelling_training` holding the whole course,
+including `vignettes/check_setup.R`.
+
+The material is revised up to the workshop. On the morning, run
+
+```bash
+git pull
+```
+
+from inside that folder to take the current version. Taking revisions this way
+is the reason Git is on the list above; it has no other use during the day.
+
+## Retrieval without Git
+
+If Git did not install, or your machine does not allow you to run it, download
+the materials as a ZIP file instead. Open
+<https://github.com/open-AIMS/cr_modelling_training>, select the green "Code"
+button, then "Download ZIP", and extract the archive. You end up with the same
+folder. To take a later revision you download the ZIP again rather than running
+`git pull`.
+
+## Opening the materials in Positron
+
+Use "File > Open Folder" and select the `cr_modelling_training` folder. R then
+starts in that folder, so a relative path such as
+`source("vignettes/check_setup.R")` resolves without you typing a full path.
+
+---
+
 # The verification check
 
-`check_setup.R` is supplied alongside this document, in the same `vignettes/`
-folder. It installs nothing. It reports what you have, compiles and fits a
+`check_setup.R` is supplied alongside this document, in the `vignettes/` folder
+of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits a
 small model, and finishes with either READY or NOT READY.
 
 The most reliable way to run it is to open `check_setup.R` itself in Positron
