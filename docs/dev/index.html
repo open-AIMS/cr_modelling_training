@@ -206,6 +206,18 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">6. Priors and Bayesian inference</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -272,7 +284,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.</p>
-<p>The material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using <code>bayesnec</code>, which fits these models in a Bayesian framework via <code>brms</code> and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.</p>
+<p>The material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using <code>bayesnec</code>, which fits these models in a Bayesian framework via <code>brms</code> and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely supplies the evidence a guideline value needs.</p>
 <section id="course-outcomes" class="level2">
 <h2 class="anchored" data-anchor-id="course-outcomes">Course outcomes</h2>
 <p>On completing the material you will be able to:</p>
@@ -329,17 +341,17 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>A worked case study</td>
+<td><a href="./vignettes/7Example_case_study.html">A worked case study</a></td>
 <td>herbicide toxicity, start to finish</td>
 </tr>
 <tr class="even">
 <td>8</td>
-<td>Factor covariates and groupings</td>
+<td><a href="./vignettes/8Factor_covariates_and_groupings.html">Factor covariates and groupings</a></td>
 <td>comparing curves and estimates across groups</td>
 </tr>
 </tbody>
 </table>
-<p>Modules 7 and 8 are being converted from the earlier version of this course and are linked here as they are completed.</p>
+<p>Every module is built. Modules 7 and 8 read results produced outside the render, by <code>scripts/generate_herbicide_fits.R</code> and <code>scripts/generate_grouping_fits.R</code>, because the fits behind them take hours and are not made when the site is built.</p>
 <p><a href="./vignettes/drc-reference.html">Frequentist fitting with <code>drc</code></a> is supplied as reference rather than taught. It shows the same questions asked of a maximum-likelihood engine, and is explicit about where the two engines answer the same question and where they do not.</p>
 </section>
 <section id="working-through-the-material-independently" class="level2">

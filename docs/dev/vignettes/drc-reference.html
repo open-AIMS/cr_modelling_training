@@ -90,7 +90,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../vignettes/6Priors_and_Bayesian_inference.html" rel="prev">
+<link href="../vignettes/8Factor_covariates_and_groupings.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -258,6 +258,18 @@ div.csl-indent {
   <div class="sidebar-item-container"> 
   <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
   </div>
 </li>
       </ul>
@@ -643,8 +655,8 @@ increasing 1.511092 2.494251</code></pre>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">ecx</span>(bnec_ecx4, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">type =</span> <span class="st">"range"</span>)[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  quantity drc_relative bayesnec_range
-1     EC10     1.507871       1.514334
-2     EC50     1.995000       1.995818</code></pre>
+1     EC10     1.507871       1.514011
+2     EC50     1.995000       1.995596</code></pre>
 </div>
 </div>
 <p>The EC50 estimates agree to three decimal places. The EC10 estimates differ by about half a per cent, and the <code>drc</code> estimate falls inside the <code>bayesnec</code> credible interval. Two different engines, fitting two differently parameterised four-parameter curves by two different methods, return the same numbers to the precision anyone would report.</p>
@@ -872,7 +884,7 @@ Estimated ratios of effect doses
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>drc        3.0.1
-bayesnec   2.1.3.34
+bayesnec   2.1.3.35
 brms       2.23.0</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1299,8 +1311,8 @@ Ritz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. <span>
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="pagination-link" aria-label="6. Priors and Bayesian inference">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">6. Priors and Bayesian inference</span>
+      <a href="../vignettes/8Factor_covariates_and_groupings.html" class="pagination-link" aria-label="8. Factor covariates and groupings">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">8. Factor covariates and groupings</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

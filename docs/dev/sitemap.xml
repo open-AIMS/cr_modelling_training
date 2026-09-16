@@ -5,12 +5,16 @@
     <lastmod>2026-09-13T06:05:02.174Z</lastmod>
   </url>
   <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/7Example_case_study.html</loc>
+    <lastmod>2026-09-16T12:51:49.063Z</lastmod>
+  </url>
+  <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/5Response_data_and_statistical_distributions.html</loc>
-    <lastmod>2026-09-11T08:41:25.347Z</lastmod>
+    <lastmod>2026-09-16T16:02:48.260Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/3Toxicity_estimation_and_available_models.html</loc>
-    <lastmod>2026-09-11T06:11:16.109Z</lastmod>
+    <lastmod>2026-09-16T12:31:13.590Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/1Software-stack.html</loc>
@@ -18,22 +22,26 @@
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
-    <lastmod>2026-09-12T08:26:28.319Z</lastmod>
+    <lastmod>2026-09-16T22:57:31.606Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/0Software-setup.html</loc>
-    <lastmod>2026-09-14T06:12:07.125Z</lastmod>
+    <lastmod>2026-09-16T16:03:59.784Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/2Fitting-a-CR-model-using-bayesnec.html</loc>
-    <lastmod>2026-09-12T08:18:49.341Z</lastmod>
+    <lastmod>2026-09-16T16:02:48.248Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/4Model_averaging_and_multimodel_inference.html</loc>
-    <lastmod>2026-09-11T07:54:43.660Z</lastmod>
+    <lastmod>2026-09-16T16:02:48.254Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/6Priors_and_Bayesian_inference.html</loc>
-    <lastmod>2026-09-11T09:24:10.915Z</lastmod>
+    <lastmod>2026-09-16T16:02:48.265Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/8Factor_covariates_and_groupings.html</loc>
+    <lastmod>2026-09-16T23:01:30.693Z</lastmod>
   </url>
 </urlset>

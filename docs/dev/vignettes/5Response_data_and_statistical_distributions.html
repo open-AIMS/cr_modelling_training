@@ -261,6 +261,18 @@ div.csl-indent {
  <span class="menu-text">6. Priors and Bayesian inference</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -296,14 +308,38 @@ div.csl-indent {
   <li><a href="#link-functions" id="toc-link-functions" class="nav-link" data-scroll-target="#link-functions">Link functions</a></li>
   <li><a href="#families-implemented-in-bayesnec" id="toc-families-implemented-in-bayesnec" class="nav-link" data-scroll-target="#families-implemented-in-bayesnec">Families implemented in <code>bayesnec</code></a></li>
   <li><a href="#default-behaviour" id="toc-default-behaviour" class="nav-link" data-scroll-target="#default-behaviour">Default behaviour</a></li>
-  <li><a href="#binomial" id="toc-binomial" class="nav-link" data-scroll-target="#binomial">Binomial</a></li>
-  <li><a href="#beta-binomial" id="toc-beta-binomial" class="nav-link" data-scroll-target="#beta-binomial">Beta-binomial</a></li>
-  <li><a href="#beta" id="toc-beta" class="nav-link" data-scroll-target="#beta">Beta</a></li>
-  <li><a href="#poisson" id="toc-poisson" class="nav-link" data-scroll-target="#poisson">Poisson</a></li>
+  <li><a href="#binomial" id="toc-binomial" class="nav-link" data-scroll-target="#binomial">Binomial</a>
+  <ul class="collapse">
+  <li><a href="#the-dispersion-screen" id="toc-the-dispersion-screen" class="nav-link" data-scroll-target="#the-dispersion-screen">The dispersion screen</a></li>
+  </ul></li>
+  <li><a href="#beta-binomial" id="toc-beta-binomial" class="nav-link" data-scroll-target="#beta-binomial">Beta-binomial</a>
+  <ul class="collapse">
+  <li><a href="#checking-the-fit-within-concentrations" id="toc-checking-the-fit-within-concentrations" class="nav-link" data-scroll-target="#checking-the-fit-within-concentrations">Checking the fit within concentrations</a></li>
+  </ul></li>
+  <li><a href="#beta" id="toc-beta" class="nav-link" data-scroll-target="#beta">Beta</a>
+  <ul class="collapse">
+  <li><a href="#values-on-the-boundary" id="toc-values-on-the-boundary" class="nav-link" data-scroll-target="#values-on-the-boundary">Values on the boundary</a></li>
+  </ul></li>
+  <li><a href="#poisson" id="toc-poisson" class="nav-link" data-scroll-target="#poisson">Poisson</a>
+  <ul class="collapse">
+  <li><a href="#counts-observed-over-an-exposure" id="toc-counts-observed-over-an-exposure" class="nav-link" data-scroll-target="#counts-observed-over-an-exposure">Counts observed over an exposure</a></li>
+  </ul></li>
   <li><a href="#negative-binomial" id="toc-negative-binomial" class="nav-link" data-scroll-target="#negative-binomial">Negative binomial</a></li>
   <li><a href="#gamma" id="toc-gamma" class="nav-link" data-scroll-target="#gamma">Gamma</a></li>
-  <li><a href="#gaussian" id="toc-gaussian" class="nav-link" data-scroll-target="#gaussian">Gaussian</a></li>
+  <li><a href="#gaussian" id="toc-gaussian" class="nav-link" data-scroll-target="#gaussian">Gaussian</a>
+  <ul class="collapse">
+  <li><a href="#growth-rates" id="toc-growth-rates" class="nav-link" data-scroll-target="#growth-rates">Growth rates</a></li>
+  </ul></li>
   <li><a href="#model-suitability-by-response-type" id="toc-model-suitability-by-response-type" class="nav-link" data-scroll-target="#model-suitability-by-response-type">Model suitability by response type</a></li>
+  <li><a href="#values-that-are-not-measurements" id="toc-values-that-are-not-measurements" class="nav-link" data-scroll-target="#values-that-are-not-measurements">Values that are not measurements</a>
+  <ul class="collapse">
+  <li><a href="#censored-values" id="toc-censored-values" class="nav-link" data-scroll-target="#censored-values">Censored values</a></li>
+  <li><a href="#the-limit-of-a-censored-likelihood" id="toc-the-limit-of-a-censored-likelihood" class="nav-link" data-scroll-target="#the-limit-of-a-censored-likelihood">The limit of a censored likelihood</a></li>
+  <li><a href="#zeros" id="toc-zeros" class="nav-link" data-scroll-target="#zeros">Zeros</a></li>
+  <li><a href="#hurdle-against-zero-inflated" id="toc-hurdle-against-zero-inflated" class="nav-link" data-scroll-target="#hurdle-against-zero-inflated">Hurdle against zero-inflated</a></li>
+  <li><a href="#dispersion-that-changes-across-the-curve" id="toc-dispersion-that-changes-across-the-curve" class="nav-link" data-scroll-target="#dispersion-that-changes-across-the-curve">Dispersion that changes across the curve</a></li>
+  <li><a href="#a-worked-case" id="toc-a-worked-case" class="nav-link" data-scroll-target="#a-worked-case">A worked case</a></li>
+  </ul></li>
   <li><a href="#open-questions" id="toc-open-questions" class="nav-link" data-scroll-target="#open-questions">Open questions</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -403,7 +439,7 @@ Figure&nbsp;3
 <h2 class="anchored" data-anchor-id="link-functions">Link functions</h2>
 <p>Every statistical family has a link function. A generalised linear model relates the linear predictor to the response through it — a logit link, for example, maps the probabilities of a binary response onto an unbounded continuous scale. Generalised linear models were formulated by Nelder and Wedderburn as a unification of linear regression, logistic regression and Poisson regression, with maximum likelihood estimation of the parameters. Logistic regression is the familiar case.</p>
 <p>The native link for a family — logit for the binomial, log for the Poisson — imposes a non-linear transformation. Concentration-response models are already non-linear and do not use linear predictors, so any further non-linearity from a link changes the model being fitted.</p>
-<p><strong><code>bayesnec</code> therefore uses the identity link for every family.</strong> The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps <code>top</code>, <code>bot</code> and <code>nec</code> on the scale of the response, where they are directly interpretable.</p>
+<p><code>bayesnec</code> therefore uses the identity link for every family. The Bayesian machinery makes this possible, because the parameters can be estimated without mapping the response onto an unbounded scale. It keeps <code>top</code>, <code>bot</code> and <code>nec</code> on the scale of the response, where they are directly interpretable.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bayesnec<span class="sc">:::</span><span class="fu">supported_links</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -432,7 +468,7 @@ Figure&nbsp;3
 <h2 class="anchored" data-anchor-id="default-behaviour">Default behaviour</h2>
 <p>With default settings <code>bnec</code> infers the most likely distribution from the response. That inference must be checked rather than trusted. Two questions decide whether a distribution is adequate:</p>
 <ul>
-<li>does it capture the variability actually present in the data?</li>
+<li>does it capture the variability present in the data?</li>
 <li>does it produce sensibly shaped credible bounds across the whole curve?</li>
 </ul>
 <p>Getting the dispersion right matters directly for toxicity estimates, because it sets the width of their intervals. It matters most for the <em>NSEC</em>, which is defined against the estimated variability in the control: overstate that variability and the estimate becomes less conservative <span class="citation" data-cites="fisheretal2023 fisherfox2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>; <a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>.</p>
@@ -469,31 +505,15 @@ Figure&nbsp;3
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>exp_1nec <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"nec3param"</span>),</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
-recommend to set 'moment_match = TRUE' in order to perform moment matching for
-problematic observations.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-23 (47.9%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_1nec, <span class="at">file =</span> <span class="st">"fits/m5_exp_1nec.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1nec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_1nec.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1nec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
 </div>
@@ -516,43 +536,34 @@ Figure&nbsp;4
 </div>
 </div>
 <p>The credible bounds are very tight. The threshold model itself fits reasonably and the <em>NEC</em> is in a plausible place.</p>
+<section id="the-dispersion-screen" class="level3">
+<h3 class="anchored" data-anchor-id="the-dispersion-screen">The dispersion screen</h3>
+<p>Bounds that look too tight are a judgement by eye, and the judgement can be made properly. <code>dispersion()</code> compares the variability in the data against the variability the fitted model implies:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dispersion</span>(exp_1nec, <span class="at">summary =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimate     Q2.5    Q97.5    P(&gt;1) 
+17.79889 12.12465 27.46749  1.00000 </code></pre>
+</div>
+</div>
+<p>For each posterior draw it forms the ratio of the observed to the simulated sum of squared Pearson residuals, and summarises those ratios to a median, a 95% interval, and <code>P(&gt;1)</code>, the posterior probability that the ratio exceeds 1. A value near 1 means the family’s variance assumption holds. A value well above 1 means the data are more variable than the model allows, which is <strong>over-dispersion</strong>.</p>
+<p>Read <code>P(&gt;1)</code> rather than the median, because a point estimate says nothing about how well determined it is. The statistic is symmetric, so <code>1 - P(&gt;1)</code> is the posterior probability of under-dispersion, which nothing else reports.</p>
+<p>Here the ratio is about 18 with a 95% interval well clear of 1, and <code>P(&gt;1)</code> is 1. The data are roughly eighteen times more variable than a binomial allows, which is why the credible bounds above are as narrow as they are. The eye was right in this case, and the number is what would be reported.</p>
+<p>Two limitations apply. Each draw compares one observed residual sum against a single simulated replicate, so the spread of the result is dominated by simulation noise rather than by uncertainty about a dispersion parameter; on a small design it will detect gross over-dispersion and little else. And the screen is conditional on the model it was computed from, because a dispersion ratio cannot distinguish genuine over-dispersion from a shape that fits badly. Check that the screening fit sampled adequately, with <code>check_sampling()</code>, before relying on the number it reports.</p>
+<p><code>dispersion()</code> is defined for the binomial and Poisson families only, and returns an empty vector for any other. Those two are the families whose variance is fixed by their mean, so they are the only ones for which over-dispersion is a question about the family rather than a parameter the fit estimates.</p>
 <p>Fitting a smooth curve to the same data instead:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>exp_1ecx <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"ecxll3"</span>),</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 1 divergent transitions after warmup. See
-https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-to find out why this is a problem and how to eliminate them.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 2 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
-recommend to set 'moment_match = TRUE' in order to perform moment matching for
-problematic observations.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-22 (45.8%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>exp_1ecx <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="st">"ecxll3"</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> binom_data)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_1ecx, <span class="at">file =</span> <span class="st">"fits/m5_exp_1ecx.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_1ecx.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
 </div>
@@ -575,53 +586,23 @@ Figure&nbsp;5
 </div>
 </div>
 </section>
+</section>
 <section id="beta-binomial" class="level2">
 <h2 class="anchored" data-anchor-id="beta-binomial">Beta-binomial</h2>
 <p>The bounds above are implausibly narrow for data of this kind. A binomial distribution has a single parameter, so its variance is fixed by its mean. Real counts out of a total are usually more variable than that, because the individuals within a replicate are not independent — a batch of eggs shares a parent, a container shares its conditions. This is over-dispersion.</p>
 <p>The beta-binomial adds a second parameter and estimates the extra variation rather than assuming it away.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>exp_1b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> binom_data, <span class="at">family =</span> <span class="st">"beta_binomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta_binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a beta_binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta_binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a beta_binomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-1 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>exp_1b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(suc <span class="sc">|</span> <span class="fu">trials</span>(tot) <span class="sc">~</span> <span class="fu">crf</span>(raw_x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> binom_data, <span class="at">family =</span> <span class="st">"beta_binomial"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_1b, <span class="at">file =</span> <span class="st">"fits/m5_exp_1b.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_1b.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_1b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting all 'trials' variables to 1 by default if not specified otherwise.</code></pre>
 </div>
@@ -649,84 +630,49 @@ Figure&nbsp;6
 </div>
 </div>
 <p>The bounds are now much wider, and they are a better description of the scatter in the data.</p>
+<p>The beta-binomial mixes the success probability over a beta distribution, and mixing can only <em>add</em> variance. It therefore addresses over-dispersion and does nothing for the opposite case. A screen pointing below 1 is telling you something about the fit, the design or the process that generated the data, rather than about the family.</p>
 <p><code>bayesnec</code> once supplied this as a custom family called <code>beta_binomial2</code>, because <code>brms</code> did not provide one natively. It does now, and the family is named <code>beta_binomial</code>; code written against <code>beta_binomial2</code> will no longer run.</p>
+<section id="checking-the-fit-within-concentrations" class="level3">
+<h3 class="anchored" data-anchor-id="checking-the-fit-within-concentrations">Checking the fit within concentrations</h3>
+<p>A dispersion ratio is one number for the whole fit, and one number can hide a model that is right on average and wrong where it matters. <code>pp_check()</code> compares data simulated from the fitted model against the data observed, and grouping it by concentration is what makes the comparison informative: pooled over the whole dataset a model can match the overall distribution while being wrong at every concentration.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">pp_check</span>(<span class="fu">pull_brmsfit</span>(exp_1nec), <span class="at">type =</span> <span class="st">"bars_grouped"</span>, <span class="at">group =</span> <span class="st">"raw_x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-ppcheck" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="5Response_data_and_statistical_distributions_files/figure-html/fig-ppcheck-1.png" id="fig-ppcheck" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The dark line is the observed count in each category and the light intervals are the same quantity simulated from the fit, one panel per concentration. A discrete response takes <code>type = "bars_grouped"</code>; a continuous one takes <code>type = "dens_overlay_grouped"</code>, which module 2 uses. Ten posterior draws are simulated by default, which is enough to see a gross mismatch and few enough to plot; raise it with <code>ndraws</code> to judge a marginal one.</p>
+<p><code>check_fit()</code>, also from module 2, puts numbers on the same comparison within each concentration group, and flags the control row. That row is the one to read first, because both <code>nsec()</code> and <code>ecx()</code> take their reference from the fitted mean at the control.</p>
+</section>
 </section>
 <section id="beta" class="level2">
 <h2 class="anchored" data-anchor-id="beta">Beta</h2>
 <p>A response bounded between 0 and 1 that is not a count out of a total is modelled by the beta distribution. Maximum quantum yield from PAM fluorometry is a common example in coral work: a proportion of light used in photosynthesis, with no underlying trials to count.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>prop_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_proportion.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sqrt.x =</span> <span class="fu">sqrt</span>(raw_x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>prop_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_proportion.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sqrt.x =</span> <span class="fu">sqrt</span>(raw_x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>exp_2 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(resp <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> prop_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a beta distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 58 divergent transitions after warmup. See
-https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-to find out why this is a problem and how to eliminate them.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
-Running the chains for more iterations may help. See
-https://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
-Running the chains for more iterations may help. See
-https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a beta distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a beta distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>)
-Chain 4: </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a beta distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-1 (0.6%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>exp_2 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(resp <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> prop_data)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_2, <span class="at">file =</span> <span class="st">"fits/m5_exp_2.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_2, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_2.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_2, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -742,38 +688,52 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-beta-1.png" id="fig-beta" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7
+Figure&nbsp;8
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>exp_2<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>exp_2<span class="sc">$</span>mod_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              model      waic        wi dispersion_Estimate dispersion_Q2.5
-ecxll3       ecxll3 -412.2139 0.0169356                  NA              NA
-nec3param nec3param -424.0696 0.9830644                  NA              NA
+<pre><code>              model      waic         wi dispersion_Estimate dispersion_Q2.5
+ecxll3       ecxll3 -412.5871 0.02167021                  NA              NA
+nec3param nec3param -423.7686 0.97832979                  NA              NA
           dispersion_Q97.5 dispersion_P_over_1
 ecxll3                  NA                  NA
 nec3param               NA                  NA</code></pre>
 </div>
 </div>
 <p>The beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.</p>
+<p><code>bnec()</code> also reports that the observed and simulated responses at the control differ by more than 15% for both equations. That is the <code>check_fit()</code> comparison of module 2, run over every equation in the set and reported where it fails, and the control group is singled out because <code>nsec()</code> reads its reference from there. It is a statement about how well these equations describe this control rather than a fault in the fitting. Run <code>check_fit()</code> on the fit to see the per-group table before reporting an <em>NSEC</em> from it.</p>
 <p>Note that the predictor was square-root transformed in the formula. Estimates returned by <code>nec()</code>, <code>nsec()</code> and <code>ecx()</code> are then on the transformed scale, and must be back-transformed with the <code>xform</code> argument to be read as concentrations.</p>
+<section id="values-on-the-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="values-on-the-boundary">Values on the boundary</h3>
+<p>A beta distribution is defined on the <em>open</em> interval between 0 and 1, so a response recorded as exactly 0 or exactly 1 lies outside it. This is common: complete mortality at the highest concentration, or complete survival in the controls, both produce boundary values.</p>
+<p><code>bayesnec</code> shifts them rather than refusing the fit. A zero becomes one tenth of the smallest non-zero value in the response, which scales with the data, and a one is reduced by an absolute 0.001. <code>bnec_record()</code> names every value it altered:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bnec_record</span>(exp_2)<span class="sc">$</span>substitutions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
+<p><code>NULL</code> means the response was fitted as recorded. Where it is not <code>NULL</code>, the analysis was run on shifted values, and a series with several concentrations sitting at a boundary is being modelled through that shift rather than as measured. A methods section has to say so.</p>
+<p>Where the boundary values mean something different from a very small response — an organism that died, rather than one that grew very little — the shift is the wrong treatment altogether. The section on zeros below covers that case.</p>
+</section>
 </section>
 <section id="poisson" class="level2">
 <h2 class="anchored" data-anchor-id="poisson">Poisson</h2>
 <p>Counts of whole things — individuals, cells — are theoretically Poisson distributed: integers from zero upwards. This example builds over-dispersed counts from the package’s example data, in order to show what the negative binomial is for. Real count data are sometimes genuinely Poisson, so check before assuming otherwise.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
-<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
-<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> (y <span class="sc">*</span> <span class="dv">100</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(nec_data), <span class="dv">0</span>, <span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>() <span class="sc">|&gt;</span> <span class="fu">as.integer</span>() <span class="sc">|&gt;</span> <span class="fu">abs</span>()</span>
-<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> (y <span class="sc">*</span> <span class="dv">100</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(nec_data), <span class="dv">0</span>, <span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>() <span class="sc">|&gt;</span> <span class="fu">as.integer</span>() <span class="sc">|&gt;</span> <span class="fu">abs</span>()</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   100 obs. of  2 variables:
  $ x: num  1.019 0.816 0.371 0.401 1.295 ...
@@ -781,51 +741,16 @@ nec3param               NA                  NA</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>exp_3 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)), <span class="at">data =</span> count_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a poisson distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a poisson distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a poisson distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a poisson distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-9 (9.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-7 (7.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>exp_3 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)), <span class="at">data =</span> count_data)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_3, <span class="at">file =</span> <span class="st">"fits/m5_exp_3.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_3.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -841,66 +766,38 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-pois-1.png" id="fig-pois" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pois-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8
+Figure&nbsp;9
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+<section id="counts-observed-over-an-exposure" class="level3">
+<h3 class="anchored" data-anchor-id="counts-observed-over-an-exposure">Counts observed over an exposure</h3>
+<p>A count is very often observed over an exposure that differs between replicates: offspring counted where the number of fecund adults differs, cells counted over different areas, events counted over different lengths of time. The <code>rate</code> term declares that exposure, and is available for the Poisson and negative binomial families:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>y <span class="sc">|</span> <span class="fu">rate</span>(n_females) <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec4param"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The raw counts are passed to <code>bnec()</code> unchanged, so a replicate with twenty females contributes more information than one with eight. Fitting <code>y / n_females</code> as a continuous response would discard exactly that.</p>
+<p>Because <code>bayesnec</code> uses an identity link, <code>brms</code> applies the denominator multiplicatively on the response scale rather than as a log offset on a linear predictor. The fitted mean therefore <em>is</em> the rate, and <code>top</code>, <code>bot</code> and <code>nec</code> are directly interpretable as offspring per female. The prediction grid holds the denominator at 1, and <code>autoplot()</code> divides the observed counts through to match.</p>
+<p>One caveat decides whether <code>rate</code> is the right tool. Where the exposure varies for reasons unrelated to the treatment, because a replicate simply received fewer animals, <code>rate</code> does what is wanted. Where the exposure is itself an effect of the treatment, as it would be if the denominator were the number of females <em>surviving</em> to the point of counting, the endpoint has quietly changed from reproductive output to fecundity conditional on survival. Both are legitimate endpoints and they will not return the same <em>NEC</em>.</p>
+</section>
 </section>
 <section id="negative-binomial" class="level2">
 <h2 class="anchored" data-anchor-id="negative-binomial">Negative binomial</h2>
 <p>The Poisson has one parameter, so like the binomial its variance is determined by its mean. Counts that are more variable than that need the negative binomial, which estimates the additional variation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>exp_3b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> count_data, <span class="at">family =</span> <span class="st">"negbinomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a negbinomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a negbinomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a negbinomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a negbinomial distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
-recommend to set 'moment_match = TRUE' in order to perform moment matching for
-problematic observations.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.
-Warning: 
-5 (5.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>exp_3b <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> count_data, <span class="at">family =</span> <span class="st">"negbinomial"</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_3b, <span class="at">file =</span> <span class="st">"fits/m5_exp_3b.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_3b.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_3b, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -916,7 +813,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-negbin-1.png" id="fig-negbin" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-negbin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9
+Figure&nbsp;10
 </figcaption>
 </figure>
 </div>
@@ -928,67 +825,22 @@ Figure&nbsp;9
 <h2 class="anchored" data-anchor-id="gamma">Gamma</h2>
 <p>A continuous response that cannot be negative — a length, a mass, a rate where shrinkage is impossible — is modelled by the gamma.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
-<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>measure_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
-<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">measure =</span> <span class="fu">exp</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>measure_data <span class="ot">&lt;-</span> nec_data <span class="sc">|&gt;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">measure =</span> <span class="fu">exp</span>(y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>exp_4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(measure <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
-<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> measure_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll3 model and a Gamma distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll3 model using a Gamma distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec3param model and a Gamma distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec3param model using a Gamma distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'ecxll3'. We
-recommend to set 'moment_match = TRUE' in order to perform moment matching for
-problematic observations.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Found 1 observations with a pareto_k &gt; 0.7 in model 'nec3param'. We
-recommend to set 'moment_match = TRUE' in order to perform moment matching for
-problematic observations.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-2 (2.0%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll3, nec3param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>exp_4 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(measure <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll3"</span>, <span class="st">"nec3param"</span>)),</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> measure_data)</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_4, <span class="at">file =</span> <span class="st">"fits/m5_exp_4.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_4, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_4.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_4, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -1004,7 +856,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gamma-1.png" id="fig-gamma" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10
+Figure&nbsp;11
 </figcaption>
 </figure>
 </div>
@@ -1015,70 +867,21 @@ Figure&nbsp;10
 <h2 class="anchored" data-anchor-id="gaussian">Gaussian</h2>
 <p>A continuous response that can take negative values is modelled by the Gaussian. Growth rates are the usual case, where an organism may shrink, and so are responses that have been transformed onto an unbounded scale. Here the proportion data above are put on a logit scale.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>gaussian_data <span class="ot">&lt;-</span> prop_data <span class="sc">|&gt;</span></span>
-<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> car<span class="sc">::</span><span class="fu">logit</span>(resp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>gaussian_data <span class="ot">&lt;-</span> prop_data <span class="sc">|&gt;</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> car<span class="sc">::</span><span class="fu">logit</span>(resp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>exp_5 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll4"</span>, <span class="st">"nec4param"</span>)),</span>
-<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> gaussian_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a ecxll4 model and a gaussian distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 4 divergent transitions after warmup. See
-https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-to find out why this is a problem and how to eliminate them.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a ecxll4 model using a gaussian distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Finding initial values which allow the response to be fitted using a nec4param model and a gaussian distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Compiling Stan program...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Start sampling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: There were 1 divergent transitions after warmup. See
-https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-to find out why this is a problem and how to eliminate them.
-Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Response variable modelled as a nec4param model using a gaussian distribution.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll4 nec4param</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: 
-4 (2.5%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The control group's observed and simulated response differ by more than 15% for: ecxll4, nec4param.
-nsec() reads its reference from the control, so this is the region most likely to move a reported no-effect concentration.
-See check_fit() for the per-group table. This is a modelling result, not a fault.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>exp_5 <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(sqrt.x, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"ecxll4"</span>, <span class="st">"nec4param"</span>)),</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> gaussian_data)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(exp_5, <span class="at">file =</span> <span class="st">"fits/m5_exp_5.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_5, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m5_exp_5.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(exp_5, <span class="at">all_models =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -1094,22 +897,177 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gauss-1.png" id="fig-gauss" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gauss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11
+Figure&nbsp;12
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <p>Transforming a bounded response onto an unbounded scale and modelling it as Gaussian is one way of handling proportion data, and it was standard practice before generalised methods were routine. Modelling the response on its own scale with the beta, as above, is preferable: it keeps the parameters interpretable as proportions, and it does not require the transformation to have made the variance constant.</p>
+<section id="growth-rates" class="level3">
+<h3 class="anchored" data-anchor-id="growth-rates">Growth rates</h3>
+<p>A growth rate is the common Gaussian case in ecotoxicology, and it comes with a naming convention that is worth getting right. OECD Test Guideline 201 <span class="citation" data-cites="oecd2026tg201">(<a href="#ref-oecd2026tg201" role="doc-biblioref">OECD 2026</a>)</span> distinguishes two response variables from the same experiment. The average specific growth rate is the logarithmic increase in biomass over the exposure period, and an effect concentration derived from it is written <strong>ErC<sub>x</sub></strong>. Yield is the biomass at the end of the period minus the biomass at the start, and its effect concentration is written <strong>EyC<sub>x</sub></strong>. The guideline states that an ErC<sub>x</sub> will generally be higher than the corresponding EyC<sub>x</sub>, and that growth rate is the scientifically preferred basis; yield is retained to satisfy current regulatory requirements. An estimate reported without one of those prefixes has not said which quantity it describes.</p>
+<p>A growth rate can be negative, because a population can decline. That rules out every family bounded below at zero, and it also rules out the equations whose lower asymptote is fixed at zero, since those cannot predict a negative response. The <code>bayesnec</code> article on growth data and other potentially negative responses covers the consequences, which reach the choice of both the family and the candidate set.</p>
+</section>
 </section>
 <section id="model-suitability-by-response-type" class="level2">
 <h2 class="anchored" data-anchor-id="model-suitability-by-response-type">Model suitability by response type</h2>
 <p>Not every equation suits every family. A model predicting negative values cannot be used with a response that must be positive, and <code>bayesnec</code> discards any model in a requested set that is unsuitable for the distribution of the response. This is why a set of twenty-three may return fewer than twenty-three fits, and why the <code>zero_bounded</code> set exists.</p>
+<p>Three rules account for most of the exclusions.</p>
+<p>Equations with an exponential decay and no <code>bot</code> parameter approach zero and cannot go below it, so they cannot describe a Gaussian response, or any response fitted through a log or logit link.</p>
+<p>Equations with a linear decay, whose names contain <code>lin</code>, decline without limit, so they cannot describe a response bounded below at zero under an identity link. That covers the gamma, Poisson, negative binomial, binomial, beta and beta-binomial families.</p>
+<p>Equations that raise the predictor to a fractional power cannot be evaluated where the predictor is negative, which a logged concentration series is wherever the concentration falls below 1.</p>
+<p>You do not have to apply these yourself. <code>bnec()</code> excludes what it cannot fit and reports the reason, and <code>bnec_record()</code> keeps that reason on the fitted object:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bnec_record</span>(exp_2)<span class="sc">$</span>excluded</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] model  reason
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+</div>
+<p>No rows, because that fit named two equations explicitly and both are valid for a beta response on an identity link. A set requested as <code>"all"</code> on the same data returns several rows, with the rule each equation failed against.</p>
+</section>
+<section id="values-that-are-not-measurements" class="level2">
+<h2 class="anchored" data-anchor-id="values-that-are-not-measurements">Values that are not measurements</h2>
+<p>Everything above assumes each recorded value is a measurement of the response. In real datasets some are not, and the three cases below need different treatment from one another.</p>
+<section id="censored-values" class="level3">
+<h3 class="anchored" data-anchor-id="censored-values">Censored values</h3>
+<p>A value is <strong>censored</strong> when the truth is known to lie in an interval rather than at a point: a concentration below a limit of detection, a cell count below the resolution of the counting method, a value rounded at the precision it was recorded to. The number written down is a <em>bound</em> rather than a measurement.</p>
+<p>The usual treatments are to substitute something for it, commonly half the detection limit, or to delete the row. <span class="citation" data-cites="helsel2006">Helsel (<a href="#ref-helsel2006" role="doc-biblioref">2006</a>)</span> reviewed two decades of work on both and is blunt about the first: substituted values using any fraction between 0 and 0.99 of the detection limit are “equivalently arbitrary, equivalently precise, equivalently wrong”. Deleting is worse, because it removes the observations at the low end and biases every subsequent estimate of location upwards.</p>
+<p><code>bayesnec</code> passes through the <code>cens()</code> term from <code>brms</code>, so the bound can be declared instead of disguised:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>y <span class="sc">|</span> <span class="fu">cens</span>(censoring) <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec4param"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>censoring</code> is a column in the data rather than a constant, because in a concentration-response dataset only some rows are censored. It takes the values <code>"none"</code>, <code>"left"</code>, <code>"right"</code> or <code>"interval"</code>. Interval censoring takes a second argument giving the upper bound, as <code>cens(censoring, upper)</code>.</p>
+<p>The response column holds the bound. On a left-censored row, the number in the response column is the value the truth is known to be at or below, rather than zero and rather than a guess at the unknown truth.</p>
+<p>What this changes is the contribution each row makes to the likelihood. An ordinary row contributes a density at a point, which falls away as the fitted curve departs from it, so a substituted value actively pulls the curve back towards the number that was substituted. A censored row instead contributes the probability of falling at or below the bound. As the curve descends past the bound that probability rises towards 1 and then <em>saturates</em>: the curve is neither rewarded for passing further below nor penalised for it.</p>
+</section>
+<section id="the-limit-of-a-censored-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="the-limit-of-a-censored-likelihood">The limit of a censored likelihood</h3>
+<p>Saturation is what confines a censored row to what is known, and it is also the limit of the method. Once the fitted curve sits a few residual standard deviations below the bound, the likelihood is flat in that region. A parameter whose only expression is there is then not identified by the data, and what gets reported for it is the prior.</p>
+<p>The lower asymptote is the usual casualty. Where every response near the bottom of the curve is censored, <code>bot</code> is told only that it lies somewhere below the bound, and nothing in the likelihood distinguishes one such value from another.</p>
+<p>The <code>bayesnec</code> documentation reports this on the <code>alga</code> dataset, where the population fell below the counting limit at the highest concentrations. Fitting <code>nec4param</code> with a Gaussian family and the same prior throughout, and varying only how those rows were declared:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>the below-limit rows declared as</th>
+<th><code>bot</code>, median [95% CI]</th>
+<th>posterior SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>the bound, treated as observed</td>
+<td>−1.985 [−2.013, −1.958]</td>
+<td>0.014</td>
+</tr>
+<tr class="even">
+<td>left-censored at the bound</td>
+<td>−5.64 [−11.0, −2.51]</td>
+<td>2.23</td>
+</tr>
+<tr class="odd">
+<td>interval-censored, from extinction to the bound</td>
+<td>−2.45 [−2.68, −2.10]</td>
+<td>0.17</td>
+</tr>
+</tbody>
+</table>
+<p>Substitution is wrong about the value and states it precisely: an interval a tenth the width of any other, because those rows have been asserted to sit exactly at the bound when all that is known is that they lie below it.</p>
+<p>Left-censoring withdraws that assertion, and what it reveals is that the data contain almost nothing about <code>bot</code>. The posterior widens by a factor of 160 and runs down to a rate at which the population would have disappeared many times over. Nothing has gone wrong mechanically: the chains mix and the convergence diagnostic is 1.00. The number is uninformed, and the interval alone does not say so.</p>
+<p>The third row is the repair. A population below the counting limit is not below extinction, so the truth lies in an interval and <code>cens(censoring, upper)</code> says exactly that. The resulting estimate rests on the declared floor rather than on measurement, and should be reported that way.</p>
+<p>Two points follow for practice. Read whether a parameter is identified from how far the posterior has contracted away from its prior, rather than from the width of the interval; across those three fits the contraction was 0.996, 0.379 and 0.953, and the middle value is what the interval hides. And the problem propagates, so an <strong>EC<sub>x</sub></strong> whose target falls near the asymptote deserves the same scepticism as <code>bot</code> itself.</p>
+</section>
+<section id="zeros" class="level3">
+<h3 class="anchored" data-anchor-id="zeros">Zeros</h3>
+<p>A zero needs a different treatment depending on what produced it, and the three cases are distinguishable from the design rather than from the data.</p>
+<p>A zero that is a measurement below the resolution of the method is censored, and belongs in the previous section.</p>
+<p>A zero that marks a distinct event is <strong>structural</strong>. An organism that died did not grow slowly; its growth is undefined rather than small. A response of this kind has two processes behind it, one deciding whether the event occurred and one generating the response when it did not, and a <strong>two-block</strong> model fits both.</p>
+<p>A zero that is an ordinary draw from a distribution admitting zeros is not evidence of anything at all. <span class="citation" data-cites="warton2005">Warton (<a href="#ref-warton2005" role="doc-biblioref">2005</a>)</span> makes the point directly: many zeros does not mean zero inflation, and a Poisson or negative binomial with a low mean produces plenty of them. Fit the simpler family and check it before reaching for a two-block model. <span class="citation" data-cites="martin2005">Martin et al. (<a href="#ref-martin2005" role="doc-biblioref">2005</a>)</span> sets out how to decide which of the three you are looking at, from what the experiment did rather than from a test.</p>
+</section>
+<section id="hurdle-against-zero-inflated" class="level3">
+<h3 class="anchored" data-anchor-id="hurdle-against-zero-inflated">Hurdle against zero-inflated</h3>
+<p>Both names describe a two-block model and they are not interchangeable. The distinction is whether the zeros are <strong>observed</strong> or <strong>latent</strong>, and it decides whether the second block is worth interpreting.</p>
+<p>Under a <strong>hurdle</strong> the zeros are observed to be structural. The individual died, or the replicate failed, and you know which observations those are. The likelihood then separates exactly into a block for whether the event occurred and a block for the response given that it did not, and both blocks describe a curve you can read a threshold from.</p>
+<p>Under <strong>zero inflation</strong> a zero could have come from either component, and nothing in the data says which. The two are therefore weakly separated precisely where the ordinary component is small, which is the high-concentration end that determines the <em>NEC</em>. A threshold fitted to the zero-inflation component there describes a class of observation nobody measured.</p>
+<p>The practical rule follows from the design rather than from the data. Where you recorded <em>why</em> each zero occurred, a hurdle is available and its second block means something. Where you did not, zero inflation is the description the data support, and the second block should not be read as a concentration-response curve.</p>
+<p><code>bayesnec</code> supplies <code>hurdle_gamma</code> for a positive continuous response with structural zeros, and the zero-inflated beta, Poisson and negative binomial:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bayesnec<span class="sc">:::</span>mod_fams)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "gaussian"                  "Gamma"                    
+ [3] "poisson"                   "negbinomial"              
+ [5] "bernoulli"                 "binomial"                 
+ [7] "beta_binomial"             "beta"                     
+ [9] "hurdle_gamma"              "zero_inflated_beta"       
+[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"</code></pre>
+</div>
+</div>
+<p><code>bnec_hurdle()</code> and <code>bnec_joint()</code> fit the two blocks, and the <code>bayesnec</code> article on hurdle and zero-inflated models covers them. They are a subject of their own and are not taught here.</p>
+<p>One trap is worth naming even though it is not taught. Fitting the positive part of a count response by dropping the zeros and using an ordinary Poisson is not the same model: with the zeros removed the remaining counts follow a <em>zero-truncated</em> Poisson, so an untruncated fit estimates the wrong quantity. The error grows as the mean falls towards zero, which is the high-concentration end that an <em>NEC</em> or an <strong>EC<sub>x</sub></strong> is read from. The equivalent construction for <code>hurdle_gamma</code> is exact, because a gamma distribution has no mass at zero to begin with, which is why the problem appears only for counts.</p>
+</section>
+<section id="dispersion-that-changes-across-the-curve" class="level3">
+<h3 class="anchored" data-anchor-id="dispersion-that-changes-across-the-curve">Dispersion that changes across the curve</h3>
+<p>One further assumption is worth naming, because it is made by default and rarely checked. A fit holds the dispersion parameter of the chosen family constant across the whole concentration-response curve. For a Gaussian response that assumes replicate variability is the same at every concentration; for the other families it assumes the coefficient of variation, or the precision, does not change with the mean.</p>
+<p>Where that is wrong the consequences fall on the credible intervals of the toxicity estimates, and they fall unevenly, because the assumed variability is too large at one end of the series and too small at the other. The <code>disp</code> term relaxes the assumption:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec4param"</span>) <span class="sc">+</span> <span class="fu">disp</span>(<span class="sc">~</span>x)         <span class="co"># varies along the predictor</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec4param"</span>) <span class="sc">+</span> <span class="fu">disp</span>(<span class="st">"power"</span>)    <span class="co"># varies with the fitted mean</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Treat this as a diagnostic rather than as a routine addition. A variance function will absorb any cause of apparent heteroscedasticity and report a confident slope regardless, so exclude three other explanations first. Substituted or censored values cluster at one end of the series and their spread is easily mistaken for changing variability. A misspecified family produces the same appearance, since a constant coefficient of variation is what a gamma already implies. And a curve that is systematically wrong in one region leaves large residuals there, which a variance function will describe as noise rather than as lack of fit.</p>
+</section>
+<section id="a-worked-case" class="level3">
+<h3 class="anchored" data-anchor-id="a-worked-case">A worked case</h3>
+<p>The <code>bayesnec</code> documentation reports this on one plate of a bioluminescent bacterial copper series, 44 wells over 11 concentrations at four replicate wells each, fitted with the <code>decline</code> set at the sampling defaults. The observed coefficient of variation within a concentration runs from 0.046 at the control to 1.271 at its largest, which is 28 times the control value, so a single dispersion parameter cannot serve the whole series.</p>
+<p>Fitting the same equations with and without <code>disp("power")</code>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>constant dispersion</th>
+<th><code>disp("power")</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>groups <code>check_fit()</code> flags on spread, of 11</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><code>sd_ratio</code> at the control, 1 expected</td>
+<td>0.09</td>
+<td>1.02</td>
+</tr>
+<tr class="odd">
+<td><em>NSEC</em>, mg/L</td>
+<td>0.105</td>
+<td>0.055</td>
+</tr>
+<tr class="even">
+<td>EC10 95% interval width, mg/L</td>
+<td>0.055</td>
+<td>0.011</td>
+</tr>
+</tbody>
+</table>
+<p>Three things to take from that table.</p>
+<p>The constant-dispersion fit simulated about eleven times more spread at the control than the data show, which is the <code>sd_ratio</code> of 0.09. Nothing in its sampler diagnostics said so.</p>
+<p>The <em>NSEC</em> halves. A control posterior that is too wide places the significance reference too low, and a reference placed too low is crossed further along the curve, so the constant-dispersion fit reports the <strong>less protective</strong> of the two figures. This is the mechanism module 2 describes under <code>check_fit()</code>, measured.</p>
+<p>The <strong>EC<sub>x</sub></strong> changes by much less, from 0.083 to 0.070 mg/L, because it is measured at a fixed fraction of the control mean rather than at a quantile of its posterior. Its interval narrows sharply all the same.</p>
+<p>The estimated exponent was 0.78, with a 95% interval of 0.64 to 0.93. Regressing the within-concentration coefficient of variation on the fitted mean, with no model involved at all, gives 0.77 from the replicate wells. The sub-model is therefore describing variation the design measured rather than absorbing a failure of the curve, which is the check the three exclusions above are for.</p>
+<p>The general point is the one module 3 made about the <em>NSEC</em>: an estimate referenced against the control rests on how well the fit describes the control, and a constant-dispersion fit has not checked that.</p>
+</section>
 </section>
 <section id="open-questions" class="level2">
 <h2 class="anchored" data-anchor-id="open-questions">Open questions</h2>
-<p>The families implemented in <code>bayesnec</code> cover the common cases in concentration-response work. Responses with an excess of zeros need the hurdle and zero-inflated families listed above, which are covered separately.</p>
-<p>The important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience, not a substitute for that judgement.</p>
+<p>The families implemented in <code>bayesnec</code> cover the common cases in concentration-response work.</p>
+<p>The important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience rather than a substitute for that judgement, and module 2 gives the two functions that make the check.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
@@ -1119,6 +1077,18 @@ Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant
 </div>
 <div id="ref-fisheretal2023" class="csl-entry" role="listitem">
 Fisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. <span>“Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.”</span> <em>Integrated Environmental Assessment and Management</em>, ahead of print. https://doi.org/<a href="https://doi.org/10.1002/ieam.4809">https://doi.org/10.1002/ieam.4809</a>.
+</div>
+<div id="ref-helsel2006" class="csl-entry" role="listitem">
+Helsel, Dennis R. 2006. <span>“Fabricating Data: How Substituting Values for Nondetects Can Ruin Results, and What Can Be Done about It.”</span> <em>Chemosphere</em> 65 (11): 2434–39. <a href="https://doi.org/10.1016/j.chemosphere.2006.04.051">https://doi.org/10.1016/j.chemosphere.2006.04.051</a>.
+</div>
+<div id="ref-martin2005" class="csl-entry" role="listitem">
+Martin, Tara G., Brendan A. Wintle, Jonathan R. Rhodes, et al. 2005. <span>“Zero Tolerance Ecology: Improving Ecological Inference by Modelling the Source of Zero Observations.”</span> <em>Ecology Letters</em> 8 (11): 1235–46. <a href="https://doi.org/10.1111/j.1461-0248.2005.00826.x">https://doi.org/10.1111/j.1461-0248.2005.00826.x</a>.
+</div>
+<div id="ref-oecd2026tg201" class="csl-entry" role="listitem">
+OECD. 2026. <em>Test No. 201: Freshwater Alga and Cyanobacteria, Growth Inhibition Test</em>. OECD Guidelines for the Testing of Chemicals, Section 2. OECD Publishing. <a href="https://doi.org/10.1787/9789264069923-en">https://doi.org/10.1787/9789264069923-en</a>.
+</div>
+<div id="ref-warton2005" class="csl-entry" role="listitem">
+Warton, David I. 2005. <span>“Many Zeros Does Not Mean Zero Inflation: Comparing the Goodness-of-Fit of Parametric Models to Multivariate Abundance Data.”</span> <em>Environmetrics</em> 16 (3): 275–89. <a href="https://doi.org/10.1002/env.702">https://doi.org/10.1002/env.702</a>.
 </div>
 </div>
 
