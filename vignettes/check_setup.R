@@ -221,6 +221,27 @@ if (!is.na(versions[["brms"]]) && isTRUE(get0("sample", envir = results,
   record("brms", FALSE, "skipped, earlier stage failed")
 }
 
+# --- Stage 7: the fitted models (optional) ------------------------------------
+rule("Stage 7: fitted models")
+
+# Optional by design, so it is recorded as a warning rather than a failure. A
+# participant without these fits the models instead and the material behaves
+# identically; it is only slower, by about thirteen minutes on module 5 and
+# sixteen on module 6.
+fits_dir <- if (dir.exists("fits")) "fits" else file.path("vignettes", "fits")
+n_fits <- if (dir.exists(fits_dir)) {
+  length(list.files(fits_dir, pattern = "\\.RData$"))
+} else 0L
+
+if (n_fits > 0) {
+  record("fits", TRUE, paste(n_fits, "saved fits found; modules load rather than sample"))
+} else {
+  record("fits", NA, paste0(
+    "no saved fits found. This is optional. To avoid waiting for the sampler ",
+    "during the workshop, run source(\"vignettes/fetch_fits.R\") from the ",
+    "cr_modelling_training folder."))
+}
+
 # --- Summary ------------------------------------------------------------------
 rule("Summary")
 

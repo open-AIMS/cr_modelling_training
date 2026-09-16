@@ -98,7 +98,7 @@ imposes a non-linear transformation. Concentration-response models are already
 non-linear and do not use linear predictors, so any further non-linearity from a
 link changes the model being fitted.
 
-**`bayesnec` therefore uses the identity link for every family.** The Bayesian
+`bayesnec` therefore uses the identity link for every family. The Bayesian
 machinery makes this possible, because the parameters can be estimated without
 mapping the response onto an unbounded scale. It keeps `top`, `bot` and `nec` on
 the scale of the response, where they are directly interpretable.
@@ -138,7 +138,7 @@ With default settings `bnec` infers the most likely distribution from the
 response. That inference must be checked rather than trusted. Two questions
 decide whether a distribution is adequate:
 
-- does it capture the variability actually present in the data?
+- does it capture the variability present in the data?
 - does it produce sensibly shaped credible bounds across the whole curve?
 
 Getting the dispersion right matters directly for toxicity estimates, because it
@@ -185,9 +185,17 @@ are whatever they are in your data frame.
 
 ```{r}
 #| label: fit-binom-nec
+#| eval: false
 set.seed(333)
 exp_1nec <- bnec(suc | trials(tot) ~ crf(raw_x, model = "nec3param"),
                  data = binom_data)
+
+save(exp_1nec, file = "fits/m5_exp_1nec.RData")
+```
+
+```{r}
+#| label: load-fit-binom-nec
+load("fits/m5_exp_1nec.RData")
 ```
 
 ```{r}
@@ -199,13 +207,62 @@ autoplot(exp_1nec)
 The credible bounds are very tight. The threshold model itself fits reasonably
 and the *NEC* is in a plausible place.
 
+### The dispersion screen
+
+Bounds that look too tight are a judgement by eye, and the judgement can be made
+properly. `dispersion()` compares the variability in the data against the
+variability the fitted model implies:
+
+```{r}
+#| label: dispersion-binom
+dispersion(exp_1nec, summary = TRUE)
+```
+
+For each posterior draw it forms the ratio of the observed to the simulated sum
+of squared Pearson residuals, and summarises those ratios to a median, a 95%
+interval, and `P(>1)`, the posterior probability that the ratio exceeds 1. A
+value near 1 means the family's variance assumption holds. A value well above 1
+means the data are more variable than the model allows, which is
+**over-dispersion**.
+
+Read `P(>1)` rather than the median, because a point estimate says nothing about
+how well determined it is. The statistic is symmetric, so `1 - P(>1)` is the
+posterior probability of under-dispersion, which nothing else reports.
+
+Here the ratio is about 18 with a 95% interval well clear of 1, and `P(>1)` is 1.
+The data are roughly eighteen times more variable than a binomial allows, which
+is why the credible bounds above are as narrow as they are. The eye was right in
+this case, and the number is what would be reported.
+
+Two limitations apply. Each draw compares one observed residual sum against a
+single simulated replicate, so the spread of the result is dominated by
+simulation noise rather than by uncertainty about a dispersion parameter; on a
+small design it will detect gross over-dispersion and little else. And the screen
+is conditional on the model it was computed from, because a dispersion ratio
+cannot distinguish genuine over-dispersion from a shape that fits badly. Check
+that the screening fit sampled adequately, with `check_sampling()`, before
+relying on the number it reports.
+
+`dispersion()` is defined for the binomial and Poisson families only, and returns
+an empty vector for any other. Those two are the families whose variance is fixed
+by their mean, so they are the only ones for which over-dispersion is a question
+about the family rather than a parameter the fit estimates.
+
 Fitting a smooth curve to the same data instead:
 
 ```{r}
 #| label: fit-binom-ecx
+#| eval: false
 set.seed(333)
 exp_1ecx <- bnec(suc | trials(tot) ~ crf(raw_x, model = "ecxll3"),
                  data = binom_data)
+
+save(exp_1ecx, file = "fits/m5_exp_1ecx.RData")
+```
+
+```{r}
+#| label: load-fit-binom-ecx
+load("fits/m5_exp_1ecx.RData")
 ```
 
 ```{r}
@@ -227,9 +284,17 @@ rather than assuming it away.
 
 ```{r}
 #| label: fit-betabinom
+#| eval: false
 set.seed(333)
 exp_1b <- bnec(suc | trials(tot) ~ crf(raw_x, model = c("ecxll3", "nec3param")),
                data = binom_data, family = "beta_binomial")
+
+save(exp_1b, file = "fits/m5_exp_1b.RData")
+```
+
+```{r}
+#| label: load-fit-betabinom
+load("fits/m5_exp_1b.RData")
 ```
 
 ```{r}
@@ -241,9 +306,43 @@ autoplot(exp_1b, all_models = TRUE)
 The bounds are now much wider, and they are a better description of the scatter
 in the data.
 
+The beta-binomial mixes the success probability over a beta distribution, and
+mixing can only *add* variance. It therefore addresses over-dispersion and does
+nothing for the opposite case. A screen pointing below 1 is telling you something
+about the fit, the design or the process that generated the data, rather than
+about the family.
+
 `bayesnec` once supplied this as a custom family called `beta_binomial2`,
 because `brms` did not provide one natively. It does now, and the family is
 named `beta_binomial`; code written against `beta_binomial2` will no longer run.
+
+### Checking the fit within concentrations
+
+A dispersion ratio is one number for the whole fit, and one number can hide a
+model that is right on average and wrong where it matters. `pp_check()` compares
+data simulated from the fitted model against the data observed, and grouping it
+by concentration is what makes the comparison informative: pooled over the whole
+dataset a model can match the overall distribution while being wrong at every
+concentration.
+
+```{r}
+#| label: fig-ppcheck
+#| fig-height: 5
+#| message: false
+brms::pp_check(pull_brmsfit(exp_1nec), type = "bars_grouped", group = "raw_x")
+```
+
+The dark line is the observed count in each category and the light intervals are
+the same quantity simulated from the fit, one panel per concentration. A discrete
+response takes `type = "bars_grouped"`; a continuous one takes
+`type = "dens_overlay_grouped"`, which module 2 uses. Ten posterior draws are
+simulated by default, which is enough to see a gross mismatch and few enough to
+plot; raise it with `ndraws` to judge a marginal one.
+
+`check_fit()`, also from module 2, puts numbers on the same comparison within
+each concentration group, and flags the control row. That row is the one to read
+first, because both `nsec()` and `ecx()` take their reference from the fitted
+mean at the control.
 
 ## Beta
 
@@ -260,9 +359,17 @@ prop_data <- read.csv("example_proportion.csv") |>
 
 ```{r}
 #| label: fit-beta
+#| eval: false
 set.seed(333)
 exp_2 <- bnec(resp ~ crf(sqrt.x, model = c("ecxll3", "nec3param")),
               data = prop_data)
+
+save(exp_2, file = "fits/m5_exp_2.RData")
+```
+
+```{r}
+#| label: load-fit-beta
+load("fits/m5_exp_2.RData")
 ```
 
 ```{r}
@@ -281,9 +388,43 @@ data, and these bounds are reasonable. The threshold model takes most of the
 weight here and describes the data much better than the three-parameter
 log-logistic.
 
+`bnec()` also reports that the observed and simulated responses at the control
+differ by more than 15% for both equations. That is the `check_fit()` comparison
+of module 2, run over every equation in the set and reported where it fails, and
+the control group is singled out because `nsec()` reads its reference from there.
+It is a statement about how well these equations describe this control rather
+than a fault in the fitting. Run `check_fit()` on the fit to see the per-group
+table before reporting an *NSEC* from it.
+
 Note that the predictor was square-root transformed in the formula. Estimates
 returned by `nec()`, `nsec()` and `ecx()` are then on the transformed scale, and
 must be back-transformed with the `xform` argument to be read as concentrations.
+
+### Values on the boundary
+
+A beta distribution is defined on the *open* interval between 0 and 1, so a
+response recorded as exactly 0 or exactly 1 lies outside it. This is common:
+complete mortality at the highest concentration, or complete survival in the
+controls, both produce boundary values.
+
+`bayesnec` shifts them rather than refusing the fit. A zero becomes one tenth of
+the smallest non-zero value in the response, which scales with the data, and a
+one is reduced by an absolute 0.001. `bnec_record()` names every value it
+altered:
+
+```{r}
+#| label: subs-beta
+bnec_record(exp_2)$substitutions
+```
+
+`NULL` means the response was fitted as recorded. Where it is not `NULL`, the
+analysis was run on shifted values, and a series with several concentrations
+sitting at a boundary is being modelled through that shift rather than as
+measured. A methods section has to say so.
+
+Where the boundary values mean something different from a very small response —
+an organism that died, rather than one that grew very little — the shift is the
+wrong treatment altogether. The section on zeros below covers that case.
 
 ## Poisson
 
@@ -307,8 +448,16 @@ str(count_data)
 
 ```{r}
 #| label: fit-pois
+#| eval: false
 set.seed(333)
 exp_3 <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data)
+
+save(exp_3, file = "fits/m5_exp_3.RData")
+```
+
+```{r}
+#| label: load-fit-pois
+load("fits/m5_exp_3.RData")
 ```
 
 ```{r}
@@ -316,6 +465,38 @@ exp_3 <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data)
 #| fig-height: 5
 autoplot(exp_3, all_models = TRUE)
 ```
+
+### Counts observed over an exposure
+
+A count is very often observed over an exposure that differs between replicates:
+offspring counted where the number of fecund adults differs, cells counted over
+different areas, events counted over different lengths of time. The `rate` term
+declares that exposure, and is available for the Poisson and negative binomial
+families:
+
+```{r}
+#| label: rate-demo
+#| eval: false
+y | rate(n_females) ~ crf(x, model = "nec4param")
+```
+
+The raw counts are passed to `bnec()` unchanged, so a replicate with twenty
+females contributes more information than one with eight. Fitting `y / n_females`
+as a continuous response would discard exactly that.
+
+Because `bayesnec` uses an identity link, `brms` applies the denominator
+multiplicatively on the response scale rather than as a log offset on a linear
+predictor. The fitted mean therefore *is* the rate, and `top`, `bot` and `nec`
+are directly interpretable as offspring per female. The prediction grid holds the
+denominator at 1, and `autoplot()` divides the observed counts through to match.
+
+One caveat decides whether `rate` is the right tool. Where the exposure varies
+for reasons unrelated to the treatment, because a replicate simply received fewer
+animals, `rate` does what is wanted. Where the exposure is itself an effect of
+the treatment, as it would be if the denominator were the number of females
+*surviving* to the point of counting, the endpoint has quietly changed from
+reproductive output to fecundity conditional on survival. Both are legitimate
+endpoints and they will not return the same *NEC*.
 
 ## Negative binomial
 
@@ -325,9 +506,17 @@ which estimates the additional variation.
 
 ```{r}
 #| label: fit-negbin
+#| eval: false
 set.seed(333)
 exp_3b <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")),
                data = count_data, family = "negbinomial")
+
+save(exp_3b, file = "fits/m5_exp_3b.RData")
+```
+
+```{r}
+#| label: load-fit-negbin
+load("fits/m5_exp_3b.RData")
 ```
 
 ```{r}
@@ -352,9 +541,17 @@ measure_data <- nec_data |>
 
 ```{r}
 #| label: fit-gamma
+#| eval: false
 set.seed(333)
 exp_4 <- bnec(measure ~ crf(x, model = c("ecxll3", "nec3param")),
               data = measure_data)
+
+save(exp_4, file = "fits/m5_exp_4.RData")
+```
+
+```{r}
+#| label: load-fit-gamma
+load("fits/m5_exp_4.RData")
 ```
 
 ```{r}
@@ -378,9 +575,17 @@ gaussian_data <- prop_data |>
 
 ```{r}
 #| label: fit-gauss
+#| eval: false
 set.seed(333)
 exp_5 <- bnec(y ~ crf(sqrt.x, model = c("ecxll4", "nec4param")),
               data = gaussian_data)
+
+save(exp_5, file = "fits/m5_exp_5.RData")
+```
+
+```{r}
+#| label: load-fit-gauss
+load("fits/m5_exp_5.RData")
 ```
 
 ```{r}
@@ -396,6 +601,27 @@ with the beta, as above, is preferable: it keeps the parameters interpretable as
 proportions, and it does not require the transformation to have made the
 variance constant.
 
+### Growth rates
+
+A growth rate is the common Gaussian case in ecotoxicology, and it comes with a
+naming convention that is worth getting right. OECD Test Guideline 201
+[@oecd2026tg201] distinguishes two response variables from the same experiment.
+The average specific growth rate is the logarithmic increase in biomass over the
+exposure period, and an effect concentration derived from it is written
+**ErC~x~**. Yield is the biomass at the end of the period minus the biomass at
+the start, and its effect concentration is written **EyC~x~**. The guideline
+states that an ErC~x~ will generally be higher than the corresponding EyC~x~, and
+that growth rate is the scientifically preferred basis; yield is retained to
+satisfy current regulatory requirements. An estimate reported without one of
+those prefixes has not said which quantity it describes.
+
+A growth rate can be negative, because a population can decline. That rules out
+every family bounded below at zero, and it also rules out the equations whose
+lower asymptote is fixed at zero, since those cannot predict a negative response.
+The `bayesnec` article on growth data and other potentially negative responses
+covers the consequences, which reach the choice of both the family and the
+candidate set.
+
 ## Model suitability by response type
 
 Not every equation suits every family. A model predicting negative values cannot
@@ -404,15 +630,274 @@ in a requested set that is unsuitable for the distribution of the response. This
 is why a set of twenty-three may return fewer than twenty-three fits, and why
 the `zero_bounded` set exists.
 
+Three rules account for most of the exclusions.
+
+Equations with an exponential decay and no `bot` parameter approach zero and
+cannot go below it, so they cannot describe a Gaussian response, or any response
+fitted through a log or logit link.
+
+Equations with a linear decay, whose names contain `lin`, decline without limit,
+so they cannot describe a response bounded below at zero under an identity link.
+That covers the gamma, Poisson, negative binomial, binomial, beta and
+beta-binomial families.
+
+Equations that raise the predictor to a fractional power cannot be evaluated
+where the predictor is negative, which a logged concentration series is wherever
+the concentration falls below 1.
+
+You do not have to apply these yourself. `bnec()` excludes what it cannot fit and
+reports the reason, and `bnec_record()` keeps that reason on the fitted object:
+
+```{r}
+#| label: excluded
+bnec_record(exp_2)$excluded
+```
+
+No rows, because that fit named two equations explicitly and both are valid for a
+beta response on an identity link. A set requested as `"all"` on the same data
+returns several rows, with the rule each equation failed against.
+
+## Values that are not measurements
+
+Everything above assumes each recorded value is a measurement of the response. In
+real datasets some are not, and the three cases below need different treatment
+from one another.
+
+### Censored values
+
+A value is **censored** when the truth is known to lie in an interval rather than
+at a point: a concentration below a limit of detection, a cell count below the
+resolution of the counting method, a value rounded at the precision it was
+recorded to. The number written down is a *bound* rather than a measurement.
+
+The usual treatments are to substitute something for it, commonly half the
+detection limit, or to delete the row. @helsel2006 reviewed two decades of work
+on both and is blunt about the first: substituted values using any fraction
+between 0 and 0.99 of the detection limit are "equivalently arbitrary,
+equivalently precise, equivalently wrong". Deleting is worse, because it removes
+the observations at the low end and biases every subsequent estimate of location
+upwards.
+
+`bayesnec` passes through the `cens()` term from `brms`, so the bound can be
+declared instead of disguised:
+
+```{r}
+#| label: cens-demo
+#| eval: false
+y | cens(censoring) ~ crf(x, model = "nec4param")
+```
+
+`censoring` is a column in the data rather than a constant, because in a
+concentration-response dataset only some rows are censored. It takes the values
+`"none"`, `"left"`, `"right"` or `"interval"`. Interval censoring takes a second
+argument giving the upper bound, as `cens(censoring, upper)`.
+
+The response column holds the bound. On a left-censored row, the number in the
+response column is the value the truth is known to be at or below, rather than
+zero and rather than a guess at the unknown truth.
+
+What this changes is the contribution each row makes to the likelihood. An
+ordinary row contributes a density at a point, which falls away as the fitted
+curve departs from it, so a substituted value actively pulls the curve back
+towards the number that was substituted. A censored row instead contributes the
+probability of falling at or below the bound. As the curve descends past the
+bound that probability rises towards 1 and then *saturates*: the curve is neither
+rewarded for passing further below nor penalised for it.
+
+### The limit of a censored likelihood
+
+Saturation is what confines a censored row to what is known, and it is also the
+limit of the method. Once the fitted curve sits a few residual standard
+deviations below the bound, the likelihood is flat in that region. A parameter
+whose only expression is there is then not identified by the data, and what gets
+reported for it is the prior.
+
+The lower asymptote is the usual casualty. Where every response near the bottom
+of the curve is censored, `bot` is told only that it lies somewhere below the
+bound, and nothing in the likelihood distinguishes one such value from another.
+
+The `bayesnec` documentation reports this on the `alga` dataset, where the
+population fell below the counting limit at the highest concentrations. Fitting
+`nec4param` with a Gaussian family and the same prior throughout, and varying
+only how those rows were declared:
+
+| the below-limit rows declared as | `bot`, median [95% CI] | posterior SD |
+|---|---|---|
+| the bound, treated as observed | −1.985 [−2.013, −1.958] | 0.014 |
+| left-censored at the bound | −5.64 [−11.0, −2.51] | 2.23 |
+| interval-censored, from extinction to the bound | −2.45 [−2.68, −2.10] | 0.17 |
+
+Substitution is wrong about the value and states it precisely: an interval a
+tenth the width of any other, because those rows have been asserted to sit
+exactly at the bound when all that is known is that they lie below it.
+
+Left-censoring withdraws that assertion, and what it reveals is that the data
+contain almost nothing about `bot`. The posterior widens by a factor of 160 and
+runs down to a rate at which the population would have disappeared many times
+over. Nothing has gone wrong mechanically: the chains mix and the convergence
+diagnostic is 1.00. The number is uninformed, and the interval alone does not say
+so.
+
+The third row is the repair. A population below the counting limit is not below
+extinction, so the truth lies in an interval and `cens(censoring, upper)` says
+exactly that. The resulting estimate rests on the declared floor rather than on
+measurement, and should be reported that way.
+
+Two points follow for practice. Read whether a parameter is identified from how
+far the posterior has contracted away from its prior, rather than from the width
+of the interval; across those three fits the contraction was 0.996, 0.379 and
+0.953, and the middle value is what the interval hides. And the problem
+propagates, so an **EC~x~** whose target falls near the asymptote deserves the
+same scepticism as `bot` itself.
+
+### Zeros
+
+A zero needs a different treatment depending on what produced it, and the three
+cases are distinguishable from the design rather than from the data.
+
+A zero that is a measurement below the resolution of the method is censored, and
+belongs in the previous section.
+
+A zero that marks a distinct event is **structural**. An organism that died did
+not grow slowly; its growth is undefined rather than small. A response of this
+kind has two processes behind it, one deciding whether the event occurred and one
+generating the response when it did not, and a **two-block** model fits both.
+
+A zero that is an ordinary draw from a distribution admitting zeros is not
+evidence of anything at all. @warton2005 makes the point directly: many zeros
+does not mean zero inflation, and a Poisson or negative binomial with a low mean
+produces plenty of them. Fit the simpler family and check it before reaching for
+a two-block model. @martin2005 sets out how to decide which of the three you are
+looking at, from what the experiment did rather than from a test.
+
+### Hurdle against zero-inflated
+
+Both names describe a two-block model and they are not interchangeable. The
+distinction is whether the zeros are **observed** or **latent**, and it decides
+whether the second block is worth interpreting.
+
+Under a **hurdle** the zeros are observed to be structural. The individual died,
+or the replicate failed, and you know which observations those are. The
+likelihood then separates exactly into a block for whether the event occurred and
+a block for the response given that it did not, and both blocks describe a curve
+you can read a threshold from.
+
+Under **zero inflation** a zero could have come from either component, and
+nothing in the data says which. The two are therefore weakly separated precisely
+where the ordinary component is small, which is the high-concentration end that
+determines the *NEC*. A threshold fitted to the zero-inflation component there
+describes a class of observation nobody measured.
+
+The practical rule follows from the design rather than from the data. Where you
+recorded *why* each zero occurred, a hurdle is available and its second block
+means something. Where you did not, zero inflation is the description the data
+support, and the second block should not be read as a concentration-response
+curve.
+
+`bayesnec` supplies `hurdle_gamma` for a positive continuous response with
+structural zeros, and the zero-inflated beta, Poisson and negative binomial:
+
+```{r}
+#| label: hurdle-fams
+#| comment: ""
+names(bayesnec:::mod_fams)
+```
+
+`bnec_hurdle()` and `bnec_joint()` fit the two blocks, and the `bayesnec` article
+on hurdle and zero-inflated models covers them. They are a subject of their own
+and are not taught here.
+
+One trap is worth naming even though it is not taught. Fitting the positive part
+of a count response by dropping the zeros and using an ordinary Poisson is not
+the same model: with the zeros removed the remaining counts follow a
+*zero-truncated* Poisson, so an untruncated fit estimates the wrong quantity. The
+error grows as the mean falls towards zero, which is the high-concentration end
+that an *NEC* or an **EC~x~** is read from. The equivalent construction for
+`hurdle_gamma` is exact, because a gamma distribution has no mass at zero to
+begin with, which is why the problem appears only for counts.
+
+### Dispersion that changes across the curve
+
+One further assumption is worth naming, because it is made by default and rarely
+checked. A fit holds the dispersion parameter of the chosen family constant
+across the whole concentration-response curve. For a Gaussian response that
+assumes replicate variability is the same at every concentration; for the other
+families it assumes the coefficient of variation, or the precision, does not
+change with the mean.
+
+Where that is wrong the consequences fall on the credible intervals of the
+toxicity estimates, and they fall unevenly, because the assumed variability is
+too large at one end of the series and too small at the other. The `disp` term
+relaxes the assumption:
+
+```{r}
+#| label: disp-demo
+#| eval: false
+y ~ crf(x, model = "nec4param") + disp(~x)         # varies along the predictor
+y ~ crf(x, model = "nec4param") + disp("power")    # varies with the fitted mean
+```
+
+Treat this as a diagnostic rather than as a routine addition. A variance function
+will absorb any cause of apparent heteroscedasticity and report a confident slope
+regardless, so exclude three other explanations first. Substituted or censored
+values cluster at one end of the series and their spread is easily mistaken for
+changing variability. A misspecified family produces the same appearance, since a
+constant coefficient of variation is what a gamma already implies. And a curve
+that is systematically wrong in one region leaves large residuals there, which a
+variance function will describe as noise rather than as lack of fit.
+
+### A worked case
+
+The `bayesnec` documentation reports this on one plate of a bioluminescent
+bacterial copper series, 44 wells over 11 concentrations at four replicate wells
+each, fitted with the `decline` set at the sampling defaults. The observed
+coefficient of variation within a concentration runs from 0.046 at the control
+to 1.271 at its largest, which is 28 times the control value, so a single
+dispersion parameter cannot serve the whole series.
+
+Fitting the same equations with and without `disp("power")`:
+
+| | constant dispersion | `disp("power")` |
+|---|---|---|
+| groups `check_fit()` flags on spread, of 11 | 7 | 0 |
+| `sd_ratio` at the control, 1 expected | 0.09 | 1.02 |
+| *NSEC*, mg/L | 0.105 | 0.055 |
+| EC10 95% interval width, mg/L | 0.055 | 0.011 |
+
+Three things to take from that table.
+
+The constant-dispersion fit simulated about eleven times more spread at the
+control than the data show, which is the `sd_ratio` of 0.09. Nothing in its
+sampler diagnostics said so.
+
+The *NSEC* halves. A control posterior that is too wide places the significance
+reference too low, and a reference placed too low is crossed further along the
+curve, so the constant-dispersion fit reports the **less protective** of the two
+figures. This is the mechanism module 2 describes under `check_fit()`, measured.
+
+The **EC~x~** changes by much less, from 0.083 to 0.070 mg/L, because it is
+measured at a fixed fraction of the control mean rather than at a quantile of its
+posterior. Its interval narrows sharply all the same.
+
+The estimated exponent was 0.78, with a 95% interval of 0.64 to 0.93. Regressing
+the within-concentration coefficient of variation on the fitted mean, with no
+model involved at all, gives 0.77 from the replicate wells. The sub-model is
+therefore describing variation the design measured rather than absorbing a
+failure of the curve, which is the check the three exclusions above are for.
+
+The general point is the one module 3 made about the *NSEC*: an estimate
+referenced against the control rests on how well the fit describes the control,
+and a constant-dispersion fit has not checked that.
+
 ## Open questions
 
 The families implemented in `bayesnec` cover the common cases in
-concentration-response work. Responses with an excess of zeros need the hurdle
-and zero-inflated families listed above, which are covered separately.
+concentration-response work.
 
 The important practical point is the one at the top of this module: check which
 distribution was used, and check that it reproduces the variability in the data.
-The default inference is a convenience, not a substitute for that judgement.
+The default inference is a convenience rather than a substitute for that
+judgement, and module 2 gives the two functions that make the check.
 
 ## References
 

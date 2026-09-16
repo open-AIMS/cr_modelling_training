@@ -1,0 +1,3 @@
+"fit","weight","elpd_diff","se_diff"
+"no group term",0.178,-2.4,2.2
+"ogl(groupvar)",0.822,0,0

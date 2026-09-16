@@ -17,7 +17,7 @@ fitted curve. It then introduces the no-significant-effect concentration (NSEC),
 and works through fitting and interpretation using `bayesnec`, which fits these
 models in a Bayesian framework via `brms` and Stan. Model averaging is treated
 throughout rather than as an addition, because a single equation chosen from a
-candidate set rarely carries the evidence a guideline value needs.
+candidate set rarely supplies the evidence a guideline value needs.
 
 ## Course outcomes
 
@@ -69,11 +69,12 @@ revision and not yet reviewed, are at
 | 4 | [Model averaging and multi-model inference](vignettes/4Model_averaging_and_multimodel_inference.qmd) | candidate sets, weights, averaged estimates |
 | 5 | [Response data and statistical distributions](vignettes/5Response_data_and_statistical_distributions.qmd) | matching the family to the endpoint |
 | 6 | [Priors and Bayesian inference](vignettes/6Priors_and_Bayesian_inference.qmd) | default priors, checking them, changing them |
-| 7 | A worked case study | herbicide toxicity, start to finish |
-| 8 | Factor covariates and groupings | comparing curves and estimates across groups |
+| 7 | [A worked case study](vignettes/7Example_case_study.qmd) | herbicide toxicity, start to finish |
+| 8 | [Factor covariates and groupings](vignettes/8Factor_covariates_and_groupings.qmd) | comparing curves and estimates across groups |
 
-Modules 7 and 8 are being converted from the earlier version of this course and
-are linked here as they are completed.
+Every module is built. Modules 7 and 8 read results produced outside the render,
+by `scripts/generate_herbicide_fits.R` and `scripts/generate_grouping_fits.R`,
+because the fits behind them take hours and are not made when the site is built.
 
 [Frequentist fitting with `drc`](vignettes/drc-reference.qmd) is supplied as
 reference rather than taught. It shows the same questions asked of a

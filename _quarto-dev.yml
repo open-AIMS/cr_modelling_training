@@ -25,6 +25,8 @@ project:
     - vignettes/4Model_averaging_and_multimodel_inference.qmd
     - vignettes/5Response_data_and_statistical_distributions.qmd
     - vignettes/6Priors_and_Bayesian_inference.qmd
+    - vignettes/7Example_case_study.qmd
+    - vignettes/8Factor_covariates_and_groupings.qmd
     - vignettes/drc-reference.qmd
 
 website:
@@ -64,6 +66,10 @@ website:
             text: "5. Response data and distributions"
           - href: vignettes/6Priors_and_Bayesian_inference.qmd
             text: "6. Priors and Bayesian inference"
+          - href: vignettes/7Example_case_study.qmd
+            text: "7. A worked case study"
+          - href: vignettes/8Factor_covariates_and_groupings.qmd
+            text: "8. Factor covariates and groupings"
       - section: "Frequentist comparison"
         contents:
           - href: vignettes/drc-reference.qmd

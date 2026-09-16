@@ -41,29 +41,35 @@ manecfit <- herbicide |>
 
 message("fitted in ", format(round(difftime(Sys.time(), t0), 1)))
 
-# --- drop any model that failed the convergence criterion --------------------
-# rhat() on a bayesmanecfit returns a list keyed by model name, each element
-# holding rhat_vals and a logical `failed`. The 2023 version of module 7 used
-# `rhat(x)$failed`, which is NULL on that structure, so its cleaning step
-# silently dropped nothing. The default cutoff is 1.01, not the 1.05 that module
-# stated.
-failed_models <- function(fit) {
-  r <- rhat(fit)
-  names(which(vapply(r, function(z) isTRUE(z$failed), logical(1))))
-}
-
-failed <- imap_dfr(manecfit, function(fit, nm) {
-  bad <- failed_models(fit)
-  if (length(bad) == 0) return(NULL)
-  data.frame(herbicide = nm, model = bad)
+# --- screen out any model that did not sample adequately ---------------------
+# screen_models() applies all three sampler diagnostics -- Rhat, effective
+# sample size and divergent transitions -- and drops what failed, reporting
+# which models went and why. It replaces a local helper written over rhat()
+# alone, which had two defects: it screened on one diagnostic of the three, and
+# it shadowed bayesnec::failed_models(), which reports something else entirely
+# (the equations that produced no draws at all).
+#
+# The full per-model table is written out, not only the failures, because a
+# methods section has to state the thresholds applied as well as the result.
+sampling <- imap_dfr(manecfit, function(fit, nm) {
+  check_sampling(fit) |>
+    mutate(herbicide = nm, .before = 1)
 })
-write.csv(failed, file.path(out_dir, "herbicide_rhat_failed.csv"),
+write.csv(sampling, file.path(out_dir, "herbicide_sampling.csv"),
           row.names = FALSE)
 
-cleaned_fits <- map(manecfit, function(fit) {
-  bad <- failed_models(fit)
-  if (length(bad) > 0) amend(fit, drop = bad) else fit
+# Equations that produced no draws at all are a different failure from equations
+# that sampled badly, and are reported separately.
+never_fitted <- imap_dfr(manecfit, function(fit, nm) {
+  nms <- names(failed_models(fit))
+  if (length(nms) == 0) return(NULL)
+  data.frame(herbicide = nm, model = nms)
 })
+write.csv(never_fitted, file.path(out_dir, "herbicide_never_fitted.csv"),
+          row.names = FALSE)
+
+# quiet = FALSE so the exclusions are named in the log this script writes.
+cleaned_fits <- map(manecfit, function(fit) screen_models(fit))
 
 # --- model weights ----------------------------------------------------------
 imap_dfr(cleaned_fits, function(fit, nm) {
@@ -89,7 +95,10 @@ herbicide |>
   write.csv(file.path(out_dir, "herbicide_observations.csv"), row.names = FALSE)
 
 # --- no-effect posteriors and their pairwise comparison ---------------------
-post_comp <- compare_posterior(cleaned_fits, comparison = "nec")
+# "n(s)ec" is the weighted mixture of NEC values from the threshold equations
+# and NSEC values from the smooth ones, which is what these mixed sets hold and
+# what the module reports. "nec" would ask for the threshold parameter alone.
+post_comp <- compare_posterior(cleaned_fits, comparison = "n(s)ec")
 
 post_comp$posterior_data |>
   mutate(concentration = exp(value)) |>
@@ -98,6 +107,17 @@ post_comp$posterior_data |>
 
 write.csv(post_comp$prob_diff,
           file.path(out_dir, "herbicide_prob_diff.csv"), row.names = FALSE)
+
+# --- curve parameters -------------------------------------------------------
+# summary() reports weights and the no-effect estimate but no parameter
+# estimates. curve_params() returns them per equation, with the model weight
+# beside each row. xform reaches nec and ec50, which are on the predictor axis;
+# top, bot and beta are not and are left alone.
+imap_dfr(cleaned_fits, function(fit, nm) {
+  curve_params(fit, xform = exp) |>
+    mutate(herbicide = nm, .before = 1)
+}) |>
+  write.csv(file.path(out_dir, "herbicide_curve_params.csv"), row.names = FALSE)
 
 # --- summarised estimates ---------------------------------------------------
 imap_dfr(cleaned_fits, function(fit, nm) {
@@ -137,6 +157,7 @@ writeLines(c(
   paste("brms:", as.character(packageVersion("brms"))),
   paste("cmdstanr:", as.character(packageVersion("cmdstanr"))),
   paste("model set: decline,", length(models()$decline), "equations"),
+  paste("sampler screen: rhat <= 1.01, ess >= 400, divergences <= 10"),
   paste("herbicides:", paste(names(cleaned_fits), collapse = ", "))
 ), file.path(out_dir, "herbicide_provenance.txt"))
 

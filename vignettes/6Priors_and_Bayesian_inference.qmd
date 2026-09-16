@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
 library(brms)
 options(mc.cores = 4)
+set.seed(333)
 ```
 
 ## Background
@@ -143,7 +144,7 @@ treatment concentrations. Where data are sparse the defaults can be influential;
 but sparse data usually need informative priors to fit at all, and then the
 influence of prior knowledge should be acknowledged rather than avoided.
 
-### Two prior sets
+### The available prior sets
 
 ```{r}
 #| label: prior-types
@@ -152,9 +153,34 @@ formals(bnec)$prior_type
 ```
 
 `"uninformative"` is the default and is described below. `"regularizing"` is a
-deliberately narrower set, defined by a location and a spread and derived per
-family, with the location read from the ends of the predictor — the control group
-for `top`. It is the stricter option where a default fit is unstable.
+deliberately narrower set, and it is the option to reach for where a default fit
+is unstable.
+
+The narrower set is stated once, as a location and a spread, and each family's
+entry is derived from that statement using whichever distribution matches the
+parameter's support. The location is the mean response at the end of the
+concentration series where the parameter describes the level of the curve: the
+lowest concentrations for `top`, which for a design with an unexposed control is
+the control group, and the highest for `bot`. The spread is 0.4 of the standard
+deviation of the corresponding `"uninformative"` prior, subject to two limits. It
+is never smaller than the standard error of the location, because a prior
+narrower than the noise in its own anchor states a precision the data do not
+supply. And it is never wider than the `"uninformative"` prior, so that asking
+for the narrower set cannot widen anything.
+
+Over 420 `top` and `bot` entries built from simulated responses across five
+designs, three predictor transforms, seven families and two links, the ratio is
+0.4 exactly in 385 of them, the standard-error floor binds in 35, and the
+resulting prior is wider than the `"uninformative"` one in none.
+
+One assumption is worth checking before selecting it. The rule assumes the lowest
+concentration tested sits at the level `top` describes and the highest sits at
+the level `bot` describes. Where the highest concentration has not reached the
+lower asymptote, the location for `bot` sits above the true value, and no choice
+of spread corrects a bias in a location. On a design with an incomplete decline,
+use the `"uninformative"` set.
+
+`prior_type` is ignored whenever you supply a `prior` of your own.
 
 The descriptions that follow are of the default set. Rather than relying on
 them, read the priors off a fitted model with `pull_prior()`, as below: the
@@ -197,6 +223,23 @@ predictor, with a spread taken from the observed range. Where the predictor span
 negative values it is used directly, giving a **normal** located at the median
 with a standard deviation ten times that of the predictor.
 
+The location is the median of the *distinct* positive concentrations rather than
+of the observations, so that the prior describes the series of concentrations
+tested rather than how many replicates each of them received.
+
+The width is stated rather than chosen: the central 95% interval of the
+untruncated prior reaches every concentration tested. A prior on a threshold
+should not exclude a concentration the experiment applied, at either end, and
+that criterion is the whole of the rule.
+
+One consequence reaches how you record your data. Because the width is set by the
+two extreme concentrations rather than by the spread of the series between them,
+it responds to what is entered for the control. On one dilution series the
+standard deviation of the prior is 2.30 with the control recorded as `0`, 2.59
+with it recorded as `0.001`, and 6.11 with it recorded as `1e-6`, because each of
+those states that a smaller concentration was applied and the prior widens to
+cover it. Record a control as `0`.
+
 This replaced an earlier scheme that selected among a gamma, a `beta(2, 2)` and a
 normal according to the predictor's support. A gamma cannot describe a
 logarithmically spaced concentration series, because its spread is tied to its
@@ -214,7 +257,7 @@ In `nec3param`, for example, `beta` is an exponential decay rate and must lie
 between 0 and $\infty$. The formula calls `exp(beta)`, which enforces that, and a
 `normal(0, 5)` on the exponent is broad in practice.
 
-## When the defaults do not suit
+## Limits of the default priors
 
 The defaults are data-dependent and are designed to be informative enough,
 relative to each parameter's plausible region, to return fits without divergent
@@ -227,15 +270,40 @@ bounds, which happens mainly with few data or few unique predictor values. They
 may be too vague, giving poor convergence. Or they may be of the wrong family, if
 the data did not contain enough information for `bayesnec` to infer the right one.
 
+## Priors before a fit
+
+`pull_prior()` reports the priors of a model that has already been fitted, which
+is the wrong way round when a fit takes minutes and you want to see what it will
+be given. `get_priors()` builds the same priors from a formula and a dataset
+without fitting anything:
+
+```{r}
+#| label: get-priors
+data(nec_data)
+get_priors(y ~ crf(x, model = "nec3param"), data = nec_data,
+           family = Beta(link = "identity"))
+```
+
+That is the set `bnec()` would use, and it can be edited and passed back through
+the `prior` argument, which is what the sections below do.
+
 ## Inspecting the priors
 
 A fitted model to work from:
 
 ```{r}
 #| label: fit-base
+#| eval: false
 set.seed(333)
 data(nec_data)
 bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+
+save(bnec_fit, file = "fits/m6_bnec_fit.RData")
+```
+
+```{r}
+#| label: load-fit-base
+load("fits/m6_bnec_fit.RData")
 ```
 
 `sample_priors()` draws from the priors held in the `brms` fit, which shows their
@@ -249,7 +317,7 @@ sample_priors(pull_brmsfit(bnec_fit)$prior)
 
 `check_priors()`, which builds on the `hypothesis()` function of `brms`, plots
 the prior against the posterior for each parameter. That comparison is the point:
-a posterior that has moved well away from its prior is being determined by the
+a posterior lying well away from its prior is being determined by the
 data, and one that follows the prior closely is not.
 
 ```{r}
@@ -264,12 +332,20 @@ The simplest way to write custom priors is to let `bnec` build its own first and
 then modify them.
 
 ```{r}
-#| label: fit-a
 #| results: hide
+#| label: fit-a
+#| eval: false
 set.seed(333)
 exmp_a <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
                family = Beta(link = "identity"),
                iter = 1e4, control = list(adapt_delta = 0.99))
+
+save(exmp_a, file = "fits/m6_exmp_a.RData")
+```
+
+```{r}
+#| label: load-fit-a
+load("fits/m6_exmp_a.RData")
 ```
 
 `pull_prior()` reports what it chose:
@@ -284,8 +360,9 @@ Suppose the predictor could in principle have been negative and simply was not i
 this dataset. A normal with a larger variance can be substituted:
 
 ```{r}
-#| label: fit-b
 #| results: hide
+#| label: fit-b
+#| eval: false
 set.seed(333)
 my_prior <- c(prior_string("beta(5, 1)", nlpar = "top"),
               prior_string("normal(1.3, 2.7)", nlpar = "nec"),
@@ -293,6 +370,13 @@ my_prior <- c(prior_string("beta(5, 1)", nlpar = "top"),
 exmp_b <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
                family = Beta(link = "identity"), prior = my_prior,
                iter = 1e4, control = list(adapt_delta = 0.99))
+
+save(exmp_b, file = "fits/m6_exmp_b.RData")
+```
+
+```{r}
+#| label: load-fit-b
+load("fits/m6_exmp_b.RData")
 ```
 
 Two things follow from that. Priors must be given for **every** parameter of the
@@ -305,7 +389,7 @@ a model that has already been fitted, so to find the parameters beforehand use
 show_params(model = "nec3param")
 ```
 
-### Comparing the two fits
+### Comparison of the fits
 
 ```{r}
 #| label: fig-compare-priors
@@ -324,8 +408,9 @@ would be the signal to look harder.
 A named list supplies priors per model when several are fitted together.
 
 ```{r}
-#| label: fit-c
 #| results: hide
+#| label: fit-c
+#| eval: false
 set.seed(333)
 my_priors <- list(
   nec3param = c(prior_string("beta(5, 1)", nlpar = "top"),
@@ -338,6 +423,13 @@ my_priors <- list(
 exmp_c <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
                family = Beta(link = "identity"), prior = my_priors,
                iter = 1e4, control = list(adapt_delta = 0.99))
+
+save(exmp_c, file = "fits/m6_exmp_c.RData")
+```
+
+```{r}
+#| label: load-fit-c
+load("fits/m6_exmp_c.RData")
 ```
 
 `pull_prior()` works on a `bayesmanecfit`, and so does `check_priors()`, which
@@ -355,12 +447,20 @@ Priors can be given for some models and left to `bayesnec` for the rest. Where
 they are missing, or ill-formed, it reports that it is finding its own.
 
 ```{r}
-#| label: fit-d
 #| results: hide
+#| label: fit-d
+#| eval: false
 set.seed(333)
 exmp_d <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
                family = Beta(link = "identity"), prior = my_priors[1],
                iter = 1e4, control = list(adapt_delta = 0.99))
+
+save(exmp_d, file = "fits/m6_exmp_d.RData")
+```
+
+```{r}
+#| label: load-fit-d
+load("fits/m6_exmp_d.RData")
 ```
 
 `my_priors[[1]]` would also work: the `prior` argument takes either a `brmsprior`
@@ -372,18 +472,138 @@ object directly or a named list of them.
 the model being added.
 
 ```{r}
-#| label: fit-e
 #| results: hide
+#| label: fit-e
+#| eval: false
 set.seed(333)
 necsigm_priors <- c(prior_string("beta(5, 1)", nlpar = "top"),
                     prior_string("gamma(2, 6.5)", nlpar = "beta"),
                     prior_string("normal(1.3, 2.7)", nlpar = "nec"),
                     prior_string("normal(0, 2)", nlpar = "d"))
 exmp_e <- amend(exmp_d, add = "necsigm", priors = necsigm_priors)
+
+save(exmp_e, file = "fits/m6_exmp_e.RData")
+```
+
+```{r}
+#| label: load-fit-e
+load("fits/m6_exmp_e.RData")
 ```
 
 `necsigm` is used here to demonstrate the mechanism. As module 4 notes, it is not
 recommended for inference and should be dropped from the `all` set.
+
+## Fixing a parameter
+
+A parameter can be held at a known value rather than estimated, by giving it a
+`constant()` prior. This works wherever a user-specified prior works and needs no
+other change. `bayesnec` has no `fixed` argument of the kind `drc` provides,
+because a point-mass prior expresses the same thing through machinery that
+already exists.
+
+```{r}
+#| label: constant-prior
+#| eval: false
+fixed_prior <- get_priors(y ~ crf(x, model = "nec3param"), data = avoid_data,
+                          family = Beta(link = "identity"))
+fixed_prior$prior[fixed_prior$nlpar == "top"] <- "constant(0.5)"
+
+bnec(y ~ crf(x, model = "nec3param"), data = avoid_data,
+     family = Beta(link = "identity"), prior = fixed_prior)
+```
+
+Stan does not declare a parameter whose prior is constant, so `top` is reported
+with an estimate of exactly 0.5 and no error, because it was never sampled.
+
+The case where this is defensible is an asymptote that is structural rather than
+measured. In a two-choice avoidance assay, animals are offered a treated and an
+untreated container, and the expected proportion in the treated container at zero
+dose is 0.5 *by design*, because at zero dose the two containers are identical.
+
+### The consequences of fixing a parameter
+
+Two things, and both are easy to miss because the fit looks better rather than
+worse.
+
+The first is a diagnostic. In the assay above, 0.5 is a null expectation rather
+than a design constant: it holds only if there is no baseline preference between
+the two containers arising from position, lighting, handling order or substrate.
+Fitting with `top` free gives a credible interval that either covers 0.5 or does
+not, and that is positive evidence about whether the assay was unbiased before
+the contaminant was involved. No other output of the model supplies it. Where a
+real baseline preference is present, fixing `top` at 0.5 produces a fit that
+looks exactly as sound as one where it is absent; the disagreement does not
+disappear when it is forbidden from appearing in `top`, but is absorbed into
+`beta` and `nec` instead, and so into the toxicity estimate.
+
+The second is uncertainty. A constant asserts that the value is known exactly, so
+none of it propagates into an **EC~x~** or the *NEC*, and the credible intervals
+narrow. That reads as a better analysis and is the opposite of one.
+
+A tight informative prior is the better tool in most cases, because it states
+what is known while still letting the data revise the parameter and still
+propagating the uncertainty forward. `beta(6, 6)` has a mean of 0.5 and a standard deviation
+of 0.14, concentrating `top` around the design expectation without asserting it:
+
+```{r}
+#| label: tight-prior
+#| eval: false
+fixed_prior$prior[fixed_prior$nlpar == "top"] <- "beta(6, 6)"
+```
+
+@Weimer2012 reach the same conclusion from the frequentist side. A linear
+transformation of the data changes neither the EC50 nor the slope estimate,
+provided the fitting function is kept, but fixing parameters in a reduced model
+can produce erroneous estimates. Their case is data corrected for background and
+normalised to a control, then fitted with the response range fixed between 100%
+and 0%. Fix a parameter only where there is a compelling reason.
+
+That case is the one to refuse outright. A response divided by its control mean
+has a maximum of 1 by construction, and fixing `top` at 1 is a common reflex.
+Normalising to an *estimated* control already discards the sampling variability
+of the divisor, as module 2 sets out, and fixing the asymptote afterwards makes
+that loss invisible rather than merely present, because the intervals it narrows
+were already too narrow.
+
+## Checking how much the priors matter
+
+The defaults are weakly informative by design, and whether they behaved that way
+on your data is a question rather than an assumption. Two checks answer it.
+
+The first is the prior against the posterior, which `check_priors()` plots above.
+A posterior concentrated well inside its prior was determined by the data; one
+that follows the shape of its prior was not.
+
+The second puts a number on the same comparison. **Prior-to-posterior
+contraction** is one minus the ratio of the posterior variance to the prior
+variance, so it runs from 0, where the data added nothing, to 1, where the
+posterior is far narrower than the prior. It is computed from `pull_prior()` and
+the posterior draws. The reason to prefer it to the plot is that a narrow
+interval is not evidence of a well-determined parameter: a parameter the
+likelihood is flat in will report a narrow posterior if its prior was narrow, and
+only the contraction distinguishes the two. Module 5 gives a worked case, where a
+censored lower asymptote returned a contraction of 0.379 against 0.996 for the
+same parameter under a different declaration.
+
+The third check is a sensitivity analysis: refit under a different prior set and
+compare. `prior_type` makes that one argument rather than a set of priors written
+by hand.
+
+```{r}
+#| label: sensitivity
+#| eval: false
+set.seed(333)
+exmp_reg <- bnec(y ~ crf(x, model = "nec4param"), data = nec_data,
+                 family = Beta(link = "identity"),
+                 prior_type = "regularizing",
+                 iter = 1e4, control = list(adapt_delta = 0.99))
+```
+
+`nec4param` is used rather than `nec3param` because the two sets differ most in
+`bot`, which `nec3param` does not have. Posteriors that agree between the two
+sets are being determined by the data. Posteriors that differ are being
+determined by the priors, and where that happens the influence of the prior
+belongs in the reporting rather than being left implicit.
 
 ## References
 

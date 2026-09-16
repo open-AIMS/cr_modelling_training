@@ -350,6 +350,43 @@ button, then "Download ZIP", and extract the archive. You end up with the same
 folder. To take a later revision you download the ZIP again rather than running
 `git pull`.
 
+## The fitted models
+
+The modules fit Bayesian models, and some of them take a while: on a four-core
+machine module 5 takes about thirteen minutes and module 6 about sixteen. You do
+not have to wait for that during the workshop. The fitted models are available as
+a single download, and with them in place every fit in the modules loads in
+seconds instead of sampling.
+
+This step is optional. Without it everything still works and the modules fit the
+models as they are written, which is also worth doing once if you want to see
+how long a real fit takes.
+
+From inside the `cr_modelling_training` folder, in R:
+
+```r
+source("vignettes/fetch_fits.R")
+```
+
+That downloads the archive, checks it arrived intact, and unpacks it into a
+`vignettes/fits/` folder beside the modules. It is a few hundred megabytes and is done
+once. Do it on a connection you trust rather than on conference wifi on the
+morning.
+
+::: {.callout-note}
+## If the download fails
+
+A USB stick with the same archive will be available on the day. Copy the `vignettes/fits/`
+folder from it into your `cr_modelling_training` folder and you are in the same
+position.
+
+Nothing else depends on the download. The modules fit the models themselves
+when no saved fit is found.
+:::
+
+The verification check below reports whether the fitted models are present, so
+you do not have to work it out yourself.
+
 ## Opening the materials in Positron
 
 Use "File > Open Folder" and select the `cr_modelling_training` folder. R then

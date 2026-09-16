@@ -1,0 +1,46 @@
+Object of class bayesmanecfit
+
+ Family: beta  
+  Links: mu = identity  
+
+Number of posterior draws per model:  8000
+
+Model weights (Method: pseudobma_bb_weights):
+             waic   wi
+nec3param -451.02 0.03
+nec4param -456.54 0.03
+ecxexp    -320.61 0.00
+ecx4param -465.25 0.41
+ecxwb1    -443.81 0.01
+ecxwb2    -461.33 0.11
+ecxwb1p3  -323.33 0.00
+ecxwb2p3  -447.03 0.02
+ecxll4    -465.15 0.39
+ecxll3    -432.29 0.00
+
+
+Summary of weighted N(S)EC posterior estimates:
+NB: Model set contains a combination of ECx and NEC
+    models, and is therefore a model averaged
+    combination of NEC and NSEC estimates.
+       Estimate  Q2.5 Q97.5
+N(S)EC    -1.65 -2.12 -0.45
+
+
+Bayesian R2 estimates:
+          Estimate Est.Error Q2.5 Q97.5
+nec3param     0.99      0.00 0.99  0.99
+nec4param     0.99      0.00 0.99  0.99
+ecxexp        0.89      0.01 0.87  0.91
+ecx4param     0.99      0.00 0.99  0.99
+ecxwb1        0.99      0.00 0.98  0.99
+ecxwb2        0.99      0.00 0.99  0.99
+ecxwb1p3      0.94      0.01 0.90  0.96
+ecxwb2p3      0.99      0.00 0.99  0.99
+ecxll4        0.99      0.00 0.99  0.99
+ecxll3        0.99      0.00 0.98  0.99
+
+
+1 model(s) failed to fit: ecxll5
+See ?failed_models for the priors and initial values used.
+

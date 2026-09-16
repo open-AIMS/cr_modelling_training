@@ -10,6 +10,8 @@ bibliography: bayesnec.bib
 knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
 options(mc.cores = 4)
+set.seed(333)
+data(nec_data)
 ```
 
 ## Background
@@ -76,7 +78,7 @@ case the weights are usually AICc weights.
 A well-fitting model takes a high weight and dominates the result. A poorly
 fitting one takes a weight near zero and has little influence. Where several
 models fit equally well they contribute comparably, and the resulting posterior
-carries the uncertainty in model shape as well as in the parameters. That is the
+reflects the uncertainty in model shape as well as in the parameters. That is the
 substantive gain: an interval from a single chosen equation is conditional on
 that equation being right, and does not reflect the fact that it was chosen.
 
@@ -110,7 +112,7 @@ two minutes; a set of twenty-three is not twenty-three times more convenient.
 
 ## Combining single fits
 
-Any model fitted by `bnec` inherits class `bnecfit`, which carries two methods of
+Any model fitted by `bnec` inherits class `bnecfit`, which has two methods of
 its own, `+` and `c`. Either will append fits to one another, so two or more
 `bayesnecfit` objects can be combined into a model-averaged `bayesmanecfit`.
 
@@ -118,9 +120,17 @@ Starting from the `nec3param` fit of module 2:
 
 ```{r}
 #| label: fit-nec3param
+#| eval: false
 set.seed(333)
 data(nec_data)
 bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+
+save(bnec_fit, file = "fits/m4_bnec_fit.RData")
+```
+
+```{r}
+#| label: load-fit-nec3param
+load("fits/m4_bnec_fit.RData")
 ```
 
 and adding a second equation of a different shape — `ecxll3`, a three-parameter
@@ -128,8 +138,16 @@ log-logistic curve with no threshold:
 
 ```{r}
 #| label: fit-ecxll3
+#| eval: false
 set.seed(333)
 bnec_fit_new <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
+
+save(bnec_fit_new, file = "fits/m4_bnec_fit_new.RData")
+```
+
+```{r}
+#| label: load-fit-ecxll3
+load("fits/m4_bnec_fit_new.RData")
 ```
 
 ```{r}
@@ -160,7 +178,15 @@ third equation:
 
 ```{r}
 #| label: amend
+#| eval: false
 bmanecfit_more <- amend(bmanecfit, add = "ecxexp")
+
+save(bmanecfit_more, file = "fits/m4_bmanecfit_more.RData")
+```
+
+```{r}
+#| label: load-amend
+load("fits/m4_bmanecfit_more.RData")
 ```
 
 ## Plotting an averaged fit
@@ -199,6 +225,14 @@ fit had divergent transitions.
 data were simulated from that equation. The Bayesian R² values show how little of
 the variation the smooth exponential decline accounts for.
 
+The summary also warns that `ecxexp` reproduces the observed variability at the
+control poorly. That is the check module 2 introduced as `check_fit()`, applied
+here to every equation in the set and reported where it fails. It is a statement
+about how well that equation describes the data rather than a fault in the
+fitting, and `ecxexp` holds almost none of the weight, so it does not reach the
+averaged estimate. The same warning against a heavily weighted equation would
+need acting on.
+
 ## Elements of the fitted object
 
 `mod_stats` holds the fit statistics for every model in the set: the model name,
@@ -217,6 +251,150 @@ The individual fits are retained and can be extracted with `pull_out()`:
 bmanec_ecxexp <- pull_out(bmanecfit_more, model = "ecxexp")
 ```
 
+`pull_best()` extracts the highest-weighted model without needing you to read the
+weights first, and returns a `bayesnecfit` whichever it finds:
+
+```{r}
+#| label: pullbest
+#| message: true
+best <- pull_best(bmanecfit_more)
+```
+
+It reports the weight alongside the number of candidates it chose from, because
+the two together say whether the selection means anything. The largest weight in
+a flat set of twenty is barely more than the equal share of 0.05, and a model
+holding it describes the averaged prediction hardly at all. That model is the one
+worth putting through the fit checks of module 2, since it contributes most to
+the reported estimate.
+
+`summary()` gives the weights, the dispersion, the no-effect estimate and the
+Bayesian R², and no parameter estimates at all. `curve_params()` returns those:
+
+```{r}
+#| label: curve-params-set
+curve_params(bmanecfit_more)
+```
+
+The rows are per equation and nothing is averaged across them, because the
+equations do not share a parameter list: `ecxexp` has no `bot`, and only the
+threshold equations estimate `nec`. Averaging a parameter over whichever
+equations happen to estimate it would average over a different subset of the set
+for each parameter, under weights computed for the set as a whole. The model
+weight is reported beside each row instead, which is what makes the table
+readable: a `nec` row holding a thousandth of the weight is not describing the
+averaged estimate.
+
+## Fitting a set in parallel
+
+Module 2 covered the chains of a single model running at the same time on
+different cores. A set of models is a second opportunity, and usually a larger
+one, because the models do not depend on one another and there are more of them
+than there are chains.
+
+`bnec()` and `amend()` fit their models under whatever
+[`future`](https://cran.r-project.org/package=future) plan is set when they are
+called. Setting one before the call is the whole of it:
+
+```{r}
+#| label: parallel-basic
+#| eval: false
+library(future)
+plan(multisession, workers = 8)
+fit_par <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 322)
+plan(sequential)
+```
+
+There is no argument to `bnec()` that turns this on. The plan already records how
+much of the machine you are willing to use, and a second way of saying it would
+disagree with the first the moment both were set. `future` and `future.apply` are
+suggested rather than required packages, so a session without them, or without a
+plan, fits the models one after another exactly as earlier versions did.
+
+The two levels nest rather than compete. Under a plan of more than one worker,
+`bnec()` passes `cores = 1` to `brm()`, because otherwise `workers` multiplied by
+`chains` processes would be requested, which is sixteen for four workers and the
+default four chains. Passing `cores` yourself is left alone, and is how the two
+levels are divided deliberately:
+
+```{r}
+#| label: parallel-nested
+#| eval: false
+plan(multisession, workers = 5)
+fit_nested <- bnec(y ~ crf(x, model = "decline"), data = nec_data,
+                   cores = 4, seed = 322)
+plan(sequential)
+```
+
+That fits five models at a time with four chains each, so twenty chains sample at
+once. It is the arrangement that suits a cluster allocation, where the number of
+cores is known in advance and is larger than any one model can use.
+
+### Choosing a plan
+
+`plan(multisession)` starts fresh R processes that communicate over local
+sockets, and is available on every platform. `plan(multicore)` forks the current
+process instead, which starts faster and shares memory rather than copying it,
+but forking is unavailable on Windows and inside RStudio and Positron, where the
+plan resolves quietly to a single worker. `bnec()` reports the number of workers
+it was given, so a plan that has collapsed to one is visible rather than merely
+slow.
+
+Under a forked plan, use the `cmdstanr` backend. `rstan` compiles each model into
+the session's temporary directory, which a forked worker shares with the process
+it was forked from, so several models compiling at once collide there.
+
+Test a plan on something small before committing a long run to it. Fit two models
+with a low `iter` under the plan you intend to use and confirm that it returns.
+The socket layer `multisession` depends on is outside R's control, and where it
+misbehaves the symptom is a run that neither finishes nor errors.
+
+### The effect of a parallel plan
+
+The `bayesnec` documentation reports the whole `decline` set fitted five ways on
+an otherwise idle 22-core workstation, from a fresh session each time with the
+compiled-program cache emptied first:
+
+| plan | seconds |
+|---|---|
+| no plan, four chains on four cores | 299.5 |
+| two workers | 226.4 |
+| four workers | 174.2 |
+| eight workers | 149.9 |
+
+Run again with the programs already compiled, the same five configurations took
+99, 114, 108, 101 and 94 seconds. Two workers then took longer than no plan at
+all.
+
+The difference between the two tables is which run is being timed. A first fit on
+a machine where the Stan programs have not been built is dominated by
+compilation, which is single-threaded per program, so a plan of *n* workers
+compiles *n* at a time and the elapsed time halves at eight workers. A repeat
+against a warm cache is dominated by sampling, and for models as small as these
+there is nothing left to gain. Where a single model takes minutes rather than
+seconds, sampling dominates in both cases and the first table describes the
+repeat run as well.
+
+### Reproducibility under a plan
+
+Each individual model reproduces exactly under a plan, given the same `seed`.
+The model-averaged quantities do not, and the reason is mechanical: once the
+models are fitted, `bnec()` draws a seed from the session's random number stream
+to decide which posterior draws each model contributes to the averaged estimate.
+A sequential run has advanced that stream, through the seed each initial-value
+search sets; a parallel run leaves it untouched. The averaged no-effect estimate,
+its credible interval and the stored prediction grid therefore differ between the
+two. Neither is wrong, and they are two draws from the same weighting. Calling
+`set.seed()` in your own session before `bnec()` fixes the draw, after which two
+parallel runs agree.
+
+### Memory
+
+Each worker holds a complete fit while it is working, and fits are large. Eight
+workers on a large dataset can exhaust memory where eight cores would not have,
+and a worker killed by the operating system ends the whole call rather than the
+one model it was fitting. Where a run dies without an R error, reduce the worker
+count before looking anywhere else.
+
 ## Every model in the set
 
 ```{r}
@@ -226,13 +404,17 @@ bmanec_ecxexp <- pull_out(bmanecfit_more, model = "ecxexp")
 autoplot(bmanecfit_more, all_models = TRUE)
 ```
 
-`ecxexp` fits these data badly, which is why its weight is near zero. A poor
-model with a negligible weight does no harm, because it cannot influence the
-averaged prediction.
+`ecxexp` fits these data badly, which is why its weight is near zero. A model
+whose *shape* does not suit the data can be left in the set at a negligible
+weight, because it cannot influence the averaged prediction.
 
-The check that matters is whether a poor fit is a poor *shape* or a failed
-sampler. A model that has not converged should be removed; a converged model
-whose shape simply does not suit the data can be left in.
+That holds for shape and it does not hold for convergence. A model the sampler
+never explored properly still contributes to the averaged prediction, and its
+weight was computed from that same unexplored posterior, so a low weight is no
+evidence that keeping it is safe. A model that has not converged is removed; a
+converged model of the wrong shape can stay.
+
+Telling the two apart is the subject of the next section.
 
 ## Diagnostics across a set
 
@@ -266,6 +448,184 @@ check_chains(bmanecfit_more, filename = "bmanecfit_more_all_chains")
 #| message: false
 check_chains(bmanecfit_more)
 ```
+
+## Screening the set
+
+Reading plots for a set of twenty-three is not a workable check. Module 2
+introduced `check_sampling()` on a single fit; on a set it returns one row per
+model:
+
+```{r}
+#| label: check-sampling-set
+check_sampling(bmanecfit_more)
+```
+
+The three diagnostics and their cutoffs are the ones module 2 describes: R-hat
+against 1.01 [@Vehtari2021], the smallest effective sample size against 400, and
+the number of divergent transitions against 10. `failed` is `TRUE` where any of
+the three is missed. All three cutoffs are arguments and can be changed, which is
+why the values used belong in the write-up.
+
+`rhat()` reports the first of them on its own, keyed by model name:
+
+```{r}
+#| label: rhat-set
+rhat(bmanecfit_more) |> sapply("[[", "failed")
+```
+
+Note the shape of that object. `rhat()` on a `bayesmanecfit` returns a list with
+one element per model, each holding the R-hat values and a logical `failed`.
+Reaching for `rhat(fit)$failed` returns `NULL` and silently finds nothing, which
+is a quiet way to conclude that every model converged.
+
+`screen_models()` applies all three diagnostics and drops what failed:
+
+```{r}
+#| label: screen
+#| message: true
+screened <- screen_models(bmanecfit_more)
+```
+
+It reports what it removed and why, one line per model, naming every threshold a
+model missed rather than only the first. That message is the record of the
+exclusion, and an exclusion with no record is not reproducible, which is why
+`quiet = TRUE` should not be used in an analysis that will be written up. Where
+every candidate fails it stops with an error listing the reasons, rather than
+returning an average of nothing. Where none fails, as here, it says so and
+returns the set unchanged.
+
+`screen_models()` does its work through `amend()`, which is the only route by
+which a model leaves a `bayesmanecfit`. `amend()` recomputes the weights across
+the models that remain rather than rescaling those retained, so the weights of a
+screened set are read from the screened object rather than adjusted by hand, and
+the reported no-effect estimate changes with them.
+
+### Models that never fitted
+
+A model can also fail earlier, by producing no draws at all. `failed_models()`
+names those:
+
+```{r}
+#| label: failed
+names(failed_models(bmanecfit_more))
+```
+
+`NULL` here, because all three equations fitted. Where it is not `NULL`, it
+returns more than the names: the priors and initial values each failed model was
+given, which are built inside `bnec()` and are otherwise unrecoverable, so they
+are the starting point for a retry. Module 6 covers what a sensible adjustment
+looks like and states the limit: a prior wide enough to make an
+over-parameterised equation fit is doing the work the data cannot, and the
+estimate it produces is a property of that prior.
+
+`bnec_record()`, from module 2, completes the account by naming any equation
+excluded before fitting and the reason for it. A set requested as `"decline"` or
+`"all"` commonly excludes several.
+
+### Kinds of sampler failure
+
+The three diagnostics fail for different reasons, and the right response differs.
+Distinguishing them is the most useful judgement in this module.
+
+A model that misses the effective sample size or R-hat cutoff **with no divergent
+transitions** was sampled from a posterior the sampler could traverse. It was not
+sampled for long enough, and both diagnostics are estimated less precisely from
+fewer draws in any case. Refit with a higher `iter`. Such a model is expected to
+pass once it has more draws, so excluding it on this evidence is premature.
+
+A model that fails on **divergent transitions** is telling you about the
+posterior rather than about the run. A divergence is recorded where the
+posterior has curvature too sharp for the adapted step size, and taking more
+draws samples the same surface for longer. Raising `adapt_delta` reduces the step
+size without removing the feature that caused the problem. Where such a model is
+also the most heavily parameterised in the set, and the design has few distinct
+concentrations, the usual explanation is that the experiment does not contain the
+information the equation needs.
+
+A model that **fails to fit at all**, and appears in `failed_models()`, is the
+same problem further along. An equation with more free parameters than the design
+can determine has a posterior that is flat in some direction, and sampling a flat
+direction for longer does not locate a maximum that is not there.
+
+The second and third are results about the experiment and are reportable as such.
+Adjusting the settings until enough equations survive is not the right response
+to either.
+
+One consequence for the write-up. Fitting once does not distinguish the first
+kind from the others, because the table alone does not say whether a model that
+missed a cutoff would have passed with more draws. Where it matters, fit again at
+higher settings and report which models then passed.
+
+### The screen on real datasets
+
+Every model in the three-equation set above passed, so it demonstrates none of
+this. The `bayesnec` workflow article fits two datasets that both ship with the
+package, and reports three different outcomes from the same screen.
+
+The first is `simazine`, one herbicide of the `herbicide` data, fitted with the
+`decline` set at deliberately reduced settings:
+
+```{r}
+#| label: ex9-simazine
+#| eval: false
+data(herbicide)
+simazine <- herbicide[herbicide$herbicide == "simazine", ]
+
+fit_reduced <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
+                    data = simazine, family = Beta(link = "identity"),
+                    iter = 4000, chains = 2, seed = 17)
+screen_models(fit_reduced)
+```
+
+The screen removed 5 of 11 equations. Refitting the same data with the same
+priors at `bnec()`'s defaults, which retain 8,000 draws rather than 1,600,
+removed 1 of 10 instead: three of the five passed once they had more draws.
+Those were failures of the run, and this is why excluding an equation that
+missed the effective sample size cutoff, at settings below the defaults, is
+premature.
+
+Two did not recover. `ecxwb2` still failed, on divergent transitions rather than
+on R-hat or effective sample size, which is the second kind. And `ecxll5` failed
+to fit at all at the higher settings, which is the third: five curve parameters
+against a series of seven concentrations with an incomplete lower limb.
+
+The second dataset is `nassarius`, survival counts for a marine snail, fitted at
+the defaults from the start:
+
+```{r}
+#| label: ex9-nassarius
+#| eval: false
+data(nassarius)
+# aggregated to successes out of trials per tank, then:
+fit_nass <- bnec(suc | trials(tot) ~ crf(dose, model = "decline"),
+                 data = surv, family = "binomial", seed = 17)
+screen_models(fit_nass)
+```
+
+Here the screen removed 8 of 10, on divergent transitions in the hundreds and
+thousands: 120 for `nec3param`, 2,416 for `ecx4param`, 5,589 for `ecxll5`. No
+setting recovers these, because a divergence count describes the shape of the
+posterior and a longer run at an unchanged rate reports proportionally more of
+them.
+
+The shape is the design. Survival is at or near complete for nine of the eleven
+doses and the whole decline happens between 1.25 and 2.5, with nothing tested in
+between. The threshold is unidentified across that gap and the likelihood has a
+flat ridge there, so every equation with a threshold or a steep mid-point has to
+place it somewhere along the ridge. The averaged estimate over the two survivors
+is 1.46 with a 95% interval of 0.31 to 1.92, and that interval is the untested
+gap.
+
+That is a result about the experiment and is reportable as one: these data
+identify the threshold only to the interval between the last dose with no effect
+and the first with near-total mortality. Loosening a threshold until enough
+equations survive would report a narrower number that the design does not
+support.
+
+Every figure in this section is taken from the `bayesnec` workflow article rather
+than computed here, because fitting three model sets would take longer than this
+page should. Both datasets ship with the package, so the calls above can be run
+as they stand.
 
 ## Weighting methods
 
@@ -302,24 +662,40 @@ importance weights [@Vehtari2019].
 
 `loo` offers two methods.
 
-**Stacking** minimises prediction error by maximising the leave-one-out
+*Stacking* minimises prediction error by maximising the leave-one-out
 predictive density of the combined distribution [@Yao2018; @vehtari2020]. It
 prioritises the accuracy of the joint prediction.
 
-**Pseudo-BMA** takes weights proportional to the expected log pointwise
+*Pseudo-BMA* takes weights proportional to the expected log pointwise
 predictive density of each model [@vehtari2020], estimating relative predictive
 accuracy. It can be combined with a Bayesian bootstrap, which accounts for the
 uncertainty of a finite sample and pulls the weights away from 0 and 1.
 
-Stacking is the default. `bayesnec` passes no method of its own, so `loo`'s own
-default applies, and the summary above names it: `Method: stacking_weights`.
-Earlier versions of `bayesnec` documented pseudo-BMA with the Bayesian bootstrap
-as the default, on the grounds that it behaved much as AICc weights do. Weights
-from an older analysis are therefore not comparable with weights computed now,
-which is one more reason to record the version alongside the models fitted.
+Pseudo-BMA with the Bayesian bootstrap is the default, and `bayesnec` passes it
+explicitly. The summary above names it, as `Method: pseudobma_bb_weights`. The
+reasoning is that the purpose of averaging here is to represent uncertainty about
+the shape of the curve rather than to minimise prediction error, and that
+stacking is not well suited to the sample sizes concentration-response
+experiments produce.
+
+The default has not always been applied consistently, which matters when reading
+an older analysis. `loo::loo_model_weights()` resolves an unspecified method to
+stacking, and some paths through earlier versions of `bayesnec` left it
+unspecified. A set assembled with `c()` or `amend()` could therefore be weighted
+by stacking while the same set fitted in one `bnec()` call was weighted by
+pseudo-BMA. Both routes now pass pseudo-BMA. Weights from an older analysis are
+not necessarily comparable with weights computed now, which is one more reason to
+record the package version alongside the models fitted.
 
 The method is changed through the `loo_controls` argument of `bnec()` or
-`amend()`, which takes a named list with elements `fitting` and `weights`.
+`amend()`, which takes a named list with elements `fitting` and `weights`:
+
+```{r}
+#| label: loo-controls
+#| eval: false
+bnec(y ~ crf(x, model = "decline"), data = nec_data,
+     loo_controls = list(weights = list(method = "stacking")))
+```
 
 ## Model sets
 
@@ -361,7 +737,7 @@ averaged prediction [@fox2020]. Adding or removing models can change the
 averaged estimates substantially, ECx values included.
 
 The set available in `bayesnec` changes between versions. Record which equations
-were actually fitted in an analysis, not merely which set was requested, or the
+were fitted in an analysis rather than which set was requested, or the
 result cannot be reproduced later.
 
 ## References

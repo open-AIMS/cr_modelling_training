@@ -68,3 +68,12 @@ ignore/
 
 # Codex instruction file, local to this machine
 AGENTS.md
+
+# prompt logs (parent CLAUDE.md s10 treats these as local)
+prompts/
+
+# fitted objects for participants; distributed separately, not committed
+vignettes/fits/
+
+# distribution build output
+dist/
