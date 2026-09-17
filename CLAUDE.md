@@ -145,6 +145,19 @@ commented-out `abline()` at line 137 of the same file resolved rather than left 
 commit before the workshop. A `dev` branch that changes during the course produces
 failures that cannot be diagnosed in the room.
 
+**Module 8 needs `lum31`, which is not on `dev` yet.** The data set reaches `bayesnec`
+through pull request #228, on branch `issue-6-33-grouping-vignette`, which was 0 commits
+behind `dev` and 72 ahead on 2026-09-17. Module 8 was revised against `data(lum31)` on
+the decision (RF, 2026-09-17) that #228 merges before the course. Until it does,
+rendering module 8 or running `scripts/generate_grouping_fits.R` needs that branch
+installed, and `0Software-setup.qmd` still names `dev`. The script stops with a message
+naming the pull request rather than failing half an hour into the first fit.
+
+Installing that branch over the shared library breaks whatever else is running against
+`dev`. On 2026-09-17 two sessions overwrote each other's `bayesnec` twice inside an hour,
+the second time removing `lum31` from under a running script. Install into a private
+library and set `R_LIBS_USER` for that session's R calls.
+
 ---
 
 ## 5. Data files and their availability
@@ -169,7 +182,12 @@ draws the modules actually use. Do not commit them; the repository is public and
 `.RData` is not a reasonable clone.
 
 The three CSV files are tracked and small: `example_ogl.csv`, `example_pgl.csv` and
-`example_fi.csv`, read by module 8.
+`example_fi.csv`. Module 8 reads the first and the third. `example_pgl.csv` is no longer
+read by anything as of 2026-09-17: it held the Lum-31 bioluminescence data after the
+per-plate control division and a further division by the plate maximum, over four plates,
+and module 8 now uses the recorded readings from `lum31` over sixteen. It is kept rather
+than deleted because the normalised form is what Luter et al. (2025) published and a later module
+may want to show the two side by side.
 
 `vignettes/rsconnect/` is 4 KB and stays where it is. It is the shinyapps.io deployment
 record for module 1 (appId 9520984, https://open-aims.shinyapps.io/1Getting-started/) and
@@ -380,6 +398,40 @@ The default `resolution` had changed from 1000 to 200 between those versions, so
 published page would have reported a superseded default as current.
 
 After any package upgrade, clear `_freeze/` for every module that fits a model.
+
+**A `future` multisession plan deadlocked the generation scripts.** `bnec()` fits a model
+set under whatever plan is active (`bayesnec` #184), and on 2026-09-17
+`scripts/generate_grouping_fits.R` hung under `plan(multisession, workers = 5)` on the
+copper plate set: the parent had 439 bytes queued to one worker and that worker 415 queued
+back, both in `poll_schedule_timeout`, with no Stan process running and no CPU used by any
+of the six processes for fourteen minutes. It is silent, so a script that produces nothing
+for half an hour is worth checking with `ss -tnp | grep <port>` before assuming it is
+sampling. The scripts here now fit in sequence, with the four chains of each fit in
+parallel through `mc.cores`.
+
+**Long fits are fetched rather than re-run where `bayesnec` has already run them.** The
+`open-AIMS/grouping-structures` compendium runs the 189 fits behind `vignette("example8")`
+as cluster array tasks and keeps the assembled objects in a store on the AIMS HPC, keyed on
+the fit call and a digest of the data. `hpc/fetch-store.sh` in that repository brings the
+whole store back; a single object is `rsync`ed from
+`/export/scratch/rfisher/grouping-structures/store/`, and `store/index.csv` gives the key
+for each call. Module 8's copper-against-zinc `bnec_group()` fit comes from there, through
+the `LUM31_TOX_FIT` environment variable. A key answers a call only where the call and the
+data both match, so a change to either means refitting.
+
+**`autoplot()` draws a single-equation fit at a tenth the resolution of a model
+average.** `ggbnec_data()` takes a `bayesmanecfit`'s curve from `w_pred_vals`,
+which `bnec()` computed at its own `resolution` of 1000, and a `bayesnecfit`'s
+from `brms::conditional_effects()`, whose default resolution is 100. Both grids
+are evenly spaced on the **recorded** predictor rather than on the scale the
+model was fitted on. A fit written as `crf(log(conc), ...)` and drawn on a log
+axis is therefore drawn at very low resolution over its lower decades: measured
+on 2026-09-17, over the `lum31` copper range of 0.002 to 10.2 mg/L, the
+`bayesnecfit` frame held one grid point below 0.1 mg/L and the `bayesmanecfit`
+frame for the same data held ten. The single fit's `ecxll4` curve was drawn as
+one straight segment across the whole lower decade and appeared to decline
+steadily where the equation is flat. Module 8 draws its single-equation curves
+from `fit$pred_vals$data` instead. Worth raising as a `bayesnec` issue.
 
 **The site is built against the head of `bayesnec`'s `dev` branch.** Check `dev` before
 rendering, reinstall if it has moved, and record the commit used in the table in

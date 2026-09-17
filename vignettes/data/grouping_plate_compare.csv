@@ -1,0 +1,5 @@
+"fit","weight","elpd_diff","se_diff","pareto_k_over_0.7"
+"no group term",0,-564.4,29.2,0
+"ogl(plate)",0,-297.9,27,0
+"pgl(plate)",0.999,0,0,2
+"ogl(plate) + (ec50 | batch)",0.001,-72.6,19.7,0
