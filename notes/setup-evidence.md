@@ -155,9 +155,35 @@ published page remains attributable to a state of the package.
 | 2026-09-11 | PR #321 `3226749` | 2.1.3.34 | 4, 6 |
 | 2026-09-16 | `dev` | 2.1.3.35 | 2, 3, 4, 5, 6, 7, 8 |
 | 2026-09-17 | `dev` `15c12765` | 2.1.3.37 | 2, 3, 4, 5, 6, 7, 8 |
+| 2026-09-17 | PR #228 `issue-6-33-grouping-vignette` | 2.1.3.39 | 3, 4, 5, 6, 8 |
 
-The last row is the whole site rendered against one version, which the note below
-asked for. It was taken to revise module 7 around the workflow of the `example9`
+The last row is the re-render after the four parallel module revisions were
+merged. Modules 3, 4, 5, 6 and 8 had their stored results cleared and
+re-executed; the rest of the site was restored from `_freeze/` unchanged, so
+those pages remain attributable to the row above.
+
+That row departs from the rule below that the site tracks the head of `dev`, and
+the departure was not intended. Module 8 requires the PR #228 build because it
+calls `data(lum31)`, and that build had also been installed over the **shared**
+user library by an earlier session, so modules 3 to 6 were rendered against it
+as well. It was found by reading `packageVersion()` at render time rather than
+by any failure: the ordinary library reported 2.1.3.39 with `lum31` present
+where `notes` recorded 2.1.3.37 from `dev` `15c12765`. PR #228 was 0 commits
+behind `dev` and 72 ahead on 2026-09-17, so these pages were built against a
+superset of `dev` rather than against something older, and RF's decision of
+2026-09-17 is that #228 merges before the course. Re-rendering modules 3 to 6
+against `dev` requires reinstalling `dev` over the shared library first.
+
+This is the overwrite `§4` of `CLAUDE.md` warns about, observed a third time.
+Installing a feature branch into `~/R/m8lib` protects the session that did it
+and not the ones that follow, because the shared library is what every other
+render resolves against. Reaching a private library needs `R_LIBS_USER` set to
+that directory *followed by* the ordinary user library: replacing the user
+library outright leaves `rmarkdown` unavailable and the render fails before any
+chunk runs.
+
+The row before them is the whole site rendered against one version, which the
+note below asked for. It was taken to revise module 7 around the workflow of the `example9`
 vignette, and 2.1.3.37 was chosen over the branch of PR #372 that carries that
 vignette because the branch is behind `dev`: it lacks `dd052108`, which supports
 `dispersion()` on a model set, and the count-hurdle work merged as #225.

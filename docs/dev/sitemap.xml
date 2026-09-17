@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/drc-reference.html</loc>
-    <lastmod>2026-09-13T06:05:02.174Z</lastmod>
+    <lastmod>2026-09-17T02:36:14.136Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/7Example_case_study.html</loc>
@@ -10,15 +10,15 @@
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/5Response_data_and_statistical_distributions.html</loc>
-    <lastmod>2026-09-17T03:58:44.610Z</lastmod>
+    <lastmod>2026-09-17T08:16:51.269Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/3Toxicity_estimation_and_available_models.html</loc>
-    <lastmod>2026-09-16T12:31:13.590Z</lastmod>
+    <lastmod>2026-09-17T07:50:52.314Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/1Software-stack.html</loc>
-    <lastmod>2026-09-14T06:00:30.927Z</lastmod>
+    <lastmod>2026-09-17T02:36:14.027Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
@@ -26,22 +26,22 @@
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/0Software-setup.html</loc>
-    <lastmod>2026-09-16T23:46:02.524Z</lastmod>
+    <lastmod>2026-09-17T05:27:49.755Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/2Fitting-a-CR-model-using-bayesnec.html</loc>
-    <lastmod>2026-09-17T04:25:27.021Z</lastmod>
+    <lastmod>2026-09-17T07:50:52.298Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/4Model_averaging_and_multimodel_inference.html</loc>
-    <lastmod>2026-09-17T03:50:15.378Z</lastmod>
+    <lastmod>2026-09-17T07:52:24.913Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/6Priors_and_Bayesian_inference.html</loc>
-    <lastmod>2026-09-16T16:02:48.265Z</lastmod>
+    <lastmod>2026-09-17T07:50:52.340Z</lastmod>
   </url>
   <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/8Factor_covariates_and_groupings.html</loc>
-    <lastmod>2026-09-17T00:52:58.135Z</lastmod>
+    <lastmod>2026-09-17T07:51:36.678Z</lastmod>
   </url>
 </urlset>

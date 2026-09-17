@@ -562,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="the-fitted-models" class="level2">
 <h2 class="anchored" data-anchor-id="the-fitted-models">The fitted models</h2>
-<p>The modules fit Bayesian models, and some of them take a while: on a four-core machine module 5 takes about thirteen minutes and module 6 about sixteen. You do not have to wait for that during the workshop. Every fit used in the material is available as a single download of about 23 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.</p>
+<p>The modules fit Bayesian models, and some of them take a while: on a four-core machine module 5 takes about thirteen minutes and module 6 about sixteen. You do not have to wait for that during the workshop. Every fit used in the material is available as a single download of about 39 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.</p>
 <p>Each module shows you the <code>bnec()</code> call that produced a fit, then the <code>save()</code> that kept it, then the <code>load()</code> that reads it back. The download supplies the saved objects, so the <code>load()</code> is what runs when you work through the page. That is the same sequence a real analysis follows, and it is why the fitting call stays visible rather than being hidden behind a cache.</p>
 <p>From inside the <code>cr_modelling_training</code> folder, in R:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"vignettes/fetch_fits.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -578,7 +578,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The archive is also on a USB stick on the day, and you can put the objects in place yourself without running anything. The stick holds a <code>fits</code> folder containing eighteen <code>.RData</code> files. Copy that whole folder into the <code>vignettes</code> folder of your <code>cr_modelling_training</code> folder, so that the files end up at:</p>
+<p>The archive is also on a USB stick on the day, and you can put the objects in place yourself without running anything. The stick holds a <code>fits</code> folder containing twenty-three <code>.RData</code> files. Copy that whole folder into the <code>vignettes</code> folder of your <code>cr_modelling_training</code> folder, so that the files end up at:</p>
 <pre><code>cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
 cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 ...</code></pre>

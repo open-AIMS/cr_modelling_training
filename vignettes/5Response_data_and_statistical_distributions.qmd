@@ -439,12 +439,15 @@ distribution while being wrong at every concentration.
 #| label: fig-ppcheck
 #| fig-height: 5
 #| message: false
-brms::pp_check(pull_brmsfit(exp_1nec), type = "bars_grouped", group = "raw_x")
+brms::pp_check(pull_brmsfit(exp_1nec), type = "bars_grouped", group = "log.x")
 ```
 
 The dark line is the observed count in each category and the light intervals are
-the same quantity simulated from the fit, one panel per concentration. A discrete
-response takes `type = "bars_grouped"`; a continuous one takes
+the same quantity simulated from the fit, one panel per concentration. The
+grouping variable has to be one the model was fitted on, so the panels are
+labelled with logged concentrations: -2.30 is the 0.1 control and 5.99 the
+highest dose of 400. A discrete response takes `type = "bars_grouped"`; a
+continuous one takes
 `type = "dens_overlay_grouped"`. Ten posterior draws are simulated by default,
 which is enough to see a gross mismatch and few enough to plot; raise it with
 `ndraws` to judge a marginal one.
@@ -470,9 +473,8 @@ their reference from the fitted mean there.
 plot(cf_1b)
 ```
 
-The group labels are logged concentrations, because that is the scale the
-predictor was fitted on: -2.30 is the 0.1 control and 5.99 the highest dose of
-400. No group is flagged on the mean for either equation. On spread, only the
+The groups are again labelled on the logged scale. No group is flagged on the
+mean for either equation. On spread, only the
 highest concentration is flagged, where the fit simulates three to four times the
 observed variability. Six replicates at a response near complete mortality supply
 very little information about spread, so this is what the top of a series usually
