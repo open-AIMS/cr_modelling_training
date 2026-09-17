@@ -189,18 +189,22 @@ A dilution series makes each concentration a fixed multiple of the one below it.
 On a linear axis such a design crushes the low concentrations together and
 spreads the high ones out, so the equation spends its flexibility at the top of
 the range, where the response is often already flat. The coefficient of
-variation of the gaps separates the two cases:
+variation of the gaps separates the two cases. The ametryn series in the
+`herbicide` data that ships with `bayesnec` is a three-fold dilution from 0.1 to
+300 $\mu g L^{-1}$, twelve replicates at each of eight concentrations:
 
 ```{r}
 #| label: spacing
 spacing_cv <- function(x) sd(diff(sort(x))) / mean(diff(sort(x)))
 
-# a three-fold dilution series
-conc <- c(0.01, 0.3, 1, 3, 10, 30, 100, 300)
+data(herbicide)
+ametryn <- subset(herbicide, herbicide == "ametryn")
+conc <- unique(ametryn$concentration)
+
 round(c(linear = spacing_cv(conc), log = spacing_cv(log(conc))), 2)
 ```
 
-The coefficient of variation is 1.72 on the linear axis and 0.58 on the log
+The coefficient of variation is 1.72 on the linear axis and 0.05 on the log
 axis, which is the signature of a series designed on the log scale.
 
 Where the predictor is transformed, `xform` takes the inverse and returns the
@@ -215,11 +219,69 @@ autoplot(fit, xform = function(x) exp(x) - 1)
 
 ::: {.callout-note collapse="true" title="The size of the difference between scales"}
 
-On one algal dataset, fitting `nec4param` on `log(dose)` rather than on the raw
-dose axis reduced the largest departure of the fitted mean from the observed
-mean from 0.2115 to 0.0676, on a response spanning about 0.7. Five different
-equations fitted on the log axis all landed within 1.2 `elpd_loo` of one
-another, so the five equations were harder to tell apart than the two scales.
+Fitting the ametryn series on each axis in turn measures what the scale does
+here. Three equations are fitted on `log(concentration)` and `nec4param` alone on
+the raw concentration axis. All four use the same response and the same 96
+observations, so `elpd_loo` is comparable between them.
+
+```{r}
+#| label: scale-fit
+#| eval: false
+set.seed(333)
+m2_scale_log <- bnec(fvfm ~ crf(log(concentration),
+                                model = c("nec4param", "ecx4param", "ecxll4")),
+                     data = ametryn, seed = 333)
+save(m2_scale_log, file = "fits/m2_scale_log.RData")
+
+set.seed(333)
+m2_scale_raw <- bnec(fvfm ~ crf(concentration, model = "nec4param"),
+                     data = ametryn, seed = 333)
+save(m2_scale_raw, file = "fits/m2_scale_raw.RData")
+```
+
+```{r}
+#| label: scale-load
+load("fits/m2_scale_log.RData")
+load("fits/m2_scale_raw.RData")
+```
+
+```{r}
+#| label: scale-compare
+#| message: false
+#| warning: false
+elpd <- function(fit) {
+  brms::loo(pull_brmsfit(fit))$estimates["elpd_loo", "Estimate"]
+}
+
+# The largest gap between the fitted mean and the observed mean at a tested
+# concentration, which is the departure a plot of the curve would show.
+max_departure <- function(fit) {
+  by_conc <- aggregate(
+    cbind(observed, fitted) ~ concentration,
+    data.frame(concentration = ametryn$concentration,
+               observed = ametryn$fvfm,
+               fitted = fitted(pull_brmsfit(fit))[, "Estimate"]),
+    mean)
+  max(abs(by_conc$observed - by_conc$fitted))
+}
+
+scale_fits <- list(nec4param_raw = m2_scale_raw,
+                   nec4param_log = pull_out(m2_scale_log, "nec4param"),
+                   ecx4param_log = pull_out(m2_scale_log, "ecx4param"),
+                   ecxll4_log    = pull_out(m2_scale_log, "ecxll4"))
+
+data.frame(elpd_loo = round(sapply(scale_fits, elpd), 1),
+           max_departure = round(sapply(scale_fits, max_departure), 3))
+```
+
+Fitting `nec4param` on the log axis rather than the raw axis raises `elpd_loo`
+by 23.7. The three equations fitted on the log axis span 4.3 between them. On these data the
+scale separates the fits by about five times what the choice of equation does.
+
+The group means are reproduced on both axes. The largest departure of the fitted
+mean from the observed mean at a tested concentration is 0.041 on the raw axis
+and 0.032 on the log axis, on a response spanning 0.7, so the difference is not
+one a plot of the curve would show. `elpd_loo` is what reports it.
 :::
 
 ::: {.callout-note collapse="true" title="Zero on the predictor axis"}
