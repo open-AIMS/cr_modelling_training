@@ -120,7 +120,7 @@ model itself, $\eta$, and is estimated directly, following the approach of @Fox2
 
 ```{r}
 #| label: fig-necmod
-#| out-width: "70%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/necmod_fox2010.jpg")
@@ -155,7 +155,7 @@ concentration above zero, at a rate set by the equation for that specific model.
 
 ```{r}
 #| label: fig-ecxmod
-#| out-width: "70%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/ecxmod.jpg")
@@ -176,7 +176,7 @@ The *NSEC* is a way of obtaining a no-effect estimate from such a model
 
 ```{r}
 #| label: fig-nsec
-#| out-width: "70%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/nsec.jpg")
@@ -234,7 +234,7 @@ the response becomes significantly different from the control.
 
 ```{r}
 #| label: fig-noec
-#| out-width: "70%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/noec.jpg")
@@ -300,7 +300,7 @@ occurring.
 
 ```{r}
 #| label: fig-ieam
-#| out-width: "58%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/ieam_head.jpg")
@@ -308,7 +308,7 @@ knitr::include_graphics("images/ieam_head.jpg")
 
 ```{r}
 #| label: fig-svariolis
-#| out-width: "38%"
+#| out-width: "50%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/svariolis.jpg")
@@ -406,7 +406,7 @@ intersect(models()$horme, models()$ecx)
 #| fig-align: center
 #| layout-ncol: 2
 #| echo: false
-knitr::include_graphics(c("images/horme_nec.jpg", "images/horme_ecx.jpg"))
+knitr::include_graphics(c("images/horme_nec.JPG", "images/horme_ecx.JPG"))
 ```
 
 These do raise a difficulty for **EC~x~**, because an effect has to be measured

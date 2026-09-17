@@ -48,14 +48,14 @@ difference is fundamental to how each is handled.
 
 ```{r}
 #| label: fig-pr1
-#| out-width: "38%"
+#| out-width: "75%"
 #| echo: false
 knitr::include_graphics("images/psuedoreps1.JPG")
 ```
 
 ```{r}
 #| label: fig-pr2
-#| out-width: "48%"
+#| out-width: "100%"
 #| echo: false
 knitr::include_graphics("images/psuedoreps2.JPG")
 ```
@@ -203,14 +203,14 @@ organisms each, which is the within-concentration grouping above.
 
 ```{r}
 #| label: fig-tanks
-#| out-width: "60%"
+#| out-width: "90%"
 #| echo: false
 knitr::include_graphics("images/tank_offset.JPG")
 ```
 
 ```{r}
 #| label: fig-experiment
-#| out-width: "39%"
+#| out-width: "50%"
 #| echo: false
 knitr::include_graphics("images/experimental_setup.JPG")
 ```
@@ -280,7 +280,7 @@ between levels, and `pgl()` fits that.
 
 ```{r}
 #| label: fig-microtox
-#| out-width: "40%"
+#| out-width: "75%"
 #| echo: false
 knitr::include_graphics("images/microtox.JPG")
 ```

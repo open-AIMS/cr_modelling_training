@@ -54,7 +54,7 @@ rather than with the underlying mathematics.
 
 ```{r}
 #| label: fig-glmbooks
-#| out-width: "60%"
+#| out-width: "100%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/glmbooks.jpg")
@@ -67,7 +67,7 @@ package that other R fitting routines use:
 
 ```{r}
 #| label: fig-statsfams
-#| out-width: "60%"
+#| out-width: "100%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/statsfams.jpg")
