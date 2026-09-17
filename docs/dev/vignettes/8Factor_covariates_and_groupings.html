@@ -791,8 +791,8 @@ Table&nbsp;3: Model weights for the pooled zinc data.
 </figure>
 </div>
 </div>
-<p><code>pull_best()</code>, from module 4, returns the highest-weighted equation and reports the weight alongside the number of candidates, which is what says whether the selection means anything.</p>
-<p>The <code>brms</code> formula and the priors are then read off that fit and reused:</p>
+<p><code>pull_best()</code>, from module 4, returns the highest-weighted equation and reports the weight alongside the number of candidates, which is what says whether the selection means anything. On these data it returns <code>ecxwb1</code> with a weight of 0.902 out of six candidates, so one equation holds almost all the weight and the rest of this section is about that equation rather than about the set.</p>
+<p>The <code>brms</code> formula and the priors are then read off that fit:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>best_brms <span class="ot">&lt;-</span> <span class="fu">pull_brmsfit</span>(best)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>best_brms<span class="sc">$</span>formula</span>
@@ -802,23 +802,56 @@ Table&nbsp;3: Model weights for the pooled zinc data.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The right-hand side of each parameter line is what changes: `~ 1` fits one</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># value for every level, and `~ hardness` fits one per level.</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>bf_plain <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">bf</span>(</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> bot <span class="sc">+</span> (top <span class="sc">-</span> bot) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(beta) <span class="sc">*</span> (x <span class="sc">-</span> ec50)))),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> bot <span class="sc">+</span> (top <span class="sc">-</span> bot) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="fu">exp</span>(beta) <span class="sc">*</span> (x <span class="sc">-</span> ec50))),</span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  bot <span class="sc">+</span> ec50 <span class="sc">+</span> top <span class="sc">+</span> beta <span class="sc">~</span> <span class="dv">1</span>, <span class="at">nl =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>bf_inter <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">bf</span>(</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> bot <span class="sc">+</span> (top <span class="sc">-</span> bot) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(beta) <span class="sc">*</span> (x <span class="sc">-</span> ec50)))),</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  bot <span class="sc">+</span> ec50 <span class="sc">+</span> top <span class="sc">+</span> beta <span class="sc">~</span> hardness, <span class="at">nl =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>fit_plain <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brm</span>(bf_plain, <span class="at">data =</span> zinc, <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>),</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                       <span class="at">prior =</span> priors, <span class="at">iter =</span> <span class="dv">5000</span>, <span class="at">seed =</span> <span class="dv">700</span>,</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                       <span class="at">save_pars =</span> brms<span class="sc">::</span><span class="fu">save_pars</span>(<span class="at">all =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>fit_inter <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brm</span>(bf_inter, <span class="at">data =</span> zinc, <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>),</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                       <span class="at">prior =</span> priors, <span class="at">iter =</span> <span class="dv">5000</span>, <span class="at">seed =</span> <span class="dv">700</span>,</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">save_pars =</span> brms<span class="sc">::</span><span class="fu">save_pars</span>(<span class="at">all =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> bot <span class="sc">+</span> (top <span class="sc">-</span> bot) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="fu">exp</span>(beta) <span class="sc">*</span> (x <span class="sc">-</span> ec50))),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  bot <span class="sc">+</span> ec50 <span class="sc">+</span> top <span class="sc">+</span> beta <span class="sc">~</span> hardness, <span class="at">nl =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>The priors need one change before the interaction can be fitted, and it is the step most easily missed. <code>bayesnec</code> writes each parameter’s prior with no <code>coef</code>, so it applies to every population-level coefficient belonging to that parameter. Under <code>~ 1</code> that is the intercept alone, and the prior is exactly what was intended. Under <code>~ hardness</code> it is the intercept plus one coefficient per non-reference level, and each of those would take a prior written to describe the parameter’s own value rather than a difference between levels. For <code>ecxwb1</code> that puts <code>beta(5, 2)</code> on the <code>top</code> differences, and a beta density is zero outside (0, 1), so no level could have a <code>top</code> below the reference level’s.</p>
+<p>Set the intercept and the level differences separately. The intercept keeps whatever <code>bayesnec</code> chose; the differences are centred on zero, meaning no difference between levels, and scaled to what the parameter measures:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>inter_priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># the intercept, as bayesnec set it</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">beta</span>(<span class="dv">5</span>, <span class="dv">2</span>), <span class="at">nlpar =</span> <span class="st">"top"</span>,  <span class="at">coef =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">beta</span>(<span class="dv">2</span>, <span class="dv">5</span>), <span class="at">nlpar =</span> <span class="st">"bot"</span>,  <span class="at">coef =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="fl">2.387</span>, <span class="fl">24.803</span>), <span class="at">nlpar =</span> <span class="st">"ec50"</span>, <span class="at">coef =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="at">nlpar =</span> <span class="st">"beta"</span>, <span class="at">coef =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># the differences between hardness levels</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.25</span>), <span class="at">nlpar =</span> <span class="st">"top"</span>),   <span class="co"># a proportion</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.1</span>),  <span class="at">nlpar =</span> <span class="st">"bot"</span>),   <span class="co"># a proportion, near zero</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>),    <span class="at">nlpar =</span> <span class="st">"ec50"</span>),  <span class="co"># the log predictor scale</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>),    <span class="at">nlpar =</span> <span class="st">"beta"</span>))  <span class="co"># a log slope</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fit_plain <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brm</span>(bf_plain, <span class="at">data =</span> zinc, <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">prior =</span> priors, <span class="at">iter =</span> <span class="dv">5000</span>, <span class="at">seed =</span> <span class="dv">700</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">save_pars =</span> brms<span class="sc">::</span><span class="fu">save_pars</span>(<span class="at">all =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>fit_plain</code> keeps the priors as read, because under <code>~ 1</code> they are already right. Only the interaction needs the replacement, and it needs one more thing: somewhere to start. Each parameter starts at its pooled estimate and each level difference starts at zero.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">fixef</span>(fit_plain)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>init_fun <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">b_bot  =</span> <span class="fu">as.array</span>(<span class="fu">c</span>(fx[<span class="st">"bot_Intercept"</span>,  <span class="st">"Estimate"</span>], <span class="dv">0</span>, <span class="dv">0</span>)),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">b_ec50 =</span> <span class="fu">as.array</span>(<span class="fu">c</span>(fx[<span class="st">"ec50_Intercept"</span>, <span class="st">"Estimate"</span>], <span class="dv">0</span>, <span class="dv">0</span>)),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">b_top  =</span> <span class="fu">as.array</span>(<span class="fu">c</span>(fx[<span class="st">"top_Intercept"</span>,  <span class="st">"Estimate"</span>], <span class="dv">0</span>, <span class="dv">0</span>)),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">b_beta =</span> <span class="fu">as.array</span>(<span class="fu">c</span>(fx[<span class="st">"beta_Intercept"</span>, <span class="st">"Estimate"</span>], <span class="dv">0</span>, <span class="dv">0</span>)))</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Leave that out and three of the four chains fail before they start. The Beta family with an identity link requires the fitted mean to lie inside (0, 1) at every observation, and a randomly chosen starting point does not. <code>bnec()</code> supplies starting values of its own, which is why the model set fitted earlier gave no trouble; a formula handed straight to <code>brm()</code> does not inherit them. <code>brms</code> returns whichever chains survived, so check how many there are rather than reading the summary and assuming four.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fit_inter <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brm</span>(bf_inter, <span class="at">data =</span> zinc, <span class="at">family =</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>),</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">prior =</span> inter_priors, <span class="at">iter =</span> <span class="dv">5000</span>, <span class="at">seed =</span> <span class="dv">700</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">init =</span> init_fun, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>),</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">save_pars =</span> brms<span class="sc">::</span><span class="fu">save_pars</span>(<span class="at">all =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>posterior<span class="sc">::</span><span class="fu">nchains</span>(brms<span class="sc">::</span><span class="fu">as_draws_array</span>(fit_inter))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>All four chains finish, and the largest rhat is 1.0017. The fit still reports 323 divergent transitions in 10000 draws, well above the threshold of ten that <code>check_sampling()</code> applies in module 4. Raising <code>adapt_delta</code> further does not remove them, and the estimates are the same with and without the ones that remain. <code>bot</code> is estimated at 0.025, close to the boundary the identity link imposes, and that is where the divergences arise. Fitting the levels separately, below, does not meet the problem at all.</p>
 <p>Whether the interaction is supported at all is the first thing to read, and leave-one-out weights answer it on the same footing module 4 used:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_model_weights.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_model_weights.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-fi-interaction" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-fi-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -836,11 +869,11 @@ Table&nbsp;4: The interaction model against the same equation fitted without it.
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">no interaction</td>
-<td style="text-align: right;">0.191</td>
+<td style="text-align: right;">0.018</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">hardness interaction</td>
-<td style="text-align: right;">0.809</td>
+<td style="text-align: right;">0.982</td>
 </tr>
 </tbody>
 </table>
@@ -849,23 +882,23 @@ Table&nbsp;4: The interaction model against the same equation fitted without it.
 </figure>
 </div>
 </div>
-<p>Weight on the interaction says the levels differ by more than the shared curve can absorb. Weight on the simpler fit says they do not, and that one curve describes every level.</p>
+<p>Weight on the interaction says the levels differ by more than one shared curve describes; weight on the simpler fit says one curve is enough. Here the interaction takes 0.982 against 0.018, so hardness changes the response by more than a single curve accounts for.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read.csv() returns hardness as an integer, because the levels are numbers.</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The observations carry it as a factor, and ggplot cannot put a continuous and</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a discrete scale on one aesthetic, so it is made a factor here to match.</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_preds.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hardness =</span> <span class="fu">factor</span>(hardness, <span class="at">levels =</span> <span class="fu">levels</span>(zinc<span class="sc">$</span>hardness)))</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds) <span class="sc">+</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>, <span class="at">fill =</span> hardness),</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> Estimate, <span class="at">colour =</span> hardness)) <span class="sc">+</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data =</span> zinc, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">fill =</span> hardness),</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>,</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Hardness"</span>, <span class="at">fill =</span> <span class="st">"Hardness"</span>) <span class="sc">+</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read.csv() returns hardness as an integer, because the levels are numbers.</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The observations carry it as a factor, and ggplot cannot put a continuous and</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a discrete scale on one aesthetic, so it is made a factor here to match.</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_preds.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hardness =</span> <span class="fu">factor</span>(hardness, <span class="at">levels =</span> <span class="fu">levels</span>(zinc<span class="sc">$</span>hardness)))</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds) <span class="sc">+</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>, <span class="at">fill =</span> hardness),</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> Estimate, <span class="at">colour =</span> hardness)) <span class="sc">+</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data =</span> zinc, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">fill =</span> hardness),</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Hardness"</span>, <span class="at">fill =</span> <span class="st">"Hardness"</span>) <span class="sc">+</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-fi-curves" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -879,28 +912,29 @@ Figure&nbsp;9: The interaction model, one curve per hardness level, with the obs
 </div>
 </div>
 </div>
-<p>That figure shows the limitation of this route, and it is the reason the two approaches are both presented. Fitting an interaction this way assumes the functional form is the same at every level, and only the parameter values differ. Here the highest hardness treatment is not described well by the shape the pooled data selected.</p>
-<p>Where that happens, fit the levels separately with <code>bnec_group()</code>, which lets the shape differ, and compare the results as below. The alternative, generalised additive models with a factor interaction term, is outside this course.</p>
+<p>That figure shows what this route assumes, and it is the reason the two approaches are both presented. Fitting an interaction this way holds the functional form the same at every level and lets only the parameter values differ, so a level whose response has a different shape cannot be accommodated.</p>
+<p>On these data that assumption is tenable. Residuals about each level’s own curve have a root mean square of 0.068, 0.052 and 0.057 at hardness 5, 30 and 406, on a response scaled to roughly 0 to 1, so no level stands out as badly described and it is the lowest hardness rather than the highest that fits least well.</p>
+<p>Where the shape does differ between levels, fit them separately with <code>bnec_group()</code>, which lets the shape differ, and compare the results as below. The alternative, generalised additive models with a factor interaction term, is outside this course.</p>
 </section>
 </section>
 <section id="comparing-levels" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-levels">Comparing levels</h2>
 <p><code>compare_posterior()</code> takes a named list of fits and returns the posteriors on a common footing, the differences between them, and the probability that one exceeds another. Module 7 uses it across substances; here it is used across levels of a factor.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>post_comp <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(fit_hardness, <span class="at">comparison =</span> <span class="st">"n(s)ec"</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>post_fitted <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(fit_hardness, <span class="at">comparison =</span> <span class="st">"fitted"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>post_comp <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(fit_hardness, <span class="at">comparison =</span> <span class="st">"n(s)ec"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>post_fitted <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(fit_hardness, <span class="at">comparison =</span> <span class="st">"fitted"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compare_posterior() returns the level names as data frame column names, which</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># R prefixes with "X" where they begin with a digit. Stripped here so the legend</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reads as the hardness values the experiment used.</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_ne_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">sub</span>(<span class="st">"^X"</span>, <span class="st">""</span>, model)) <span class="sc">|&gt;</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">group =</span> model, <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Density"</span>,</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Hardness"</span>, <span class="at">fill =</span> <span class="st">"Hardness"</span>) <span class="sc">+</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compare_posterior() returns the level names as data frame column names, which</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># R prefixes with "X" where they begin with a digit. Stripped here so the legend</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reads as the hardness values the experiment used.</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_ne_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">sub</span>(<span class="st">"^X"</span>, <span class="st">""</span>, model)) <span class="sc">|&gt;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">group =</span> model, <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Density"</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Hardness"</span>, <span class="at">fill =</span> <span class="st">"Hardness"</span>) <span class="sc">+</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-compare-nec" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -915,10 +949,10 @@ Figure&nbsp;10: Posterior densities of the no-effect estimate at each hardness.
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> comparison, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"hardness"</span>, <span class="st">"against"</span>), <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> against, <span class="at">values_from =</span> prob) <span class="sc">|&gt;</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> comparison, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"hardness"</span>, <span class="st">"against"</span>), <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> against, <span class="at">values_from =</span> prob) <span class="sc">|&gt;</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-compare-prob" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-compare-prob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -953,14 +987,14 @@ Table&nbsp;5: Probability that the no-effect estimate at one hardness is lower t
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_diff.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> diff.Q2<span class="fl">.5</span>, <span class="at">ymax =</span> diff.Q97<span class="fl">.5</span>,</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">fill =</span> comparison), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> diff.Estimate, <span class="at">colour =</span> comparison)) <span class="sc">+</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Posterior difference"</span>) <span class="sc">+</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_diff.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> diff.Q2<span class="fl">.5</span>, <span class="at">ymax =</span> diff.Q97<span class="fl">.5</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">fill =</span> comparison), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> diff.Estimate, <span class="at">colour =</span> comparison)) <span class="sc">+</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log zinc concentration"</span>, <span class="at">y =</span> <span class="st">"Posterior difference"</span>) <span class="sc">+</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-compare-fitted" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -983,8 +1017,8 @@ Figure&nbsp;11: Difference between the fitted curves across the concentration ra
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Generated by scripts/generate_grouping_fits.R
-date: 2026-09-17 01:16:32
-elapsed: 30.8 mins
+date: 2026-09-17 08:51:44
+elapsed: 1.9 mins
 seed: 70
 R: 4.6.1
 bayesnec: 2.1.3.35
