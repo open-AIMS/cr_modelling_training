@@ -56,29 +56,29 @@ vector.
 **Plots**, bottom right, collects the figures produced, with arrows to step back
 through earlier ones and a control to save the current figure.
 
-Probably the most important thing is the editor pane, because it is where the script is written. 
-The script is the record of what was done, and it can be re-run from the top to reproduce the results. 
+Probably the most important thing is the editor pane, because it is where the script is written.
+The script is the record of what was done, and it can be re-run from the top to reproduce the results.
 
-The console is where the code is actually run, and it is where the output of the code is displayed. 
+The console is where the code is run, and where its output is displayed.
 
-The editor and console are linked: 
+The editor and console are linked:
 Code is sent from the script to the console a line or a block at a time, rather
-than typed into the console directly. 
+than typed into the console directly.
 
-This scripting workflow is a better way of working in many ways than most pre-packages software, 
-where the user clicks buttons and the software does things behind the scenes. 
+This scripting workflow is a better way of working in many ways than most
+pre-packaged software, where the user clicks buttons and the software does
+things behind the scenes.
 
-Having a script means that you have a permanent record of everything that was done 
-in the analyis, so that the results can be completely reproduced, which is something that
+Having a script means that you have a permanent record of everything that was done
+in the analysis, so that the results can be completely reproduced, which is something that
 is very important in environmental sciences (or any science).
 
-The console is where the code is actually run, and it is where the output of the code is displayed.
-
-The interpreter (in our case R version) in use is named at the top right of the window, 
-with the open project beside it. Check it when something is missing that you know you
-installed: more than one R on a machine is common, and each has its own library,
-so a package installed under one is absent under another. You can also run other software, 
-such as python, from inside positrons console, but that is not needed in this course.
+The interpreter in use, which is R in this course, is named at the top right of
+the window, with the open project beside it. Check it when something is missing
+that you know you installed: more than one R on a machine is common, and each
+has its own library, so a package installed under one is absent under another.
+You can also run other software, such as Python, from inside the Positron
+console, but that is not needed in this course.
 
 Two habits matter more here than in ordinary R work, althought I would apply them
 to any R projects I am working on.
