@@ -331,24 +331,43 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
-  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
-  <li><a href="#provenance-of-these-fits" id="toc-provenance-of-these-fits" class="nav-link" data-scroll-target="#provenance-of-these-fits">Provenance of these fits</a></li>
-  <li><a href="#a-single-herbicide" id="toc-a-single-herbicide" class="nav-link" data-scroll-target="#a-single-herbicide">A single herbicide</a>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a>
   <ul class="collapse">
-  <li><a href="#the-summary" id="toc-the-summary" class="nav-link" data-scroll-target="#the-summary">The summary</a></li>
-  <li><a href="#every-equation-in-the-set" id="toc-every-equation-in-the-set" class="nav-link" data-scroll-target="#every-equation-in-the-set">Every equation in the set</a></li>
+  <li><a href="#the-assumptions-the-diagnostics-test" id="toc-the-assumptions-the-diagnostics-test" class="nav-link" data-scroll-target="#the-assumptions-the-diagnostics-test">The assumptions the diagnostics test</a></li>
+  </ul></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
+  <li><a href="#data-preparation-and-family-choice" id="toc-data-preparation-and-family-choice" class="nav-link" data-scroll-target="#data-preparation-and-family-choice">1. Data preparation and family choice</a>
+  <ul class="collapse">
+  <li><a href="#the-scale-of-the-response" id="toc-the-scale-of-the-response" class="nav-link" data-scroll-target="#the-scale-of-the-response">The scale of the response</a></li>
+  <li><a href="#the-scale-of-the-predictor" id="toc-the-scale-of-the-predictor" class="nav-link" data-scroll-target="#the-scale-of-the-predictor">The scale of the predictor</a></li>
+  </ul></li>
+  <li><a href="#fitting-the-candidate-set" id="toc-fitting-the-candidate-set" class="nav-link" data-scroll-target="#fitting-the-candidate-set">2. Fitting the candidate set</a>
+  <ul class="collapse">
+  <li><a href="#the-set-as-fitted" id="toc-the-set-as-fitted" class="nav-link" data-scroll-target="#the-set-as-fitted">The set as fitted</a></li>
+  <li><a href="#model-weights" id="toc-model-weights" class="nav-link" data-scroll-target="#model-weights">Model weights</a></li>
+  </ul></li>
+  <li><a href="#sampler-diagnostics-and-screening" id="toc-sampler-diagnostics-and-screening" class="nav-link" data-scroll-target="#sampler-diagnostics-and-screening">3. Sampler diagnostics and screening</a>
+  <ul class="collapse">
+  <li><a href="#kinds-of-failure" id="toc-kinds-of-failure" class="nav-link" data-scroll-target="#kinds-of-failure">Kinds of failure</a></li>
+  <li><a href="#screening-the-model-set" id="toc-screening-the-model-set" class="nav-link" data-scroll-target="#screening-the-model-set">Screening the model set</a></li>
+  <li><a href="#raising-the-settings" id="toc-raising-the-settings" class="nav-link" data-scroll-target="#raising-the-settings">Raising the settings</a></li>
+  </ul></li>
+  <li><a href="#fit-diagnostics" id="toc-fit-diagnostics" class="nav-link" data-scroll-target="#fit-diagnostics">4. Fit diagnostics</a></li>
+  <li><a href="#the-reported-estimates" id="toc-the-reported-estimates" class="nav-link" data-scroll-target="#the-reported-estimates">5. The reported estimates</a>
+  <ul class="collapse">
+  <li><a href="#the-scale-an-estimate-is-on" id="toc-the-scale-an-estimate-is-on" class="nav-link" data-scroll-target="#the-scale-an-estimate-is-on">The scale an estimate is on</a></li>
+  <li><a href="#the-parameters-of-the-curve" id="toc-the-parameters-of-the-curve" class="nav-link" data-scroll-target="#the-parameters-of-the-curve">The parameters of the curve</a></li>
+  <li><a href="#effect-concentrations-and-censoring" id="toc-effect-concentrations-and-censoring" class="nav-link" data-scroll-target="#effect-concentrations-and-censoring">Effect concentrations and censoring</a></li>
   </ul></li>
   <li><a href="#the-complete-set-of-herbicides" id="toc-the-complete-set-of-herbicides" class="nav-link" data-scroll-target="#the-complete-set-of-herbicides">The complete set of herbicides</a>
   <ul class="collapse">
   <li><a href="#screening-the-model-sets" id="toc-screening-the-model-sets" class="nav-link" data-scroll-target="#screening-the-model-sets">Screening the model sets</a></li>
-  </ul></li>
   <li><a href="#model-weights-across-herbicides" id="toc-model-weights-across-herbicides" class="nav-link" data-scroll-target="#model-weights-across-herbicides">Model weights across herbicides</a></li>
   <li><a href="#the-fitted-curves" id="toc-the-fitted-curves" class="nav-link" data-scroll-target="#the-fitted-curves">The fitted curves</a></li>
   <li><a href="#the-toxicity-estimates" id="toc-the-toxicity-estimates" class="nav-link" data-scroll-target="#the-toxicity-estimates">The toxicity estimates</a></li>
+  </ul></li>
   <li><a href="#comparing-the-posteriors" id="toc-comparing-the-posteriors" class="nav-link" data-scroll-target="#comparing-the-posteriors">Comparing the posteriors</a></li>
   <li><a href="#probabilities-of-difference" id="toc-probabilities-of-difference" class="nav-link" data-scroll-target="#probabilities-of-difference">Probabilities of difference</a></li>
-  <li><a href="#the-parameters-behind-the-estimates" id="toc-the-parameters-behind-the-estimates" class="nav-link" data-scroll-target="#the-parameters-behind-the-estimates">The parameters behind the estimates</a></li>
   <li><a href="#reporting-the-analysis" id="toc-reporting-the-analysis" class="nav-link" data-scroll-target="#reporting-the-analysis">Reporting the analysis</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -384,8 +403,17 @@ window.Quarto = {
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>The posterior draws a Bayesian fit produces are useful well beyond a point estimate. They support the study of synergistic and antagonistic effects <span class="citation" data-cites="Fisher2019d flores2021">(<a href="#ref-Fisher2019d" role="doc-biblioref">Fisher et al. 2019</a>; <a href="#ref-flores2021" role="doc-biblioref">Flores et al. 2021</a>)</span>, the propagation of endpoint uncertainty <span class="citation" data-cites="Charles2020a Gottschalk2013">(<a href="#ref-Charles2020a" role="doc-biblioref">Charles et al. 2020</a>; <a href="#ref-Gottschalk2013" role="doc-biblioref">Gottschalk and Nowack 2013</a>)</span>, and tests of hypotheses of no effect <span class="citation" data-cites="Thomas2006">(<a href="#ref-Thomas2006" role="doc-biblioref">Neal 2006</a>)</span>.</p>
-<p><code>compare_posterior()</code> uses them to compare fits: differences in a threshold estimate such as the <em>NEC</em>, <em>NSEC</em> or an <strong>EC<sub>x</sub></strong>, or differences across a range of predictor values.</p>
+<p>Earlier modules each covered one part of the workflow: what the model set is, how a model average is formed, how a family is chosen, how priors are built. This module runs one analysis from data to reportable estimate, in the order the steps occur, and then applies the same workflow to seven herbicides so their toxicity can be compared.</p>
+<p>The workflow is:</p>
+<ol type="1">
+<li>Prepare the data and choose the family.</li>
+<li>Fit the candidate set.</li>
+<li>Check the sampler, and screen out the models that did not sample adequately.</li>
+<li>Check the fit of the models that remain.</li>
+<li>Report.</li>
+</ol>
+<p>A prior check belongs between steps 2 and 3, and module 6 covers <code>check_priors()</code> and the construction of the defaults.</p>
+<p>The posterior draws a Bayesian fit produces are useful well beyond a point estimate. They support the study of synergistic and antagonistic effects <span class="citation" data-cites="Fisher2019d flores2021">(<a href="#ref-Fisher2019d" role="doc-biblioref">Fisher et al. 2019</a>; <a href="#ref-flores2021" role="doc-biblioref">Flores et al. 2021</a>)</span>, the propagation of endpoint uncertainty <span class="citation" data-cites="Charles2020a Gottschalk2013">(<a href="#ref-Charles2020a" role="doc-biblioref">Charles et al. 2020</a>; <a href="#ref-Gottschalk2013" role="doc-biblioref">Gottschalk and Nowack 2013</a>)</span>, and tests of hypotheses of no effect <span class="citation" data-cites="Thomas2006">(<a href="#ref-Thomas2006" role="doc-biblioref">Neal 2006</a>)</span>. <code>compare_posterior()</code> uses them to compare fits, and the comparison across the seven herbicides at the end of this module is what it is for.</p>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -414,11 +442,16 @@ Figure&nbsp;2
 </div>
 </div>
 </div>
+<section id="the-assumptions-the-diagnostics-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-assumptions-the-diagnostics-test">The assumptions the diagnostics test</h3>
+<p>Convergence is what a Bayesian fit is usually judged on, and it is not the only thing that can be wrong. <code>rhat()</code>, <code>check_chains()</code> and <code>check_sampling()</code> ask whether the sampler explored the posterior. <code>loo</code> and <code>waic</code> rank the candidate equations against one another. None of them asks whether the variability the fitted model implies matches the variability in the data, and a threshold estimate depends on that assumption more than on any other.</p>
+<p>The <em>NSEC</em> depends on it most directly. <code>nsec()</code> sets its reference at a quantile of the posterior of the control mean, and the width of that posterior is set by the dispersion the fit estimated at the control. A model simulating more variability at the control than the data show places the reference lower, so the curve crosses it further along and the reported concentration is higher and less protective. A model simulating less variability places the reference higher and returns a lower concentration. The direction is not known in advance, and no convergence diagnostic reveals it. An <strong>EC<sub>x</sub></strong> depends on it less: it is measured from the same control mean, but at a fixed fraction of that mean rather than at a quantile of its posterior, so an error in the variance widens or narrows its interval rather than relocating the reference.</p>
+<p>One ratio statistic for the whole fit does not detect this. Every family with a free dispersion parameter, which is <code>gaussian</code>, <code>Gamma</code>, <code>negbinomial</code>, <code>Beta</code> and <code>beta_binomial</code>, estimates that parameter from the same residuals such a statistic summarises. The parameter absorbs the discrepancy, so the fit reports a ratio near 1 while simulating the wrong spread at the concentrations that determine the estimate. The check is therefore made within concentration groups, which is what <code>check_fit()</code> does, and step 4 runs it.</p>
+</section>
 </section>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data">The data</h2>
-<p>Earlier modules used simulated data. This one works through a real analysis: estimating no-effect concentrations for a set of herbicides and comparing their relative toxicity.</p>
-<p>The data are from <span class="citation" data-cites="jones2003meps">Jones and Kerswell (<a href="#ref-jones2003meps" role="doc-biblioref">2003</a>)</span> and ship with <code>bayesnec</code>.</p>
+<p>The data are from <span class="citation" data-cites="jones2003meps">Jones and Kerswell (<a href="#ref-jones2003meps" role="doc-biblioref">2003</a>)</span> and ship with <code>bayesnec</code>, so nothing has to be read from a file.</p>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -447,7 +480,7 @@ Figure&nbsp;4
 </div>
 </div>
 </div>
-<p>The response is the maximum effective quantum yield, <span class="math inline">\(\Delta F / Fm'\)</span>, of symbiotic dinoflagellates in the tissue of the coral <em>Seriatopora hystrix</em>, calculated from chlorophyll fluorescence measured with a DIVING-PAM fluorometer <span class="citation" data-cites="jones2003meps jones2003effects">(<a href="#ref-jones2003meps" role="doc-biblioref">Jones and Kerswell 2003</a>; <a href="#ref-jones2003effects" role="doc-biblioref">Jones et al. 2003</a>)</span>. Corals were exposed for 10 hours to eight herbicides at concentrations from 0.3 to 1000 <span class="math inline">\(\mu g L^{-1}\)</span>. Ioxynil is excluded here because it produced no adequate response at the highest concentration, leaving seven.</p>
+<p>The response is the maximum effective quantum yield, <span class="math inline">\(\Delta F / Fm'\)</span>, of symbiotic dinoflagellates in the tissue of the coral <em>Seriatopora hystrix</em>, calculated from chlorophyll fluorescence measured with a DIVING-PAM fluorometer <span class="citation" data-cites="jones2003meps jones2003effects">(<a href="#ref-jones2003meps" role="doc-biblioref">Jones and Kerswell 2003</a>; <a href="#ref-jones2003effects" role="doc-biblioref">Jones et al. 2003</a>)</span>. Corals were exposed for 10 hours to eight herbicides at concentrations from 0.3 to 1000 <span class="math inline">\(\mu g L^{-1}\)</span>. Ioxynil is excluded here because it produced no adequate response at the highest concentration, leaving seven. <code>?herbicide</code> documents the columns and the provenance of the response.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(herbicide)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(herbicide)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -462,48 +495,476 @@ Figure&nbsp;4
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(herbicide<span class="sc">$</span>herbicide)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-    ametryn    atrazine      diuron  hexazinone     irgarol    simazine 
-         96          84          72          76          72          72 
-tebuthiuron 
-        108 </code></pre>
+    ametryn    atrazine      diuron  hexazinone     irgarol    simazine tebuthiuron 
+         96          84          72          76          72          72         108 </code></pre>
 </div>
 </div>
-</section>
-<section id="provenance-of-these-fits" class="level2">
-<h2 class="anchored" data-anchor-id="provenance-of-these-fits">Provenance of these fits</h2>
-<p>Seven herbicides fitted against the <code>decline</code> set is 14 equations each, and takes hours. These fits are therefore <strong>not run when this page is built</strong>. They are produced by <code>scripts/generate_herbicide_fits.R</code>, which writes the compact results this module reads. The fitted objects themselves are far too large to keep — the 2023 equivalent was 451 MB.</p>
-<p>The code shown below is the code that was run. It is displayed rather than executed, and every result on this page comes from that run.</p>
+<p>Ametryn is the series worked through steps 1 to 5.</p>
 <div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ametryn <span class="ot">&lt;-</span> herbicide[herbicide<span class="sc">$</span>herbicide <span class="sc">==</span> <span class="st">"ametryn"</span>, ]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ametryn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Generated by scripts/generate_herbicide_fits.R
-date: 2026-09-17 00:45:30
-elapsed: 43.9 mins
-seed: 17
-R: 4.6.1
-bayesnec: 2.1.3.35
-brms: 2.23.0
-cmdstanr: 0.9.0
-model set: decline, 14 equations
-sampler screen: rhat &lt;= 1.01, ess &gt;= 400, divergences &lt;= 10
-herbicides: ametryn, atrazine, diuron, hexazinone, irgarol, simazine, tebuthiuron</code></pre>
+<pre><code>   herbicide concentration fvfm
+3    ametryn           0.1 0.68
+10   ametryn           0.1 0.68
+17   ametryn           0.1 0.67
+24   ametryn           0.1 0.65
+31   ametryn           0.1 0.67
+38   ametryn           0.1 0.67</code></pre>
 </div>
 </div>
 </section>
-<section id="a-single-herbicide" class="level2">
-<h2 class="anchored" data-anchor-id="a-single-herbicide">A single herbicide</h2>
-<p>Taking ametryn first. The concentration is log transformed before fitting, both because it stabilises the fit and because the concentration series is logarithmic by design. There is little evidence of hormesis in these data, so the <code>decline</code> set is used rather than the full set.</p>
+<section id="data-preparation-and-family-choice" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation-and-family-choice">1. Data preparation and family choice</h2>
+<p>Look at the data before fitting anything.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ametryn <span class="ot">&lt;-</span> herbicide <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concentration =</span> <span class="fu">log</span>(concentration)) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(herbicide <span class="sc">==</span> <span class="st">"ametryn"</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>manecfit_ametryn <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(concentration, <span class="at">model =</span> <span class="st">"decline"</span>),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> ametryn, <span class="at">seed =</span> <span class="dv">17</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>conc_breaks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ametryn, <span class="fu">aes</span>(<span class="at">x =</span> concentration, <span class="at">y =</span> fvfm)) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">transform =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> conc_breaks) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Concentration ("</span>, mu, <span class="st">"g "</span>, L<span class="sc">^-</span><span class="dv">1</span>, <span class="st">")"</span>)),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Maximum effective quantum yield"</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-ametryn-raw" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ametryn-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="7Example_case_study_files/figure-html/fig-ametryn-raw-1.png" class="img-fluid figure-img" width="672">
 </div>
-<p>Every argument other than the model set is left at its default. <code>bayesnec</code> selects a beta distribution for the response, uses the identity link, and drops <code>neclin</code> and <code>ecxlin</code> from the <code>decline</code> set because they are not suitable for a zero-bounded distribution.</p>
-<section id="the-summary" class="level3">
-<h3 class="anchored" data-anchor-id="the-summary">The summary</h3>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ametryn-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The response is flat across the lowest concentrations and then declines. The series has 8 distinct concentrations, which is the number of points from which a curve’s shape has to be identified, and it is a constraint on which equations the design can support. Mean yield is 0.013 at the highest concentration against 0.678 at the lowest.</p>
+<section id="the-scale-of-the-response" class="level3">
+<h3 class="anchored" data-anchor-id="the-scale-of-the-response">The scale of the response</h3>
+<p>Choosing a family is a statement about what kind of quantity the response is: the values it can take, the bounds it cannot cross, and how its variance behaves as its mean changes. Module 5 sets out the families <code>bayesnec</code> supports and what each assumes.</p>
+<p><code>fvfm</code> is a ratio of chlorophyll fluorescence yields. It is bounded by 0 and 1 and it is continuous, which is the <code>Beta</code> case rather than the <code>binomial</code> one: a proportion of this kind is not a count of successes out of a known number of trials, and there is no denominator to supply.</p>
+<p><code>Beta</code> estimates a dispersion parameter, <code>phi</code>, from the data, so there is no over-dispersion decision to take here. The family already has a free parameter for the spread and the fit will estimate it. <code>dispersion()</code> is defined only for <code>poisson</code> and <code>binomial</code>, the two families whose variance is fixed by the mean, which is why module 5 runs that screen and this module does not.</p>
+<p>What has to be checked is the one thing <code>Beta</code> cannot accommodate, which is a value outside its support. The family is supported on the open interval (0, 1), so a value recorded as exactly 0 or 1 lies outside it.</p>
 <div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(ametryn<span class="sc">$</span>fvfm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0 0.7</code></pre>
+</div>
+</div>
+<p>Ametryn reaches neither boundary. Several of the other herbicides do: 10 of irgarol’s readings are exactly zero, so the family cannot be chosen without inspecting the response. <code>bayesnec</code> substitutes for both bounds, a zero becoming one tenth of the smallest non-zero value and a one being reduced by an absolute 0.001, and <code>bnec_record()</code> reports after the fit whether anything was altered. A series with several concentrations at a boundary is then being modelled through that substitution rather than as recorded. Where zeros are part of the process rather than a recording floor, module 5 covers the hurdle and zero-inflated families that model them explicitly.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fam <span class="ot">&lt;-</span> <span class="fu">Beta</span>(<span class="at">link =</span> <span class="st">"identity"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>bnec()</code> sets <code>link = "identity"</code> by default on every family, so that <code>top</code>, <code>bot</code> and <code>nec</code> are estimated on the scale of the response and remain directly interpretable. It is written out here for clarity. Supplying a family with a different link overrides that default, and the model then fits a non-linear curve to the transformed mean rather than to the mean, with the parameters no longer on the response scale.</p>
+</section>
+<section id="the-scale-of-the-predictor" class="level3">
+<h3 class="anchored" data-anchor-id="the-scale-of-the-predictor">The scale of the predictor</h3>
+<p>The concentrations run from 0.1 to 300, a factor of 3000, in roughly even steps on a logarithmic scale. The predictor is logged in the formula.</p>
+<p>The predictor enters the equations directly, so a transform changes the shape being fitted and not merely the axis: the same equation describes a different curve in <code>concentration</code> and in <code>log(concentration)</code>. The default priors are also scaled from the predictor, so a transform rescales them. Neither consideration settles the question in general, and which scale samples better on a given dataset is an empirical matter. Here the series was designed as a logarithmic dilution, and a logarithm is what makes its steps even.</p>
+<p>A logged predictor spanning -2.3 to 5.7 takes negative values, which excludes the equations that raise the predictor to a fractional power. Every estimate is returned on the logged scale unless <code>xform</code> is supplied, and step 5 returns them.</p>
+</section>
+</section>
+<section id="fitting-the-candidate-set" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-the-candidate-set">2. Fitting the candidate set</h2>
+<p>The whole <code>decline</code> set is fitted in one call, under the family chosen in step 1. <code>model = "decline"</code> requests the equations that describe a declining response, of which there are 14 currently in <code>bayesnec</code>. The remaining equations describe hormesis, a response that rises above the control before it falls, and there is no evidence of hormesis in these data.</p>
+<p>The settings below are deliberately <em>under</em> <code>bnec()</code>’s defaults, and that is a decision made for this module rather than advice. These data are well behaved at the defaults and every equation the design supports passes the screen there, so a fit made at the defaults produces no screen failure to examine. Running short guarantees that some equations fail, which is what makes steps 3 and 5 a demonstration rather than an assertion. The settings are raised in step 3, and every estimate reported in step 5 comes from the fit made there.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>m7_am_reduced <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"decline"</span>),</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> ametryn, <span class="at">family =</span> fam,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">17</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_reduced, <span class="at">file =</span> <span class="st">"fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Compare the retained draws and not <code>iter</code>. <code>iter</code> counts warmup as well as sampling, and the fraction discarded is a choice each package makes for itself. <code>bayesnec</code> takes <code>chains = 4</code> and <code>iter = 1e4</code>, and sets <code>warmup</code> to <code>floor(iter / 5) * 4</code>, discarding four fifths and retaining 8000 draws. The call above sets <code>iter</code> to 4000 with two chains, and the same warmup rule leaves 1600. For comparison, <code>brms</code> discards half rather than four fifths, so its own defaults of <code>iter = 2000</code> over four chains retain 4000, which is more than this call from a quarter of the iterations. A number of iterations means nothing until the warmup rule and the chain count are stated beside it.</p>
+<p>Where a fit is genuinely marginal, two arguments are the ones to reach for. <code>iter</code> and <code>warmup</code> come first when Rhat is marginal or the effective sample size is low, because a model with a poorly identified parameter may need more draws. <code>control = list(adapt_delta = 0.99, max_treedepth = 12)</code> comes next: raise <code>adapt_delta</code> when there are divergent transitions and <code>max_treedepth</code> when the sampler reports hitting it. Both increase runtime and neither corrects a misspecified model.</p>
+<section id="the-set-as-fitted" class="level3">
+<h3 class="anchored" data-anchor-id="the-set-as-fitted">The set as fitted</h3>
+<p>Two mechanisms reduce the requested set. Some equations are excluded before fitting, because they are invalid for the family or the predictor. Others are attempted and fail to fit, which happens with complex non-linear models and particularly with those that have many parameters. <code>bnec_record()</code> reports both, so neither has to be reconstructed from the fitted object.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">bnec_record</span>(m7_am_reduced)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>excluded</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    model
+1  neclin
+2  ecxlin
+3 ecxsigm
+                                                                                        reason
+1         decays by subtraction, so its mean is unbounded below for beta with an identity link
+2         decays by subtraction, so its mean is unbounded below for beta with an identity link
+3 raises the predictor to a fractional power, which is undefined for negative predictor values</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>attempted</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "nec3param" "nec4param" "ecxexp"    "ecx4param" "ecxwb1"    "ecxwb2"    "ecxwb1p3"  "ecxwb2p3" 
+ [9] "ecxll5"    "ecxll4"    "ecxll3"   </code></pre>
+</div>
+</div>
+<p><code>requested</code> is partitioned exactly by <code>attempted</code> and <code>excluded$model</code>. An equation that was attempted and failed to fit stays in <code>attempted</code>.</p>
+<p>Two rules apply here. <code>neclin</code> and <code>ecxlin</code> decay by subtraction rather than by an exponential factor, so their fitted mean is unbounded below and cannot be held inside the (0, 1) interval a <code>Beta</code> mean occupies under an identity link. And the predictor is <code>log(concentration)</code>, which is negative below a concentration of 1, so the equations that raise the predictor to a fractional power cannot be evaluated. <code>?models</code> sets out these rules and the others.</p>
+<p><code>failed_models()</code> names the equations that were attempted and did not fit, and records the priors and initial values each was given, which are built inside <code>bnec()</code> and otherwise unrecoverable.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">failed_models</span>(m7_am_reduced))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "ecxll5"</code></pre>
+</div>
+</div>
+<p><code>substitutions</code> reports the changes <code>check_data()</code> made to the response because the family cannot represent a value as recorded.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>substitutions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     variable             rule n_rows from    to                                      reason
+zero response shifted off zero     12    0 0.001 a beta distribution cannot represent a zero
+                   remedy
+zero zero_inflated_beta()</code></pre>
+</div>
+</div>
+<p>This is the evidence for the boundary check in step 1: on a series that does reach 0 or 1 this element names each altered value, so a methods section can state what was modelled rather than leaving a reader to assume it was the data as measured.</p>
+</section>
+<section id="model-weights" class="level3">
+<h3 class="anchored" data-anchor-id="model-weights">Model weights</h3>
+<p><code>summary()</code> reports the set as a whole.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m7_am_reduced)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required namespace: rstan</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Object of class bayesmanecfit
+
+ Family: beta  
+  Links: mu = identity  
+
+Number of posterior draws per model:  1600
+
+Model weights (Method: pseudobma_bb_weights):
+             waic   wi
+nec3param -451.02 0.03
+nec4param -456.61 0.04
+ecxexp    -320.58 0.00
+ecx4param -465.16 0.41
+ecxwb1    -443.23 0.01
+ecxwb2    -461.28 0.11
+ecxwb1p3  -323.21 0.00
+ecxwb2p3  -446.88 0.01
+ecxll4    -465.05 0.38
+ecxll3    -432.45 0.00
+
+
+Summary of weighted N(S)EC posterior estimates:
+NB: Model set contains a combination of ECx and NEC
+    models, and is therefore a model averaged
+    combination of NEC and NSEC estimates.
+       Estimate  Q2.5 Q97.5
+N(S)EC    -1.65 -2.15 -0.45
+
+
+Bayesian R2 estimates:
+          Estimate Est.Error Q2.5 Q97.5
+nec3param     0.99      0.00 0.99  0.99
+nec4param     0.99      0.00 0.99  0.99
+ecxexp        0.89      0.01 0.87  0.91
+ecx4param     0.99      0.00 0.99  0.99
+ecxwb1        0.99      0.00 0.98  0.99
+ecxwb2        0.99      0.00 0.99  0.99
+ecxwb1p3      0.93      0.01 0.90  0.96
+ecxwb2p3      0.99      0.00 0.99  0.99
+ecxll4        0.99      0.00 0.99  0.99
+ecxll3        0.99      0.00 0.98  0.99
+
+
+1 model(s) failed to fit: ecxll5
+See ?failed_models for the priors and initial values used.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in print.manecsummary(x): control observed/simulated ratio beyond 1.15 (see ?check_fit):
+  -  nec3param
+  -  nec4param
+  -  ecxexp
+  -  ecx4param
+  -  ecxwb1
+  -  ecxwb2
+  -  ecxwb1p3
+  -  ecxwb2p3
+  -  ecxll4
+  -  ecxll3
+This is a modelling result rather than a fault; inspect with check_fit().</code></pre>
+</div>
+</div>
+<p><code>wi</code> is the model weight: the share of the model-averaged prediction each candidate contributes, summing to one across the set. The weights come from PSIS-LOO, with <code>loo_model_weights()</code> consuming the <code>loo</code> objects <code>brms</code> computes for each fit. Where a model reports Pareto <em>k</em> values above 0.7 for a few observations, <code>brms</code> warns, and the weights remain usable while the estimates behind them are flagged as unreliable at those points. That belongs in a methods statement alongside the weights themselves.</p>
+</section>
+</section>
+<section id="sampler-diagnostics-and-screening" class="level2">
+<h2 class="anchored" data-anchor-id="sampler-diagnostics-and-screening">3. Sampler diagnostics and screening</h2>
+<p>Every equation in the fitted set produced draws; the ones that did not are in <code>failed_models()</code>. The diagnostics here establish whether those draws describe the posterior adequately. Whether a model fits the data is a separate question, answered in step 4.</p>
+<p><code>check_sampling()</code> reports per candidate model, so the whole set is screened in one call rather than model by model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(m7_am_reduced)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model max_rhat  min_ess min_ess_ratio n_divergent failed
+1  nec3param 1.004253 727.6289     0.4547681           0  FALSE
+2  nec4param 1.009106 368.7366     0.2304604           0   TRUE
+3     ecxexp 1.006067 624.6060     0.3903788           0  FALSE
+4  ecx4param 1.003113 630.7977     0.3942486           0  FALSE
+5     ecxwb1 1.002677 344.1262     0.2150789           0   TRUE
+6     ecxwb2 1.004520 644.1353     0.4025846           0  FALSE
+7   ecxwb1p3 1.007203 656.2184     0.4101365           0  FALSE
+8   ecxwb2p3 1.001966 500.2253     0.3126408           0  FALSE
+9     ecxll4 1.005335 643.2938     0.4020586           0  FALSE
+10    ecxll3 1.007635 521.2024     0.3257515           0  FALSE</code></pre>
+</div>
+</div>
+<p>The table gives one row per fitted model with three diagnostics: the largest Rhat, the smallest effective sample size, and the number of divergent transitions. Each is compared against a cutoff, and <code>failed</code> is <code>TRUE</code> where any of the three is missed.</p>
+<p>The cutoffs are arguments to <code>check_sampling()</code> and can be changed. The Rhat default of 1.01 and the ESS default of 400 follow published recommendations <span class="citation" data-cites="Vehtari2021">(<a href="#ref-Vehtari2021" role="doc-biblioref">Vehtari et al. 2021</a>)</span>; the divergence default of 10 does not. Stan’s own guidance is that <em>any</em> divergence means the sampler failed to explore the posterior. The default of ten is a package convention rather than a published recommendation, because these non-linear models commonly produce a small number of divergent transitions near a parameter boundary, as <code>?check_sampling</code> describes.</p>
+<p>Read <code>min_ess</code> rather than <code>min_ess_ratio</code> when deciding. The 400 is an absolute floor, below which the Rhat and ESS estimates are themselves unreliable, and it corresponds to 100 draws per chain at the four chains <code>bnec()</code> fits by default. Both the ESS and the divergence cutoffs are absolute counts, and the number of draws changes what each of them demands, in opposite directions. At the 1600 draws retained here a model must reach an efficiency ratio of 0.250 to clear 400, against 0.050 at the default 8000, so the ESS cutoff is harder to clear at these settings. Ten divergent transitions, on the other hand, is 0.62 per cent of the retained draws here and 0.125 per cent at the default, so at an equal divergence rate the same fit produces more of them at the defaults and that cutoff is harder to clear there. Neither setting is uniformly stricter, and a screen result is therefore a property of the settings as much as of the model. State the settings used.</p>
+<section id="kinds-of-failure" class="level3">
+<h3 class="anchored" data-anchor-id="kinds-of-failure">Kinds of failure</h3>
+<p>The three kinds of failure are distinguished by which thresholds an equation missed, and whether divergent transitions are among them.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>cs <span class="ot">&lt;-</span> <span class="fu">check_sampling</span>(m7_am_reduced)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>cs[cs<span class="sc">$</span>failed, <span class="fu">c</span>(<span class="st">"model"</span>, <span class="st">"max_rhat"</span>, <span class="st">"min_ess"</span>, <span class="st">"n_divergent"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      model max_rhat  min_ess n_divergent
+2 nec4param 1.009106 368.7366           0
+5    ecxwb1 1.002677 344.1262           0</code></pre>
+</div>
+</div>
+<p>An equation that misses the effective sample size or Rhat threshold with no divergent transitions has been sampled from a posterior the sampler could traverse. It was not sampled for long enough to describe that posterior, and both diagnostics are themselves estimated less precisely from fewer draws. Refitting with a higher <code>iter</code> is what such an equation needs, and it is expected to pass once it has them, so excluding it on this evidence would be premature.</p>
+<p>Divergent transitions are different, because they describe the posterior rather than the run. A divergence is recorded when the sampler’s trajectory through parameter space goes numerically unstable, which happens where the posterior has curvature too sharp for the step size adapted during warmup. Taking more draws samples the same surface for longer and does not smooth it. Where such an equation is also the most heavily parameterised in the set, the usual explanation is that the design does not support it.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fitted_mods <span class="ot">&lt;-</span> <span class="fu">c</span>(cs<span class="sc">$</span>model, <span class="fu">names</span>(<span class="fu">failed_models</span>(m7_am_reduced)))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>n_par <span class="ot">&lt;-</span> <span class="fu">vapply</span>(fitted_mods,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                <span class="cf">function</span>(m) <span class="fu">length</span>(<span class="fu">names</span>(<span class="fu">show_params</span>(m)[[<span class="dv">1</span>]]<span class="sc">$</span>pforms)),</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">integer</span>(<span class="dv">1</span>))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">model =</span> fitted_mods, <span class="at">parameters =</span> n_par,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">produced_draws =</span> fitted_mods <span class="sc">%in%</span> cs<span class="sc">$</span>model,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">row.names =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model parameters produced_draws
+1  nec3param          3           TRUE
+2  nec4param          4           TRUE
+3     ecxexp          2           TRUE
+4  ecx4param          4           TRUE
+5     ecxwb1          4           TRUE
+6     ecxwb2          4           TRUE
+7   ecxwb1p3          3           TRUE
+8   ecxwb2p3          3           TRUE
+9     ecxll4          4           TRUE
+10    ecxll3          3           TRUE
+11    ecxll5          5          FALSE</code></pre>
+</div>
+</div>
+<p><code>check_sampling()</code> reports only the equations that produced draws, so ecxll5 is added above from <code>failed_models()</code>: it is the equation with the most curve parameters in the set, at 5 against 4 for any equation that did fit.</p>
+<p>The series has 8 distinct concentrations, and an equation with more curve parameters than the design can determine has a posterior that is flat in some direction. Sampling a flat direction for longer does not locate a maximum that is not there. Adjusting the settings to retain an equation in that position does not address the problem: the fit is not failing because it was run badly, but because the experiment does not contain the information the equation needs. Report it as excluded, and say why.</p>
+<p>Where an equation’s Rhat or effective sample size sits at the threshold, which side of it the equation falls on is sensitive to the seed, and another run may place it on the other side. Any threshold applied to an estimated quantity behaves this way. It is why the thresholds have to be reported with the result, and why the screen names every threshold an equation missed rather than only the first.</p>
+</section>
+<section id="screening-the-model-set" class="level3">
+<h3 class="anchored" data-anchor-id="screening-the-model-set">Screening the model set</h3>
+<p>Only models that pass the sampler diagnostics are retained. The screen reads the sampler and nothing else: whether an equation reproduces the data is a separate question, and removing an equation for that silently would hide the discrepancies the fit checks exist to show.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>screened_reduced <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_reduced)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Dropping 2 of 10 candidate models that failed the sampler screen:
+  -  nec4param: ESS 368.7
+  -  ecxwb1: ESS 344.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: nec3param ecxexp ecx4param ecxwb2 ecxwb1p3 ecxwb2p3 ecxll4 ecxll3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.
+Warning: 
+2 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.
+Warning: 
+2 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+3 (3.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+2 (2.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 
+3 (3.1%) p_waic estimates greater than 0.4. We recommend trying loo instead.</code></pre>
+</div>
+</div>
+<p><code>screen_models()</code> runs the same diagnostics as <code>check_sampling()</code>, drops what failed, and reports which models were removed and why, one line per model naming every threshold it missed. An exclusion step that leaves no record is not reproducible, which is why the message is on by default and why <code>quiet = TRUE</code> should not be used in an analysis that will be reported.</p>
+<p>If every candidate fails, <code>screen_models()</code> stops with an error listing the reasons rather than returning a meaningless average, which signals a return to step 2 rather than a loosened threshold. If none fails, it says so and returns the set unchanged.</p>
+<p><code>amend()</code> does the work, and it is the only route by which a model leaves a <code>bayesmanecfit</code>. The weights of a screened set therefore have to be read from the screened fit rather than rescaled by hand.</p>
+</section>
+<section id="raising-the-settings" class="level3">
+<h3 class="anchored" data-anchor-id="raising-the-settings">Raising the settings</h3>
+<p>The screen has identified the equations that did not sample adequately. For those that reported no divergent transitions, the remedy is the one step 2 deferred: fit again at <code>bnec()</code>’s defaults.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>m7_am_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"decline"</span>),</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> ametryn, <span class="at">family =</span> fam, <span class="at">seed =</span> <span class="dv">17</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_fit, <span class="at">file =</span> <span class="st">"fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model max_rhat  min_ess min_ess_ratio n_divergent failed
+1  nec3param 1.001291 3050.015     0.3812519           0  FALSE
+2  nec4param 1.001129 3409.846     0.4262307           0  FALSE
+3     ecxexp 1.000652 3303.686     0.4129608           0  FALSE
+4  ecx4param 1.002316 3121.923     0.3902404           0  FALSE
+5     ecxwb1 1.002164 2217.522     0.2771902           0  FALSE
+6     ecxwb2 1.001493 3521.173     0.4401466           0  FALSE
+7   ecxwb1p3 1.001576 3320.889     0.4151112           0  FALSE
+8   ecxwb2p3 1.001623 3330.871     0.4163589           0  FALSE
+9     ecxll4 1.000870 3320.101     0.4150126           0  FALSE
+10    ecxll3 1.001059 2532.767     0.3165959           0  FALSE</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">failed_models</span>(m7_am_fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "ecxll5"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>fit_screened <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>All 10 candidate models passed the sampler screen (Rhat &lt;= 1.01, ESS &gt;= 400, divergences &lt;= 10).</code></pre>
+</div>
+</div>
+<p>The comparison between the two runs is the point of having made both. Every equation the screen removed at the reduced settings (nec4param, ecxwb1) passes here, on the same data and the same priors, because it was given more draws. Both had missed the effective sample size threshold with no divergent transitions, which is the first kind of failure, and more draws corrected them as that diagnosis predicted. <code>ecxwb1</code> rose from an effective sample size of 344 to 2218.</p>
+<p>No equation in either run recorded a divergent transition, so the second kind of failure does not arise on these data. Where it does, more sampling does not change the curvature the sampler could not traverse, and because the divergence cutoff is an absolute count, a longer run reports proportionally more divergences at an unchanged rate. Raising the settings makes that failure easier to see, not harder.</p>
+<p>ecxll5 still fails to fit at all, which is the third kind and the one the parameter count anticipated. More sampling did not make it fit and would not be expected to.</p>
+<p>The priors and initial values a failed equation was given are retained on the failed fit and are the starting point for an adjustment if one is wanted, as <code>?failed_models</code> sets out.</p>
+</section>
+</section>
+<section id="fit-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="fit-diagnostics">4. Fit diagnostics</h2>
+<p>The sampler diagnostics indicate whether the sampler explored the posterior adequately. They say nothing about whether the model fits. Two checks answer different questions: <code>pp_check()</code> overall, and <code>check_fit()</code> within concentration groups.</p>
+<p>Both are applied to the highest-weighted model of the screened set, which contributes most to the reported estimate and is therefore the one whose fit matters most. <code>pull_best()</code> returns it as a <code>bayesnecfit</code>, and returns a <code>bayesnecfit</code> unchanged, so a set the screen reduced to a single equation needs no separate handling.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>best_fit <span class="ot">&lt;-</span> <span class="fu">pull_best</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Highest-weighted model is ecxll4, holding 0.417 of the weight of 10 candidate models.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Pulling out model(s): ecxll4</code></pre>
+</div>
+</div>
+<p>The weight is reported with the number of candidates it was selected from, because the two together are what say whether the selection means anything. The highest weight of a flat set of ten is little more than the equal share of 0.1, and one such equation describes the model-averaged estimate hardly at all. Read it against the weights <code>summary()</code> reported in step 2.</p>
+<p><code>pp_check()</code> asks whether data simulated from the fitted model resemble the data observed. Pooled over the whole dataset the comparison is weak for concentration-response data, because a model can match the pooled distribution while being wrong at every concentration, so it is grouped by the predictor here.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(best_fit, <span class="at">type =</span> <span class="st">"dens_overlay_grouped"</span>, <span class="at">group =</span> <span class="st">"concentration"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using 10 posterior draws for ppc type 'dens_overlay_grouped' by default.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-ppcheck" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="7Example_case_study_files/figure-html/fig-ppcheck-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Observed and simulated response densities within each concentration.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The dark line is the observed density of the response within each concentration group and the light lines are the same quantity simulated from the fit. The response is continuous, so a density overlay is the appropriate display; a discrete response takes <code>type = "bars_grouped"</code> instead, which is what module 5 uses for its count example.</p>
+<p>Location is reproduced: each observed density sits within the spread of the simulated ones, and its position follows the decline across the series. The observed curves are the more irregular of the two, because a kernel density estimated from 12 observations resolves individual values as separate modes, and that is a property of the display rather than evidence against the fit.</p>
+<p>Width is the other thing to read, and it is where these data depart from the fit. The simulated densities are visibly the wider at the low concentrations and the narrower at the high ones. Judging that by eye from 12 observations is unreliable, which is what <code>check_fit()</code> puts a number on.</p>
+<p><code>check_fit()</code> tests something narrower: whether the model reproduces the observed variability and the observed level <em>locally</em>, within each concentration group, with the control flagged.</p>
+<p>The control is the lowest value of the predictor, which is <code>bayesnec</code>’s convention throughout. Both estimators read their reference from the posterior of the fitted mean there: <code>nsec()</code> sets its significance reference from it, and every <strong>EC<sub>x</sub></strong> is measured from it as well. Control variability therefore propagates into every threshold the analysis reports, not only the no-effect concentration. An experiment whose lowest treatment is not a control is being analysed on that assumption and should say so.</p>
+<p>Identifying the control by position rather than by value keeps the convention intact under a common preparation. Analysis is often done on a log scale, and a small constant is added to the concentrations so that a zero control can be plotted and fitted. Whether the control is entered as 0, or as 0.001, or as one tenth of the lowest exposure, it remains the lowest value in the series and is therefore still the control. These data have no zero concentration, so the question does not arise and the lowest tested concentration is the reference.</p>
+<p>For a <code>bayesmanecfit</code> it returns every group of every candidate model, which is more than can be read at once. Two views are useful. The first is the control row of each model, which is the row both estimators read their reference from.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(fit_screened)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>cf[cf<span class="sc">$</span>control, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model    wi group  n obs_mean sim_mean mean_ratio ppp_mean obs_sd sim_sd sd_ratio ppp_sd
+1  nec3param 0.033   0.1 12    0.678    0.647      1.049    0.035  0.014  0.046    0.305  1.000
+9  nec4param 0.035   0.1 12    0.678    0.647      1.048    0.039  0.014  0.047    0.300  1.000
+17    ecxexp 0.000   0.1 12    0.678    0.758      0.895    0.969  0.014  0.098    0.143  1.000
+25 ecx4param 0.379   0.1 12    0.678    0.681      0.996    0.562  0.014  0.043    0.323  0.999
+33    ecxwb1 0.012   0.1 12    0.678    0.695      0.975    0.826  0.014  0.049    0.289  1.000
+41    ecxwb2 0.106   0.1 12    0.678    0.659      1.030    0.131  0.014  0.045    0.311  1.000
+49  ecxwb1p3 0.000   0.1 12    0.678    0.636      1.067    0.066  0.014  0.080    0.175  1.000
+57  ecxwb2p3 0.018   0.1 12    0.678    0.672      1.009    0.394  0.014  0.044    0.317  1.000
+65    ecxll4 0.417   0.1 12    0.678    0.680      0.998    0.535  0.014  0.044    0.322  1.000
+73    ecxll3 0.000   0.1 12    0.678    0.694      0.977    0.814  0.014  0.045    0.315  1.000
+   control
+1     TRUE
+9     TRUE
+17    TRUE
+25    TRUE
+33    TRUE
+41    TRUE
+49    TRUE
+57    TRUE
+65    TRUE
+73    TRUE
+
+The control group is flagged. nsec() reads its reference from the 
+control, so this is the row most likely to move a reported 
+no-effect concentration. See ?check_fit.</code></pre>
+</div>
+</div>
+<p>A continuous response has genuine residual variability at every concentration, so <code>obs_sd</code>, <code>sim_sd</code> and the ratio between them are all finite and informative, and <code>ppp_sd</code> is not forced to 0 or 1 by construction as it can be for a binomial response near total mortality.</p>
+<p>Read <code>ppp_mean</code> and <code>ppp_sd</code> rather than the ratios. The posterior predictive p-value is <code>mean(sim &gt;= obs)</code>, so a value near 0.5 says the observed statistic sits in the middle of what the model simulates and a value near 0 or 1 says it sits in a tail. <code>?check_fit</code> records the case in which a model holds high weight because it fits the bulk of the curve while fitting the control badly, which is what this view is for, and it is the case these data present.</p>
+<p>The second view is the full table for a single model, read when one candidate is in question.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>cf_best <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(best_fit)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>cf_best</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  group  n obs_mean sim_mean mean_ratio ppp_mean obs_sd sim_sd sd_ratio ppp_sd control
+1   0.1 12    0.678    0.680      0.998    0.535  0.014  0.044    0.322  1.000    TRUE
+2   0.3 12    0.616    0.615      1.001    0.486  0.019  0.046    0.409  0.998   FALSE
+3     1 12    0.434    0.421      1.032    0.206  0.037  0.047    0.787  0.827   FALSE
+4     3 12    0.167    0.188      0.887    0.947  0.013  0.037    0.355  1.000   FALSE
+5    10 12    0.068    0.056      1.210    0.083  0.014  0.021    0.663  0.929   FALSE
+6    30 12    0.020    0.021      0.980    0.555  0.013  0.013    0.969  0.531   FALSE
+7   100 12    0.016    0.011      1.412    0.092  0.015  0.009    1.585  0.094   FALSE
+8   300 12    0.013    0.009      1.442    0.136  0.017  0.008    1.982  0.020   FALSE
+
+The control group is flagged. nsec() reads its reference from the 
+control, so this is the row most likely to move a reported 
+no-effect concentration. See ?check_fit.</code></pre>
+</div>
+</div>
+<p>Location is reproduced at every concentration: <code>mean_ratio</code> runs from 0.887 to 1.442 and no <code>ppp_mean</code> is near either bound. The departure is entirely in scale, and it is systematic rather than confined to one group. <code>obs_sd</code> is close to constant across the series, from 0.013 to 0.037, while <code>sim_sd</code> falls steadily from 0.044 at the control to 0.008 at the highest concentration.</p>
+<p>That pattern is a property of the family. A <code>Beta</code> variance is <span class="math inline">\(\mu(1-\mu)/(1+\phi)\)</span> with a single <code>phi</code> estimated for the whole fit, so the simulated spread is largest where the mean is near the middle of the range and shrinks as the mean approaches zero. The observed spread does not behave that way here, so one <code>phi</code> cannot match both ends of the series: the fit oversimulates variability at the low concentrations and undersimulates it at the high ones. Module 5 covers the dispersion sub-model, written as a term in the formula, which is what lets the spread vary with the predictor instead.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf_best)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-checkfit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="7Example_case_study_files/figure-html/fig-checkfit-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-checkfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Observed statistics against the 95% span of what the fitted model simulates, by concentration.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot shows what the table does not: the magnitude and direction of the discrepancy. Each panel gives the observed statistic against the 95% span of what the model simulates, and a point outside its bar is a group the model does not reproduce. Location and scale are separate panels because they fail independently, and that is what has happened here: every point in the mean panel sits inside its bar while several in the standard deviation panel do not.</p>
+<p>The control row is the one the Overview singled out, and on these data it is the worst of the series rather than the best. The model simulates a standard deviation of 0.044 against an observed 0.014, a <code>sd_ratio</code> of 0.322, and a <code>ppp_sd</code> of 1.000, meaning that essentially every simulated draw was more variable than the data.</p>
+<p>That has a direction, and it is the one the Overview set out. <code>nsec()</code> reads its reference from the posterior of the control mean, and a fit simulating more variability there than the data show gives that posterior too much width. The reference is placed lower, the curve crosses it further along, and the reported no-effect concentration is <strong>higher than the data warrant, and so less protective</strong>. An analysis reporting the <em>N(S)EC</em> for these data should state this check and its result, and should consider the dispersion sub-model before the estimate is used.</p>
+<p>A group can fall beyond the message’s criterion and inside the plot’s bar, because the two differ: the message flags a posterior predictive p-value outside [0.05, 0.95] and the bars are the 95% span, which is [0.025, 0.975]. Read the message as a prompt to look at the group rather than as a verdict.</p>
+</section>
+<section id="the-reported-estimates" class="level2">
+<h2 class="anchored" data-anchor-id="the-reported-estimates">5. The reported estimates</h2>
+<p><code>summary()</code> returns the retained equations with their weights and the model-averaged estimate.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Object of class bayesmanecfit
 
@@ -514,16 +975,16 @@ Number of posterior draws per model:  8000
 
 Model weights (Method: pseudobma_bb_weights):
              waic   wi
-nec3param -451.02 0.03
-nec4param -456.54 0.03
-ecxexp    -320.61 0.00
-ecx4param -465.25 0.41
-ecxwb1    -443.81 0.01
-ecxwb2    -461.33 0.11
-ecxwb1p3  -323.33 0.00
-ecxwb2p3  -447.03 0.02
-ecxll4    -465.15 0.39
-ecxll3    -432.29 0.00
+nec3param -451.06 0.03
+nec4param -456.69 0.04
+ecxexp    -320.44 0.00
+ecx4param -465.13 0.38
+ecxwb1    -443.63 0.01
+ecxwb2    -461.34 0.11
+ecxwb1p3  -323.16 0.00
+ecxwb2p3  -447.00 0.02
+ecxll4    -465.27 0.42
+ecxll3    -432.21 0.00
 
 
 Summary of weighted N(S)EC posterior estimates:
@@ -531,7 +992,7 @@ NB: Model set contains a combination of ECx and NEC
     models, and is therefore a model averaged
     combination of NEC and NSEC estimates.
        Estimate  Q2.5 Q97.5
-N(S)EC    -1.65 -2.12 -0.45
+N(S)EC    -1.66 -2.14 -0.45
 
 
 Bayesian R2 estimates:
@@ -551,74 +1012,172 @@ ecxll3        0.99      0.00 0.98  0.99
 1 model(s) failed to fit: ecxll5
 See ?failed_models for the priors and initial values used.</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in print.manecsummary(x): control observed/simulated ratio beyond 1.15 (see ?check_fit):
+  -  nec3param
+  -  nec4param
+  -  ecxexp
+  -  ecx4param
+  -  ecxwb1
+  -  ecxwb2
+  -  ecxwb1p3
+  -  ecxwb2p3
+  -  ecxll4
+  -  ecxll3
+This is a modelling result rather than a fault; inspect with check_fit().</code></pre>
 </div>
-<p>The weights are spread across several smooth equations with limited support for the threshold models. The no-effect estimate is reported on the log concentration scale, because that is the scale the model was fitted on.</p>
-</section>
-<section id="every-equation-in-the-set" class="level3">
-<h3 class="anchored" data-anchor-id="every-equation-in-the-set">Every equation in the set</h3>
+</div>
+<p>The set mixes threshold and smooth equations, so that estimate is a mixture of <em>NEC</em> and <em>NSEC</em> draws, which is the <em>N(S)EC</em> module 3 defined, and it should not be reported as a <em>NEC</em>.</p>
+<section id="the-scale-an-estimate-is-on" class="level3">
+<h3 class="anchored" data-anchor-id="the-scale-an-estimate-is-on">The scale an estimate is on</h3>
+<p>The predictor was logged in the formula, so the threshold is returned on that scale. <code>nec()</code>, <code>nsec()</code> and <code>ecx()</code> all take an <code>xform</code> argument to put it back on the measured one.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>allmods <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/ametryn_allmodels.csv"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(allmods, <span class="fu">aes</span>(<span class="at">x =</span> concentration)) <span class="sc">+</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate)) <span class="sc">+</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> model) <span class="sc">+</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">3</span>, <span class="dv">30</span>, <span class="dv">300</span>)) <span class="sc">+</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Concentration ("</span><span class="sc">*</span>mu<span class="sc">*</span><span class="st">"g/L)"</span>),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(Delta<span class="sc">*</span><span class="st">"F/Fm'"</span>)) <span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div id="fig-ametryn-all" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ametryn-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="7Example_case_study_files/figure-html/fig-ametryn-all-1.png" class="img-fluid figure-img" width="672">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">log_scale =</span> <span class="fu">nec</span>(fit_screened),</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">measured  =</span> <span class="fu">nec</span>(fit_screened, <span class="at">xform =</span> exp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>This bayesmanecfit contains smooth (ecx) models, which have no threshold parameter, so the returned estimate is a weighted mixture of NEC and NSEC draws -- the model-averaged N(S)EC rather than a NEC. See ?nec and summary(), which labels it.
+This bayesmanecfit contains smooth (ecx) models, which have no threshold parameter, so the returned estimate is a weighted mixture of NEC and NSEC draws -- the model-averaged N(S)EC rather than a NEC. See ?nec and summary(), which labels it.</code></pre>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ametryn-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Each equation fitted to the ametryn data, with its 95% credible interval.
+<div class="cell-output cell-output-stdout">
+<pre><code>                Q50      Q2.5      Q97.5
+log_scale -1.663466 -2.136800 -0.4513908
+measured   0.189481  0.118032  0.6367419</code></pre>
+</div>
+</div>
+<p>Only the second row is on the measured scale. The first is its natural logarithm, and the two are easy to confuse, because a logged value can land in the same numeric range as a concentration: the median of the first row would pass unremarked in a series running from 0.1 to 300. Reporting a logged value as a concentration understates the threshold by a factor of 2.7 for every unit on the logged scale. Where the logarithm is negative the value is not a concentration at all, which is the one case in which the error announces itself. A reported value has to state the scale it is on.</p>
+</section>
+<section id="the-parameters-of-the-curve" class="level3">
+<h3 class="anchored" data-anchor-id="the-parameters-of-the-curve">The parameters of the curve</h3>
+<p><code>summary()</code> does not report the parameters of the curve itself. <code>curve_params()</code> returns them, one row per parameter per equation, with the model weight beside each row.</p>
+<div id="tbl-curveparams" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-curveparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Fitted curve parameters for ametryn, with the weight of the equation each came from.
 </figcaption>
+<div aria-describedby="tbl-curveparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(fit_screened, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model           wi dpar     link parameter     Estimate         Q2.5        Q97.5
+1     ecxll4 4.171951e-01   mu identity       top  0.702409905  0.673394325  0.734096045
+2     ecxll4 4.171951e-01   mu identity       bot  0.008783056  0.005583625  0.012614853
+3     ecxll4 4.171951e-01   mu identity      beta  0.261975790  0.158569725  0.369138372
+4     ecxll4 4.171951e-01   mu identity      ec50  1.339670878  1.163794144  1.514585592
+5  ecx4param 3.789986e-01   mu identity       top  0.702825640  0.674081856  0.735037377
+6  ecx4param 3.789986e-01   mu identity       bot  0.008722921  0.005553338  0.012550562
+7  ecx4param 3.789986e-01   mu identity      beta  0.259280400  0.157464315  0.363335727
+8  ecx4param 3.789986e-01   mu identity      ec50  1.336456743  1.165854729  1.509917935
+9     ecxwb2 1.063291e-01   mu identity       top  0.657772365  0.635584658  0.681120591
+10    ecxwb2 1.063291e-01   mu identity       bot  0.007184491  0.003900357  0.011204553
+11    ecxwb2 1.063291e-01   mu identity      beta  0.073426013 -0.028279881  0.183671755
+12    ecxwb2 1.063291e-01   mu identity      ec50  1.006751328  0.872931746  1.140887354
+13 nec4param 3.505118e-02   mu identity       top  0.646677760  0.626747534  0.666520058
+14 nec4param 3.505118e-02   mu identity       bot  0.006002212  0.002421994  0.010312821
+15 nec4param 3.505118e-02   mu identity      beta -0.101976870 -0.195718516 -0.004062701
+16 nec4param 3.505118e-02   mu identity       nec  0.645714912  0.580452402  0.710416713
+17 nec3param 3.289193e-02   mu identity       top  0.646568460  0.626932821  0.665982123
+18 nec3param 3.289193e-02   mu identity      beta -0.215918675 -0.284870326 -0.149748667
+19 nec3param 3.289193e-02   mu identity       nec  0.599591188  0.532975125  0.659955924
+20  ecxwb2p3 1.777026e-02   mu identity       top  0.672578515  0.649397042  0.697433147
+21  ecxwb2p3 1.777026e-02   mu identity      beta -0.088891064 -0.162322028 -0.020640148
+22  ecxwb2p3 1.777026e-02   mu identity      ec50  0.904889374  0.786859125  1.028684621
+23    ecxwb1 1.170612e-02   mu identity       top  0.837314370  0.765456546  0.923267105
+24    ecxwb1 1.170612e-02   mu identity       bot  0.012660553  0.009054751  0.017073639
+25    ecxwb1 1.170612e-02   mu identity      beta -0.520960155 -0.670037248 -0.356916938
+26    ecxwb1 1.170612e-02   mu identity      ec50  1.662894071  1.302567708  2.064801398
+27    ecxll3 5.773357e-05   mu identity       top  0.753593625  0.717594232  0.797983157
+28    ecxll3 5.773357e-05   mu identity      beta  0.018692647 -0.068720950  0.095071287
+29    ecxll3 5.773357e-05   mu identity      ec50  1.122455622  0.928137965  1.316125299
+30    ecxexp 2.780574e-26   mu identity       top  0.284262570  0.263211954  0.307728245
+31    ecxexp 2.780574e-26   mu identity      beta -0.857620450 -0.945975046 -0.779282778
+32  ecxwb1p3 1.200741e-27   mu identity       top  0.975830205  0.924418251  0.996332442
+33  ecxwb1p3 1.200741e-27   mu identity      beta -1.083427950 -1.178969405 -1.003794850
+34  ecxwb1p3 1.200741e-27   mu identity      ec50  1.245739968  1.023567903  1.579278091</code></pre>
+</div>
+</div>
 </figure>
 </div>
+<p>The equations of a set do not share a parameter list, which is why nothing is averaged across them: only the threshold equations estimate <code>nec</code>, and the three-parameter equations have no <code>bot</code>. Averaging a parameter over whichever equations happen to estimate it would average over a different subset for each parameter. The weight beside each row is what makes the table readable, since a row holding a thousandth of the weight describes the averaged curve hardly at all.</p>
+<p><code>xform</code> reaches <code>nec</code> and <code>ec50</code> and no other parameter, because those two are on the scale of the predictor while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters.</p>
+</section>
+<section id="effect-concentrations-and-censoring" class="level3">
+<h3 class="anchored" data-anchor-id="effect-concentrations-and-censoring">Effect concentrations and censoring</h3>
+<p>The other commonly required endpoint is an <strong>EC<sub>x</sub></strong>, read from the same screened set.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">10</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Q50      Q2.5     Q97.5 
+0.3797423 0.3627844 0.4000171 
+attr(,"resolution")
+[1] 200
+attr(,"ecx_val")
+[1] 10
+attr(,"toxicity_estimate")
+[1] "ecx"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Q50     Q2.5    Q97.5 
+1.498711 1.413922 1.600085 
+attr(,"resolution")
+[1] 200
+attr(,"ecx_val")
+[1] 50
+attr(,"toxicity_estimate")
+[1] "ecx"</code></pre>
 </div>
 </div>
-<p>Fits should also be checked with <code>check_chains()</code> and <code>check_priors()</code>, as modules 4 and 6 describe. Both take a <code>filename</code>, which writes the plots to a PDF suitable for an analysis appendix rather than to the screen.</p>
+<p>Both are model-averaged over the screened set. Every <strong>EC<sub>x</sub></strong> and <em>NSEC</em> is measured from the control, which is the predicted mean at the lowest concentration in the series, taken per posterior draw. <code>type</code> sets what the decline is measured against: <code>"absolute"</code>, the default, takes it against 0, and <code>"range"</code> takes it against the lowest response the curve predicts. The two answer different questions and give different numbers, so the value used has to be stated. <code>?ecx</code> sets out all four values and what each measures against.</p>
+<p>A target the curve never reaches within the tested range returns <code>NA</code> for the affected draws, with a warning naming how many. That is a reportable outcome rather than a failure: it says the design did not reach the effect size asked for. An <strong>EC<sub>x</sub></strong> summarised over the remaining draws is a <strong>censored</strong> estimate and has to be reported as one, naming how many draws were excluded and that the value is bounded below by the highest concentration tested. Reported without that label it reads as an ordinary estimate and understates the true value.</p>
 </section>
 </section>
 <section id="the-complete-set-of-herbicides" class="level2">
 <h2 class="anchored" data-anchor-id="the-complete-set-of-herbicides">The complete set of herbicides</h2>
-<p>The same call is applied to each herbicide in turn.</p>
+<p>Steps 1 to 5 covered one series. The same call is applied to each herbicide in turn, and the seven results are then compared.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>manecfit <span class="ot">&lt;-</span> herbicide <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concentration =</span> <span class="fu">log</span>(concentration)) <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split</span>(<span class="at">f =</span> <span class="sc">~</span> herbicide) <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(<span class="cf">function</span>(x) {</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(concentration, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> x, <span class="at">seed =</span> <span class="dv">17</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>manecfit <span class="ot">&lt;-</span> herbicide <span class="sc">|&gt;</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concentration =</span> <span class="fu">log</span>(concentration)) <span class="sc">|&gt;</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split</span>(<span class="at">f =</span> <span class="sc">~</span> herbicide) <span class="sc">|&gt;</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(<span class="cf">function</span>(x) {</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(concentration, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> x, <span class="at">seed =</span> <span class="dv">17</span>)</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>sampling <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">imap_dfr</span>(manecfit, <span class="cf">function</span>(fit, nm) {</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_sampling</span>(fit) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">herbicide =</span> nm, <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>cleaned_fits <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(manecfit, screen_models)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Seven herbicides against the <code>decline</code> set is 14 equations each and takes hours, so these fits are not run when this page is built. They are produced by <code>scripts/generate_herbicide_fits.R</code>, which writes the compact results the rest of this module reads, and the fitted objects themselves are too large to keep: the 2023 equivalent was 451 MB. The code shown is the code that was run.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Generated by scripts/generate_herbicide_fits.R
+date: 2026-09-17 00:45:30
+elapsed: 43.9 mins
+seed: 17
+R: 4.6.1
+bayesnec: 2.1.3.35
+brms: 2.23.0
+cmdstanr: 0.9.0
+model set: decline, 14 equations
+sampler screen: rhat &lt;= 1.01, ess &gt;= 400, divergences &lt;= 10
+herbicides: ametryn, atrazine, diuron, hexazinone, irgarol, simazine, tebuthiuron</code></pre>
+</div>
 </div>
 <section id="screening-the-model-sets" class="level3">
 <h3 class="anchored" data-anchor-id="screening-the-model-sets">Screening the model sets</h3>
-<p>Each of the seven sets is screened on all three sampler diagnostics before it is used, as module 4 describes.</p>
+<p>Each of the seven sets is screened on all three sampler diagnostics before it is used, exactly as step 3 screened the ametryn set. The full table is kept rather than only the failures, because the thresholds applied are part of what has to be reported.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sampling <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">imap_dfr</span>(manecfit, <span class="cf">function</span>(fit, nm) {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_sampling</span>(fit) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">herbicide =</span> nm, <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>cleaned_fits <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(manecfit, screen_models)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p><code>screen_models()</code> drops the equations that failed and reports which went and why. Do not reach for <code>rhat(fit)$failed</code> in its place: <code>rhat()</code> on a <code>bayesmanecfit</code> returns a list keyed by model name, each element holding the R-hat values and a logical <code>failed</code>, so <code>$failed</code> on the list itself is <code>NULL</code> and silently drops nothing. The earlier version of this module had that defect.</p>
-<p>The full table is kept rather than only the failures, because the thresholds applied are part of what has to be reported:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>sampling <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_sampling.csv"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>sampling <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">equations =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">removed =</span> <span class="fu">sum</span>(failed),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.by =</span> herbicide) <span class="sc">|&gt;</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>sampling <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_sampling.csv"</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>sampling <span class="sc">|&gt;</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">equations =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">removed =</span> <span class="fu">sum</span>(failed),</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.by =</span> herbicide) <span class="sc">|&gt;</span></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-sampling" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sampling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Sampler diagnostics for every fitted equation, with the models the screen removed marked in the final column.
+Table&nbsp;2: Number of equations fitted and removed by the sampler screen, per herbicide.
 </figcaption>
 <div aria-describedby="tbl-sampling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -676,7 +1235,7 @@ Table&nbsp;1: Sampler diagnostics for every fitted equation, with the models the
 <div id="tbl-screened" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-screened-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2
+Table&nbsp;3
 </figcaption>
 <div aria-describedby="tbl-screened-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-stdout">
@@ -685,12 +1244,12 @@ Table&nbsp;2
 </div>
 </figure>
 </div>
-<p>Equations that produced no draws at all are a different failure, and are reported separately by <code>failed_models()</code>:</p>
+<p>Equations that produced no draws at all are the separate failure step 3 distinguished, and are reported by <code>failed_models()</code>.</p>
 <div class="cell">
 <div id="tbl-neverfit" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-neverfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Equations that failed to fit at all.
+Table&nbsp;4: Equations that failed to fit at all.
 </figcaption>
 <div aria-describedby="tbl-neverfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -737,23 +1296,22 @@ Table&nbsp;3: Equations that failed to fit at all.
 </figure>
 </div>
 </div>
-<p>Module 4 sets out why the two are worth separating: an equation short of draws needs more of them, while an equation the design cannot support needs reporting as excluded.</p>
+<p>Do not reach for <code>rhat(fit)$failed</code> in place of <code>check_sampling()</code>: <code>rhat()</code> on a <code>bayesmanecfit</code> returns a list keyed by model name, each element holding the Rhat values and a logical <code>failed</code>, so <code>$failed</code> on the list itself is <code>NULL</code> and silently drops nothing. An earlier version of this module had that defect.</p>
 </section>
-</section>
-<section id="model-weights-across-herbicides" class="level2">
-<h2 class="anchored" data-anchor-id="model-weights-across-herbicides">Model weights across herbicides</h2>
+<section id="model-weights-across-herbicides" class="level3">
+<h3 class="anchored" data-anchor-id="model-weights-across-herbicides">Model weights across herbicides</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>modstats <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_mod_stats.csv"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>modstats <span class="sc">|&gt;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wi =</span> <span class="fu">round</span>(wi, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(herbicide, model, wi) <span class="sc">|&gt;</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> herbicide, <span class="at">values_from =</span> wi) <span class="sc">|&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>modstats <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_mod_stats.csv"</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>modstats <span class="sc">|&gt;</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wi =</span> <span class="fu">round</span>(wi, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(herbicide, model, wi) <span class="sc">|&gt;</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> herbicide, <span class="at">values_from =</span> wi) <span class="sc">|&gt;</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-weights" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Fitted models and their relative weights, for the effect of seven herbicides on the maximum effective quantum yield of symbiotic dinoflagellates of <em>Seriatopora hystrix</em>.
+Table&nbsp;5: Fitted equations and their relative weights, for the effect of seven herbicides on the maximum effective quantum yield of symbiotic dinoflagellates of <em>Seriatopora hystrix</em>.
 </figcaption>
 <div aria-describedby="tbl-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -890,23 +1448,22 @@ Table&nbsp;4: Fitted models and their relative weights, for the effect of seven 
 </div>
 <p>The best-fitting equations differ substantially between herbicides. Few show much weight on the threshold models. Among the smooth equations the weights vary widely, with support for more than one in every case.</p>
 <p>That is the argument for model averaging in a sentence: there is no single equation that is right for these data, the best one differs by herbicide, and selecting one would discard the uncertainty about which. Averaging propagates it into the estimates instead.</p>
-<p>Some models failed to fit under the default settings for every herbicide. Custom priors or initial values would likely recover them, but with a large number of well-fitting models already in each set, doing so is unlikely to change the inference.</p>
 </section>
-<section id="the-fitted-curves" class="level2">
-<h2 class="anchored" data-anchor-id="the-fitted-curves">The fitted curves</h2>
+<section id="the-fitted-curves" class="level3">
+<h3 class="anchored" data-anchor-id="the-fitted-curves">The fitted curves</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_pred_vals.csv"</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>obs   <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_observations.csv"</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds, <span class="fu">aes</span>(<span class="at">x =</span> concentration)) <span class="sc">+</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate)) <span class="sc">+</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> obs, <span class="fu">aes</span>(<span class="at">y =</span> fvfm), <span class="at">size =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> herbicide, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">3</span>, <span class="dv">30</span>, <span class="dv">300</span>)) <span class="sc">+</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Concentration ("</span><span class="sc">*</span>mu<span class="sc">*</span><span class="st">"g/L)"</span>),</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(Delta<span class="sc">*</span><span class="st">"F/Fm'"</span>)) <span class="sc">+</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_pred_vals.csv"</span>)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>obs   <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_observations.csv"</span>)</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds, <span class="fu">aes</span>(<span class="at">x =</span> concentration)) <span class="sc">+</span></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate)) <span class="sc">+</span></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> obs, <span class="fu">aes</span>(<span class="at">y =</span> fvfm), <span class="at">size =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> herbicide, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">3</span>, <span class="dv">30</span>, <span class="dv">300</span>)) <span class="sc">+</span></span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Concentration ("</span><span class="sc">*</span>mu<span class="sc">*</span><span class="st">"g/L)"</span>),</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(Delta<span class="sc">*</span><span class="st">"F/Fm'"</span>)) <span class="sc">+</span></span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-all-herbicides" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -914,27 +1471,27 @@ Table&nbsp;4: Fitted models and their relative weights, for the effect of seven 
 <img src="7Example_case_study_files/figure-html/fig-all-herbicides-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-all-herbicides-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Model-averaged concentration-response curves for seven herbicides, with 95% credible intervals and the observations.
+Figure&nbsp;8: Model-averaged concentration-response curves for seven herbicides, with 95% credible intervals and the observations.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="the-toxicity-estimates" class="level2">
-<h2 class="anchored" data-anchor-id="the-toxicity-estimates">The toxicity estimates</h2>
-<p>The value reported for each herbicide is a model-averaged posterior combining the <em>NEC</em> parameter from the threshold equations with the <em>NSEC</em> from the smooth ones, which is what module 3 described. It is labelled N(S)EC for that reason.</p>
+<section id="the-toxicity-estimates" class="level3">
+<h3 class="anchored" data-anchor-id="the-toxicity-estimates">The toxicity estimates</h3>
+<p>The value reported for each herbicide is the model-averaged posterior combining the <em>NEC</em> parameter from the threshold equations with the <em>NSEC</em> from the smooth ones, which is the <em>N(S)EC</em> step 5 reported for ametryn.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/herbicide_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">Herbicide =</span> herbicide,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Estimate</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(estimate, <span class="dv">3</span>),</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Lower 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(lower, <span class="dv">3</span>),</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Upper 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(upper, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/herbicide_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">Herbicide =</span> herbicide,</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Estimate</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(estimate, <span class="dv">3</span>),</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Lower 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(lower, <span class="dv">3</span>),</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Upper 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(upper, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-estimates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5: Model-averaged no-effect estimates, back-transformed to concentration.
+Table&nbsp;6: Model-averaged no-effect estimates, back-transformed to concentration.
 </figcaption>
 <div aria-describedby="tbl-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1001,37 +1558,38 @@ Table&nbsp;5: Model-averaged no-effect estimates, back-transformed to concentrat
 <p>That has a practical consequence for a table like the one above. Because the <em>NSEC</em> sits in the preferred tier, the condition attached to it applies, and an <em>NSEC</em> whose measured effect size exceeds 20% should probably not be used to derive a guideline value. Module 3 covers the ECNSEC, which is the quantity that measures it, and an analysis reporting an N(S)EC for guideline use should report that alongside.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-nsecieam" class="quarto-float quarto-figure quarto-figure-center anchored" width="34%" data-fig-align="center">
+<div id="fig-nsecieam" class="quarto-float quarto-figure quarto-figure-center anchored" width="100%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/NSEC_ieam.jpg" id="fig-nsecieam" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:34.0%">
+<img src="images/NSEC_ieam.jpg" id="fig-nsecieam" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7
+Figure&nbsp;9
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
+</section>
 <section id="comparing-the-posteriors" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-the-posteriors">Comparing the posteriors</h2>
 <p><code>compare_posterior()</code> extracts the weighted posterior for each fit so they can be compared directly, rather than by asking whether intervals overlap.</p>
 <p><code>comparison</code> names the quantity compared, and takes <code>"nec"</code>, <code>"n(s)ec"</code>, <code>"nsec"</code>, <code>"ecx"</code> or <code>"fitted"</code>. <code>"n(s)ec"</code> is used here because these sets mix threshold and smooth equations, so the weighted no-effect posterior is a mixture of both kinds of estimate. Asking for <code>"nec"</code> would compare the threshold parameter alone, over the equations that have one, which is a different quantity and would be a different table.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>post_comp <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(cleaned_fits, <span class="at">comparison =</span> <span class="st">"n(s)ec"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>post_comp <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(cleaned_fits, <span class="at">comparison =</span> <span class="st">"n(s)ec"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>post <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_ne_posterior.csv"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(post, <span class="fu">aes</span>(<span class="at">x =</span> concentration, <span class="at">group =</span> model,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">30</span>),</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Concentration ("</span><span class="sc">*</span>mu<span class="sc">*</span><span class="st">"g/L)"</span>), <span class="at">y =</span> <span class="st">"Density"</span>,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Herbicide"</span>, <span class="at">fill =</span> <span class="st">"Herbicide"</span>) <span class="sc">+</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>post <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/herbicide_ne_posterior.csv"</span>)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(post, <span class="fu">aes</span>(<span class="at">x =</span> concentration, <span class="at">group =</span> model,</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">30</span>),</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Concentration ("</span><span class="sc">*</span>mu<span class="sc">*</span><span class="st">"g/L)"</span>), <span class="at">y =</span> <span class="st">"Density"</span>,</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Herbicide"</span>, <span class="at">fill =</span> <span class="st">"Herbicide"</span>) <span class="sc">+</span></span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-posteriors" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1039,7 +1597,7 @@ Figure&nbsp;7
 <img src="7Example_case_study_files/figure-html/fig-posteriors-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posteriors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Posterior densities of the N(S)EC estimate for each herbicide.
+Figure&nbsp;10: Posterior densities of the N(S)EC estimate for each herbicide.
 </figcaption>
 </figure>
 </div>
@@ -1051,14 +1609,14 @@ Figure&nbsp;8: Posterior densities of the N(S)EC estimate for each herbicide.
 <h2 class="anchored" data-anchor-id="probabilities-of-difference">Probabilities of difference</h2>
 <p>Overlapping densities are a visual impression. <code>compare_posterior()</code> also returns the probability that one estimate is lower than another, computed from the draws.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/herbicide_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> comparison, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"herbicide"</span>, <span class="st">"against"</span>), <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> against, <span class="at">values_from =</span> prob) <span class="sc">|&gt;</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/herbicide_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> comparison, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"herbicide"</span>, <span class="st">"against"</span>), <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> against, <span class="at">values_from =</span> prob) <span class="sc">|&gt;</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-probdiff" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-probdiff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;6: Probability of difference in no-effect toxicity between herbicides, from the overlap in their posterior densities.
+Table&nbsp;7: Probability of difference in no-effect toxicity between herbicides, from the overlap in their posterior densities.
 </figcaption>
 <div aria-describedby="tbl-probdiff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1147,331 +1705,18 @@ Table&nbsp;6: Probability of difference in no-effect toxicity between herbicides
 </div>
 <p>This is the practical advantage of having the posterior rather than an interval. The question of whether A is more toxic than B is answered with a probability computed from the draws, without a significance test, and it propagates the uncertainty in the curve shape as well as in the parameters.</p>
 </section>
-<section id="the-parameters-behind-the-estimates" class="level2">
-<h2 class="anchored" data-anchor-id="the-parameters-behind-the-estimates">The parameters behind the estimates</h2>
-<p><code>summary()</code> reports the weights and the no-effect estimate and no parameter estimates at all. <code>curve_params()</code> returns those, one row per parameter per equation, with the model weight beside each row:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/herbicide_curve_params.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(herbicide <span class="sc">==</span> <span class="st">"ametryn"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">Model =</span> model, <span class="at">Parameter =</span> parameter,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">Estimate =</span> <span class="fu">signif</span>(Estimate, <span class="dv">3</span>),</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Lower 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(Q2<span class="fl">.5</span>, <span class="dv">3</span>),</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Upper 95%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(Q97<span class="fl">.5</span>, <span class="dv">3</span>),</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">Weight =</span> <span class="fu">round</span>(wi, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="tbl-curveparams" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-curveparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;7: Fitted curve parameters for ametryn, with the weight of the equation each came from.
-</figcaption>
-<div aria-describedby="tbl-curveparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">Model</th>
-<th style="text-align: left;">Parameter</th>
-<th style="text-align: right;">Estimate</th>
-<th style="text-align: right;">Lower 95%</th>
-<th style="text-align: right;">Upper 95%</th>
-<th style="text-align: right;">Weight</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">ecx4param</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.70300</td>
-<td style="text-align: right;">0.67400</td>
-<td style="text-align: right;">0.73600</td>
-<td style="text-align: right;">0.409</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecx4param</td>
-<td style="text-align: left;">bot</td>
-<td style="text-align: right;">0.00876</td>
-<td style="text-align: right;">0.00561</td>
-<td style="text-align: right;">0.01260</td>
-<td style="text-align: right;">0.409</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecx4param</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">0.26000</td>
-<td style="text-align: right;">0.15500</td>
-<td style="text-align: right;">0.36300</td>
-<td style="text-align: right;">0.409</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecx4param</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.33000</td>
-<td style="text-align: right;">1.16000</td>
-<td style="text-align: right;">1.51000</td>
-<td style="text-align: right;">0.409</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxll4</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.70300</td>
-<td style="text-align: right;">0.67400</td>
-<td style="text-align: right;">0.73500</td>
-<td style="text-align: right;">0.387</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxll4</td>
-<td style="text-align: left;">bot</td>
-<td style="text-align: right;">0.00878</td>
-<td style="text-align: right;">0.00558</td>
-<td style="text-align: right;">0.01260</td>
-<td style="text-align: right;">0.387</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxll4</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">0.26000</td>
-<td style="text-align: right;">0.15800</td>
-<td style="text-align: right;">0.37000</td>
-<td style="text-align: right;">0.387</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxll4</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.34000</td>
-<td style="text-align: right;">1.16000</td>
-<td style="text-align: right;">1.52000</td>
-<td style="text-align: right;">0.387</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb2</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.65800</td>
-<td style="text-align: right;">0.63700</td>
-<td style="text-align: right;">0.68200</td>
-<td style="text-align: right;">0.109</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb2</td>
-<td style="text-align: left;">bot</td>
-<td style="text-align: right;">0.00715</td>
-<td style="text-align: right;">0.00379</td>
-<td style="text-align: right;">0.01120</td>
-<td style="text-align: right;">0.109</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb2</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">0.07250</td>
-<td style="text-align: right;">-0.03290</td>
-<td style="text-align: right;">0.18300</td>
-<td style="text-align: right;">0.109</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb2</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.00000</td>
-<td style="text-align: right;">0.87600</td>
-<td style="text-align: right;">1.14000</td>
-<td style="text-align: right;">0.109</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">nec4param</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.64700</td>
-<td style="text-align: right;">0.62700</td>
-<td style="text-align: right;">0.66600</td>
-<td style="text-align: right;">0.033</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">nec4param</td>
-<td style="text-align: left;">bot</td>
-<td style="text-align: right;">0.00597</td>
-<td style="text-align: right;">0.00240</td>
-<td style="text-align: right;">0.01020</td>
-<td style="text-align: right;">0.033</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">nec4param</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-0.10200</td>
-<td style="text-align: right;">-0.19700</td>
-<td style="text-align: right;">-0.00575</td>
-<td style="text-align: right;">0.033</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">nec4param</td>
-<td style="text-align: left;">nec</td>
-<td style="text-align: right;">0.64600</td>
-<td style="text-align: right;">0.57900</td>
-<td style="text-align: right;">0.70800</td>
-<td style="text-align: right;">0.033</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">nec3param</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.64600</td>
-<td style="text-align: right;">0.62700</td>
-<td style="text-align: right;">0.66600</td>
-<td style="text-align: right;">0.032</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">nec3param</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-0.21600</td>
-<td style="text-align: right;">-0.28600</td>
-<td style="text-align: right;">-0.15100</td>
-<td style="text-align: right;">0.032</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">nec3param</td>
-<td style="text-align: left;">nec</td>
-<td style="text-align: right;">0.60000</td>
-<td style="text-align: right;">0.53300</td>
-<td style="text-align: right;">0.66000</td>
-<td style="text-align: right;">0.032</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb2p3</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.67300</td>
-<td style="text-align: right;">0.64900</td>
-<td style="text-align: right;">0.69800</td>
-<td style="text-align: right;">0.018</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb2p3</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-0.08850</td>
-<td style="text-align: right;">-0.16000</td>
-<td style="text-align: right;">-0.01980</td>
-<td style="text-align: right;">0.018</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb2p3</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">0.90400</td>
-<td style="text-align: right;">0.78600</td>
-<td style="text-align: right;">1.03000</td>
-<td style="text-align: right;">0.018</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb1</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.83500</td>
-<td style="text-align: right;">0.76700</td>
-<td style="text-align: right;">0.91900</td>
-<td style="text-align: right;">0.012</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb1</td>
-<td style="text-align: left;">bot</td>
-<td style="text-align: right;">0.01270</td>
-<td style="text-align: right;">0.00917</td>
-<td style="text-align: right;">0.01710</td>
-<td style="text-align: right;">0.012</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb1</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-0.51500</td>
-<td style="text-align: right;">-0.66500</td>
-<td style="text-align: right;">-0.36100</td>
-<td style="text-align: right;">0.012</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb1</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.68000</td>
-<td style="text-align: right;">1.31000</td>
-<td style="text-align: right;">2.06000</td>
-<td style="text-align: right;">0.012</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxll3</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.75300</td>
-<td style="text-align: right;">0.71700</td>
-<td style="text-align: right;">0.79600</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxll3</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">0.01830</td>
-<td style="text-align: right;">-0.06760</td>
-<td style="text-align: right;">0.09730</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxll3</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.12000</td>
-<td style="text-align: right;">0.93200</td>
-<td style="text-align: right;">1.32000</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxexp</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.28400</td>
-<td style="text-align: right;">0.26400</td>
-<td style="text-align: right;">0.30800</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxexp</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-0.85700</td>
-<td style="text-align: right;">-0.94400</td>
-<td style="text-align: right;">-0.78200</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb1p3</td>
-<td style="text-align: left;">top</td>
-<td style="text-align: right;">0.97700</td>
-<td style="text-align: right;">0.92900</td>
-<td style="text-align: right;">0.99600</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ecxwb1p3</td>
-<td style="text-align: left;">beta</td>
-<td style="text-align: right;">-1.08000</td>
-<td style="text-align: right;">-1.18000</td>
-<td style="text-align: right;">-1.00000</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ecxwb1p3</td>
-<td style="text-align: left;">ec50</td>
-<td style="text-align: right;">1.24000</td>
-<td style="text-align: right;">1.02000</td>
-<td style="text-align: right;">1.56000</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</figure>
-</div>
-</div>
-<p>Nothing is averaged across the equations, because they do not share a parameter list: only the threshold equations estimate <code>nec</code>, and the three-parameter equations have no <code>bot</code>. Averaging a parameter over whichever equations happen to estimate it would average over a different subset of the set for each parameter. The weight beside each row is what makes the table readable, since a row holding a thousandth of the weight describes the averaged curve hardly at all.</p>
-<p><code>xform = exp</code> was applied when these were generated, and it reaches <code>nec</code> and <code>ec50</code> and no other parameter, because those two are on the predictor axis while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters.</p>
-</section>
 <section id="reporting-the-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="reporting-the-analysis">Reporting the analysis</h2>
 <p>The estimates above are the output. What follows is what has to accompany them, because almost every number in this module is a property of a decision as much as of the data.</p>
 <p>State <strong>the data as analysed</strong>: the response, the bounds of its distribution, and any value altered to bring it inside the family’s support. <code>bnec_record()</code> reports the last of these in its <code>substitutions</code> element.</p>
-<p>State <strong>the family and how it was chosen</strong>. Here <code>bayesnec</code> inferred a beta distribution from a continuous response bounded by 0 and 1. For a count out of a total, report the dispersion screen of module 5 and the probability it returned.</p>
+<p>State <strong>the family and how it was chosen</strong>. Here a continuous response bounded by 0 and 1 gives the <code>Beta</code> family, with the boundary check of step 1 as the evidence. For a count out of a total, report the dispersion screen of module 5 and the probability it returned.</p>
 <p>State <strong>the candidate set as fitted</strong>: the set requested, the equations excluded before fitting and why, and any equation that failed to fit at all. <code>bnec_record()</code> returns the first three and <code>failed_models()</code> the last.</p>
 <p>State <strong>the sampler settings</strong>, including the number of retained draws rather than <code>iter</code> alone, because two of the three diagnostic cutoffs are absolute counts read against them.</p>
 <p>State <strong>the diagnostic thresholds</strong>, all three of them. They are choices, they determine what was excluded, and <code>check_sampling()</code> allows each to be changed.</p>
-<p>State <strong>which equations were excluded and why</strong>, naming the threshold each failed, and distinguishing an equation that would pass with more draws from one the design cannot support.</p>
+<p>State <strong>which equations were excluded and why</strong>, naming the threshold each failed, and distinguishing an equation that would pass with more draws from one the design cannot support. Step 3 separated the three kinds.</p>
+<p>State <strong>the fit checks and what they showed</strong>, not only the sampler diagnostics. <code>check_fit()</code> reports whether the model reproduces the observed variability within each concentration, and the control row is the one both <code>nsec()</code> and <code>ecx()</code> read their reference from. Where the check shows a discrepancy, state its direction, because that determines whether the reported estimate is conservative or not. On the ametryn series above the fit oversimulates variability at the control, which makes the <em>N(S)EC</em> less protective rather than more.</p>
 <p>State <strong>the estimate settings</strong>: <code>sig_val</code>, which sets the <em>NSEC</em> reference and defaults to 0.01; <code>type</code>, which sets what an <strong>EC<sub>x</sub></strong> is measured against and defaults to <code>"absolute"</code>; <code>resolution</code>, the number of grid points a crossing is interpolated on, which defaults to 200; and any <code>xform</code> used to return an estimate to the measured scale.</p>
-<p>State <strong>the estimates with their intervals and the weights</strong> of the retained equations, and <strong>the parameters of the fitted curve</strong> that the estimates were read from.</p>
-<p>One of those deserves emphasis here because this analysis was fitted on a transformed predictor. Every estimate is returned on the scale it was fitted on unless <code>xform</code> says otherwise, and a logged value can land in the same numeric range as a concentration and pass unremarked. Reporting a logged value as a concentration understates the threshold by a factor of e for every unit on the logged scale, and only a negative logarithm announces the error. A reported value has to state the scale it is on.</p>
+<p>State <strong>the estimates with their intervals and the weights</strong> of the retained equations, and <strong>the parameters of the fitted curve</strong> that the estimates were read from, which <code>curve_params()</code> returns.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
@@ -1499,6 +1744,9 @@ Jones, Ross J, Jochen Muller, David Haynes, and Ulrich Schreiber. 2003. <span>�
 </div>
 <div id="ref-Thomas2006" class="csl-entry" role="listitem">
 Neal, Thomas. 2006. <span>“Hypothesis Testing and Bayesian Estimation Using a Sigmoid Emax Model Applied to Sparse Dose-Response Designs.”</span> <em>Journal of Biopharmaceutical Statistics</em> 16 (5): 657–77. <a href="https://doi.org/10.1080/10543400600860469">https://doi.org/10.1080/10543400600860469</a>.
+</div>
+<div id="ref-Vehtari2021" class="csl-entry" role="listitem">
+Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved <span><span class="math inline">\(\widehat{R}\)</span></span> for Assessing Convergence of <span>MCMC</span> (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2): 667–718. <a href="https://doi.org/10.1214/20-BA1221">https://doi.org/10.1214/20-BA1221</a>.
 </div>
 <div id="ref-warne2018" class="csl-entry" role="listitem">
 Warne, M, GE Batley, RA van Dam, et al. 2018. <span>“Revised Method for Deriving Australian and New Zealand Water Quality Guideline Values for Toxicants – Update of 2015 Version.”</span> Journal Article. <em>Prepared for the Revision of the Australian and New Zealand Guidelines for Fresh and Marine Water Quality. Australian and New Zealand Governments and Australian State and Territory Governments, Canberra, 48 Pp</em>.
