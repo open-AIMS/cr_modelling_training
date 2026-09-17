@@ -15,6 +15,9 @@ library(tidyr)
 library(knitr)
 ```
 
+[e8]: https://open-aims.github.io/bayesnec/articles/example8.html
+[gs]: https://github.com/open-AIMS/grouping-structures
+
 ## Background
 
 Concentration-response designs are often more complicated than one response
@@ -727,9 +730,15 @@ be averaged over equations making different claims about the batches.
 `pgl()` places a deviation on every parameter the equation has, whatever they
 are called, so it makes the same claim about every equation of a set. That is
 what recommends it for a workflow that fits a model set rather than one
-equation. The price is the one *The number of levels a deviation needs* gives:
-four standard deviations estimated from sixteen levels here, where `ogl()`
-estimates one.
+equation.
+
+It is paid for twice. The first price is the one *The number of levels a
+deviation needs* gives: four standard deviations estimated from sixteen levels
+here, where `ogl()` estimates one. The second is run time, because those four
+bring 64 deviations with them against `ogl()`'s 16, and a model set multiplies
+that by the number of equations. On one equation the difference is minutes; on a
+set fitted at each level of a factor it is the difference between a job that
+runs while you work and one that runs overnight.
 
 Where a design has enough levels of the grouping the shift belongs to, naming
 it is better. Five batches is exactly the minimum this module gives for
@@ -802,17 +811,23 @@ were read at different gains and their relative light units are not comparable.
 low concentrations.
 
 The term is `ogl(plate)` although the section above found `pgl(plate)` the
-better description of the copper plates. This call is the one
-`vignette("example8")` in `bayesnec` makes, and it is reproduced here so that
-the estimates below can be read against the ones published with it. A `pgl()`
-version would estimate four group-level standard deviations at each of two
-levels over fifteen equations, and nothing in this module has been fitted to say
-what it would change.
+better description of the copper plates, and the first reason is run time.
+`ogl()` estimates one standard deviation and one deviation per level. `pgl()`
+estimates one of each for every parameter of the equation, so on a
+four-parameter equation over sixteen plates it samples 4 standard deviations and
+64 deviations where `ogl()` samples 1 and 16. Here that is asked of fifteen
+equations at each of two levels, which is thirty fits. The `open-AIMS`
+compendium that runs this vignette's fits measured 22.2 hours of sampling across
+its 189 units under `ogl(plate)`, and a `pgl()` version of this call would add
+those parameters to thirty of them.
+
+The second reason is that this is the call the [grouping and factor covariates
+vignette][e8] in `bayesnec` makes, so the estimates below can be read against
+the ones published with it.
 
 This is the one call in the module that names its sampler settings, and it names
-them because it is the call `vignette("example8")` in `bayesnec` makes. That
-vignette's fits are run on a cluster and stored, and this module reads the
-stored fit rather than sampling for the hours the call takes here. The closing
+them for the same reason. That vignette's fits are run as cluster jobs and
+stored, and this module reads the stored fit rather than sampling. The closing
 section says how. Every other fit in this module samples at `bnec()`'s
 defaults.
 
@@ -1367,9 +1382,10 @@ was run. The summaries of `lum31` itself are computed on this page, from the dat
 set as it ships.
 
 One fit is not made by that script. The copper-against-zinc `bnec_group()` call
-is the call `vignette("example8")` in `bayesnec` makes, and that vignette's fits
-are run as cluster array tasks by the `open-AIMS/grouping-structures` compendium
-and kept in a store keyed on the call and a digest of the data. The script reads
+is the call the [grouping and factor covariates vignette][e8] in `bayesnec`
+makes, and that vignette's fits are run as cluster array tasks by the
+[`open-AIMS/grouping-structures`][gs] compendium and kept in a store keyed on the
+call and a digest of the data. The script reads
 the stored fit where `LUM31_TOX_FIT` names it, and samples the call itself
 otherwise. Either way the call is the one shown, sampler settings included,
 because a stored fit answers a call only where both the call and the data match.
@@ -1383,7 +1399,9 @@ the mean cannot leave, so every plate fit runs at 0.8.
 
 `lum31` reaches `bayesnec` through pull request #228 and is not on the `dev`
 branch until that merges. Until then this module needs that branch installed
-rather than the version module 1 names.
+rather than the version module 1 names, and the two links above to the grouping
+and factor covariates vignette resolve only once that vignette is published with
+it.
 
 ```{r}
 #| label: provenance
