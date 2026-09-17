@@ -7,7 +7,7 @@
 #   source("vignettes/fetch_fits.R")
 #
 # Fitting the models yourself works and is slow: modules 5 and 6 take about
-# thirteen and sixteen minutes each on four cores. The archive is about 39 MB.
+# thirteen and sixteen minutes each on four cores. The archive is about 42 MB.
 # With these objects in place the same modules run in seconds, because every
 # fit call finds a saved result.
 #
@@ -65,7 +65,7 @@ fetch_fits <- function(dest = "vignettes/fits", quiet = FALSE) {
 
   url <- fits_url()
   tmp <- tempfile(fileext = ".zip")
-  if (!quiet) message("Downloading the fitted models, about 39 MB. This is ",
+  if (!quiet) message("Downloading the fitted models, about 42 MB. This is ",
                       "done once.")
 
   ok <- tryCatch({
