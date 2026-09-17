@@ -81,9 +81,28 @@ models()$all
 ```
 
 The names divide into two prefixes. Those beginning `nec` are threshold models;
-those beginning `ecx` are smooth models with no threshold. Fitted to the same
-response range the two shapes cross twice, so neither is uniformly the more
-conservative.
+those beginning `ecx` are smooth models with no threshold.
+
+```{r}
+#| label: fig-necmods
+#| out-width: "75%"
+#| fig-align: center
+#| echo: false
+#| fig-cap: "The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the *NEC*. They differ in the decline after it and in whether the response rises first."
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
+```
+
+```{r}
+#| label: fig-ecxmods
+#| out-width: "75%"
+#| fig-align: center
+#| echo: false
+#| fig-cap: "The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an **EC~x~** or an *NSEC* rather than an *NEC*."
+knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg")
+```
+
+Fitted to the same response range the two shapes cross twice, so neither is
+uniformly the more conservative.
 
 ```{r}
 #| label: fig-etnc1

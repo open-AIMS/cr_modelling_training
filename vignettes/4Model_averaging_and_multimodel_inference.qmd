@@ -18,25 +18,13 @@ data(nec_data)
 
 Modules 2 and 3 fitted single models and set out the equations available. Both
 `bayesnec` and `drc` [@Ritz2015] offer more than twenty non-linear functions for
-concentration-response data, in two broad shapes.
+concentration-response data, in two broad shapes: those beginning `nec`, which
+hold a threshold as a parameter, and those beginning `ecx`, which decline
+smoothly from the intercept. Module 3 plots both groups and says which toxicity
+estimate each one supports.
 
-```{r}
-#| label: fig-necmods
-#| out-width: "75%"
-#| fig-align: center
-#| fig-cap: "Threshold equations, which estimate an *NEC* directly."
-#| echo: false
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
-```
-
-```{r}
-#| label: fig-ecxmods
-#| out-width: "75%"
-#| fig-align: center
-#| fig-cap: "Smooth equations, from which an **EC~x~** or an *NSEC* is derived."
-#| echo: false
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg")
-```
+This module fits more than one of them at a time, and reports an estimate that
+uses all of them.
 
 ## Choosing among the equations
 
@@ -51,6 +39,13 @@ probabilities and others in the Bayesian setting. The difficulty is that many of
 these curves are similar in shape, so several will often fit a dataset about
 equally well. Model uncertainty is then high and the selection is close to
 arbitrary, while the estimate reported depends on which equation was picked.
+
+@Krull2020 measured how hard the choice is. They simulated threshold estimation
+by maximum likelihood, by MCMC and by piecewise regression, across a range of
+curve slopes, background mortalities and designs. All three performed poorly on
+shallow and intermediate curves, and accuracy improved as the curve steepened.
+Information criteria weights usually did not provide strong evidence in favour of
+the generating model.
 
 ## Multi-model inference
 
@@ -96,6 +91,28 @@ covers that application.
 knitr::include_graphics("images/ssd.jpg")
 ```
 
+## The N(S)EC
+
+Module 3 set out two no-effect estimates: the *NEC*, which is a parameter of a
+threshold equation, and the *NSEC*, which is read from a smooth equation where no
+threshold parameter exists. A candidate set holding both kinds of equation
+therefore holds both kinds of estimate.
+
+Averaging over such a set removes the need to decide in advance which shape the
+data have. A `nec` equation contributes its *NEC* parameter, an `ecx` equation
+contributes its *NSEC*, and each is weighted by how well that equation fits the
+data. The averaged quantity is written **N(S)EC**, to record that it mixes the
+two [@fisheretal2023].
+
+```{r}
+#| label: fig-nsecieam
+#| out-width: "100%"
+#| fig-align: center
+#| echo: false
+#| fig-cap: "The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023."
+knitr::include_graphics("images/NSEC_ieam.jpg")
+```
+
 ## Model averaging in `bayesnec`
 
 What `bnec` returns depends on how many equations it is given.
@@ -110,11 +127,54 @@ sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is
 large. Module 2 measured a single `nec3param` fit of these data at a little over
 two minutes; a set of twenty-three is not twenty-three times more convenient.
 
+## Fitting a named set
+
+`bnec()` takes the name of a set in the same `model` argument that names a
+single equation, and fits every equation the set contains:
+
+```{r}
+#| label: fit-named-set
+#| eval: false
+fit_set <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 333)
+```
+
+`models()` lists the sets and their members:
+
+```{r}
+#| label: model-sets
+models()
+```
+
+`nec` and `ecx` are the threshold and smooth equations respectively.
+
+`decline` excludes the hormesis equations and is the most generally useful set
+where there is no evidence of hormesis.
+
+`hormesis` are the equations allowing an initial increase.
+
+`bot_free` are the equations with no lower asymptote, which are useful when the
+response curve is incomplete and estimates are needed beyond the observed range.
+
+`zero_bounded` are those for which negative response values are invalid.
+
+`all` is every available equation. It currently includes `necsigm`, which should
+not be used; remove it with `amend()` if fitting the whole set.
+
+The sets are not mutually exclusive, and `bayesnec` discards any model in the set
+that is unsuitable for the statistical distribution of the response, which module
+5 covers. `bnec_record()`, from module 2, names anything excluded that way.
+
+The worked example below uses three equations rather than a named set, so that
+this page renders in reasonable time. Everything shown of a three-equation
+`bayesmanecfit` holds for one of eleven. *Fitting a set in parallel* covers what
+to do once a set is large enough for the wait to matter.
+
 ## Combining single fits
 
-Any model fitted by `bnec` inherits class `bnecfit`, which has two methods of
-its own, `+` and `c`. Either will append fits to one another, so two or more
-`bayesnecfit` objects can be combined into a model-averaged `bayesmanecfit`.
+A set can also be assembled from fits made separately. Any model fitted by
+`bnec` inherits class `bnecfit`, which has two methods of its own, `+` and `c`.
+Either will append fits to one another, so two or more `bayesnecfit` objects can
+be combined into a model-averaged `bayesmanecfit`.
 
 Starting from the `nec3param` fit of module 2:
 
@@ -205,10 +265,10 @@ weighted average over the set. The intervals often look less smooth than those
 from a single fit, because they now include uncertainty in the shape of the
 curve and not only in its parameters.
 
-The no-effect estimate annotated here, and reported in the summary below, mixes
-two quantities: *NEC* values from the threshold equations in the set, and *NSEC*
-values [@fisherfox2023] standing in for them in the smooth equations. Module 3
-covers why those are different.
+The no-effect estimate annotated here, and reported in the summary below, is the
+N(S)EC: *NEC* values from the threshold equations in the set and *NSEC* values
+[@fisherfox2023] from the smooth ones, combined by weight. Module 3 covers why
+the two are different.
 
 ## The summary
 
@@ -232,6 +292,80 @@ about how well that equation describes the data rather than a fault in the
 fitting, and `ecxexp` holds almost none of the weight, so it does not reach the
 averaged estimate. The same warning against a heavily weighted equation would
 need acting on.
+
+## The weighting method
+
+The summary reports a weight against each equation, and those weights decide
+what the averaged estimate is. How they are calculated is therefore worth
+knowing before reading any further output.
+
+
+```{r}
+#| label: fig-dumbbell
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/dumbbell.jpg")
+```
+
+In the frequentist setting AICc weights are standard and relate to the
+likelihood of the data given each model. The SSD course linked above treats them
+in detail.
+
+```{r}
+#| label: fig-weights
+#| out-width: "50%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/weights.jpg")
+```
+
+Bayesian weighting is less settled and there are many candidate methods. A full
+treatment is outside the scope of this course; what follows is what `bayesnec`
+does and why.
+
+
+`bayesnec` uses the weighting implemented in `loo` [@vehtari2020], which performs
+approximate leave-one-out cross-validation for models fitted by MCMC
+[@vehtari2017], using Pareto-smoothed importance sampling to regularise the
+importance weights [@Vehtari2019].
+
+`loo` offers two methods.
+
+*Stacking* minimises prediction error by maximising the leave-one-out
+predictive density of the combined distribution [@Yao2018; @vehtari2020]. It
+prioritises the accuracy of the joint prediction.
+
+*Pseudo-BMA* takes weights proportional to the expected log pointwise
+predictive density of each model [@vehtari2020], estimating relative predictive
+accuracy. It can be combined with a Bayesian bootstrap, which accounts for the
+uncertainty of a finite sample and pulls the weights away from 0 and 1.
+
+Pseudo-BMA with the Bayesian bootstrap is the default, and `bayesnec` passes it
+explicitly. The summary above names it, as `Method: pseudobma_bb_weights`. The
+reasoning is that the purpose of averaging here is to represent uncertainty about
+the shape of the curve rather than to minimise prediction error, and that
+stacking is not well suited to the sample sizes concentration-response
+experiments produce.
+
+The default has not always been applied consistently, which matters when reading
+an older analysis. `loo::loo_model_weights()` resolves an unspecified method to
+stacking, and some paths through earlier versions of `bayesnec` left it
+unspecified. A set assembled with `c()` or `amend()` could therefore be weighted
+by stacking while the same set fitted in one `bnec()` call was weighted by
+pseudo-BMA. Both routes now pass pseudo-BMA. Weights from an older analysis are
+not necessarily comparable with weights computed now, which is one more reason to
+record the package version alongside the models fitted.
+
+The method is changed through the `loo_controls` argument of `bnec()` or
+`amend()`, which takes a named list with elements `fitting` and `weights`:
+
+```{r}
+#| label: loo-controls
+#| eval: false
+bnec(y ~ crf(x, model = "decline"), data = nec_data,
+     loo_controls = list(weights = list(method = "stacking")))
+```
 
 ## Elements of the fitted object
 
@@ -283,117 +417,6 @@ for each parameter, under weights computed for the set as a whole. The model
 weight is reported beside each row instead, which is what makes the table
 readable: a `nec` row holding a thousandth of the weight is not describing the
 averaged estimate.
-
-## Fitting a set in parallel
-
-Module 2 covered the chains of a single model running at the same time on
-different cores. A set of models is a second opportunity, and usually a larger
-one, because the models do not depend on one another and there are more of them
-than there are chains.
-
-`bnec()` and `amend()` fit their models under whatever
-[`future`](https://cran.r-project.org/package=future) plan is set when they are
-called. Setting one before the call is the whole of it:
-
-```{r}
-#| label: parallel-basic
-#| eval: false
-library(future)
-plan(multisession, workers = 8)
-fit_par <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 322)
-plan(sequential)
-```
-
-There is no argument to `bnec()` that turns this on. The plan already records how
-much of the machine you are willing to use, and a second way of saying it would
-disagree with the first the moment both were set. `future` and `future.apply` are
-suggested rather than required packages, so a session without them, or without a
-plan, fits the models one after another exactly as earlier versions did.
-
-The two levels nest rather than compete. Under a plan of more than one worker,
-`bnec()` passes `cores = 1` to `brm()`, because otherwise `workers` multiplied by
-`chains` processes would be requested, which is sixteen for four workers and the
-default four chains. Passing `cores` yourself is left alone, and is how the two
-levels are divided deliberately:
-
-```{r}
-#| label: parallel-nested
-#| eval: false
-plan(multisession, workers = 5)
-fit_nested <- bnec(y ~ crf(x, model = "decline"), data = nec_data,
-                   cores = 4, seed = 322)
-plan(sequential)
-```
-
-That fits five models at a time with four chains each, so twenty chains sample at
-once. It is the arrangement that suits a cluster allocation, where the number of
-cores is known in advance and is larger than any one model can use.
-
-### Choosing a plan
-
-`plan(multisession)` starts fresh R processes that communicate over local
-sockets, and is available on every platform. `plan(multicore)` forks the current
-process instead, which starts faster and shares memory rather than copying it,
-but forking is unavailable on Windows and inside RStudio and Positron, where the
-plan resolves quietly to a single worker. `bnec()` reports the number of workers
-it was given, so a plan that has collapsed to one is visible rather than merely
-slow.
-
-Under a forked plan, use the `cmdstanr` backend. `rstan` compiles each model into
-the session's temporary directory, which a forked worker shares with the process
-it was forked from, so several models compiling at once collide there.
-
-Test a plan on something small before committing a long run to it. Fit two models
-with a low `iter` under the plan you intend to use and confirm that it returns.
-The socket layer `multisession` depends on is outside R's control, and where it
-misbehaves the symptom is a run that neither finishes nor errors.
-
-### The effect of a parallel plan
-
-The `bayesnec` documentation reports the whole `decline` set fitted five ways on
-an otherwise idle 22-core workstation, from a fresh session each time with the
-compiled-program cache emptied first:
-
-| plan | seconds |
-|---|---|
-| no plan, four chains on four cores | 299.5 |
-| two workers | 226.4 |
-| four workers | 174.2 |
-| eight workers | 149.9 |
-
-Run again with the programs already compiled, the same five configurations took
-99, 114, 108, 101 and 94 seconds. Two workers then took longer than no plan at
-all.
-
-The difference between the two tables is which run is being timed. A first fit on
-a machine where the Stan programs have not been built is dominated by
-compilation, which is single-threaded per program, so a plan of *n* workers
-compiles *n* at a time and the elapsed time halves at eight workers. A repeat
-against a warm cache is dominated by sampling, and for models as small as these
-there is nothing left to gain. Where a single model takes minutes rather than
-seconds, sampling dominates in both cases and the first table describes the
-repeat run as well.
-
-### Reproducibility under a plan
-
-Each individual model reproduces exactly under a plan, given the same `seed`.
-The model-averaged quantities do not, and the reason is mechanical: once the
-models are fitted, `bnec()` draws a seed from the session's random number stream
-to decide which posterior draws each model contributes to the averaged estimate.
-A sequential run has advanced that stream, through the seed each initial-value
-search sets; a parallel run leaves it untouched. The averaged no-effect estimate,
-its credible interval and the stored prediction grid therefore differ between the
-two. Neither is wrong, and they are two draws from the same weighting. Calling
-`set.seed()` in your own session before `bnec()` fixes the draw, after which two
-parallel runs agree.
-
-### Memory
-
-Each worker holds a complete fit while it is working, and fits are large. Eight
-workers on a large dataset can exhaust memory where eight cores would not have,
-and a worker killed by the operating system ends the whole call rather than the
-one model it was fitting. Where a run dies without an R error, reduce the worker
-count before looking anywhere else.
 
 ## Every model in the set
 
@@ -522,208 +545,201 @@ estimate it produces is a property of that prior.
 excluded before fitting and the reason for it. A set requested as `"decline"` or
 `"all"` commonly excludes several.
 
-### Kinds of sampler failure
+### Acting on a failure
 
-The three diagnostics fail for different reasons, and the right response differs.
-Distinguishing them is the most useful judgement in this module.
-
-A model that misses the effective sample size or R-hat cutoff **with no divergent
-transitions** was sampled from a posterior the sampler could traverse. It was not
-sampled for long enough, and both diagnostics are estimated less precisely from
-fewer draws in any case. Refit with a higher `iter`. Such a model is expected to
-pass once it has more draws, so excluding it on this evidence is premature.
-
-A model that fails on **divergent transitions** is telling you about the
-posterior rather than about the run. A divergence is recorded where the
-posterior has curvature too sharp for the adapted step size, and taking more
-draws samples the same surface for longer. Raising `adapt_delta` reduces the step
-size without removing the feature that caused the problem. Where such a model is
-also the most heavily parameterised in the set, and the design has few distinct
-concentrations, the usual explanation is that the experiment does not contain the
-information the equation needs.
-
-A model that **fails to fit at all**, and appears in `failed_models()`, is the
-same problem further along. An equation with more free parameters than the design
-can determine has a posterior that is flat in some direction, and sampling a flat
-direction for longer does not locate a maximum that is not there.
+The three diagnostics fail for different reasons and the response differs. A
+model that misses the effective sample size or R-hat cutoff, with no divergent
+transitions, was sampled from a posterior the sampler could traverse and was not
+sampled for long enough; refit it at a higher `iter`. A model failing on
+divergent transitions is reporting the shape of its posterior rather than the
+length of the run, and will produce them again at any setting. A model appearing
+in `failed_models()` is the same problem further along.
 
 The second and third are results about the experiment and are reportable as such.
 Adjusting the settings until enough equations survive is not the right response
 to either.
 
-One consequence for the write-up. Fitting once does not distinguish the first
-kind from the others, because the table alone does not say whether a model that
-missed a cutoff would have passed with more draws. Where it matters, fit again at
-higher settings and report which models then passed.
+Module 7 works through this against two datasets that ship with the package,
+which between them produce all three outcomes. It sits there rather than here
+because reading a divergent transition means knowing how the sampler explores a
+posterior, which module 6 covers.
 
-### The screen on real datasets
+## Fitting a set in parallel
 
-Every model in the three-equation set above passed, so it demonstrates none of
-this. The `bayesnec` workflow article fits two datasets that both ship with the
-package, and reports three different outcomes from the same screen.
+Module 2 covered the chains of a single model running at the same time on
+different cores. A set of models is a second opportunity, and usually a larger
+one, because the models do not depend on one another and there are more of them
+than there are chains.
 
-The first is `simazine`, one herbicide of the `herbicide` data, fitted with the
-`decline` set at deliberately reduced settings:
+`bnec()` and `amend()` fit their models under whatever
+[`future`](https://cran.r-project.org/package=future) plan is set when they are
+called. Setting one before the call is the whole of it:
 
 ```{r}
-#| label: ex9-simazine
+#| label: parallel-basic
 #| eval: false
-data(herbicide)
-simazine <- herbicide[herbicide$herbicide == "simazine", ]
-
-fit_reduced <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
-                    data = simazine, family = Beta(link = "identity"),
-                    iter = 4000, chains = 2, seed = 17)
-screen_models(fit_reduced)
+library(future)
+plan(multisession, workers = 8)
+fit_par <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 322)
+plan(sequential)
 ```
 
-The screen removed 5 of 11 equations. Refitting the same data with the same
-priors at `bnec()`'s defaults, which retain 8,000 draws rather than 1,600,
-removed 1 of 10 instead: three of the five passed once they had more draws.
-Those were failures of the run, and this is why excluding an equation that
-missed the effective sample size cutoff, at settings below the defaults, is
-premature.
+There is no argument to `bnec()` that turns this on. The plan already records how
+much of the machine you are willing to use, and a second way of saying it would
+disagree with the first the moment both were set. `future` and `future.apply` are
+suggested rather than required packages, so a session without them, or without a
+plan, fits the models one after another exactly as earlier versions did.
 
-Two did not recover. `ecxwb2` still failed, on divergent transitions rather than
-on R-hat or effective sample size, which is the second kind. And `ecxll5` failed
-to fit at all at the higher settings, which is the third: five curve parameters
-against a series of seven concentrations with an incomplete lower limb.
-
-The second dataset is `nassarius`, survival counts for a marine snail, fitted at
-the defaults from the start:
+The two levels nest rather than compete. Under a plan of more than one worker,
+`bnec()` passes `cores = 1` to `brm()`, because otherwise `workers` multiplied by
+`chains` processes would be requested, which is sixteen for four workers and the
+default four chains. Passing `cores` yourself is left alone, and is how the two
+levels are divided deliberately:
 
 ```{r}
-#| label: ex9-nassarius
+#| label: parallel-nested
 #| eval: false
-data(nassarius)
-# aggregated to successes out of trials per tank, then:
-fit_nass <- bnec(suc | trials(tot) ~ crf(dose, model = "decline"),
-                 data = surv, family = "binomial", seed = 17)
-screen_models(fit_nass)
+plan(multisession, workers = 5)
+fit_nested <- bnec(y ~ crf(x, model = "decline"), data = nec_data,
+                   cores = 4, seed = 322)
+plan(sequential)
 ```
 
-Here the screen removed 8 of 10, on divergent transitions in the hundreds and
-thousands: 120 for `nec3param`, 2,416 for `ecx4param`, 5,589 for `ecxll5`. No
-setting recovers these, because a divergence count describes the shape of the
-posterior and a longer run at an unchanged rate reports proportionally more of
-them.
+That fits five models at a time with four chains each, so twenty chains sample at
+once. It is the arrangement that suits a cluster allocation, where the number of
+cores is known in advance and is larger than any one model can use.
 
-The shape is the design. Survival is at or near complete for nine of the eleven
-doses and the whole decline happens between 1.25 and 2.5, with nothing tested in
-between. The threshold is unidentified across that gap and the likelihood has a
-flat ridge there, so every equation with a threshold or a steep mid-point has to
-place it somewhere along the ridge. The averaged estimate over the two survivors
-is 1.46 with a 95% interval of 0.31 to 1.92, and that interval is the untested
-gap.
+### Choosing a plan
 
-That is a result about the experiment and is reportable as one: these data
-identify the threshold only to the interval between the last dose with no effect
-and the first with near-total mortality. Loosening a threshold until enough
-equations survive would report a narrower number that the design does not
-support.
+`plan(multisession)` starts fresh R processes that communicate over local
+sockets, and is available on every platform. `plan(multicore)` forks the current
+process instead, which starts faster and shares memory rather than copying it,
+but forking is unavailable on Windows and inside RStudio and Positron, where the
+plan resolves quietly to a single worker. `bnec()` reports the number of workers
+it was given, so a plan that has collapsed to one is visible rather than merely
+slow.
 
-Every figure in this section is taken from the `bayesnec` workflow article rather
-than computed here, because fitting three model sets would take longer than this
-page should. Both datasets ship with the package, so the calls above can be run
-as they stand.
+Under a forked plan, use the `cmdstanr` backend. `rstan` compiles each model into
+the session's temporary directory, which a forked worker shares with the process
+it was forked from, so several models compiling at once collide there.
 
-## Weighting methods
+Test a plan on something small before committing a long run to it. Fit two models
+with a low `iter` under the plan you intend to use and confirm that it returns.
+The socket layer `multisession` depends on is outside R's control, and where it
+misbehaves the symptom is a run that neither finishes nor errors.
+
+### The effect of a parallel plan
+
+The `bayesnec` documentation reports the whole `decline` set fitted five ways on
+an otherwise idle 22-core workstation, from a fresh session each time with the
+compiled-program cache emptied first:
+
+| plan | seconds |
+|---|---|
+| no plan, four chains on four cores | 299.5 |
+| two workers | 226.4 |
+| four workers | 174.2 |
+| eight workers | 149.9 |
+
+Run again with the programs already compiled, the same five configurations took
+99, 114, 108, 101 and 94 seconds. Two workers then took longer than no plan at
+all.
+
+The difference between the two tables is which run is being timed. A first fit on
+a machine where the Stan programs have not been built is dominated by
+compilation, which is single-threaded per program, so a plan of *n* workers
+compiles *n* at a time and the elapsed time halves at eight workers. A repeat
+against a warm cache is dominated by sampling, and for models as small as these
+there is nothing left to gain. Where a single model takes minutes rather than
+seconds, sampling dominates in both cases and the first table describes the
+repeat run as well.
+
+### Reproducibility under a plan
+
+Each individual model reproduces exactly under a plan, given the same `seed`.
+The model-averaged quantities do not, and the reason is mechanical: once the
+models are fitted, `bnec()` draws a seed from the session's random number stream
+to decide which posterior draws each model contributes to the averaged estimate.
+A sequential run has advanced that stream, through the seed each initial-value
+search sets; a parallel run leaves it untouched. The averaged no-effect estimate,
+its credible interval and the stored prediction grid therefore differ between the
+two. Neither is wrong, and they are two draws from the same weighting. Calling
+`set.seed()` in your own session before `bnec()` fixes the draw, after which two
+parallel runs agree.
+
+### Memory
+
+Each worker holds a complete fit while it is working, and fits are large. Eight
+workers on a large dataset can exhaust memory where eight cores would not have,
+and a worker killed by the operating system ends the whole call rather than the
+one model it was fitting. Where a run dies without an R error, reduce the worker
+count before looking anywhere else.
+
+## Evidence from the simulation study
+
+@fisheretal2023 simulated concentration-response data from four known curves, two
+threshold and two smooth, across designs varying in the number of test
+concentrations, the number of replicates within each, and the number of
+individuals per replicate. Because the generating curve was known, both the
+weights and the true effect size behind each estimate could be measured.
 
 ```{r}
-#| label: fig-dumbbell
-#| out-width: "50%"
+#| label: fig-ieam
+#| out-width: "100%"
 #| fig-align: center
 #| echo: false
-knitr::include_graphics("images/dumbbell.jpg")
+#| fig-cap: "@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>."
+knitr::include_graphics("images/ieam_head.jpg")
 ```
 
-In the frequentist setting AICc weights are standard and relate to the
-likelihood of the data given each model. The SSD course linked above treats them
-in detail.
+### Replication across treatments
+
+Increasing the number of test concentrations resolved the model weights better
+than increasing replication within concentrations did. In one scenario the weight
+on the generating equation was 0.987 for twelve concentrations with five
+replicates of ten individuals, and 0.984 for eight concentrations with five
+replicates of twenty, from a third more individuals in total.
+
+Designs in commercial testing laboratories commonly favour replication within
+treatments, because that is what the one-way analysis of variance behind a *NOEC*
+requires. Redistributing that replication across more treatment concentrations
+can often be achieved without spending more on the experiment.
+
+### The effect the estimate represents
+
+The *NSEC* and the N(S)EC represented effects nearing 10% on average for the
+designs with the poorest sampling effort, falling to about 1% on average for the
+most replicated design simulated. For data generated from a threshold curve the
+averaged estimate was close to the true *NEC*, because the threshold equations
+took the weight; for data generated from a smooth curve it was close to the
+*NSEC*. That is the behaviour model averaging is relied on for, measured rather
+than assumed.
+
+Design also affected the **EC~x~** estimates, which tended to be larger than
+their theoretical value where sampling effort was low, with the bias decreasing
+as effort increased.
+
+### A case study
+
+The same comparison was made on real data. For *Stylophora variolaris*, the
+weight was divided between two smooth equations and the *NEC* returned by the set
+was definitively higher than the EC10.
 
 ```{r}
-#| label: fig-weights
-#| out-width: "50%"
+#| label: fig-svariolis
+#| out-width: "70%"
 #| fig-align: center
 #| echo: false
-knitr::include_graphics("images/weights.jpg")
+#| fig-cap: "The *S. variolaris* case study of @fisheretal2023. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L^-1^, the dotted line the EC10 at 530 µg L^-1^, and the dashed line the *NEC* at 800 µg L^-1^."
+knitr::include_graphics("images/svariolis.jpg")
 ```
 
-Bayesian weighting is less settled and there are many candidate methods. A full
-treatment is outside the scope of this course; what follows is what `bayesnec`
-does and why.
-
-## Weights in `bayesnec`
-
-`bayesnec` uses the weighting implemented in `loo` [@vehtari2020], which performs
-approximate leave-one-out cross-validation for models fitted by MCMC
-[@vehtari2017], using Pareto-smoothed importance sampling to regularise the
-importance weights [@Vehtari2019].
-
-`loo` offers two methods.
-
-*Stacking* minimises prediction error by maximising the leave-one-out
-predictive density of the combined distribution [@Yao2018; @vehtari2020]. It
-prioritises the accuracy of the joint prediction.
-
-*Pseudo-BMA* takes weights proportional to the expected log pointwise
-predictive density of each model [@vehtari2020], estimating relative predictive
-accuracy. It can be combined with a Bayesian bootstrap, which accounts for the
-uncertainty of a finite sample and pulls the weights away from 0 and 1.
-
-Pseudo-BMA with the Bayesian bootstrap is the default, and `bayesnec` passes it
-explicitly. The summary above names it, as `Method: pseudobma_bb_weights`. The
-reasoning is that the purpose of averaging here is to represent uncertainty about
-the shape of the curve rather than to minimise prediction error, and that
-stacking is not well suited to the sample sizes concentration-response
-experiments produce.
-
-The default has not always been applied consistently, which matters when reading
-an older analysis. `loo::loo_model_weights()` resolves an unspecified method to
-stacking, and some paths through earlier versions of `bayesnec` left it
-unspecified. A set assembled with `c()` or `amend()` could therefore be weighted
-by stacking while the same set fitted in one `bnec()` call was weighted by
-pseudo-BMA. Both routes now pass pseudo-BMA. Weights from an older analysis are
-not necessarily comparable with weights computed now, which is one more reason to
-record the package version alongside the models fitted.
-
-The method is changed through the `loo_controls` argument of `bnec()` or
-`amend()`, which takes a named list with elements `fitting` and `weights`:
-
-```{r}
-#| label: loo-controls
-#| eval: false
-bnec(y ~ crf(x, model = "decline"), data = nec_data,
-     loo_controls = list(weights = list(method = "stacking")))
-```
-
-## Model sets
-
-Rather than naming equations individually, a named set can be passed to `bnec()`:
-
-```{r}
-#| label: model-sets
-models()
-```
-
-The sets are not mutually exclusive, and `bayesnec` discards any model in the set
-that is unsuitable for the statistical distribution of the response, which module
-5 covers.
-
-`nec` and `ecx` are the threshold and smooth equations respectively.
-
-`all` is every available equation. It currently includes `necsigm`, which should
-not be used; remove it with `amend()` if fitting the whole set.
-
-`bot_free` are the equations with no lower asymptote, which are useful when the
-response curve is incomplete and estimates are needed beyond the observed range.
-
-`zero_bounded` are those for which negative response values are invalid.
-
-`decline` excludes the hormesis equations and is the most generally useful set
-where there is no evidence of hormesis.
-
-`hormesis` are the equations allowing an initial increase.
+The N(S)EC of 140 µg L^-1^ was the most conservative of the three and represented
+a measured effect of about 1.5%. The *NEC* of 800 µg L^-1^ was the least
+conservative, which is what fitting a threshold to smooth data produces. Across
+the case studies examined, the measured effect at the N(S)EC ran from 1.5% to
+6.6%, and in every case the N(S)EC was higher than the *NOEC* calculated from the
+same data.
 
 ## Open questions
 
