@@ -7,7 +7,7 @@
 #   source("vignettes/fetch_fits.R")
 #
 # Fitting the models yourself works and is slow: modules 5 and 6 take about
-# thirteen and sixteen minutes each on four cores. The archive is about 33 MB.
+# thirteen and sixteen minutes each on four cores. The archive is about 39 MB.
 # With these objects in place the same modules run in seconds, because every
 # fit call finds a saved result.
 #
@@ -36,7 +36,7 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # The number of saved fits the archive holds. Checked after extraction, because
 # a truncated download has a plausible size and unpacks into a subset that
 # fails later and obscurely.
-N_FITS <- 20L
+N_FITS <- 23L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")
@@ -59,7 +59,7 @@ fetch_fits <- function(dest = "vignettes/fits", quiet = FALSE) {
 
   url <- fits_url()
   tmp <- tempfile(fileext = ".zip")
-  if (!quiet) message("Downloading the fitted models, about 33 MB. This is ",
+  if (!quiet) message("Downloading the fitted models, about 39 MB. This is ",
                       "done once.")
 
   ok <- tryCatch({

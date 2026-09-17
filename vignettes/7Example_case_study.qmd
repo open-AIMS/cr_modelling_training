@@ -170,16 +170,29 @@ so a value recorded as exactly 0 or 1 lies outside it.
 range(ametryn$fvfm)
 ```
 
-Ametryn reaches neither boundary. Several of the other herbicides do:
-`r sum(herbicide$fvfm[herbicide$herbicide == "irgarol"] == 0)` of irgarol's
-readings are exactly zero, so the family cannot be chosen without inspecting the
-response. `bayesnec` substitutes for both bounds, a zero becoming one tenth of
-the smallest non-zero value and a one being reduced by an absolute 0.001, and
-`bnec_record()` reports after the fit whether anything was altered. A series with
-several concentrations at a boundary is then being modelled through that
-substitution rather than as recorded. Where zeros are part of the process rather
-than a recording floor, module 5 covers the hurdle and zero-inflated families
-that model them explicitly.
+Ametryn does reach the lower boundary. `r sum(ametryn$fvfm == 0)` of its
+`r nrow(ametryn)` readings are exactly zero, and they are not scattered:
+
+```{r}
+#| label: zeros-by-conc
+tapply(ametryn$fvfm, ametryn$concentration, function(z) sum(z == 0))
+```
+
+Every zero is at one of the three highest concentrations, which is what a yield
+measurement does when the symbionts are dead. `bayesnec` substitutes for both
+bounds, a zero becoming one tenth of the smallest non-zero value and a one being
+reduced by an absolute 0.001, and `bnec_record()` reports after the fit what was
+altered. This series is therefore modelled through that substitution rather than
+as recorded, and a methods section has to say so.
+
+The substitution is a workaround and not a model of the process. These zeros look
+meaningful rather than a recording floor: they are the response saturating at
+total effect, and they are concentrated where that is expected. Module 5 covers
+the hurdle and zero-inflated families, and `zero_inflated_beta()` is what models
+a response of this shape explicitly. The analysis below keeps the `Beta` with the
+substitution, because that is what the published treatment of these data used and
+what the comparison across seven herbicides is built on, but step 4 returns to the
+consequence.
 
 ```{r}
 #| label: family
@@ -306,10 +319,11 @@ the family cannot represent a value as recorded.
 rec$substitutions
 ```
 
-This is the evidence for the boundary check in step 1: on a series that does
-reach 0 or 1 this element names each altered value, so a methods section can
-state what was modelled rather than leaving a reader to assume it was the data as
-measured.
+This is the record step 1 called for. It names the rule applied, how many rows it
+altered, the values before and after, and the family that would model them
+instead. Reporting it is what lets a reader tell an analysis of the data as
+measured from an analysis of the data as adjusted, and the two are not the same
+study.
 
 ### Model weights
 
@@ -640,14 +654,69 @@ confined to one group. `obs_sd` is close to constant across the series, from
 `r sprintf("%.3f", cf_best$sim_sd[1])` at the control to
 `r sprintf("%.3f", cf_best$sim_sd[nrow(cf_best)])` at the highest concentration.
 
-That pattern is a property of the family. A `Beta` variance is
-$\mu(1-\mu)/(1+\phi)$ with a single `phi` estimated for the whole fit, so the
-simulated spread is largest where the mean is near the middle of the range and
-shrinks as the mean approaches zero. The observed spread does not behave that
-way here, so one `phi` cannot match both ends of the series: the fit oversimulates
-variability at the low concentrations and undersimulates it at the high ones.
-Module 5 covers the dispersion sub-model, written as a term in the formula, which
-is what lets the spread vary with the predictor instead.
+That pattern is a property of the family, and it can be checked rather than
+asserted. A `Beta` variance is $\mu(1-\mu)/(1+\phi)$, with a single `phi`
+estimated for the whole fit, so the spread the model simulates is fixed once its
+fitted mean is known.
+
+```{r}
+#| label: beta-variance
+phi <- summary(pull_brmsfit(best_fit))$spec_pars["phi", "Estimate"]
+data.frame(group = cf_best$group,
+           sim_mean = round(cf_best$sim_mean, 3),
+           obs_sd = round(cf_best$obs_sd, 4),
+           sim_sd = round(cf_best$sim_sd, 4),
+           beta_implied = round(sqrt(cf_best$sim_mean * (1 - cf_best$sim_mean) /
+                                       (1 + phi)), 4))
+```
+
+`sim_sd` follows $\sqrt{\mu(1-\mu)/(1+\phi)}$ almost exactly, at a correlation
+of
+`r sprintf("%.4f", cor(cf_best$sim_sd, sqrt(cf_best$sim_mean * (1 - cf_best$sim_mean) / (1 + summary(pull_brmsfit(best_fit))$spec_pars["phi", "Estimate"]))))`,
+so the simulated spread is not a free quantity: it is whatever the fitted mean
+and the one `phi` imply.
+
+That single `phi` has to serve the whole series, and here it is a compromise the
+two ends pull in opposite directions. At the highest concentrations the fitted
+mean is about
+`r sprintf("%.3f", cf_best$sim_mean[nrow(cf_best)])`, where a `Beta` can produce
+very little spread, while the observed standard deviation there is
+`r sprintf("%.4f", cf_best$obs_sd[nrow(cf_best)])`. Accommodating that requires a
+small `phi`, and the fit settles at
+`r sprintf("%.0f", summary(pull_brmsfit(best_fit))$spec_pars["phi", "Estimate"])`.
+A small `phi` raises the simulated spread at *every* concentration, including the
+control, where these data are among their tightest at
+`r sprintf("%.4f", cf_best$obs_sd[cf_best$control])`. The control is not fitted
+badly in its own right; its variability is oversimulated as a side effect of
+describing the far end of the curve.
+
+Whether this arises depends on how far the response falls. A series whose mean
+stays well away from zero has little variation in $\mu(1-\mu)$, so one `phi`
+suffices and the control agrees. Ametryn declines to a fitted mean of
+`r sprintf("%.3f", min(cf_best$sim_mean))`, which is where the mismatch comes
+from.
+
+The zeros of step 1 are the same story seen from the other end. At the top
+concentrations the response is not a small number with a little scatter around
+it; it is a mixture of readings at exactly zero and readings still some way above
+it.
+
+```{r}
+#| label: top-conc-response
+top <- ametryn[ametryn$concentration == max(ametryn$concentration), ]
+c(zero = sum(top$fvfm == 0), above_zero = sum(top$fvfm > 0))
+sort(round(top$fvfm, 3))
+```
+
+A single `Beta` mean with a single dispersion cannot describe a response of that
+shape, and the spread it has to account for there is what pulls `phi` down. The
+substitution of step 1 keeps those readings inside the family's support without
+changing what they are. Modelling them as what they are, with
+`zero_inflated_beta()` or a hurdle family, addresses the cause rather than the
+symptom; the dispersion sub-model addresses the symptom directly by letting the
+spread vary. Module 5 covers the dispersion sub-model, written as a term in the formula,
+which is what lets the spread vary with the predictor instead of being fixed by
+the mean.
 
 ```{r}
 #| label: fig-checkfit
@@ -677,13 +746,85 @@ variability there than the data show gives that posterior too much width. The
 reference is placed lower, the curve crosses it further along, and the reported
 no-effect concentration is **higher than the data warrant, and so less
 protective**. An analysis reporting the *N(S)EC* for these data should state this
-check and its result, and should consider the dispersion sub-model before the
-estimate is used.
+check and its result. The section below fits the dispersion as a sub-model and
+reports what changes.
 
 A group can fall beyond the message's criterion and inside the plot's bar,
 because the two differ: the message flags a posterior predictive p-value outside
 [0.05, 0.95] and the bars are the 95% span, which is [0.025, 0.975]. Read the
 message as a prompt to look at the group rather than as a verdict.
+
+### Repairing the dispersion
+
+The check has identified a specific fault, so it can be tested rather than left
+as advice. `disp()` writes the dispersion as a sub-model in the formula, and
+`~ log(concentration)` lets it vary along the predictor instead of taking one
+value for the whole series.
+
+```{r}
+#| label: fit-am-disp
+#| eval: false
+m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecxll4") +
+                     disp(~ log(concentration)),
+                   data = ametryn, family = fam, seed = 17)
+
+save(m7_am_disp, file = "fits/m7_am_disp.RData")
+```
+
+```{r}
+#| label: load-am-disp
+load("fits/m7_am_disp.RData")
+```
+
+`ecxll4` is named directly because it is the equation `pull_best()` selected, so
+this is the same equation on the same data with the same priors, differing only
+in how the spread is modelled.
+
+```{r}
+#| label: checkfit-disp
+cf_disp <- check_fit(m7_am_disp)
+cf_disp
+```
+
+The control row is repaired. `sd_ratio` rises from
+`r sprintf("%.3f", cf_best$sd_ratio[cf_best$control])` to
+`r sprintf("%.3f", cf_disp$sd_ratio[cf_disp$control])`, where 1 is exact
+agreement, and `ppp_sd` falls from
+`r sprintf("%.3f", cf_best$ppp_sd[cf_best$control])` to
+`r sprintf("%.3f", cf_disp$ppp_sd[cf_disp$control])`, and the number of groups
+whose spread falls outside [0.05, 0.95] drops from
+`r sum(cf_best$ppp_sd > 0.95 | cf_best$ppp_sd < 0.05)` of
+`r nrow(cf_best)` to
+`r sum(cf_disp$ppp_sd > 0.95 | cf_disp$ppp_sd < 0.05)`. `sim_sd` no longer falls
+away with the mean: it now runs from
+`r sprintf("%.4f", min(cf_disp$sim_sd))` to
+`r sprintf("%.4f", max(cf_disp$sim_sd))`, against an observed
+`r sprintf("%.4f", min(cf_disp$obs_sd))` to
+`r sprintf("%.4f", max(cf_disp$obs_sd))`.
+
+The reason this matters is the estimate, not the diagnostic.
+
+```{r}
+#| label: nsec-comparison
+rbind(`constant dispersion` = nsec(best_fit, xform = exp),
+      `disp(~ log(concentration))` = nsec(m7_am_disp, xform = exp))
+```
+
+The *NSEC* falls by about a third once the control variability is described
+correctly, and its credible interval narrows to less than half its width. This
+is the direction the Overview predicted: a fit simulating too much variability at
+the control places the significance reference lower, the curve crosses it further
+along, and the estimate returned is higher than the data warrant. Correcting the
+dispersion returns a lower and more protective concentration.
+
+Two cautions. The comparison above is one equation, not the model-averaged set
+this module reports elsewhere, and a set refitted with a dispersion sub-model
+would have to be screened and weighted again before its average could be quoted.
+And the sub-model treats the symptom: the zeros of step 1 are still being
+modelled through a substitution, and `zero_inflated_beta()` addresses that
+directly. Which to reach for depends on whether the zeros are a response
+saturating at total effect or a measurement floor, and that is a question about
+the assay rather than about the fit.
 
 ## 5. The reported estimates
 
