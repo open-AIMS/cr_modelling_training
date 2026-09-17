@@ -1,6 +1,6 @@
 ---
 title: "A worked case study"
-subtitle: "Estimating and comparing the toxicity of seven herbicides"
+subtitle: "One analysis from data to reportable estimate"
 bibliography: bayesnec.bib
 ---
 
@@ -10,10 +10,7 @@ bibliography: bayesnec.bib
 knitr::opts_chunk$set(echo = TRUE)
 options(width = 100)
 library(bayesnec)
-library(dplyr)
-library(tidyr)
 library(ggplot2)
-library(knitr)
 ```
 
 ## Background
@@ -21,8 +18,8 @@ library(knitr)
 Earlier modules each covered one part of the workflow: what the model set is,
 how a model average is formed, how a family is chosen, how priors are built.
 This module runs one analysis from data to reportable estimate, in the order the
-steps occur, and then applies the same workflow to seven herbicides so their
-toxicity can be compared.
+steps occur. Comparing several such analyses against one another is module 8's
+subject.
 
 The workflow is:
 
@@ -39,9 +36,7 @@ The posterior draws a Bayesian fit produces are useful well beyond a point
 estimate. They support the study of synergistic and antagonistic effects
 [@Fisher2019d; @flores2021], the propagation of endpoint uncertainty
 [@Charles2020a; @Gottschalk2013], and tests of hypotheses of no effect
-[@Thomas2006]. `compare_posterior()` uses them to compare fits, and the
-comparison across the seven herbicides at the end of this module is what it is
-for.
+[@Thomas2006]. Every check and estimate below is read from those draws.
 
 ```{r}
 #| label: fig-context
@@ -802,6 +797,54 @@ away with the mean: it now runs from
 `r sprintf("%.4f", min(cf_disp$obs_sd))` to
 `r sprintf("%.4f", max(cf_disp$obs_sd))`.
 
+The same difference is visible in the fitted curves, where it is the width of the
+prediction rather than its position that changes.
+
+```{r}
+#| label: fig-disp-compare
+#| fig-height: 3.6
+#| fig-cap: "The 95% posterior predictive interval for ametryn under constant dispersion and under a dispersion sub-model, with the observations."
+grid <- data.frame(
+  concentration = exp(seq(log(min(ametryn$concentration)),
+                          log(max(ametryn$concentration)), length.out = 100)))
+# The formula term is log(concentration), which brms holds as its own column, so
+# newdata has to supply it rather than leaving it to be derived.
+grid[["log(concentration)"]] <- log(grid$concentration)
+
+pp_band <- function(fit, label) {
+  p <- predict(pull_brmsfit(fit), newdata = grid)
+  data.frame(concentration = grid$concentration, fit = label,
+             Estimate = p[, "Estimate"], Q2.5 = p[, "Q2.5"], Q97.5 = p[, "Q97.5"])
+}
+
+bands <- rbind(pp_band(best_fit, "constant dispersion"),
+               pp_band(m7_am_disp, "disp(~ log(concentration))"))
+
+ggplot(bands, aes(x = concentration)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "grey80") +
+  geom_line(aes(y = Estimate)) +
+  geom_point(data = ametryn, aes(y = fvfm), size = 1.2, alpha = 0.6) +
+  facet_wrap(~ fit) +
+  scale_x_continuous(transform = "log", breaks = conc_breaks) +
+  labs(x = expression(paste("Concentration (", mu, "g ", L^-1, ")")),
+       y = "Maximum effective quantum yield") +
+  theme_classic()
+```
+
+The interval shown is the posterior predictive one, which is where a single
+observation is expected to fall, rather than the interval on the fitted mean. The
+two curves sit almost on top of one another, because the dispersion sub-model
+changes what the fit expects the scatter to be and not where the response goes.
+What changes is the band. Under constant dispersion it spans
+`r sprintf("%.3f", diff(unlist(bands[bands$fit == "constant dispersion" & bands$concentration == min(bands$concentration), c("Q2.5","Q97.5")])))`
+at the control, where the observations are tightly grouped, and narrows to
+`r sprintf("%.3f", diff(unlist(bands[bands$fit == "constant dispersion" & bands$concentration == max(bands$concentration), c("Q2.5","Q97.5")])))`
+at the highest concentration, where they are not. With the sub-model the two are
+`r sprintf("%.3f", diff(unlist(bands[bands$fit != "constant dispersion" & bands$concentration == min(bands$concentration), c("Q2.5","Q97.5")])))`
+and
+`r sprintf("%.3f", diff(unlist(bands[bands$fit != "constant dispersion" & bands$concentration == max(bands$concentration), c("Q2.5","Q97.5")])))`,
+which is the order the data call for.
+
 The reason this matters is the estimate, not the diagnostic.
 
 ```{r}
@@ -913,169 +956,20 @@ and has to be reported as one, naming how many draws were excluded and that the
 value is bounded below by the highest concentration tested. Reported without that
 label it reads as an ordinary estimate and understates the true value.
 
-## The complete set of herbicides
+### The estimate in a guideline derivation
 
-Steps 1 to 5 covered one series. The same call is applied to each herbicide in
-turn, and the seven results are then compared.
-
-```{r}
-#| label: fit-all-shown
-#| eval: false
-manecfit <- herbicide |>
-  mutate(concentration = log(concentration)) |>
-  split(f = ~ herbicide) |>
-  purrr::map(function(x) {
-    bnec(fvfm ~ crf(concentration, model = "decline"), data = x, seed = 17)
-  })
-
-sampling <- purrr::imap_dfr(manecfit, function(fit, nm) {
-  check_sampling(fit) |> mutate(herbicide = nm, .before = 1)
-})
-
-cleaned_fits <- purrr::map(manecfit, screen_models)
-```
-
-Seven herbicides against the `decline` set is `r length(models()$decline)`
-equations each and takes hours, so these fits are not run when this page is
-built. They are produced by `scripts/generate_herbicide_fits.R`, which writes the
-compact results the rest of this module reads, and the fitted objects themselves
-are too large to keep: the 2023 equivalent was 451 MB. The code shown is the code
-that was run.
-
-```{r}
-#| label: provenance
-#| echo: false
-#| comment: ""
-cat(readLines("data/herbicide_provenance.txt"), sep = "\n")
-```
-
-### Screening the model sets
-
-Each of the seven sets is screened on all three sampler diagnostics before it is
-used, exactly as step 3 screened the ametryn set. The full table is kept rather
-than only the failures, because the thresholds applied are part of what has to be
-reported.
-
-```{r}
-#| label: tbl-sampling
-#| tbl-cap: "Number of equations fitted and removed by the sampler screen, per herbicide."
-sampling <- read.csv("data/herbicide_sampling.csv")
-
-sampling |>
-  summarise(equations = dplyr::n(),
-            removed = sum(failed),
-            .by = herbicide) |>
-  kable()
-```
-
-```{r}
-#| label: tbl-screened
-#| echo: false
-removed <- subset(sampling, failed)
-if (nrow(removed) == 0) {
-  cat("No equation failed the sampler screen.\n")
-} else {
-  removed |>
-    transmute(Herbicide = herbicide, Model = model,
-              `Max R-hat` = signif(max_rhat, 4),
-              `Min ESS` = round(min_ess),
-              Divergences = n_divergent) |>
-    kable(caption = "Equations removed by the screen, and the diagnostic each failed.")
-}
-```
-
-Equations that produced no draws at all are the separate failure step 3
-distinguished, and are reported by `failed_models()`.
-
-```{r}
-#| label: tbl-neverfit
-#| echo: false
-nf <- read.csv("data/herbicide_never_fitted.csv")
-if (nrow(nf) == 0) {
-  cat("Every requested equation produced draws.\n")
-} else {
-  kable(nf, caption = "Equations that failed to fit at all.")
-}
-```
-
-Do not reach for `rhat(fit)$failed` in place of `check_sampling()`: `rhat()` on a
-`bayesmanecfit` returns a list keyed by model name, each element holding the Rhat
-values and a logical `failed`, so `$failed` on the list itself is `NULL` and
-silently drops nothing. An earlier version of this module had that defect.
-
-### Model weights across herbicides
-
-```{r}
-#| label: tbl-weights
-#| tbl-cap: "Fitted equations and their relative weights, for the effect of seven herbicides on the maximum effective quantum yield of symbiotic dinoflagellates of *Seriatopora hystrix*."
-modstats <- read.csv("data/herbicide_mod_stats.csv")
-
-modstats |>
-  mutate(wi = round(wi, 3)) |>
-  select(herbicide, model, wi) |>
-  pivot_wider(names_from = herbicide, values_from = wi) |>
-  kable()
-```
-
-The best-fitting equations differ substantially between herbicides. Few show much
-weight on the threshold models. Among the smooth equations the weights vary
-widely, with support for more than one in every case.
-
-That is the argument for model averaging in a sentence: there is no single
-equation that is right for these data, the best one differs by herbicide, and
-selecting one would discard the uncertainty about which. Averaging propagates it
-into the estimates instead.
-
-### The fitted curves
-
-```{r}
-#| label: fig-all-herbicides
-#| fig-height: 8
-#| fig-cap: "Model-averaged concentration-response curves for seven herbicides, with 95% credible intervals and the observations."
-preds <- read.csv("data/herbicide_pred_vals.csv")
-obs   <- read.csv("data/herbicide_observations.csv")
-
-ggplot(preds, aes(x = concentration)) +
-  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "grey80") +
-  geom_line(aes(y = Estimate)) +
-  geom_point(data = obs, aes(y = fvfm), size = 0.6, alpha = 0.5) +
-  facet_wrap(~ herbicide, ncol = 2) +
-  scale_x_continuous(trans = "log", breaks = c(0.3, 3, 30, 300)) +
-  labs(x = expression("Concentration ("*mu*"g/L)"),
-       y = expression(Delta*"F/Fm'")) +
-  theme_classic()
-```
-
-### The toxicity estimates
-
-The value reported for each herbicide is the model-averaged posterior combining
-the *NEC* parameter from the threshold equations with the *NSEC* from the smooth
-ones, which is the *N(S)EC* step 5 reported for ametryn.
-
-```{r}
-#| label: tbl-estimates
-#| tbl-cap: "Model-averaged no-effect estimates, back-transformed to concentration."
-read.csv("data/herbicide_estimates.csv") |>
-  transmute(Herbicide = herbicide,
-            `Estimate` = signif(estimate, 3),
-            `Lower 95%` = signif(lower, 3),
-            `Upper 95%` = signif(upper, 3)) |>
-  kable()
-```
-
-These are the estimates that would enter a guideline derivation. In Australia
+This is the kind of estimate that enters a guideline derivation. In Australia
 that is the Australian and New Zealand Water Quality Guidelines [@anzg]. The
 *NEC* has been the established preference for some time [@Warne2015; @warne2018],
 and the 2025 revision of the derivation method [@warne2025] places the *NSEC*
 alongside it: the two are now the most preferred statistical estimates, with an
 **EC~x~** at *x* of 10 or less in the tier below them.
 
-That has a practical consequence for a table like the one above. Because the
-*NSEC* sits in the preferred tier, the condition attached to it applies, and an
-*NSEC* whose measured effect size exceeds 20% should probably not be used to
-derive a guideline value. Module 3 covers the ECNSEC, which is the quantity that
-measures it, and an analysis reporting an N(S)EC for guideline use should report
-that alongside.
+Because the *NSEC* sits in the preferred tier, the condition attached to it
+applies, and an *NSEC* whose measured effect size exceeds 20% should probably not
+be used to derive a guideline value. Module 3 covers the ECNSEC, which is the
+quantity that measures it, and an analysis reporting an N(S)EC for guideline use
+should report that alongside.
 
 ```{r}
 #| label: fig-nsecieam
@@ -1084,63 +978,6 @@ that alongside.
 #| echo: false
 knitr::include_graphics("images/NSEC_ieam.jpg")
 ```
-
-## Comparing the posteriors
-
-`compare_posterior()` extracts the weighted posterior for each fit so they can be
-compared directly, rather than by asking whether intervals overlap.
-
-`comparison` names the quantity compared, and takes `"nec"`, `"n(s)ec"`,
-`"nsec"`, `"ecx"` or `"fitted"`. `"n(s)ec"` is used here because these sets mix
-threshold and smooth equations, so the weighted no-effect posterior is a mixture
-of both kinds of estimate. Asking for `"nec"` would compare the threshold
-parameter alone, over the equations that have one, which is a different quantity
-and would be a different table.
-
-```{r}
-#| label: compare-shown
-#| eval: false
-post_comp <- compare_posterior(cleaned_fits, comparison = "n(s)ec")
-```
-
-```{r}
-#| label: fig-posteriors
-#| fig-height: 4.5
-#| fig-cap: "Posterior densities of the N(S)EC estimate for each herbicide."
-post <- read.csv("data/herbicide_ne_posterior.csv")
-
-ggplot(post, aes(x = concentration, group = model,
-                 colour = model, fill = model)) +
-  geom_density(alpha = 0.3) +
-  scale_x_continuous(trans = "log", breaks = c(0.3, 1, 3, 10, 30),
-                     labels = c(0.3, 1, 3, 10, 30)) +
-  labs(x = expression("Concentration ("*mu*"g/L)"), y = "Density",
-       colour = "Herbicide", fill = "Herbicide") +
-  theme_classic()
-```
-
-Irgarol, diuron and ametryn are the most toxic and are similar to one another,
-their densities overlapping substantially. Tebuthiuron is the least toxic,
-followed by simazine and atrazine, with hexazinone intermediate.
-
-## Probabilities of difference
-
-Overlapping densities are a visual impression. `compare_posterior()` also returns
-the probability that one estimate is lower than another, computed from the draws.
-
-```{r}
-#| label: tbl-probdiff
-#| tbl-cap: "Probability of difference in no-effect toxicity between herbicides, from the overlap in their posterior densities."
-read.csv("data/herbicide_prob_diff.csv") |>
-  separate(col = comparison, into = c("herbicide", "against"), sep = "-") |>
-  pivot_wider(names_from = against, values_from = prob) |>
-  kable()
-```
-
-This is the practical advantage of having the posterior rather than an interval.
-The question of whether A is more toxic than B is answered with a probability
-computed from the draws, without a significance test, and it propagates the
-uncertainty in the curve shape as well as in the parameters.
 
 ## Reporting the analysis
 
