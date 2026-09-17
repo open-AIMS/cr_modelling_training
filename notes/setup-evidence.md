@@ -153,6 +153,7 @@ published page remains attributable to a state of the package.
 |---|---|---|---|
 | 2026-09-11 | `dev` `fc33ca84` | 2.1.3.33 | 2, 3, 5 |
 | 2026-09-11 | PR #321 `3226749` | 2.1.3.34 | 4, 6 |
+| 2026-09-17 | `dev` `15c12765` | 2.1.3.37 | 2, 4, 5 |
 
 The second row departs from `dev`. Module 4 demonstrates model averaging by
 combining single fits with `c()` and `amend()`, which is the path on which the

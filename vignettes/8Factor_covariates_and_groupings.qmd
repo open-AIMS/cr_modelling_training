@@ -88,7 +88,7 @@ independent datasets and then aggregating the threshold estimates afterwards, or
 normalising each experiment and ignoring the within-group correlation. Fitting
 separately is undesirable in that each fit rests on fewer data and returns a
 wider interval, though it is sometimes the right answer for the reasons set out
-below. Normalising each experiment to its own control has the problems module 2
+below. Normalising each experiment to its own control has the problems module 5
 describes.
 
 ## An introduction to mixed modelling
@@ -413,14 +413,14 @@ range(zinc$y)
 table(zinc$hardness)
 ```
 
-Two preparation decisions are worth naming, because module 2 argues against one
-of them.
+Two preparation decisions are worth naming, because earlier modules argue against
+one of them.
 
 The concentrations span five orders of magnitude and are logged, which is the
-decision module 2 covers.
+decision module 2 covers under the scale of the predictor.
 
 The response is divided by the maximum observed value and then shifted off 0 and
-1. This is exactly the practice module 2 recommends against, and it is done here
+1. This is exactly the practice module 5 recommends against, and it is done here
 because these are the data as supplied: the response is already a percentage of
 each experiment's own control, so the sampling variability of that control has
 already been discarded before the analysis began. Where you have the underlying
