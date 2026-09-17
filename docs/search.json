@@ -120,6 +120,18 @@
     ]
   },
   {
+    "objectID": "vignettes/0Software-setup.html#the-fitted-models",
+    "href": "vignettes/0Software-setup.html#the-fitted-models",
+    "title": "Software setup",
+    "section": "The fitted models",
+    "text": "The fitted models\nThe modules fit Bayesian models, and some of them take a while: on a four-core machine module 5 takes about thirteen minutes and module 6 about sixteen. You do not have to wait for that during the workshop. Every fit used in the material is available as a single download of about 42 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.\nEach module shows you the bnec() call that produced a fit, then the save() that kept it, then the load() that reads it back. The download supplies the saved objects, so the load() is what runs when you work through the page. That is the same sequence a real analysis follows, and it is why the fitting call stays visible rather than being hidden behind a cache.\nFrom inside the cr_modelling_training folder, in R:\nsource(\"vignettes/fetch_fits.R\")\nThat downloads the archive, checks it arrived complete, and unpacks it into a vignettes/fits/ folder beside the modules. It is done once. Do it on a connection you trust rather than on conference wifi on the morning.\nThe archive is revised while the material is being finished, so run git pull and then the line above again if you collected the materials more than a few days before the workshop. Re-running it replaces the saved fits in place.\n\n\n\n\n\n\nNoteCopying the fits by hand\n\n\n\nThe same archive, cr_modelling_fits.zip, is on a USB stick on the day, and you can put the objects in place yourself without running anything. Copy it into your cr_modelling_training folder and extract it there. It holds the folders as well as the files, so the twenty-five .RData objects end up at:\ncr_modelling_training/vignettes/fits/m2_bnec_fit.RData\ncr_modelling_training/vignettes/fits/m4_bnec_fit.RData\n...\nThe path matters, because each module runs with vignettes as its working directory and reads fits/ relative to that. A fits folder placed at the top level of cr_modelling_training is not found. Extract the archive at the top level of that folder and the path comes out right; extracting it inside vignettes gives vignettes/vignettes/fits, which is not found either.\n\n\nThe download is optional. Without it the material is complete and the modules are slower. Run the bnec() chunk each module shows, which is the one marked as not evaluated, followed by its save() line. That writes the same file into fits/, and the load() below it then works exactly as it does for everyone else.\nThe verification check below reports whether the fitted models are present, so you do not have to work it out yourself.",
+    "crumbs": [
+      "Overview",
+      "Before you start",
+      "Software setup"
+    ]
+  },
+  {
     "objectID": "vignettes/0Software-setup.html#opening-the-materials-in-positron",
     "href": "vignettes/0Software-setup.html#opening-the-materials-in-positron",
     "title": "Software setup",
@@ -136,7 +148,7 @@
     "href": "index.html",
     "title": "Concentration-response modelling",
     "section": "",
-    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely carries the evidence a guideline value needs.",
+    "text": "Estimates of no-effect toxicity underpin both risk assessment and the derivation of environmental quality standards. A range of statistical approaches developed or adopted in ecotoxicology over the past decade have changed how those estimates are obtained from concentration-response experiments, and this course covers the current methods for deriving them in R.\nThe material begins with concentration-response modelling itself: the difference between linear, non-linear and threshold models, the natural scale of a response variable and what follows from it for the choice of statistical distribution, and the distinction between the toxicity metrics that can be derived from a fitted curve. It then introduces the no-significant-effect concentration (NSEC), and works through fitting and interpretation using bayesnec, which fits these models in a Bayesian framework via brms and Stan. Model averaging is treated throughout rather than as an addition, because a single equation chosen from a candidate set rarely supplies the evidence a guideline value needs.",
     "crumbs": [
       "Overview"
     ]

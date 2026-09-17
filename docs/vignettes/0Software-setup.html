@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-16">
+<meta name="dcterms.date" content="2026-09-17">
 
 <title>Software setup – Concentration-response modelling</title>
 <style>
@@ -222,6 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#retrieval-with-git" id="toc-retrieval-with-git" class="nav-link" data-scroll-target="#retrieval-with-git">Retrieval with Git</a></li>
   <li><a href="#retrieval-without-git" id="toc-retrieval-without-git" class="nav-link" data-scroll-target="#retrieval-without-git">Retrieval without Git</a></li>
+  <li><a href="#the-fitted-models" id="toc-the-fitted-models" class="nav-link" data-scroll-target="#the-fitted-models">The fitted models</a></li>
   <li><a href="#opening-the-materials-in-positron" id="toc-opening-the-materials-in-positron" class="nav-link" data-scroll-target="#opening-the-materials-in-positron">Opening the materials in Positron</a></li>
   </ul></li>
   <li><a href="#the-verification-check" id="toc-the-verification-check" class="nav-link" data-scroll-target="#the-verification-check">The verification check</a></li>
@@ -245,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 16, 2026</p>
+      <p class="date">September 17, 2026</p>
     </div>
   </div>
   
@@ -473,6 +474,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="retrieval-without-git">Retrieval without Git</h2>
 <p>If Git did not install, or your machine does not allow you to run it, download the materials as a ZIP file instead. Open <a href="https://github.com/open-AIMS/cr_modelling_training" class="uri">https://github.com/open-AIMS/cr_modelling_training</a>, select the green “Code” button, then “Download ZIP”, and extract the archive. You end up with the same folder. To take a later revision you download the ZIP again rather than running <code>git pull</code>.</p>
 </section>
+<section id="the-fitted-models" class="level2">
+<h2 class="anchored" data-anchor-id="the-fitted-models">The fitted models</h2>
+<p>The modules fit Bayesian models, and some of them take a while: on a four-core machine module 5 takes about thirteen minutes and module 6 about sixteen. You do not have to wait for that during the workshop. Every fit used in the material is available as a single download of about 42 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.</p>
+<p>Each module shows you the <code>bnec()</code> call that produced a fit, then the <code>save()</code> that kept it, then the <code>load()</code> that reads it back. The download supplies the saved objects, so the <code>load()</code> is what runs when you work through the page. That is the same sequence a real analysis follows, and it is why the fitting call stays visible rather than being hidden behind a cache.</p>
+<p>From inside the <code>cr_modelling_training</code> folder, in R:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"vignettes/fetch_fits.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That downloads the archive, checks it arrived complete, and unpacks it into a <code>vignettes/fits/</code> folder beside the modules. It is done once. Do it on a connection you trust rather than on conference wifi on the morning.</p>
+<p>The archive is revised while the material is being finished, so run <code>git pull</code> and then the line above again if you collected the materials more than a few days before the workshop. Re-running it replaces the saved fits in place.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Copying the fits by hand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The same archive, <code>cr_modelling_fits.zip</code>, is on a USB stick on the day, and you can put the objects in place yourself without running anything. Copy it into your <code>cr_modelling_training</code> folder and extract it there. It holds the folders as well as the files, so the twenty-five <code>.RData</code> objects end up at:</p>
+<pre><code>cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
+cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
+...</code></pre>
+<p>The path matters, because each module runs with <code>vignettes</code> as its working directory and reads <code>fits/</code> relative to that. A <code>fits</code> folder placed at the top level of <code>cr_modelling_training</code> is not found. Extract the archive at the top level of that folder and the path comes out right; extracting it inside <code>vignettes</code> gives <code>vignettes/vignettes/fits</code>, which is not found either.</p>
+</div>
+</div>
+<p>The download is optional. Without it the material is complete and the modules are slower. Run the <code>bnec()</code> chunk each module shows, which is the one marked as not evaluated, followed by its <code>save()</code> line. That writes the same file into <code>fits/</code>, and the <code>load()</code> below it then works exactly as it does for everyone else.</p>
+<p>The verification check below reports whether the fitted models are present, so you do not have to work it out yourself.</p>
+</section>
 <section id="opening-the-materials-in-positron" class="level2">
 <h2 class="anchored" data-anchor-id="opening-the-materials-in-positron">Opening the materials in Positron</h2>
 <p>Use “File &gt; Open Folder” and select the <code>cr_modelling_training</code> folder. R then starts in that folder, so a relative path such as <code>source("vignettes/check_setup.R")</code> resolves without you typing a full path.</p>
@@ -484,7 +513,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>check_setup.R</code> is supplied alongside this document, in the <code>vignettes/</code> folder of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
 <p>The most reliable way to run it is to open <code>check_setup.R</code> itself in Positron (not just this document) and run the whole file from there — for example with Positron’s “Source” button, or by selecting all the code and running it. Positron then runs it from the folder the file is saved in, which avoids the error below.</p>
 <p>If you instead want to run it from the R console with <code>source()</code>, R needs to be told where the file is. Pasting</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>only works if your R console’s <em>working directory</em> is already the <code>vignettes/</code> folder — otherwise you will see:</p>
 <pre><code>Warning message:
 In file(filename, "r", encoding = encoding) :
@@ -492,7 +521,7 @@ In file(filename, "r", encoding = encoding) :
 Error in `file()`:
 ! cannot open the connection</code></pre>
 <p>This is not a sign of a broken installation; it means R was looking in the wrong folder. Either open <code>check_setup.R</code> in Positron and run it from there (the first option above), or give <code>source()</code> the full path to the file, for example:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/path/to/cr_modelling_training/vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/path/to/cr_modelling_training/vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>replacing the path with wherever you saved the workshop materials.</p>
 <p>Every run takes a few minutes, because it compiles a model each time rather than reusing an earlier build. That is deliberate: reusing a build would let the check pass without ever invoking the compiler, which is the thing being tested.</p>
 <p>A successful run ends like this:</p>

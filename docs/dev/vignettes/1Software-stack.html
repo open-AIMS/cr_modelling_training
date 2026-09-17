@@ -372,12 +372,11 @@ Figure&nbsp;2: The same window after running a short script. The console echoes 
 <p><strong>Variables</strong>, top right, lists every object in the session with its type and contents — <code>x</code> as an integer vector of ten values and <code>y</code> as a double in the figure. It is the quickest way to see whether an object is what you expected, which matters later when a fitted model is a deeply nested list rather than a vector.</p>
 <p><strong>Plots</strong>, bottom right, collects the figures produced, with arrows to step back through earlier ones and a control to save the current figure.</p>
 <p>Probably the most important thing is the editor pane, because it is where the script is written. The script is the record of what was done, and it can be re-run from the top to reproduce the results.</p>
-<p>The console is where the code is actually run, and it is where the output of the code is displayed.</p>
+<p>The console is where the code is run, and where its output is displayed.</p>
 <p>The editor and console are linked: Code is sent from the script to the console a line or a block at a time, rather than typed into the console directly.</p>
-<p>This scripting workflow is a better way of working in many ways than most pre-packages software, where the user clicks buttons and the software does things behind the scenes.</p>
-<p>Having a script means that you have a permanent record of everything that was done in the analyis, so that the results can be completely reproduced, which is something that is very important in environmental sciences (or any science).</p>
-<p>The console is where the code is actually run, and it is where the output of the code is displayed.</p>
-<p>The interpreter (in our case R version) in use is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another. You can also run other software, such as python, from inside positrons console, but that is not needed in this course.</p>
+<p>This scripting workflow is a better way of working in many ways than most pre-packaged software, where the user clicks buttons and the software does things behind the scenes.</p>
+<p>Having a script means that you have a permanent record of everything that was done in the analysis, so that the results can be completely reproduced, which is something that is very important in environmental sciences (or any science).</p>
+<p>The interpreter in use, which is R in this course, is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another. You can also run other software, such as Python, from inside the Positron console, but that is not needed in this course.</p>
 <p>Two habits matter more here than in ordinary R work, althought I would apply them to any R projects I am working on.</p>
 <p><strong>Work in a project.</strong> A project fixes the working directory, so relative paths like <code>read.csv("mydata.csv")</code> resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.</p>
 <p><strong>Do not save the workspace.</strong> R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.</p>
@@ -437,7 +436,7 @@ Figure&nbsp;3: Each layer is called by the one above it.
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, p, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(p))))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>bayesnec   2.1.3.35
+<pre><code>bayesnec   2.1.3.39
 brms       2.23.0
 cmdstanr   0.9.0
 rstan      2.32.7
