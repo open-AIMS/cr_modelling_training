@@ -354,13 +354,15 @@ folder. To take a later revision you download the ZIP again rather than running
 
 The modules fit Bayesian models, and some of them take a while: on a four-core
 machine module 5 takes about thirteen minutes and module 6 about sixteen. You do
-not have to wait for that during the workshop. The fitted models are available as
-a single download, and with them in place every fit in the modules loads in
-seconds instead of sampling.
+not have to wait for that during the workshop. Every fit used in the material is
+available as a single download of about 23 MB, and with those objects in place
+each module loads its fits in seconds instead of sampling them.
 
-This step is optional. Without it everything still works and the modules fit the
-models as they are written, which is also worth doing once if you want to see
-how long a real fit takes.
+Each module shows you the `bnec()` call that produced a fit, then the `save()`
+that kept it, then the `load()` that reads it back. The download supplies the
+saved objects, so the `load()` is what runs when you work through the page. That
+is the same sequence a real analysis follows, and it is why the fitting call
+stays visible rather than being hidden behind a cache.
 
 From inside the `cr_modelling_training` folder, in R:
 
@@ -368,21 +370,37 @@ From inside the `cr_modelling_training` folder, in R:
 source("vignettes/fetch_fits.R")
 ```
 
-That downloads the archive, checks it arrived intact, and unpacks it into a
-`vignettes/fits/` folder beside the modules. It is a few hundred megabytes and is done
-once. Do it on a connection you trust rather than on conference wifi on the
-morning.
+That downloads the archive, checks it arrived complete, and unpacks it into a
+`vignettes/fits/` folder beside the modules. It is done once. Do it on a
+connection you trust rather than on conference wifi on the morning.
+
+The archive is revised while the material is being finished, so run `git pull`
+and then the line above again if you collected the materials more than a few
+days before the workshop. Re-running it replaces the saved fits in place.
 
 ::: {.callout-note}
-## If the download fails
+## Copying the fits by hand
 
-A USB stick with the same archive will be available on the day. Copy the `vignettes/fits/`
-folder from it into your `cr_modelling_training` folder and you are in the same
-position.
+The archive is also on a USB stick on the day, and you can put the objects in
+place yourself without running anything. The stick holds a `fits` folder
+containing eighteen `.RData` files. Copy that whole folder into the `vignettes`
+folder of your `cr_modelling_training` folder, so that the files end up at:
 
-Nothing else depends on the download. The modules fit the models themselves
-when no saved fit is found.
+```
+cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
+cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
+...
+```
+
+The path matters, because each module runs with `vignettes` as its working
+directory and reads `fits/` relative to that. A `fits` folder placed at the top
+level of `cr_modelling_training` is not found.
 :::
+
+The download is optional. Without it the material is complete and the modules
+are slower. Run the `bnec()` chunk each module shows, which is the one marked as
+not evaluated, followed by its `save()` line. That writes the same file into `fits/`, and the
+`load()` below it then works exactly as it does for everyone else.
 
 The verification check below reports whether the fitted models are present, so
 you do not have to work it out yourself.

@@ -28,6 +28,8 @@ suppressMessages({
 
 options(brms.backend = "cmdstanr", mc.cores = 4)
 
+FORCE <- "--force" %in% commandArgs(trailingOnly = TRUE)
+
 vig_dir <- "vignettes"
 out_dir <- file.path(vig_dir, "fits")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
@@ -77,6 +79,50 @@ runnable_chunks <- function(qmd) {
   out
 }
 
+# Resets the environment attached to each stored `bayesnecformula`.
+#
+# The module's own `save()` call writes the object exactly as an analysis would,
+# and a formula keeps a reference to the environment it was written in. Every
+# chunk of a module is evaluated here in one shared environment, so that
+# reference reaches every object the module has built so far, and `save()`
+# follows it. Measured on 2026-09-17: `m5_exp_5` serialised to 357 MB, of which
+# 354.58 MB was the formula environment holding the seven fits made before it,
+# against 2.8 MB for the same object with the environment reset. The whole set
+# came to 534.5 MB rather than 24 MB.
+#
+# The environment is reset after the fact rather than avoided, because avoiding
+# it means evaluating each fit in isolation and the later chunks of a module
+# depend on objects the earlier ones made. The new parent is globalenv() rather
+# than baseenv() so that `crf()` and the family functions still resolve if a
+# method re-evaluates the formula. Estimates are unchanged by this: `nec()`,
+# `ecx()` and `nsec()` on the stripped `m5_exp_5` returned the same values to
+# five decimal places, and `check_fit()` and `plot()` both ran.
+strip_formula_env <- function(x) {
+  clean <- function(f) { environment(f) <- new.env(parent = globalenv()); f }
+  if (inherits(x, "bayesmanecfit")) {
+    x$mod_fits <- lapply(x$mod_fits, function(m) {
+      m$bayesnecformula <- clean(m$bayesnecformula)
+      m
+    })
+  } else if (!is.null(x$bayesnecformula)) {
+    x$bayesnecformula <- clean(x$bayesnecformula)
+  }
+  x
+}
+
+# Rewrites a saved file with its formula environments reset.
+clean_saved <- function(path) {
+  if (!file.exists(path)) return(invisible(FALSE))
+  before <- file.size(path)
+  e <- new.env()
+  nms <- load(path, envir = e)
+  for (nm in nms) assign(nm, strip_formula_env(get(nm, envir = e)), envir = e)
+  save(list = nms, file = path, envir = e)
+  message(sprintf("    %-26s %7.1f -> %6.1f MB", basename(path),
+                  before / 1024^2, file.size(path) / 1024^2))
+  invisible(TRUE)
+}
+
 message("fitting: ", format(Sys.time()))
 t0 <- Sys.time()
 
@@ -87,8 +133,18 @@ for (mod in MODULES) {
   m0 <- Sys.time()
 
   code <- runnable_chunks(qmd)
-  n_fits <- sum(grepl('save\\s*\\(.*file\\s*=\\s*"fits/', code))
-  message("  ", n_fits, " fit(s) to make")
+  targets <- sub('.*file\\s*=\\s*"([^"]+)".*', "\\1",
+                 grep('save\\s*\\(.*file\\s*=\\s*"fits/', code, value = TRUE))
+  message("  ", length(targets), " fit(s) to make")
+
+  # A module whose fits are all on disk is skipped, so that correcting one
+  # module costs that module rather than the whole set. --force redoes
+  # everything.
+  if (!FORCE && length(targets) > 0 &&
+      all(file.exists(file.path(vig_dir, targets)))) {
+    message("  skipping, every fit already saved")
+    next
+  }
 
   env <- new.env(parent = globalenv())
   owd <- setwd(vig_dir)          # chunks resolve data by relative path
@@ -102,6 +158,8 @@ for (mod in MODULES) {
   })
   grDevices::dev.off()
   setwd(owd)
+
+  if (ok) for (tg in targets) clean_saved(file.path(vig_dir, tg))
 
   message("  ", if (ok) "done in " else "stopped after ",
           format(round(difftime(Sys.time(), m0), 1)))

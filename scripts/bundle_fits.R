@@ -42,9 +42,14 @@ if (file.exists(zip_path)) unlink(zip_path)
 # root, so no directory change is needed; an earlier version changed into the
 # parent of `fits/` and then wrote the archive to `../dist/`, which is outside
 # the repository and does not exist.
-utils::zip(zipfile = zip_path,
-           files = file.path(fits_dir, basename(rds)),
-           flags = "-q9X")
+# PROVENANCE.txt goes in with the objects. It records which versions of R,
+# bayesnec, brms and cmdstanr produced them, and it is the only such record a
+# participant receives; left out of the archive it reaches nobody.
+in_archive <- file.path(fits_dir, basename(rds))
+prov <- file.path(fits_dir, "PROVENANCE.txt")
+if (file.exists(prov)) in_archive <- c(in_archive, prov)
+
+utils::zip(zipfile = zip_path, files = in_archive, flags = "-q9X")
 
 # A checksum rather than a size, because a truncated download is the failure
 # this guards against and a truncated file has a plausible size.
@@ -77,9 +82,12 @@ writeLines(c(
   "Extract into the root of the cr_modelling_training folder, so that the",
   "objects end up in vignettes/fits/. vignettes/fetch_fits.R does this for you.",
   "",
-  "Each file is named after a hash of the fit call that produced it. A module",
-  "whose fit call has changed since this was built simply refits that one",
-  "model; nothing silently returns a stale object."
+  "Each file is named after the object it holds, such as m5_exp_1nec.RData for",
+  "exp_1nec in module 5. The name does not encode the call that produced it, so",
+  "an object stays in place after its fit call has been edited and load() reads",
+  "the earlier result without reporting anything. Rebuild and redistribute the",
+  "archive whenever a fit call changes; the build date above is what says",
+  "whether that has been done."
 ), file.path(dist_dir, paste0(stem, ".txt")))
 
 message("wrote ", zip_path, " (", round(file.size(zip_path) / 1024^2, 1), " MB)")

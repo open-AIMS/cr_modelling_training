@@ -459,9 +459,11 @@ read.csv("data/grouping_zinc_weights.csv") |>
 
 `pull_best()`, from module 4, returns the highest-weighted equation and reports
 the weight alongside the number of candidates, which is what says whether the
-selection means anything.
+selection means anything. On these data it returns `ecxwb1` with a weight of
+0.902 out of six candidates, so one equation holds almost all the weight and the
+rest of this section is about that equation rather than about the set.
 
-The `brms` formula and the priors are then read off that fit and reused:
+The `brms` formula and the priors are then read off that fit:
 
 ```{r}
 #| label: fi-extract
@@ -477,20 +479,95 @@ priors <- brms::prior_summary(best_brms)
 # The right-hand side of each parameter line is what changes: `~ 1` fits one
 # value for every level, and `~ hardness` fits one per level.
 bf_plain <- brms::bf(
-  y ~ bot + (top - bot) * (1 - exp(-exp(-exp(beta) * (x - ec50)))),
+  y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
   bot + ec50 + top + beta ~ 1, nl = TRUE)
 
 bf_inter <- brms::bf(
-  y ~ bot + (top - bot) * (1 - exp(-exp(-exp(beta) * (x - ec50)))),
+  y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
   bot + ec50 + top + beta ~ hardness, nl = TRUE)
+```
 
+The priors need one change before the interaction can be fitted, and it is the
+step most easily missed. `bayesnec` writes each parameter's prior with no `coef`,
+so it applies to every population-level coefficient belonging to that parameter.
+Under `~ 1` that is the intercept alone, and the prior is exactly what was
+intended. Under `~ hardness` it is the intercept plus one coefficient per
+non-reference level, and each of those would take a prior written to describe
+the parameter's own value rather than a difference between levels. For `ecxwb1`
+that puts `beta(5, 2)` on the `top` differences, and a beta density is zero
+outside (0, 1), so no level could have a `top` below the reference level's.
+
+Set the intercept and the level differences separately. The intercept keeps
+whatever `bayesnec` chose; the differences are centred on zero, meaning no
+difference between levels, and scaled to what the parameter measures:
+
+```{r}
+#| label: fi-priors
+#| eval: false
+inter_priors <- c(
+  # the intercept, as bayesnec set it
+  prior(beta(5, 2), nlpar = "top",  coef = "Intercept"),
+  prior(beta(2, 5), nlpar = "bot",  coef = "Intercept"),
+  prior(normal(2.387, 24.803), nlpar = "ec50", coef = "Intercept"),
+  prior(normal(0, 5), nlpar = "beta", coef = "Intercept"),
+  # the differences between hardness levels
+  prior(normal(0, 0.25), nlpar = "top"),   # a proportion
+  prior(normal(0, 0.1),  nlpar = "bot"),   # a proportion, near zero
+  prior(normal(0, 2),    nlpar = "ec50"),  # the log predictor scale
+  prior(normal(0, 2),    nlpar = "beta"))  # a log slope
+```
+
+```{r}
+#| label: fi-brms-fit
+#| eval: false
 fit_plain <- brms::brm(bf_plain, data = zinc, family = Beta(link = "identity"),
                        prior = priors, iter = 5000, seed = 700,
                        save_pars = brms::save_pars(all = TRUE))
-fit_inter <- brms::brm(bf_inter, data = zinc, family = Beta(link = "identity"),
-                       prior = priors, iter = 5000, seed = 700,
-                       save_pars = brms::save_pars(all = TRUE))
 ```
+
+`fit_plain` keeps the priors as read, because under `~ 1` they are already
+right. Only the interaction needs the replacement, and it needs one more thing:
+somewhere to start. Each parameter starts at its pooled estimate and each level
+difference starts at zero.
+
+```{r}
+#| label: fi-init
+#| eval: false
+fx <- brms::fixef(fit_plain)
+init_fun <- function() {
+  list(b_bot  = as.array(c(fx["bot_Intercept",  "Estimate"], 0, 0)),
+       b_ec50 = as.array(c(fx["ec50_Intercept", "Estimate"], 0, 0)),
+       b_top  = as.array(c(fx["top_Intercept",  "Estimate"], 0, 0)),
+       b_beta = as.array(c(fx["beta_Intercept", "Estimate"], 0, 0)))
+}
+```
+
+Leave that out and three of the four chains fail before they start. The Beta
+family with an identity link requires the fitted mean to lie inside (0, 1) at
+every observation, and a randomly chosen starting point does not. `bnec()`
+supplies starting values of its own, which is why the model set fitted earlier
+gave no trouble; a formula handed straight to `brm()` does not inherit them.
+`brms` returns whichever chains survived, so check how many there are rather
+than reading the summary and assuming four.
+
+```{r}
+#| label: fi-brms-inter
+#| eval: false
+fit_inter <- brms::brm(bf_inter, data = zinc, family = Beta(link = "identity"),
+                       prior = inter_priors, iter = 5000, seed = 700,
+                       init = init_fun, control = list(adapt_delta = 0.99),
+                       save_pars = brms::save_pars(all = TRUE))
+
+posterior::nchains(brms::as_draws_array(fit_inter))
+```
+
+All four chains finish, and the largest rhat is 1.0017. The fit still reports
+323 divergent transitions in 10000 draws, well above the threshold of ten that
+`check_sampling()` applies in module 4. Raising `adapt_delta` further does not
+remove them, and the estimates are the same with and without the ones that
+remain. `bot` is estimated at 0.025, close to the boundary the identity link
+imposes, and that is where the divergences arise. Fitting the levels separately,
+below, does not meet the problem at all.
 
 Whether the interaction is supported at all is the first thing to read, and
 leave-one-out weights answer it on the same footing module 4 used:
@@ -501,9 +578,10 @@ leave-one-out weights answer it on the same footing module 4 used:
 read.csv("data/grouping_zinc_model_weights.csv") |> kable()
 ```
 
-Weight on the interaction says the levels differ by more than the shared curve
-can absorb. Weight on the simpler fit says they do not, and that one curve
-describes every level.
+Weight on the interaction says the levels differ by more than one shared curve
+describes; weight on the simpler fit says one curve is enough. Here the
+interaction takes 0.982 against 0.018, so hardness changes the response by more
+than a single curve accounts for.
 
 ```{r}
 #| label: fig-fi-curves
@@ -526,14 +604,18 @@ ggplot(preds) +
   theme_classic()
 ```
 
-That figure shows the limitation of this route, and it is the reason the two
-approaches are both presented. Fitting an interaction this way assumes the
-functional form is the same at every level, and only the parameter values differ.
-Here the highest hardness treatment is not described well by the shape the pooled
-data selected.
+That figure shows what this route assumes, and it is the reason the two
+approaches are both presented. Fitting an interaction this way holds the
+functional form the same at every level and lets only the parameter values
+differ, so a level whose response has a different shape cannot be accommodated.
 
-Where that happens, fit the levels separately with `bnec_group()`, which lets the
-shape differ, and compare the results as below. The alternative, generalised
+On these data that assumption is tenable. Residuals about each level's own curve
+have a root mean square of 0.068, 0.052 and 0.057 at hardness 5, 30 and 406, on a
+response scaled to roughly 0 to 1, so no level stands out as badly described and
+it is the lowest hardness rather than the highest that fits least well.
+
+Where the shape does differ between levels, fit them separately with
+`bnec_group()`, which lets the shape differ, and compare the results as below. The alternative, generalised
 additive models with a factor interaction term, is outside this course.
 
 ## Comparing levels

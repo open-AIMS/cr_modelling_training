@@ -1,0 +1,5 @@
+divergences: 323
+post-warmup draws: 10000
+max rhat: 1.0017
+chains: 4
+adapt_delta: 0.99
