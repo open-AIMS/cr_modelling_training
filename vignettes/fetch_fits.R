@@ -36,7 +36,7 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # The number of saved fits the archive holds. Checked after extraction, because
 # a truncated download has a plausible size and unpacks into a subset that
 # fails later and obscurely.
-N_FITS <- 18L
+N_FITS <- 20L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")
