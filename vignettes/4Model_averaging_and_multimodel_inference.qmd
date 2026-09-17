@@ -22,7 +22,7 @@ concentration-response data, in two broad shapes.
 
 ```{r}
 #| label: fig-necmods
-#| out-width: "60%"
+#| out-width: "75%"
 #| fig-align: center
 #| fig-cap: "Threshold equations, which estimate an *NEC* directly."
 #| echo: false
@@ -31,7 +31,7 @@ knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
 
 ```{r}
 #| label: fig-ecxmods
-#| out-width: "60%"
+#| out-width: "75%"
 #| fig-align: center
 #| fig-cap: "Smooth equations, from which an **EC~x~** or an *NSEC* is derived."
 #| echo: false
@@ -63,7 +63,7 @@ in ecology [see @Dormann2018 for a review].
 
 ```{r}
 #| label: fig-modav
-#| out-width: "60%"
+#| out-width: "90%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/modelave_ecol.jpg")
@@ -631,7 +631,7 @@ as they stand.
 
 ```{r}
 #| label: fig-dumbbell
-#| out-width: "20%"
+#| out-width: "50%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/dumbbell.jpg")
@@ -643,7 +643,7 @@ in detail.
 
 ```{r}
 #| label: fig-weights
-#| out-width: "25%"
+#| out-width: "50%"
 #| fig-align: center
 #| echo: false
 knitr::include_graphics("images/weights.jpg")
