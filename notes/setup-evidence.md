@@ -153,6 +153,21 @@ published page remains attributable to a state of the package.
 |---|---|---|---|
 | 2026-09-11 | `dev` `fc33ca84` | 2.1.3.33 | 2, 3, 5 |
 | 2026-09-11 | PR #321 `3226749` | 2.1.3.34 | 4, 6 |
+| 2026-09-16 | `dev` | 2.1.3.35 | 2, 3, 4, 5, 6, 7, 8 |
+| 2026-09-17 | `dev` `15c12765` | 2.1.3.37 | 2, 3, 4, 5, 6, 7, 8 |
+
+The last row is the whole site rendered against one version, which the note below
+asked for. It was taken to revise module 7 around the workflow of the `example9`
+vignette, and 2.1.3.37 was chosen over the branch of PR #372 that carries that
+vignette because the branch is behind `dev`: it lacks `dd052108`, which supports
+`dispersion()` on a model set, and the count-hurdle work merged as #225.
+Installing it would have regressed the package. PR #372 adds vignette text and no
+R code, so the workflow it demonstrates is available on `dev`.
+
+The saved fits in `vignettes/fits/` were made under 2.1.3.35. They were checked
+against 2.1.3.37 before the re-render rather than refitted: `m2_bnec_fit`
+returned a *NEC* of 1.5353 and an EC10 of 1.5967, and `m5_exp_5` an EC10 of
+4.3318, each unchanged from the values the 2.1.3.35 render reported.
 
 The second row departs from `dev`. Module 4 demonstrates model averaging by
 combining single fits with `c()` and `amend()`, which is the path on which the
