@@ -936,6 +936,33 @@ load("fits/m5_exp_2_disp.RData")
 ```
 
 ```{r}
+#| label: fig-disp-fit-const
+#| fig-height: 3.6
+#| fig-cap: "The constant-dispersion fit. The predictor is on the log scale, so the annotated *NEC* of 2.90 is a concentration of 18.1."
+autoplot(exp_2_const)
+```
+
+```{r}
+#| label: fig-disp-fit-power
+#| fig-height: 3.6
+#| fig-cap: "The same equation with `disp(\"power\")`. The *NEC* of 2.46 is a concentration of 11.7, and the credible band is narrower at the control and wider at the top of the series."
+autoplot(exp_2_disp)
+```
+
+The curves are almost the same shape, and the band around them is not. Measured
+from the stored prediction grid, the 95% band on the mean is 0.024 wide at the
+lowest concentration and 0.044 at the highest under constant dispersion, a
+ratio of 1.9. Under `disp("power")` it is 0.017 and 0.068, a ratio of 4.0. The
+constant-dispersion fit splits the difference between the two ends of the
+series, which makes it too wide where the data are tight and too narrow where
+they are scattered.
+
+That is why the constant-dispersion fit returns the higher *NEC* and the higher
+*NSEC*. Its credible band on the control mean is 40% wider than the `disp`
+fit's, so the *NSEC* reference sits lower on the control posterior, and a lower
+reference is reached further along the curve.
+
+```{r}
 #| label: fig-disp-checkfit
 #| fig-height: 4.5
 #| fig-cap: "`check_fit()` on the constant-dispersion fit. Each point is one concentration group against the 95% span of what the fit simulates, with location and scale drawn separately."
