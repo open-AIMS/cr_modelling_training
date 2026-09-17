@@ -31,13 +31,11 @@ the first time, and a substantial number will arrive with a broken C++ toolchain
 
 ## 2. Repository type and the Quarto migration
 
-The course is currently eight `learnr::tutorial` documents with `runtime:
-shiny_prerendered`, written in R Markdown and deployed to shinyapps.io under the
-`open-aims` account (`vignettes/rsconnect/`).
-
-**Decision (RF, 2026-09-11): the set migrates to Quarto before the course.** The parent
-§9 prohibition on R Markdown therefore applies here without an exception, and the learnr
-set is retired rather than extended. Do not author a new `.Rmd` in this repo.
+The course is a Quarto website. The migration decided on 2026-09-11 is complete: every
+module is a `.qmd` in `vignettes/`, the `learnr` set is retired, and the parent §9
+prohibition on R Markdown applies here without an exception. Do not author a new `.Rmd`
+in this repo. Two 2023 `.Rmd` files remain tracked and are not course content,
+`0Overview.Rmd` and `Scratch.Rmd`.
 
 **Every module stays in `vignettes/`.** The course is a series of vignettes and that is how
 collaborators expect to find it. A converted module replaces its `.Rmd` in place, keeping
@@ -56,133 +54,156 @@ models on the day, and there is no troubleshooting slot. Module 1 is
 unreachable: the `project: render:` list and the sidebar in `_quarto.yml`, and the module
 table in `index.qmd`.
 
-**The runtime is not yet decided, and it is the first thing to settle.** The three routes
-differ in what they can execute, and the course fits Bayesian models:
+**The runtime is a static Quarto site, and participants run the code on their own
+machines.** `quarto-live` and webR were rejected because webR has no C++ toolchain, so
+Stan cannot compile a model in the browser and the Bayesian half of the course would
+become non-executable code display. A `server: shiny` build was rejected with the
+`learnr` set. `notes/delivery-format-human.md` holds the reasoning and what follows from
+it for the day.
 
-| Route | Executes `drc` | Executes `bayesnec`/Stan | Needs a server |
-|---|---|---|---|
-| `quarto-live` (webR) | expected yes, untested here | **no** | no |
-| Quarto with `server: shiny` | yes | yes | yes, as now |
-| Static Quarto, participants run code locally | n/a, participant's machine | yes | no |
+**The deployment target is GitHub Pages**, served from `docs/` on `main`, at
+<https://open-aims.github.io/cr_modelling_training/>. Two builds are published from the
+one source. `_quarto.yml` builds the approved site into `docs/` and `_quarto-dev.yml`
+builds everything, including modules under revision, into `docs/dev/`. Render the
+approved site first, because it clears `docs/` and would take the development site with
+it:
 
-webR has no C++ toolchain, so `rstan` and `cmdstanr` cannot compile a model in the
-browser and `brms` cannot run there. This has not been tested in this repository; it is
-stated from how webR and Stan work, and it should be confirmed before the route is
-chosen. A `quarto-live` conversion would leave the Bayesian half of the course as
-non-executable code display, which removes the exercises from modules 2, 4, 6, 7 and 8.
+```bash
+quarto render                 # -> docs/
+quarto render --profile dev   # -> docs/dev/
+```
 
-Whichever route is taken, the migration converts **all** modules. A part-migrated set —
-some modules learnr, some Quarto — is not acceptable for a workshop, because participants
-would meet two interaction models in one day.
-
-Record the outcome in this section when it is settled, and note the deployment target.
-
-**Scale of the work.** Eight modules, roughly 170 KB of source, four of them depending on
-pre-fitted objects (§5). Converting all of it before the course is a substantial task.
-Sequence it by module number so that a partial completion still gives a coherent morning.
+As of 2026-09-17 the approved site holds `index.qmd` and `0Software-setup.qmd` only, and
+modules 1 to 8 and the `drc` reference are published under `/dev/` behind a
+not-reviewed banner. Participants must be given one URL and it must be the approved
+build, so promoting the modules means the `render:` list, the sidebar, and the
+`content-visible` module table in `index.qmd`, which carries a linked and an unlinked
+copy.
 
 ---
 
 ## 3. The module set
 
-Numbered modules are the Bayesian thread; a `d` suffix is the `drc` counterpart of the
-same subject, and the two are taught back to back.
+Numbered modules are the Bayesian thread. The `drc` counterparts that used to sit beside
+them, with a `d` suffix, were consolidated into one reference page in `13d386d`.
 
 | # | File stem | Title | Notes |
 |---|---|---|---|
-| 0 | `0Overview` | course outline | title is wrong, see §7 |
-| — | `0Software-setup` | Software setup | **converted**, pre-work, not taught, unnumbered |
-| 1 | `1Software-stack` | The software stack | **converted**, new: R, Stan, `brms`, `bayesnec`, Positron |
-| 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model | **converted** |
-| 2d | `2d Fitting-a-CR-model-using-drc` | Fitting a single model using drc | **space in the filename** |
-| 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the model set | **converted** |
-| 3d | `3dToxicity_estimation_and_available_models` | Toxicity estimation and the available models in drc | |
+| — | `0Software-setup` | Software setup | pre-work, not taught, unnumbered |
+| 1 | `1Software-stack` | The software stack | R, Stan, `brms`, `bayesnec`, Positron |
+| 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model | |
+| 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the model set | |
 | 4 | `4Model_averaging_and_multimodel_inference` | Model averaging and multimodel inference | |
-| 4d | `4dModel_averaging_and_multimodel_inference` | Model averaging in drc | **not learnr**, see §7 |
-| 5 | `5Response_data_and_statistical_distributions` | Modelling your response using the right statistical family | |
+| 5 | `5Response_data_and_statistical_distributions` | Response data and statistical distributions | |
 | 6 | `6Priors_and_Bayesian_inference` | Priors and Bayesian inference | |
-| 7 | `7Example_case_study` | A worked case study | **converted and revised** around the workflow of `bayesnec`'s `example9` vignette (PR #372) |
-| 7d | `7dExample_case_study` | — | **source deleted**, recoverable, see §7 |
-| 8 | `8Factor_covariates_and_groupings` | Factor covariates and gruopings | title typo |
-| 8d | `8dFactor_covariates_and_groupings` | Are these ECx values different? | |
+| 7 | `7Example_case_study` | A worked case study | reads results written by `scripts/generate_herbicide_fits.R` |
+| 8 | `8Factor_covariates_and_groupings` | Factor covariates and groupings | reads results written by `scripts/generate_grouping_fits.R` |
+| — | `drc-reference` | Fitting the same models with `drc` | reference, not taught |
 
-`vignettes/Scratch.Rmd` and `vignettes/test_4dModel_averaging_and_multimodel_inference.Rmd`
-are working files, not course modules. `scratch/` and `ignore/` are likewise not course
-content; `ignore/` is git-ignored in full.
+All of these are `.qmd` in `vignettes/`. Every module holds its executable code as the
+`bnec()` call and its `save()` shown but not run, followed by the `load()` that the
+render executes, so a render samples nothing and needs `vignettes/fits/` (§5).
 
-`vignettes/functions.R` holds three helpers written for module 8 before the equivalent
-functionality existed in the packages: `pred_out()`, `nec.brmsfit()` and `nsec.brmsfit()`,
-all for `brmsfit` objects with a grouping variable. `nsec.brmsfit()` calls three
-unexported `bayesnec` internals (`bayesnec:::do_wrapper`, `bayesnec:::modify_posterior`,
-`bayesnec:::min_abs`). Check against the current `bayesnec` before relying on it; triple-colon
-calls break without deprecation.
+`2d Fitting-a-CR-model-using-drc.Rmd`, `3dToxicity_estimation_and_available_models.Rmd`,
+`4dModel_averaging_and_multimodel_inference.Rmd`, `8dFactor_covariates_and_groupings.Rmd`
+and `test_4dModel_averaging_and_multimodel_inference.Rmd` were deleted in `13d386d` and
+their material is in `drc-reference.qmd`. `7dExample_case_study.Rmd` was deleted in 2023
+(`8d55cd2`) and is recoverable with `git show 47abfcd:vignettes/7dExample_case_study.Rmd`.
+
+`0Overview.Rmd` is the retired 2023 course outline, still tracked, still carrying module
+1's old title. `index.qmd` has replaced it.
+
+`vignettes/Scratch.Rmd` is a 2023 working file, not a course module. `scratch/` and
+`ignore/` are likewise not course content; `ignore/` is git-ignored in full.
+
+`vignettes/functions.R` holds three helpers written for module 8 in 2023, before the
+equivalent functionality existed in the packages: `pred_out()`, `nec.brmsfit()` and
+`nsec.brmsfit()`. Nothing sources it as of 2026-09-17; the revised module 8 uses
+`bnec_group()`. `nsec.brmsfit()` calls three unexported `bayesnec` internals
+(`bayesnec:::do_wrapper`, `bayesnec:::modify_posterior`, `bayesnec:::min_abs`), which
+break without deprecation, so check it against the current `bayesnec` before reviving
+anything from it.
 
 ---
 
 ## 4. Packages in scope
 
 No `DESCRIPTION` and no `packages.R`, so parent §4 gives no canonical list. The list below
-was taken from the `library()` calls and `::` usage across `vignettes/*.Rmd` on 2026-09-11
-and is the working set until a `packages.R` is created:
+was taken from the `library()` calls and `::` usage across `vignettes/*.qmd` and
+`scripts/*.R` on 2026-09-17 and is the working set until a `packages.R` is created:
 
-`bayesnec`, `drc`, `brms`, `cmdstanr`, `rstan`, `posterior`, `bayesplot`, `learnr`,
-`knitr`, `tidyverse` (`ggplot2`, `dplyr`, `tidyr`, `tibble`, `purrr`, `stringr`), `scales`,
-`ggpubr`, `cowplot`, `car`, `qwraps2`, `parallel`.
+`bayesnec`, `brms`, `cmdstanr`, `rstan`, `drc`, `future`, `future.apply`, `posterior`,
+`loo`, `knitr`, `ggplot2`, `dplyr`, `tidyr`, `purrr`, `car`, `digest`, `remotes`,
+`usethis`.
 
-**Create `packages.R` as part of the migration.** A full-day workshop where participants
-install packages needs one authoritative list, and eight scattered `library()` blocks is
-not one. Ask before adding anything to it.
+`learnr`, `qwraps2`, `bayesplot`, `scales`, `ggpubr` and `cowplot` were on the 2026-09-11
+list and no module uses them now. `vignettes/check_setup.R` installs and verifies a
+narrower set again, and it is the contract a participant is checked against.
 
-**`extractNSEC` no longer exists.** `2d Fitting-a-CR-model-using-drc.Rmd:17` calls
-`library(extractNSEC)`, and the last commit on the repository (`4298c3d`, "use new
-package", 2023-11-07) added `nsec()` calls for `drc` objects on the strength of it. That
-functionality is now in **`toxval`**, which exports `nsec()` with an `nsec.drc` method
-(confirmed in `C:/Rworking/toxval/NAMESPACE`). The module must be repointed, and the
-commented-out `abline()` at line 137 of the same file resolved rather than left commented.
+**Create `packages.R` before the course.** A full-day workshop where participants install
+packages needs one authoritative list, and the three places above are not one. Ask before
+adding anything to it.
 
-`bayesnec` is installed from the `dev` branch by module 2
-(`remotes::install_github("open-aims/bayesnec", ref = "dev")`). Pin this to a release or a
-commit before the workshop. A `dev` branch that changes during the course produces
-failures that cannot be diagnosed in the room.
+**The dead `extractNSEC` dependency is gone.** It was called by the `2d` module, which
+`13d386d` deleted. `drc-reference.qmd` derives the *NSEC* by hand from the fitted curve
+and depends on no such package. `toxval` exports `nsec()` with an `nsec.drc` method if a
+future page needs one.
 
-**Module 8 needs `lum31`, which is not on `dev` yet.** The data set reaches `bayesnec`
-through pull request #228, on branch `issue-6-33-grouping-vignette`, which was 0 commits
-behind `dev` and 72 ahead on 2026-09-17. Module 8 was revised against `data(lum31)` on
-the decision (RF, 2026-09-17) that #228 merges before the course. Until it does,
-rendering module 8 or running `scripts/generate_grouping_fits.R` needs that branch
-installed, and `0Software-setup.qmd` still names `dev`. The script stops with a message
-naming the pull request rather than failing half an hour into the first fit.
+`bayesnec` is installed from the `dev` branch by `0Software-setup.qmd:149`
+(`remotes::install_github("open-AIMS/bayesnec", ref = "dev")`). **Pin this to a release or
+a commit before the workshop.** A `dev` branch that changes during the course produces
+failures that cannot be diagnosed in the room, and the modules call `bnec_group()`,
+`check_sampling()`, `screen_models()`, `failed_models()`, `bnec_record()`,
+`curve_params()`, `ecnsec()` and `check_fit()`. The branch is moving: the site was
+rendered against 2.1.3.37 (`15c12765`) and `dev` was at 2.1.3.39 later the same day.
 
-Installing that branch over the shared library breaks whatever else is running against
-`dev`. On 2026-09-17 two sessions overwrote each other's `bayesnec` twice inside an hour,
-the second time removing `lum31` from under a running script. Install into a private
-library and set `R_LIBS_USER` for that session's R calls.
+**`lum31` is on `dev`.** Pull request #228 merged on 2026-09-17, so module 8 and
+`scripts/generate_grouping_fits.R` run against `dev` without a branch install. `6f36a2e`
+records the correction.
+
+Where a branch does have to be installed, install it into a private library and set
+`R_LIBS_USER` for that session's R calls. On 2026-09-17, before the merge, two sessions
+overwrote each other's `bayesnec` twice inside an hour, the second time removing `lum31`
+from under a running script.
 
 ---
 
 ## 5. Data files and their availability
 
-`.gitignore` excludes `*.RData`, so three large files that the material depends on are
-present only on the presenter's machine:
+**The fitted objects live in `vignettes/fits/`, which is git-ignored, and are
+distributed as a release asset.** 25 objects, 42.3 MB zipped, built by
+`scripts/bundle_fits.R` into `dist/` and published under the fixed tag `fits`:
 
-| File | Size | Used by |
-|---|---|---|
-| `vignettes/fitted_model.RData` | 124 MB | modules 2, 4, 6 |
-| `vignettes/manfecfit.RData` | 451 MB | module 7 |
-| `vignettes/ametryn.RData` | 65 MB | modules 4, 7 |
+```bash
+Rscript scripts/bundle_fits.R
+gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training
+```
 
-These stay in `vignettes/`, because the modules `load()` them by relative path at render
-time.
+The tag does not change, so `FITS_URL` in `vignettes/fetch_fits.R` stays valid.
+`scripts/bundle_fits.R` also rewrites `vignettes/fits.sha256`, which is tracked and is
+what a participant's download is verified against, so commit it with the upload. `N_FITS`
+in `fetch_fits.R` is recounted whenever the archive gains an object. A participant runs
+`source("vignettes/fetch_fits.R")`, which took 32 seconds on 2026-09-17.
 
-**A fresh clone cannot render modules 2, 4, 6 or 7.** Anyone rebuilding the course from
-GitHub (a co-presenter, a participant, a future session) is blocked at this point. Settle
-the distribution route as part of the migration: regenerate the fits from a script held in
-the repository, or publish the objects as a release asset, or reduce them to the posterior
-draws the modules actually use. Do not commit them; the repository is public and 640 MB of
-`.RData` is not a reasonable clone.
+Rebuild and re-upload after any change to a fit call, and after any upgrade to `bayesnec`,
+`brms` or Stan, for the reason §10 gives for `_freeze/`: a saved object does not know that
+the package which produced it has changed. `vignettes/fits/PROVENANCE.txt` records the
+version each object was fitted under and travels inside the archive.
 
-The three CSV files are tracked and small: `example_ogl.csv`, `example_pgl.csv` and
-`example_fi.csv`. Module 8 reads the first and the third. `example_pgl.csv` is no longer
+**A fresh clone cannot render any module that fits** until the archive is fetched, because
+each fit is shown as a call and a `save()` that do not run, followed by a `load()` that
+does. That is the intended arrangement, not a defect: the render samples nothing and takes
+minutes rather than half an hour.
+
+Three 2023 objects are still in `vignettes/` and nothing reads them any more:
+`fitted_model.RData` (124 MB), `manfecfit.RData` (451 MB) and `ametryn.RData` (65 MB).
+They are git-ignored and local to the presenter's machine. Do not commit them; the
+repository is public and 640 MB of `.RData` is not a reasonable clone.
+
+Five CSV files are tracked and small. Module 8 reads `example_ogl.csv` and
+`example_fi.csv`; modules 5 and 6 read `example_binomial.csv` and `example_proportion.csv`.
+`vignettes/data/` holds the results that modules 7 and 8 read back from
+`scripts/generate_herbicide_fits.R` and `scripts/generate_grouping_fits.R`. `example_pgl.csv` is no longer
 read by anything as of 2026-09-17: it held the Lum-31 bioluminescence data after the
 per-plate control division and a further division by the plate maximum, over four plates,
 and module 8 now uses the recorded readings from `lum31` over sixteen. It is kept rather
@@ -300,40 +321,43 @@ doing anything.
 
 ## 8. Outstanding work
 
-**Module 4 must cover parallel fitting.** `bayesnec` #184 landed on `dev` on 2026-09-12:
-`bnec()` and `amend()` now fit a model set under whatever `future` plan is set, so
-`plan(multisession, workers = 4)` fits four models at a time. The two levels nest — under a
-multi-worker plan `bnec()` passes `cores = 1` to `brm()`, because `workers x chains` would
-otherwise be requested. Module 2 explains chain-level parallelism and forward-references
-module 4 for this; module 4 does not yet deliver it.
+Both items recorded here on 2026-09-11 are done: module 4 covers parallel fitting under a
+`future` plan, and the `drc` comparison was rewritten as `vignettes/drc-reference.qmd`.
+What is outstanding, as of 2026-09-17:
 
-**The `drc` comparison needs its ECx section rewritten.** See §7 for the correct account of
-what `ED()` computes.
+**The modules are not on the approved site.** `_quarto.yml` renders `index.qmd` and
+`0Software-setup.qmd` only (§2). Participants get one URL and it must hold every taught
+module.
+
+**`bayesnec` is installed from a moving branch** (§4). Pin it.
+
+**The day does not fit in the day.** `notes/delivery-format-human.md`, section *The time
+budget*, measures 155 executing chunks against 380 teaching minutes and states that the
+triage needs the presenter's judgement. Three other steps wait on it: the runs-here
+callout in each module, the live scripts at `scripts/live/`, and the opening deck. None of
+those exist.
+
+**`packages.R` does not exist** (§4).
+
+**The publisher-typeset figures are unresolved** (§5). `notes/image-provenance.md` lists
+each one, where it is used, and what has to be decided.
 
 ## 9. Known defects in the current material
 
-Found by inspection on 2026-09-11 and not yet fixed. These are recorded so that the
-migration does not reproduce them. The revision plan itself is decided separately.
+Found by inspection on 2026-09-11. The learnr-era defects are resolved by the migration:
+the missing `css/style.css` (the site uses `styles.css`), the `4d` module that was not a
+learnr tutorial, the deleted `7d` source (§3), the "gruopings" title typo, the README
+"backage" typo, and the dead `extractNSEC` dependency (§4).
 
-- **`css/style.css` does not exist.** Every learnr module's YAML names it. The whole set
-  is running unstyled, or partly so.
-- **`0Overview.Rmd` has module 1's title**, "Getting started - Installing and running
-  BRMS". Its content is the course outline.
-- **`4dModel_averaging_and_multimodel_inference.Rmd` is not a learnr tutorial.** It is
-  `html_document`/`pdf_document`, so it behaves differently from every other module.
-  `test_4dModel_averaging_and_multimodel_inference.Rmd` appears to be a learnr version of
-  the same material. Decide which is the module.
-- **`7dExample_case_study.Rmd` was deleted from the repository.** The rendered
-  `7dExample_case_study.html` is still present. The source was added in `0f53a3d`, last
-  modified in `47abfcd`, and deleted in `8d55cd2` ("Minor updates") with no explanation.
-  Recover it with `git show 47abfcd:vignettes/7dExample_case_study.Rmd` and establish
-  whether the deletion was deliberate before reinstating the module.
-- **Title typo:** "gruopings" in `8Factor_covariates_and_groupings.Rmd`.
-- **README typo:** "the backage bayesnec".
-- **`extractNSEC` dependency is dead** — §4.
+What remains:
+
+- **`0Overview.Rmd` still carries module 1's 2023 title**, "Getting started - Installing
+  and running BRMS", and its content is the course outline that `index.qmd` now holds. It
+  is tracked and published to nobody. Delete it or leave it; do not revise it.
 - **`bayesnec` is installed from `dev`** — §4.
-- The material was last touched in November 2023. `bayesnec`, `brms` and `drc` have all released
-  new versions since. Assume nothing runs until it has been run.
+- The 2023 material was last run in November 2023. `bayesnec`, `brms` and `drc` have all
+  released new versions since, so assume nothing in `0Overview.Rmd`, `Scratch.Rmd` or
+  `scratch/` runs until it has been run.
 
 ---
 
