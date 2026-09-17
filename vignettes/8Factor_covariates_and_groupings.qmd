@@ -48,14 +48,14 @@ difference is fundamental to how each is handled.
 
 ```{r}
 #| label: fig-pr1
-#| out-width: "38%"
+#| out-width: "75%"
 #| echo: false
 knitr::include_graphics("images/psuedoreps1.JPG")
 ```
 
 ```{r}
 #| label: fig-pr2
-#| out-width: "48%"
+#| out-width: "100%"
 #| echo: false
 knitr::include_graphics("images/psuedoreps2.JPG")
 ```
@@ -89,7 +89,8 @@ normalising each experiment and ignoring the within-group correlation. Fitting
 separately is undesirable in that each fit rests on fewer data and returns a
 wider interval, though it is sometimes the right answer for the reasons set out
 below. Normalising each experiment to its own control has the problems module 2
-describes.
+describes, and *Normalising to a control* below measures them on an assay that
+does it.
 
 ## An introduction to mixed modelling
 
@@ -141,6 +142,13 @@ ordinary `brms` syntax to place a deviation on one named parameter. `pgl()`
 places a deviation on every **p**arameter of the equation at the **g**roup
 **l**evel, which fits a separate curve shape for each level.
 
+`(par | group)` names a parameter, and a model set is a set of equations that do
+not all have the same parameters: `bot` belongs to `nec4param` and not to
+`nec3param`. Where the named parameter is absent the term is dropped for that
+equation and the fit goes ahead without it, reported by a message that is easily
+lost in Stan's compilation output. `check_formula(f, data, run_par_checks =
+TRUE)` reports it for every equation of the set before anything is fitted.
+
 ### Deviations that cannot leave the support
 
 This is the part that differs from a grouped model fitted directly in `brms`, and
@@ -183,12 +191,18 @@ A group-level term adds a standard deviation for each parameter it applies to,
 and `ogl()` adds an offset as well. Module 6 describes how `bayesnec` builds its
 priors, and these follow the same three-way split.
 
-A group-level standard deviation is given `student_t(3, 0, s)`, where *s* is one
-tenth of the observed range of the scale the parameter lives on: the response
-range for `top`, `bot` and the `ogl` offset, the predictor range for `nec` and
-`ec50`, and a fixed value for the parameters estimated on a log scale. Under that
-prior there is a probability of about 0.39 that the group-level standard
-deviation exceeds *s*, so it is weakly informative rather than tight.
+The scale *s* is one tenth of the observed range of the quantity the deviation
+is applied to: the predictor range for `nec` and `ec50`, the response range for
+a deviation added to the response directly, and 0.5 for the parameters estimated
+on a log scale. Some deviations are applied multiplicatively, which is the case for `top`,
+`bot` and the whole-curve `ogl` offset on a bounded or a positive response.
+Those live on a log or a log-odds scale rather than on the response scale, so
+the same rule is converted onto that scale before it is used.
+
+A group-level standard deviation is then given `student_t(3, 0, s)` and the
+`ogl` offset `normal(0, s)`. Under the first there is a probability of about
+0.39 that the group-level standard deviation exceeds *s*, so it is weakly
+informative rather than tight.
 
 Note that *s* comes from the data rather than from the spread of the parameter's
 own prior. The two are different quantities, and deliberately so: a prior
@@ -203,14 +217,14 @@ organisms each, which is the within-concentration grouping above.
 
 ```{r}
 #| label: fig-tanks
-#| out-width: "60%"
+#| out-width: "90%"
 #| echo: false
 knitr::include_graphics("images/tank_offset.JPG")
 ```
 
 ```{r}
 #| label: fig-experiment
-#| out-width: "39%"
+#| out-width: "50%"
 #| echo: false
 knitr::include_graphics("images/experimental_setup.JPG")
 ```
@@ -227,7 +241,8 @@ colour <- read.csv("example_ogl.csv") |>
          groupvar = factor(paste(Replicate, Treatment, sep = "_")),
          x = as.numeric(Treatment)) |>
   na.omit()
-head(colour)
+c(rows = nrow(colour), concentrations = n_distinct(colour$x),
+  containers = n_distinct(colour$groupvar))
 ```
 
 The response is the proportional change in colour index and the predictor is the
@@ -269,69 +284,379 @@ cannot leave.
 read.csv("data/grouping_ogl_compare.csv") |> kable()
 ```
 
-The comparison is by leave-one-out cross-validation, as module 4 describes.
-Weight on the grouped fit is evidence that the container structure is real and
-that ignoring it would have produced intervals narrower than the data support.
+The comparison is by leave-one-out cross-validation, as module 4 describes, and
+it reports two things that do not say the same. The pseudo-BMA weight favours
+the grouped fit at 0.811 against 0.189. The difference in expected log
+predictive density is 2.4 with a standard error of 2.2, which is about one
+standard error, so these data support the container term weakly rather than
+decisively. Twenty containers over five concentrations, holding 97 observations
+between them, is a small amount of information about between-container
+variation, and the weight on its own would have read as stronger evidence than
+that.
+
+Each fit is drawn with the mean of each container marked, since that mean is
+the quantity `ogl(groupvar)` gives a deviation to.
+
+```{r}
+#| label: fig-ogl-curves
+#| fig-height: 4
+#| fig-cap: "The linear decline fitted with and without a container offset. Points are the observations, diamonds the container means, the line the fitted curve and the band its 95% credible interval."
+ogl_curves <- read.csv("data/grouping_ogl_curves.csv") |>
+  mutate(fit = factor(fit, levels = c("no group term", "ogl(groupvar)")))
+
+# ggbnec_data() returns three things in one frame and each layer takes the rows
+# it needs. `y_ci` traces the credible band as a closed polygon, so it has twice
+# as many rows as the curve does and `y_e` is NA on the return half; `x_r` and
+# `y_r` hold the observations, on rows where the curve columns are NA. Passing
+# the whole frame to every layer draws the right picture and fills the render
+# with warnings about removed rows.
+ogl_band <- filter(ogl_curves, !is.na(x_e))
+ogl_line <- filter(ogl_curves, !is.na(y_e))
+ogl_obs <- filter(ogl_curves, !is.na(x_r))
+
+# The container means are drawn on both panels, so that the two panels differ in
+# the fit and in nothing else. They are computed from the grouped fit, which is
+# the one whose plot data carry the container each observation came from.
+ogl_means <- ogl_obs |>
+  filter(!is.na(group)) |>
+  group_by(group) |>
+  summarise(x_r = first(x_r), y_r = mean(y_r), .groups = "drop")
+
+ggplot(ogl_band, aes(x = x_e)) +
+  geom_polygon(aes(y = y_ci), fill = "grey80", colour = NA, alpha = 0.6) +
+  geom_point(data = ogl_obs, aes(x = x_r, y = y_r), alpha = 0.3, size = 1) +
+  geom_point(data = ogl_means, aes(x = x_r, y = y_r), shape = 23,
+             fill = "white", size = 2.2) +
+  geom_line(data = ogl_line, aes(y = y_e), colour = "#2c6a5a",
+            linewidth = 0.8) +
+  facet_wrap(~fit) +
+  labs(x = "Concentration", y = "Proportional change in colour index") +
+  theme_classic()
+```
+
+The container means scatter widely within each concentration. Four containers
+sit at each of the five, and at 255 their means run from 0.157 to 0.315, a
+spread of 0.158 against a whole fitted decline of 0.238 from 0.293 to 0.055.
+That scatter is what `ogl(groupvar)` estimates a standard deviation for. The
+two credible bands are nonetheless close to the same width, which agrees with an
+elpd difference of about one standard error: twenty containers is enough to
+estimate the standard deviation and not enough to settle whether it is needed.
 
 ## Deviation on every parameter
 
-Where a grouping spans the whole concentration range, the curve itself can vary
-between levels, and `pgl()` fits that.
+Where a grouping spans the whole concentration range, the shape of the curve can
+differ between levels and not only its height. `pgl()` places a deviation on
+every parameter of the equation at once, which is what allows that.
 
 ```{r}
 #| label: fig-microtox
-#| out-width: "40%"
+#| out-width: "75%"
 #| echo: false
 knitr::include_graphics("images/microtox.JPG")
 ```
 
-The example is a bioluminescent bacterial assay developed at AIMS for tropical
-marine conditions [@luter2025]. The whole concentration series runs on a single
-plate, and the plate is repeated across several experiments on the same
-contaminant, so each level of the grouping covers the full predictor range.
+### The assay
+
+The example is the bioluminescent bacterial assay developed at AIMS for tropical
+marine conditions [@luter2025]. *Vibrio azureus* strain Lum-31 emits light as a
+by-product of metabolism, so anything that interferes with electron transport
+reduces the light emitted. Twenty microlitres of cell suspension goes into 180 µL
+of sample in a white 96-well plate, and the reading itself is the endpoint, in
+relative light units. One plate holds a complete concentration series of eleven
+concentrations by four wells, so a plate spans the whole predictor range, and the
+assay is run repeatedly on the same reference toxicant.
+
+`lum31` ships with `bayesnec` and holds sixteen copper plates and seventeen zinc
+plates, each read at 15 and at 30 minutes of exposure.
 
 ```{r}
 #| label: pgl-data
-plates <- read.csv("example_pgl.csv")
-head(plates)
+data(lum31)
+cu15 <- droplevels(subset(lum31, toxicant == "Cu" & minutes == 15))
+str(cu15)
 ```
+
+Copper at 15 minutes is used throughout this section, for two reasons. Copper's
+mean response falls below the control at every concentration on every plate, so
+no hormesis equation is needed to describe it, where zinc rises above its
+control at low concentrations. And the 15-minute read has fewer readings at the
+instrument floor than the 30-minute read of the same plates, so the censoring
+bound decides less of the answer.
+
+The design replicates at three scales, and each is a different problem.
+
+| unit | what it is | spans the series | route |
+|---|---|---|---|
+| `conc_group` | the four wells at one concentration on one plate | no | `ogl()` |
+| `plate` | one complete test | yes | `ogl()`, `pgl()`, `(par \| group)` |
+| `toxicant` | copper or zinc | yes, and of interest in itself | `bnec_group()` |
+
+The first is the within-concentration case the coral colour example above
+covers. This section takes the second, and the section on factor covariates
+takes the third.
 
 ```{r}
 #| label: fig-pgl-raw
-#| fig-height: 4
-ggplot(plates, aes(log_x, y, colour = plateRep)) +
-  geom_jitter(show.legend = FALSE) +
-  labs(x = "Log concentration", y = "Response") +
+#| fig-height: 4.5
+ggplot(cu15, aes(x = conc, y = rlu_cens, group = plate)) +
+  geom_point(alpha = 0.3, size = 1) +
+  stat_summary(fun = mean, geom = "line", linewidth = 0.3) +
+  scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
+  labs(x = "Dissolved copper (mg/L)", y = "Relative light units") +
   theme_classic()
 ```
 
-The plot shows clear differences between plates.
+Luminescence declines gently over the lower half of each series and then falls
+to near zero over a fourfold range of concentration. The sixteen plates are
+separated vertically at the control and stay in much the same order until the
+response reaches its floor, which is what a per-plate multiplicative constant
+looks like. Concentrations are measured dissolved copper rather than nominal,
+and each batch was dosed separately, so the plates are not on a common
+concentration grid.
+
+### Normalising to a control
+
+The plate reader sets its gain per read, so absolute luminescence is a property
+of the read rather than of the assay.
 
 ```{r}
-#| label: pgl-fit
+#| label: tbl-gain
+#| tbl-cap: "Median control-well luminescence across the sixteen copper plates."
+cu15 |>
+  group_by(plate) |>
+  filter(conc == min(conc)) |>
+  summarise(control_rlu = median(rlu_cens), .groups = "drop") |>
+  summarise(plates = n(), lowest = min(control_rlu),
+            highest = max(control_rlu),
+            ratio = round(max(control_rlu) / min(control_rlu), 1)) |>
+  kable()
+```
+
+Gain is a per-plate multiplicative constant, so dividing each plate by a
+per-plate quantity does remove it. That is what the analysis published with
+these data does: @luter2025 divide each reading by the median of its plate's
+four control wells, and then divide the result by the plate maximum.
+
+Module 2 argues against dividing a response by an estimated control mean, and
+@Ritz2026 measure the bias and the coverage that follow from it. Every
+observation sharing a denominator becomes correlated with every other, and an
+analysis treating them as independent reports effect doses biased downwards on
+intervals that are too narrow. In their simulation, fitting the normalised response as though the observations
+were independent gave ED10 bias of 2.6 to 6.8 per cent, on intervals covering
+the true value 0.88 to 0.91 of the time against a nominal 0.95. Modelling the
+raw rates gave 0.7 to 2.1 per cent and 0.94 to 0.96. They report that weights do not remedy it, and
+that per-curve normalisation resting on few control measurements is the worst
+case. This assay normalises each plate by four control wells.
+
+A group-level term on the plate is the alternative. It targets the same
+per-plate constant the division removes, and estimates that constant with its
+uncertainty attached rather than conditioning on a point estimate. The response
+stays as recorded, and the control level becomes `top`, a parameter of the
+equation, which is what `ecx()` and `nsec()` are measured from.
+
+Which term matches depends on what the constant multiplies. Gain scales the
+whole reading, the lower asymptote included, so `ogl()` is the form that matches
+it: the deviation is applied to the fitted value. `(top | plate)` would scale
+`top` and leave `bot` common between plates, which is a different claim about
+the instrument. For a three-parameter equation whose curve is `top` times a
+function of the predictor the two coincide.
+
+All of that assumes gain is the whole of the difference between plates. *The
+plate term compared* below fits the three terms and tests that.
+
+The plate term has one limit. Gain and genuine plate-to-plate biological
+variation are confounded in the estimated per-plate factor, and nothing in these
+data separates them. That does not affect the N(S)EC or an ECx, for which both
+are nuisance plate effects, but the plate-level standard deviation is not a
+biological quantity and should not be reported as one.
+
+### Preparing the response
+
+Two properties of the recorded response are settled before any fit, and both
+follow from how the instrument works.
+
+Readings were blank-corrected against wells of artificial seawater, so a well
+emitting less light than the blank gives a negative value, and the source
+replaced such a value by zero. Luminescence cannot be negative, so a zero here
+is measurement noise about a small positive value rather than an absence of
+light. These readings are left-censored. A `Gamma` likelihood requires a
+strictly positive response, so the censoring bound is the smallest positive
+reading on the plate. `rlu_cens` holds the response in that form and `censoring`
+marks which readings reached the floor.
+
+```{r}
+#| label: tbl-censoring
+#| tbl-cap: "Readings at the instrument floor, for both reads of the sixteen copper plates."
+lum31 |>
+  filter(toxicant == "Cu") |>
+  group_by(minutes) |>
+  summarise(readings = n(), left_censored = sum(censoring == "left"),
+            per_cent = round(100 * mean(censoring == "left"), 1),
+            .groups = "drop") |>
+  kable()
+```
+
+A `Gamma` with an identity link has a constant coefficient of variation, and
+these data do not. Taking the four wells at each concentration on each plate,
+and the median across the sixteen plates of their within-cell coefficient of
+variation, gives the table below. Concentration is summarised the same way,
+because the plates are not on a common concentration grid.
+
+```{r}
+#| label: tbl-cv
+#| tbl-cap: "Response and within-cell coefficient of variation at each of the eleven concentrations, summarised across the sixteen plates."
+cu15 |>
+  mutate(rank = as.integer(sub(".*-c", "", as.character(conc_group)))) |>
+  group_by(rank, plate) |>
+  summarise(conc = first(conc), mean_rlu = mean(rlu_cens),
+            cv = sd(rlu_cens) / mean(rlu_cens), .groups = "drop_last") |>
+  group_by(rank) |>
+  summarise(median_conc = signif(median(conc), 3),
+            mean_rlu = signif(mean(mean_rlu), 3),
+            cv = round(median(cv), 3), .groups = "drop") |>
+  kable()
+```
+
+Mean luminescence falls from 734,000 relative light units at the lowest
+concentration to 505,000 at 0.084 mg/L and 6,940 at 0.33, so most of the decline
+happens over a fourfold range of concentration. The coefficient of variation
+rises as the response falls, from 0.045 at the lowest concentration to 0.58 at
+0.33 mg/L and about 0.95 at the top three, where the readings are at the
+instrument floor. One shape parameter cannot serve a series that does that, and
+the compromise it reaches is dominated by the noisy low end. `disp("power")`
+writes the dispersion parameter as a function of the fitted mean instead of
+holding it constant, which module 5 covers. Every fit below includes it, so that
+what differs between them is the group-level term alone.
+
+### The plate term compared
+
+One equation is fitted three ways, so that what is compared is the group-level
+term and not the equation. Comparing two model averages by leave-one-out would
+confound the two.
+
+```{r}
+#| label: plate-fits
 #| eval: false
-fit_plain <- bnec(y ~ crf(log_x, model = "nechorme"), data = plates, seed = 70)
-fit_pgl   <- bnec(y ~ crf(log_x, model = "nechorme") + pgl(plateRep),
-                  data = plates, seed = 70)
+plate_plain <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
+                      disp("power"),
+                    data = cu15, family = Gamma(link = "identity"), seed = 70)
+plate_ogl   <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
+                      ogl(plate) + disp("power"),
+                    data = cu15, family = Gamma(link = "identity"), seed = 70)
+plate_pgl   <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
+                      pgl(plate) + disp("power"),
+                    data = cu15, family = Gamma(link = "identity"), seed = 70)
 ```
 
-`nechorme` is used because the plot shows an initial rise before the decline,
-which is hormesis. Expect the fitting messages to look alarming: these models are
-complex and finding initial values that do not error takes `bayesnec` several
-attempts.
+`ecxll4` is the equation the whole model set gives most weight to on these
+readings. That set is the copper level of the `bnec_group()` fit under *Factor
+covariates* below, which is the same 704 readings with the same plate term and
+the same dispersion sub-model, and its weights are reported there. Three
+equations sit within 0.02 of each other in it, so the selection is weak and
+`ecxll4` stands here for a group of equations the data support about equally.
+Holding it fixed is what makes the comparison below a comparison of terms.
 
 ```{r}
-#| label: tbl-pgl-compare
-#| tbl-cap: "The all-parameter deviation compared against the same equation fitted without it."
-read.csv("data/grouping_pgl_compare.csv") |> kable()
+#| label: tbl-plate-compare
+#| tbl-cap: "The plate terms compared against the same equation fitted without one."
+read.csv("data/grouping_plate_compare.csv") |> kable()
 ```
 
-Two things to read from the fits themselves. The credible bands of the grouped
-fit are far wider than those of the fit that assumes independence, which is the
-point of fitting it: the narrow bands were an artefact of treating 60
-observations from six plates as 60 independent ones. And the convergence
-diagnostics for the group-level standard deviations are the ones to check
-hardest, because those parameters are the least well determined in the model.
+`pgl(plate)` takes the whole weight. Its expected log predictive density
+exceeds `ogl(plate)`'s by 297.9 with a standard error of 27.0, and
+`ogl(plate)`'s exceeds the ungrouped fit's by 266.5. Both differences are about
+ten times their standard error, which is a different situation from the coral
+colour comparison above, where the same test could not separate two fits.
+
+Two of the 704 observations have a Pareto k above 0.7 under `pgl(plate)`, and
+none do under the other two. The estimate for those two points rests on the
+importance-sampling approximation rather than on a refit, and two points of 704
+will not reverse a difference of this size.
+
+The result is worth pausing on, because a per-plate gain would not produce it.
+Gain multiplies the whole reading, and a fit whose plates differ only by gain
+would be described by `ogl(plate)` and gain nothing from a deviation on every
+parameter. The plates differ in more than their height.
+
+```{r}
+#| label: fig-plate-curves
+#| fig-height: 4
+#| fig-cap: "The same equation with no plate term, with ogl(plate) and with pgl(plate). Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC."
+plate_levels <- c("no group term", "ogl(plate)", "pgl(plate)")
+plate_curves <- read.csv("data/grouping_plate_curves.csv") |>
+  mutate(fit = factor(fit, levels = plate_levels))
+plate_obs <- read.csv("data/grouping_plate_obs.csv")
+plate_nsec <- read.csv("data/grouping_plate_estimates.csv") |>
+  filter(estimate == "NSEC") |>
+  mutate(fit = factor(fit, levels = plate_levels))
+
+ggplot(plate_curves, aes(x = x)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "grey80", alpha = 0.6) +
+  geom_point(data = plate_obs, aes(x = conc, y = rlu_cens), alpha = 0.25,
+             size = 0.8) +
+  geom_line(aes(y = Estimate), colour = "#2c6a5a", linewidth = 0.8) +
+  geom_vline(data = plate_nsec, aes(xintercept = Q50), linetype = 2,
+             colour = "grey40") +
+  facet_wrap(~fit) +
+  scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
+  labs(x = "Dissolved copper (mg/L)", y = "Relative light units") +
+  theme_classic()
+```
+
+The three panels differ in the width of the credible band and in where the
+N(S)EC rule falls. Ungrouped, the band around the control is narrow, because the
+spread between plates has nowhere to go but the residual and the curve is
+reported as well determined. With either plate term that spread is attributed to
+the plates instead, and the control band widens towards the range the control
+readings themselves span.
+
+That is the mechanism behind the threshold estimates. The N(S)EC is read
+where the fitted curve leaves the lower bound of the control, so a narrow
+control band is crossed early and a wide one late. The rule sits well to the
+left of the shoulder in the ungrouped panel and at the shoulder in the other
+two.
+
+The standard deviations say what differs. `ecxll4` is
+`bot + (top - bot) / (1 + exp(exp(beta) * (x - ec50)))`, so `pgl()` estimates
+four of them.
+
+```{r}
+#| label: tbl-plate-sd
+#| tbl-cap: "Group-level standard deviations. ogl() estimates one; pgl() estimates one for every parameter of the equation."
+read.csv("data/grouping_plate_sd.csv") |> kable()
+```
+
+`ogl(plate)` puts the between-plate difference at 0.424 on the log scale the
+deviation is applied on, which is a factor of 1.53 in luminescence. Under
+`pgl(plate)` the largest deviations are on the two asymptotes, `botgl` at 0.648
+and `topgl` at 0.465, which is the vertical displacement `ogl()` was describing.
+The one that `ogl()` cannot represent is `ec50` at 0.356 on the log
+concentration scale, a factor of 1.43 in the concentration at which the curve
+reaches its midpoint. The plates differ in where the response falls as well as
+in how much light they read, and only `pgl()` fits that. `beta`, the slope, is
+the most nearly common at 0.116.
+
+Gain and genuine between-plate variation are confounded in all of these, as
+*Normalising to a control* said. What the `ec50` deviation adds is that the
+confounded quantity is not a single multiplicative constant: a difference in
+potency between plates is not something a gain setting can produce.
+
+```{r}
+#| label: tbl-plate-estimates
+#| tbl-cap: "Toxicity estimates from each fit, back-transformed to mg/L."
+read.csv("data/grouping_plate_estimates.csv") |> kable()
+```
+
+The N(S)EC doubles across the three fits, from 0.041 mg/L ungrouped to 0.073
+with `ogl(plate)` and 0.084 with `pgl(plate)`, and its lower bound rises from
+0.009 to 0.054. EC10 changes much less, from 0.056 to 0.054 to 0.063. A threshold
+is the estimate the plate structure decides, because it is read where the curve
+leaves the control and that is where the between-plate spread is largest; an
+EC10 is read further down a curve the plates agree about more closely.
+
+An analysis that treated these 704 readings as independent would report a
+no-effect concentration half the one the plate structure supports, on a lower
+bound a factor of six too low.
 
 ## The number of levels a deviation needs
 
@@ -340,52 +665,217 @@ so it needs levels to estimate it from. The consensus is that five should be
 treated as a minimum, and Stan may want more.
 
 That minimum is easy to reach for tank effects, where there are usually several
-tanks per concentration and often twenty or thirty in total. It is rarely reached
-for across-concentration groupings, where six plates or four genotypes is a
-typical design. This is the practical reason to consider the alternative below,
-rather than a statistical preference for it.
+tanks per concentration and often twenty or thirty in total. Whether an
+across-concentration grouping reaches it depends on the design: the copper
+plates above are sixteen levels, and four genotypes or three seasons is a
+commoner situation and below the minimum.
 
-## Factor interaction covariates
+The count is not the only constraint. `ogl()` estimates one standard deviation
+however many parameters the equation has, and `pgl()` estimates one for each of
+them, so the same number of levels supports the first and may not support the
+second. Where the levels are too few for either, and where they are of interest
+in themselves, the routes below apply instead.
+
+## Factor covariates
 
 Where the levels are of interest in themselves, a deviation is the wrong tool
 entirely. A group-level term marginalises over the levels and returns one curve;
 a factor covariate asks for a curve, and a toxicity estimate, for each level.
 
-`bnec()` does not support an interaction with a fixed factor inside its own
-formula. Adding an interaction term to a single non-linear equation is
-straightforward and may be added in a future release. Supporting it across the
-whole model set is not, because the functional form of the response may itself
-change between levels, and defining every non-linear combination at every level
-is a much larger problem.
+`bnec_group()` is the route. It fits the model set independently within each
+level of a factor and model-averages within each level, so the equation
+describing one level need not be the equation describing another.
 
-Two routes are available in the meantime, and they answer different questions.
+An interaction term written inside a `bayesnecformula` remains unavailable, and
+the reason is the one `bnec_group()` addresses. A model set is a set of
+different equations, so an interaction would have to be defined separately for
+each of them at every level, and where the levels differ in functional form the
+result is not one curve with level-specific parameters. Fitting the levels
+separately answers that question instead of assuming it away.
+
+Two routes are used below, and they answer different questions.
 
 ### Fitting each level separately
 
-`bnec_group()` fits the model set independently within each level of a factor.
-Each level gets its own model averaging, so the *shape* of the curve is free to
-differ between levels, which is the assumption a single interaction model cannot
-make.
+`bnec_group()` takes the formula, the data and the name of the grouping column,
+and returns one model-averaged fit per level.
 
 ```{r}
-#| label: group-fit
+#| label: tox-group-fit
 #| eval: false
-fit_hardness <- bnec_group(y ~ crf(x, model = "decline"),
-                           data = zinc, group_var = "hardness", seed = 70)
+zn_cu_15 <- droplevels(subset(lum31, minutes == 15))
+
+fits_tox <- bnec_group(
+  rlu_cens | cens(censoring) ~ crf(log(conc), "all") + ogl(plate) +
+    disp("power"),
+  data = zn_cu_15, group_var = "toxicant",
+  family = Gamma(link = "identity"),
+  chains = 4, iter = 5000, warmup = 4000, seed = 228,
+  control = list(adapt_delta = 0.99))
 ```
 
-This is what the earlier version of this module did with a hand-written loop over
-`unique(dat$hardness)`. `bnec_group()` does the same thing and adds three things
-a loop does not. It gives each level its own seed, realised in the calling
-session and stored on the returned object as `level_seeds`, so a grouped call
-repeats exactly. It records which models failed at which level. And it can use a
-`future` plan across either the levels or the models within a level, choosing
-whichever arrangement takes fewer rounds and reporting which it took; module 4
-covers the plans.
+That is the bioluminescent assay again, now taking its third scale of
+replication. Copper and zinc are two contaminants of interest rather than a
+sample from a population of metals, so they are levels and not a grouping. The
+plate term stays, because gain differs between plates within each metal; a plate
+term is not placed across the copper-against-zinc contrast, since the two arms
+were read at different gains and their relative light units are not comparable.
+`model = "all"` rather than `decline`, because zinc rises above its control at
+low concentrations.
 
-The price is run time. A set of fourteen equations across three levels is
-forty-two fits, and this is the point at which fitting stops being something done
-at render time.
+The term is `ogl(plate)` although the section above found `pgl(plate)` the
+better description of the copper plates. This call is the one
+`vignette("example8")` in `bayesnec` makes, and it is reproduced here so that
+the estimates below can be read against the ones published with it. A `pgl()`
+version would estimate four group-level standard deviations at each of two
+levels over fifteen equations, and nothing in this module has been fitted to say
+what it would change.
+
+This is the one call in the module that names its sampler settings, and it names
+them because it is the call `vignette("example8")` in `bayesnec` makes. That
+vignette's fits are run on a cluster and stored, and this module reads the
+stored fit rather than sampling for the hours the call takes here. The closing
+section says how. Every other fit in this module samples at `bnec()`'s
+defaults.
+
+```{r}
+#| label: tbl-tox-weights
+#| tbl-cap: "Model weights at each level. Equations below 0.01 at both levels are omitted."
+read.csv("data/grouping_tox_weights.csv") |>
+  pivot_wider(names_from = toxicant, values_from = wi) |>
+  filter(if_any(-model, ~ .x >= 0.01)) |>
+  kable()
+```
+
+The two metals do not agree on which equation describes them. Zinc puts 0.853 of
+its weight on `ecxll5` and the remaining 0.147 on `ecxwb1`. Copper spreads its
+weight over four, with 0.322 on `ecxll4`, 0.311 on `ecx4param`, 0.305 on
+`ecxll5` and 0.058 on `ecxwb1`, so the two equations taking most of copper's
+weight take none of zinc's. That is the case for fitting the levels separately:
+the single curve they would be shrunk towards is not one the data agree on.
+
+No equation of the `nec` group takes weight at either level, so the
+model-averaged threshold reported below is an NSEC throughout rather than a
+mixture of NEC and NSEC estimates.
+
+```{r}
+#| label: fig-tox-curves
+#| fig-height: 5.5
+#| fig-cap: "Copper and zinc fitted separately, with the observed readings. The dashed vertical line is the N(S)EC of the table above. Each panel has its own axes, because the two metals differ in potency by an order of magnitude and the two arms were read at different gains."
+# The N(S)EC is taken from the estimates table rather than from the `nec_vals`
+# column of the plot data, so that the line and the table are the same number.
+# Both are posterior summaries of the same quantity, computed from different
+# draws, and they differ in the third significant figure.
+tox_nsec <- read.csv("data/grouping_tox_estimates.csv") |>
+  filter(estimate == "NSEC") |>
+  rename(fit = toxicant)
+
+tox_curves <- read.csv("data/grouping_tox_curves.csv")
+
+ggplot(filter(tox_curves, !is.na(x_e)), aes(x = x_e, colour = fit, fill = fit)) +
+  geom_polygon(aes(y = y_ci), colour = NA, alpha = 0.3) +
+  geom_point(data = filter(tox_curves, !is.na(x_r)), aes(x = x_r, y = y_r),
+             alpha = 0.4, size = 1) +
+  geom_line(data = filter(tox_curves, !is.na(y_e)), aes(y = y_e)) +
+  geom_vline(data = tox_nsec, aes(xintercept = Q50), linetype = 2,
+             colour = "grey40") +
+  facet_wrap(~fit, ncol = 1, scales = "free") +
+  scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
+  scale_colour_hue(guide = "none") +
+  scale_fill_hue(guide = "none") +
+  labs(x = "Dissolved metal (mg/L)", y = "Relative light units") +
+  theme_classic()
+```
+
+The fitted band follows the observations down in both panels, and the readings
+scatter widely at every concentration while the band stays narrow, which is the
+plate term holding the between-plate spread out of the population curve. The two
+panels put the metals an order of magnitude apart on the concentration axis.
+
+```{r}
+#| label: tbl-tox-estimates
+#| tbl-cap: "Toxicity estimates for each metal, back-transformed to mg/L."
+read.csv("data/grouping_tox_estimates.csv") |> kable()
+```
+
+Copper is the more potent of the two on every estimate, by a factor of 6.5 on
+EC10, 10.6 on the N(S)EC and 15.5 on EC50.
+
+The EC50 is where this can be checked against a published result. @luter2025
+fitted each plate separately on the normalised response and report EC50s
+averaging 0.109 mg/L for copper over sixteen plates and 1.546 for zinc over
+seventeen. One pooled fit with a plate term on the recorded readings gives 0.103
+and 1.592. The two analyses agree to within six per cent on copper and three on
+zinc, on responses that are not even on the same scale. What differs is where
+the variation between plates has gone: into the spread of sixteen and seventeen
+separate estimates there, and into a group-level standard deviation here.
+
+The three estimates are not equally well determined, and the reason is where
+each sits on the curve. The copper EC50 interval runs 0.099 to 0.106 mg/L, a
+factor of 1.07 from end to end, and its N(S)EC interval 0.031 to 0.091, a factor
+of 3.0. A half-effect concentration sits in the middle of the concentration
+series where the observations are densest and the curve steepest; a threshold
+sits where the curve leaves the control, which is the part of a response the
+data constrain least.
+
+`compare_posterior()` reduces the two posteriors to the probability that one
+exceeds the other, and returns the posteriors it used.
+
+```{r}
+#| label: tox-compare
+#| eval: false
+cmp_tox <- compare_posterior(fits_tox, comparison = "nec")
+cmp_tox$prob_diff
+```
+
+```{r}
+#| label: fig-tox-posterior
+#| fig-height: 3.5
+#| fig-cap: "Posterior N(S)EC for each metal, back-transformed to mg/L."
+read.csv("data/grouping_tox_posterior.csv") |>
+  ggplot(aes(x = value, group = model, colour = model, fill = model)) +
+  geom_density(alpha = 0.3) +
+  scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
+  labs(x = "Dissolved metal (mg/L)", y = "Density",
+       colour = "Toxicant", fill = "Toxicant") +
+  theme_classic()
+```
+
+```{r}
+#| label: tbl-tox-prob
+#| tbl-cap: "Probability that the copper N(S)EC exceeds the zinc one."
+read.csv("data/grouping_tox_prob_diff.csv") |> kable()
+```
+
+The two posteriors barely overlap, and they differ in width as well as in
+position: copper's runs from 0.031 to 0.091 mg/L, a factor of 3.0 from end to
+end, and zinc's from 0.227 to 1.243, a factor of 5.5. Copper is both the more
+potent metal and the better determined one on these data, and the pairwise
+probability of 0.014 is what that separation reduces to. Two levels an order of
+magnitude apart in median can still overlap where one of them is poorly
+determined, which is the reason to read the densities alongside the probability.
+
+`bnec_group()` does what the earlier version of this module did with a
+hand-written loop over the levels of the factor, and adds three things a loop
+does not.
+
+It gives each level its own seed, realised in the calling session and stored on
+the returned object as `level_seeds`, so a grouped call repeats exactly.
+
+Each level's fit gains a `failed_models` element naming the equations that did
+not fit there and the message each returned, so a level that lost part of its
+set is visible rather than silently averaged over fewer equations. Both levels
+here lost `ecxhormebc5`, which is the initial-value problem of `bayesnec` #344
+on a logged predictor that reaches negative values, so each average is over 14
+of the 15 equations rather than all of them.
+
+And it can use a `future` plan across either the levels or the models within a
+level, choosing whichever arrangement takes fewer rounds and reporting which it
+took; module 4 covers the plans.
+
+The price is run time. Fifteen equations at each of two levels is thirty fits,
+and this is the point at which fitting stops being something done at render
+time.
 
 ### An interaction on a single equation
 
@@ -460,8 +950,8 @@ read.csv("data/grouping_zinc_weights.csv") |>
 `pull_best()`, from module 4, returns the highest-weighted equation and reports
 the weight alongside the number of candidates, which is what says whether the
 selection means anything. On these data it returns `ecxwb1` with a weight of
-0.902 out of six candidates, so one equation holds almost all the weight and the
-rest of this section is about that equation rather than about the set.
+0.902 out of six candidates, so one equation holds almost all the weight and
+the route below is a route for that equation rather than for the set.
 
 The `brms` formula and the priors are then read off that fit:
 
@@ -561,8 +1051,15 @@ fit_inter <- brms::brm(bf_inter, data = zinc, family = Beta(link = "identity"),
 posterior::nchains(brms::as_draws_array(fit_inter))
 ```
 
-All four chains finish, and the largest rhat is 1.0017. The fit still reports
-323 divergent transitions in 10000 draws, well above the threshold of ten that
+```{r}
+#| label: fi-sampling
+#| echo: false
+#| comment: ""
+cat(readLines("data/grouping_zinc_inter_sampling.txt"), sep = "\n")
+```
+
+All four chains finish and the largest rhat is 1.0017, but the fit reports 323
+divergent transitions in 10000 draws, well above the threshold of ten that
 `check_sampling()` applies in module 4. Raising `adapt_delta` further does not
 remove them, and the estimates are the same with and without the ones that
 remain. `bot` is estimated at 0.025, close to the boundary the identity link
@@ -604,32 +1101,108 @@ ggplot(preds) +
   theme_classic()
 ```
 
-That figure shows what this route assumes, and it is the reason the two
-approaches are both presented. Fitting an interaction this way holds the
-functional form the same at every level and lets only the parameter values
-differ, so a level whose response has a different shape cannot be accommodated.
+The three curves have the same shape and sit at different concentrations, which
+is what this route assumes and the reason both routes are shown. Fitting an
+interaction holds the functional form the same at every level and lets only the
+parameter values differ, so a level whose response has a different shape cannot
+be accommodated. Whether that assumption holds here is a question the
+interaction model cannot answer about itself, and the subsection below puts it
+to a fit that can.
 
-On these data that assumption is tenable. Residuals about each level's own curve
-have a root mean square of 0.068, 0.052 and 0.057 at hardness 5, 30 and 406, on a
-response scaled to roughly 0 to 1, so no level stands out as badly described and
-it is the lowest hardness rather than the highest that fits least well.
+The alternative, generalised additive models with a factor interaction term, is
+outside this course.
 
-Where the shape does differ between levels, fit them separately with
-`bnec_group()`, which lets the shape differ, and compare the results as below. The alternative, generalised
-additive models with a factor interaction term, is outside this course.
+### The hardness levels fitted separately
+
+The same data go through `bnec_group()`, so the two routes can be read against
+each other on one experiment.
+
+```{r}
+#| label: zinc-group-fit
+#| eval: false
+zinc_group <- bnec_group(y ~ crf(x, model = "decline"), data = zinc,
+                         group_var = "hardness", seed = 70)
+```
+
+```{r}
+#| label: tbl-zinc-group-weights
+#| tbl-cap: "Model weights at each hardness. Equations below 0.01 at every level are omitted."
+read.csv("data/grouping_zinc_group_weights.csv") |>
+  mutate(hardness = paste0("H", hardness)) |>
+  pivot_wider(names_from = hardness, values_from = wi) |>
+  filter(if_any(-model, ~ .x >= 0.01)) |>
+  kable()
+```
+
+The weights are what the interaction model cannot report, and on these data they
+qualify it. The three levels do not settle on the same equation. Hardness 406
+puts the whole of its weight on `ecxwb1`. Hardness 30 splits 0.535 to `ecxwb1p3`
+and 0.434 to `ecxwb1`. Hardness 5 spreads its weight over nine equations, the
+largest being `ecxll3` at 0.403, and gives `ecxwb1` 0.146.
+
+`ecxwb1` is the only equation with weight at every level, and it is the equation
+the pooled fit selected and the interaction was fitted on, so the interaction is
+a defensible description rather than an arbitrary one. It is not a description
+the three levels agree on. An interaction holds one equation and lets its
+parameters differ, so it has no way to report a disagreement of this kind. The
+fit above reports it without being asked.
+
+```{r}
+#| label: tbl-zinc-group-estimates
+#| tbl-cap: "Toxicity estimates at each hardness, back-transformed to zinc concentration."
+read.csv("data/grouping_zinc_group_estimates.csv") |> kable()
+```
+
+The estimates follow the ordering the interaction model gave. The N(S)EC runs
+0.41, 0.50 and 4.31 across the three hardnesses and EC10 runs 0.52, 0.97 and
+8.73, so the first two levels are close together and the third is an order of
+magnitude above both.
+
+```{r}
+#| label: fig-zinc-group-curves
+#| fig-height: 4
+#| fig-cap: "Each hardness fitted separately. The axis is the same as the interaction figure above, so the two routes can be read against each other."
+# The level names are numbers, so read.csv() returns them as integers and ggplot
+# maps them to a continuous colour scale. As a factor they take the same
+# discrete scale the interaction figure uses, and `geom_polygon()` gets one
+# closed band per level rather than one polygon over all three.
+zinc_group_curves <- read.csv("data/grouping_zinc_group_curves.csv") |>
+  mutate(fit = factor(fit, levels = levels(zinc$hardness)))
+
+ggplot(filter(zinc_group_curves, !is.na(x_e)),
+       aes(x = x_e, colour = fit, fill = fit, group = fit)) +
+  geom_polygon(aes(y = y_ci), colour = NA, alpha = 0.3) +
+  geom_line(data = filter(zinc_group_curves, !is.na(y_e)), aes(y = y_e)) +
+  geom_point(data = filter(zinc_group_curves, !is.na(x_r)),
+             aes(x = x_r, y = y_r), alpha = 0.6, size = 1.5) +
+  labs(x = "Log zinc concentration", y = "Response",
+       colour = "Hardness", fill = "Hardness") +
+  theme_classic()
+```
+
+The curves show the difference the weights describe. Hardness 30 and hardness
+406 fall as one shape displaced along the concentration axis, which is what an
+interaction fits. Hardness 5 falls earlier and over a wider range of
+concentration, on a credible band several times the width of the other two,
+which is the shape `ecxll3` gives it and the interaction model cannot.
 
 ## Comparing levels
 
-`compare_posterior()` takes a named list of fits and returns the posteriors on a
-common footing, the differences between them, and the probability that one
-exceeds another. Module 7 uses it across substances; here it is used across
-levels of a factor.
+The copper-against-zinc comparison above reduced two levels to one probability.
+Three levels give three pairs, and `compare_posterior()` also compares the
+fitted curves themselves, which answers a question the threshold comparison does
+not: whether the levels differ, and over which part of the concentration range.
+
+The levels of a `bnec_group()` fit share no parameters, so their posteriors are
+independent and the pairwise probabilities are read directly. A contrast between
+parts of a single fit is a different quantity and needs draw-wise differencing,
+so it must not be routed through this function.
 
 ```{r}
 #| label: compare-shown
 #| eval: false
-post_comp <- compare_posterior(fit_hardness, comparison = "n(s)ec")
-post_fitted <- compare_posterior(fit_hardness, comparison = "fitted")
+post_comp <- compare_posterior(zinc_group, comparison = "n(s)ec")
+post_fitted <- compare_posterior(zinc_group, comparison = "fitted")
 ```
 
 ```{r}
@@ -648,6 +1221,14 @@ read.csv("data/grouping_zinc_ne_posterior.csv") |>
   theme_classic()
 ```
 
+The densities are on the scale the model was fitted on, which is the logged
+concentration, so these are the same estimates the table above reports in zinc
+concentration. The three sit in two groups. Hardness 5 and 30 overlap over
+almost their whole length, with medians of -0.901 and -0.688 and intervals of
+-1.918 to -0.219 and -1.508 to -0.082. Hardness 406 sits apart at 1.461 (0.221
+to 1.971), which is 2.1 to 2.4 units of natural logarithm above the other two,
+or a factor of 9 to 11 in concentration.
+
 ```{r}
 #| label: tbl-compare-prob
 #| tbl-cap: "Probability that the no-effect estimate at one hardness is lower than at another."
@@ -656,6 +1237,11 @@ read.csv("data/grouping_zinc_prob_diff.csv") |>
   pivot_wider(names_from = against, values_from = prob) |>
   kable()
 ```
+
+The probabilities say the same. Hardness 5 against 30 is 0.332, which is not far
+from the 0.5 that would mean no separation at all; both against 406 are 0.012
+and 0.013. Hardness protects against zinc toxicity, and on these three levels
+the effect is visible between 30 and 406 and not between 5 and 30.
 
 ```{r}
 #| label: fig-compare-fitted
@@ -673,19 +1259,53 @@ read.csv("data/grouping_zinc_diff.csv") |>
 
 A difference band that excludes zero over part of the concentration range says
 the curves differ there, and one that contains zero throughout says they do not.
-This answers the question a factor covariate is asked for, as a probability
-computed from the draws rather than as a significance test, and it does so
-without requiring the levels to share a curve shape.
+Both pairs involving hardness 406 exclude zero over 26 of the 50 grid points: 30
+against 406 from log concentration 0.18 to 5.53, and 5 against 406 from -2.18 to
+4.89.
+
+Hardness 5 against 30 is the pair worth reading carefully, because the two
+comparisons disagree about it. Their threshold posteriors overlap, at a pairwise
+probability of 0.332, and their fitted curves nonetheless differ over 15 of the
+50 grid points, from 0.82 to 3.82. The two are not in conflict: a threshold is
+one point on a curve and the fitted comparison is the whole curve, so two levels
+whose thresholds cannot be told apart can still differ in the response at
+concentrations above it. Which of the two answers the question depends on
+whether a threshold or the response at a given exposure is being reported.
+
+This is what a factor covariate is asked for, as a probability computed from the
+draws rather than as a significance test, and it does not require the levels to
+share a curve shape.
 
 ## Provenance of these fits
 
-None of the fitting above runs when this page is built. The `bnec_group()` call
-alone is dozens of fits, and the interaction models are slow enough that a
-participant would be waiting rather than learning.
+None of the fitting above runs when this page is built. The two `bnec_group()`
+calls are dozens of fits between them, the copper plate set is eleven equations
+of the better part of an hour each, and the interaction models are slow on top
+of that. A participant waiting for a chunk has stopped learning.
 
 They are produced by `scripts/generate_grouping_fits.R`, which writes the compact
 results this module reads into `vignettes/data/`. The code shown is the code that
-was run.
+was run. The summaries of `lum31` itself are computed on this page, from the data
+set as it ships.
+
+One fit is not made by that script. The copper-against-zinc `bnec_group()` call
+is the call `vignette("example8")` in `bayesnec` makes, and that vignette's fits
+are run as cluster array tasks by the `open-AIMS/grouping-structures` compendium
+and kept in a store keyed on the call and a digest of the data. The script reads
+the stored fit where `LUM31_TOX_FIT` names it, and samples the call itself
+otherwise. Either way the call is the one shown, sampler settings included,
+because a stored fit answers a call only where both the call and the data match.
+
+Every other fit samples at `bnec()`'s defaults: 4 chains at 10000 iterations
+with 8000 warmup, under `seed = 70`. `bnec()` raises `adapt_delta` from Stan's
+0.8 of its own accord wherever a group-level term could still push a constrained
+mean outside its support, and it does not do so for any fit here: `ecxll4` holds
+its mean between `bot` and `top`, and both are given their deviations on a scale
+the mean cannot leave, so every plate fit runs at 0.8.
+
+`lum31` reaches `bayesnec` through pull request #228 and is not on the `dev`
+branch until that merges. Until then this module needs that branch installed
+rather than the version module 1 names.
 
 ```{r}
 #| label: provenance

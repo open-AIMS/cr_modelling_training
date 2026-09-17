@@ -1,3 +1,3 @@
-"fit","weight","elpd_diff","se_diff"
-"no group term",0.178,-2.4,2.2
-"ogl(groupvar)",0.822,0,0
+"fit","weight","elpd_diff","se_diff","pareto_k_over_0.7"
+"no group term",0.189,-2.4,2.2,0
+"ogl(groupvar)",0.811,0,0,0
