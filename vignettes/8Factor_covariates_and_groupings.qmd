@@ -344,9 +344,11 @@ estimate the standard deviation and not enough to settle whether it is needed.
 
 ## Deviation on every parameter
 
-Where a grouping spans the whole concentration range, the shape of the curve can
-differ between levels and not only its height. `pgl()` places a deviation on
-every parameter of the equation at once, which is what allows that.
+Where a grouping spans the whole concentration range, the curve can differ
+between levels in more than its height. `pgl()` places a deviation on every
+parameter of the equation at once, which is what allows that. Which term a
+design needs follows from what differs between its levels, and on the assay
+below that can be measured before anything is fitted.
 
 ```{r}
 #| label: fig-microtox
@@ -461,8 +463,42 @@ it: the deviation is applied to the fitted value. `(top | plate)` would scale
 the instrument. For a three-parameter equation whose curve is `top` times a
 function of the predictor the two coincide.
 
-All of that assumes gain is the whole of the difference between plates. *The
-plate term compared* below fits the three terms and tests that.
+Whether gain is the whole of the difference between tests can be asked of the
+recorded data before any model is fitted. If two plates differ only by a
+multiplicative constant, then dividing each by its own control removes that
+constant, and both must cross half their own control at the same concentration.
+
+```{r}
+#| label: tbl-halfctl
+#| tbl-cap: "Concentration at which each plate falls to half its own control, interpolated between the two bracketing concentrations, summarised over the plates of each batch."
+half_control <- cu15 |>
+  mutate(rank = as.integer(sub(".*-c", "", as.character(conc_group)))) |>
+  group_by(batch, plate, rank) |>
+  summarise(conc = first(conc), m = mean(rlu_cens), .groups = "drop_last") |>
+  mutate(rel = m / m[rank == 1]) |>
+  summarise(half_ctl = {
+    i <- which(rel < 0.5)[1]
+    exp(log(conc[i - 1]) + (0.5 - rel[i - 1]) *
+          (log(conc[i]) - log(conc[i - 1])) / (rel[i] - rel[i - 1]))
+  }, .groups = "drop")
+
+half_control |>
+  group_by(batch) |>
+  summarise(plates = n(), lowest = signif(min(half_ctl), 3),
+            highest = signif(max(half_ctl), 3), .groups = "drop") |>
+  kable()
+```
+
+Within a batch the plates agree. The four plates of 19Mar24 cross between 0.110
+and 0.115 mg/L and the two of 28Mar24 between 0.136 and 0.139, which is the
+multiplicative constant doing all the work. Between batches they do not: the
+batch medians run from 0.081 to 0.193, a factor of 2.4, and 92 per cent of the
+variance in the logged crossing lies between batches rather than within them.
+
+Each batch was dosed separately, so a difference in the concentration at which
+the response falls is a difference between preparations of the test rather than
+between reads of the plate reader. It is a real feature of the data and it is
+not gain, so `ogl()` cannot represent it.
 
 The plate term has one limit. Gain and genuine plate-to-plate biological
 variation are confounded in the estimated per-plate factor, and nothing in these
@@ -530,9 +566,11 @@ what differs between them is the group-level term alone.
 
 ### The plate term compared
 
-One equation is fitted three ways, so that what is compared is the group-level
+One equation is fitted four ways, so that what is compared is the group-level
 term and not the equation. Comparing two model averages by leave-one-out would
-confound the two.
+confound the two. The fourth names the structure the table above found: a
+displacement on the plate for the gain, and a deviation on the concentration at
+which the curve falls for the batch.
 
 ```{r}
 #| label: plate-fits
@@ -546,7 +584,14 @@ plate_ogl   <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
 plate_pgl   <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
                       pgl(plate) + disp("power"),
                     data = cu15, family = Gamma(link = "identity"), seed = 70)
+plate_batch <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
+                      ogl(plate) + (ec50 | batch) + disp("power"),
+                    data = cu15, family = Gamma(link = "identity"), seed = 70)
 ```
+
+Two group-level terms on two different groupings go into one formula, and
+`make_brmsformula()` shows what they become: `ogl ~ 1 + (1 | plate)` and
+`ec50 ~ 1 + (1 | batch)`.
 
 `ecxll4` is the equation the whole model set gives most weight to on these
 readings. That set is the copper level of the `bnec_group()` fit under *Factor
@@ -562,27 +607,28 @@ Holding it fixed is what makes the comparison below a comparison of terms.
 read.csv("data/grouping_plate_compare.csv") |> kable()
 ```
 
-`pgl(plate)` takes the whole weight. Its expected log predictive density
-exceeds `ogl(plate)`'s by 297.9 with a standard error of 27.0, and
-`ogl(plate)`'s exceeds the ungrouped fit's by 266.5. Both differences are about
-ten times their standard error, which is a different situation from the coral
-colour comparison above, where the same test could not separate two fits.
+The expected log predictive density of `ogl(plate)` exceeds the ungrouped fit's
+by 266.5, and adding the batch term raises it by a further 225.3. That second
+step is the positional shift the table above measured, now recovered by a fitted
+model: one deviation on five batches covers three quarters of the distance
+between `ogl(plate)` and the best fit of the four.
 
-Two of the 704 observations have a Pareto k above 0.7 under `pgl(plate)`, and
-none do under the other two. The estimate for those two points rests on the
+`pgl(plate)` takes the weight nonetheless, exceeding the batch fit by 72.6 with
+a standard error of 19.7. Every difference here is several times its standard
+error, which is a different situation from the coral colour comparison above,
+where the same test could not separate two fits.
+
+Two of the 704 observations have a Pareto k above 0.7 under `pgl(plate)` and
+none do under the other three. The estimate for those two points rests on the
 importance-sampling approximation rather than on a refit, and two points of 704
 will not reverse a difference of this size.
 
-The result is worth pausing on, because a per-plate gain would not produce it.
-Gain multiplies the whole reading, and a fit whose plates differ only by gain
-would be described by `ogl(plate)` and gain nothing from a deviation on every
-parameter. The plates differ in more than their height.
-
 ```{r}
 #| label: fig-plate-curves
-#| fig-height: 4
-#| fig-cap: "The same equation with no plate term, with ogl(plate) and with pgl(plate). Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC."
-plate_levels <- c("no group term", "ogl(plate)", "pgl(plate)")
+#| fig-height: 6
+#| fig-cap: "The same equation fitted with no grouping term and with three. Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC."
+plate_levels <- c("no group term", "ogl(plate)", "pgl(plate)",
+                  "ogl(plate) + (ec50 | batch)")
 plate_curves <- read.csv("data/grouping_plate_curves.csv") |>
   mutate(fit = factor(fit, levels = plate_levels))
 plate_obs <- read.csv("data/grouping_plate_obs.csv")
@@ -597,18 +643,18 @@ ggplot(plate_curves, aes(x = x)) +
   geom_line(aes(y = Estimate), colour = "#2c6a5a", linewidth = 0.8) +
   geom_vline(data = plate_nsec, aes(xintercept = Q50), linetype = 2,
              colour = "grey40") +
-  facet_wrap(~fit) +
+  facet_wrap(~fit, ncol = 2) +
   scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
   labs(x = "Dissolved copper (mg/L)", y = "Relative light units") +
   theme_classic()
 ```
 
-The three panels differ in the width of the credible band and in where the
-N(S)EC rule falls. Ungrouped, the band around the control is narrow, because the
-spread between plates has nowhere to go but the residual and the curve is
-reported as well determined. With either plate term that spread is attributed to
-the plates instead, and the control band widens towards the range the control
-readings themselves span.
+The panels differ in the width of the credible band and in where the N(S)EC
+rule falls. Ungrouped, the band around the control is narrow, because the spread
+between tests has nowhere to go but the residual and the curve is reported as
+well determined. With any of the three grouped terms that spread is attributed
+to the grouping instead, and the control band widens towards the range the
+control readings themselves span.
 
 That is the mechanism behind the threshold estimates. The N(S)EC is read
 where the fitted curve leaves the lower bound of the control, so a narrow
@@ -622,24 +668,30 @@ four of them.
 
 ```{r}
 #| label: tbl-plate-sd
-#| tbl-cap: "Group-level standard deviations. ogl() estimates one; pgl() estimates one for every parameter of the equation."
+#| tbl-cap: "Group-level standard deviations, on the scale each deviation is applied on. ogl() estimates one; pgl() estimates one for every parameter of the equation; the batch fit estimates one on each of its two groupings."
 read.csv("data/grouping_plate_sd.csv") |> kable()
 ```
 
 `ogl(plate)` puts the between-plate difference at 0.424 on the log scale the
-deviation is applied on, which is a factor of 1.53 in luminescence. Under
-`pgl(plate)` the largest deviations are on the two asymptotes, `botgl` at 0.648
-and `topgl` at 0.465, which is the vertical displacement `ogl()` was describing.
-The one that `ogl()` cannot represent is `ec50` at 0.356 on the log
-concentration scale, a factor of 1.43 in the concentration at which the curve
-reaches its midpoint. The plates differ in where the response falls as well as
-in how much light they read, and only `pgl()` fits that. `beta`, the slope, is
-the most nearly common at 0.116.
+deviation is applied on, a factor of 1.53 in luminescence. The batch fit keeps a
+displacement of much the same size, 0.476 on the plate, and adds a batch
+deviation of 0.509 on `ec50`, a factor of 1.66 in the concentration at which the
+curve reaches its midpoint. Those two numbers are the two effects separated: the
+plate term is the gain and the batch term is the shift in potency.
 
-Gain and genuine between-plate variation are confounded in all of these, as
-*Normalising to a control* said. What the `ec50` deviation adds is that the
-confounded quantity is not a single multiplicative constant: a difference in
-potency between plates is not something a gain setting can produce.
+Under `pgl(plate)` the same deviations appear on one grouping. The largest are
+on the asymptotes, `botgl` at 0.648 and `topgl` at 0.465, and `ec50` takes 0.356
+against the batch fit's 0.509. A per-plate deviation can encode a per-batch
+shift, because the sixteen plates sit within five batches, so `pgl(plate)`
+reaches the positional difference without being told where it lives. `beta`, the
+slope, is the most nearly common at 0.116.
+
+What `pgl(plate)` has and the batch fit does not is a deviation on `bot`, and it
+is the largest of the four. Copper falls to near zero and 106 of its 704
+readings are at the instrument floor, so the level the curve settles to is the
+part of it the plates are least likely to share. That, rather than the
+positional shift, is what the remaining 72.6 of predictive density is bought
+with.
 
 ```{r}
 #| label: tbl-plate-estimates
@@ -647,16 +699,42 @@ potency between plates is not something a gain setting can produce.
 read.csv("data/grouping_plate_estimates.csv") |> kable()
 ```
 
-The N(S)EC doubles across the three fits, from 0.041 mg/L ungrouped to 0.073
-with `ogl(plate)` and 0.084 with `pgl(plate)`, and its lower bound rises from
-0.009 to 0.054. EC10 changes much less, from 0.056 to 0.054 to 0.063. A threshold
-is the estimate the plate structure decides, because it is read where the curve
-leaves the control and that is where the between-plate spread is largest; an
-EC10 is read further down a curve the plates agree about more closely.
+The N(S)EC more than doubles across the four fits, from 0.041 mg/L ungrouped to
+0.073, 0.084 and 0.095, and its lower bound rises from 0.009 to between 0.040
+and 0.054. EC10 changes much less, from 0.056 to 0.054, 0.063 and 0.068. A
+threshold is the estimate the grouping decides, because it is read where the
+curve leaves the control and that is where the between-test spread is largest;
+an EC10 is read further down a curve the tests agree about more closely.
 
 An analysis that treated these 704 readings as independent would report a
-no-effect concentration half the one the plate structure supports, on a lower
-bound a factor of six too low.
+no-effect concentration less than half the one the structure supports, on a
+lower bound a factor of four to six too low.
+
+### The choice between the grouped forms
+
+The batch fit is the more exact statement and `pgl(plate)` is the one this
+module uses, for two reasons beyond the predictive density.
+
+`(ec50 | batch)` names a parameter, and the parameter that sets where a curve
+falls does not have one name across the model set. Ten of the 23 equations have
+`ec50`, ten have `nec`, and `ecxlin`, `ecxexp` and `ecxsigm` have neither. In
+the `decline` set that is eight, three and three. A term written `(ec50 | batch)`
+would therefore be fitted on eight equations of that set, dropped with a message
+on three, and have nothing to attach to on the remaining three, so the set would
+be averaged over equations making different claims about the batches.
+`check_formula()` reports which, as *Group-level terms in `bayesnec`* describes.
+
+`pgl()` places a deviation on every parameter the equation has, whatever they
+are called, so it makes the same claim about every equation of a set. That is
+what recommends it for a workflow that fits a model set rather than one
+equation. The price is the one *The number of levels a deviation needs* gives:
+four standard deviations estimated from sixteen levels here, where `ogl()`
+estimates one.
+
+Where a design has enough levels of the grouping the shift belongs to, naming
+it is better. Five batches is exactly the minimum this module gives for
+estimating a group-level standard deviation, and the batch deviation's interval,
+0.243 to 1.067, is correspondingly wide.
 
 ## The number of levels a deviation needs
 

@@ -321,10 +321,21 @@ if (need("grouping_plate_compare.csv", "grouping_plate_curves.csv",
     plate_pgl <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), plate_best) +
                         pgl(plate) + disp("power"),
                       data = cu15, family = gfam, seed = SEED)
+    # The per-plate gain as a displacement, plus a per-batch deviation on the
+    # concentration at which the curve falls. This is the structure the recorded
+    # data show: within a batch the plates cross half their own control at the
+    # same concentration to within a few per cent, and between batches that
+    # crossing varies by a factor of 2.4. Fitted so that the section can say
+    # what `pgl(plate)` is absorbing rather than asserting it.
+    message("  plate: ", plate_best, ", ogl(plate) + (ec50 | batch)")
+    plate_batch <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), plate_best) +
+                          ogl(plate) + (ec50 | batch) + disp("power"),
+                        data = cu15, family = gfam, seed = SEED)
 
     plate_fits <- list(`no group term` = plate_plain,
                        `ogl(plate)` = plate_ogl,
-                       `pgl(plate)` = plate_pgl)
+                       `pgl(plate)` = plate_pgl,
+                       `ogl(plate) + (ec50 | batch)` = plate_batch)
     saveRDS(plate_fits, plate_rds)
   }
 
@@ -343,14 +354,16 @@ if (need("grouping_plate_compare.csv", "grouping_plate_curves.csv",
     write.csv(file.path(out_dir, "grouping_plate_obs.csv"), row.names = FALSE)
 
   # The group-level standard deviations. `ogl()` estimates one; `pgl()`
-  # estimates one for every parameter of the equation, which is what the module
-  # compares them on. `summary()` does not report them, so they are read from
-  # the underlying brmsfit.
-  grouped <- plate_fits[c("ogl(plate)", "pgl(plate)")]
+  # estimates one for every parameter of the equation; the batch fit estimates
+  # one on each of two groupings. `summary()` does not report them, so they are
+  # read from the underlying brmsfit, over whichever groupings it has.
+  grouped <- plate_fits[-1]
   do.call(rbind, Map(function(f, nm) {
-    v <- brms::VarCorr(pull_brmsfit(f))$plate$sd
-    data.frame(fit = nm, term = rownames(v), round(as.data.frame(v), 3),
-               row.names = NULL)
+    v <- brms::VarCorr(pull_brmsfit(f))
+    do.call(rbind, Map(function(g, gn) {
+      data.frame(fit = nm, grouping = gn, term = rownames(g$sd),
+                 round(as.data.frame(g$sd), 3), row.names = NULL)
+    }, v, names(v)))
   }, grouped, names(grouped))) |>
     write.csv(file.path(out_dir, "grouping_plate_sd.csv"), row.names = FALSE)
 }
