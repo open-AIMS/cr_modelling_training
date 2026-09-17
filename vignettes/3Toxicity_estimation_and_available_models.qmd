@@ -169,8 +169,15 @@ on which shape suits the data. Where the response really does decline smoothly, 
 broken-stick curve is flat before the break and then falls sharply, so its
 **EC~x~** is the higher and less conservative of the two. Where a threshold is
 genuinely present, the smooth equation begins declining below it and returns the
-lower value. *Evidence from the simulation study* below measures how large that
-difference becomes.
+lower value.
+
+@fisheretal2023 measured how large that difference becomes. Simulating from
+smooth curves of known shape and fitting a threshold equation to the result, the
+*NEC* returned represented an actual effect of 15% to 40% depending on the
+design. That percentage did not necessarily fall as sampling effort increased,
+because the problem is the shape of the equation rather than the amount of data.
+Choosing between the two shapes in advance therefore matters, and module 4 covers
+fitting both and letting the data weight them.
 
 ## Smooth models
 
@@ -288,113 +295,6 @@ data show, which module 2 covers under `check_fit()`.
 The same exposure applies to an **EC~x~**. @mebane2015 states the limit directly:
 where the control mean has a standard error of 20%, an EC10 is not a meaningful
 quantity, whatever the fitting routine returns.
-
-## Model averaging and the N(S)EC
-
-Where the data show a threshold, the *NEC* is the most defensible estimate of no
-effect. Threshold models do not always fit well, however, and fitting one to
-smoothly declining data produces estimates that are *non-conservative*: the
-estimated threshold sits above concentrations at which an effect is already
-occurring.
-
-Identifying which shape the data have is itself hard. @Krull2020 simulated
-threshold estimation by maximum likelihood, by MCMC and by piecewise regression,
-across a range of curve slopes, background mortalities and designs. All three
-performed poorly on shallow and intermediate curves, and accuracy improved as the
-curve steepened. Information criteria weights usually did not provide strong
-evidence in favour of the generating model.
-
-Model averaging over a set containing both kinds of equation removes the need to
-make the choice in advance. A `nec` equation in the set contributes its *NEC*
-parameter; an `ecx` equation contributes its *NSEC*; and the averaged estimate
-weights each by how well that equation fits the data. The averaged quantity is
-written **N(S)EC**, to record that it mixes the two [@fisheretal2023].
-
-```{r}
-#| label: fig-nsecieam
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023."
-knitr::include_graphics("images/NSEC_ieam.jpg")
-```
-
-Module 4 covers how the N(S)EC is produced. It fits a set with `bnec()`, sets
-out how the weights are calculated, and shows the summary in which `bayesnec`
-warns that an averaged no-effect estimate contains *NSEC* values.
-
-## Evidence from the simulation study
-
-@fisheretal2023 simulated concentration-response data from four known curves, two
-threshold and two smooth, across designs varying in the number of test
-concentrations, the number of replicates within each, and the number of
-individuals per replicate. Three findings from it change how a study is laid out
-and what is reported from it.
-
-```{r}
-#| label: fig-ieam
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>."
-knitr::include_graphics("images/ieam_head.jpg")
-```
-
-### Replication across treatments
-
-Increasing the number of test concentrations resolved the model weights better
-than increasing replication within concentrations did. In one scenario the weight
-on the generating equation was 0.987 for twelve concentrations with five
-replicates of ten individuals, and 0.984 for eight concentrations with five
-replicates of twenty, from a third more individuals in total.
-
-Designs in commercial testing laboratories commonly favour replication within
-treatments, because that is what the one-way analysis of variance behind a *NOEC*
-requires. Redistributing that replication across more treatment concentrations
-can often be achieved without spending more on the experiment.
-
-### The effect the estimate represents
-
-Because the generating curve was known, the true effect size corresponding to
-each estimate could be measured.
-
-Where a threshold equation was fitted to smoothly declining data, the *NEC* it
-returned represented an actual effect of 15% to 40% depending on the design, and
-that percentage did not necessarily fall as sampling effort increased, because
-the problem is the shape of the equation rather than the amount of data.
-
-The *NSEC* and the N(S)EC represented effects nearing 10% on average for the
-designs with the poorest sampling effort, falling to about 1% on average for the
-most replicated design simulated. For data generated from a threshold curve the
-averaged estimate was close to the true *NEC*, because the threshold equations
-took the weight; for data generated from a smooth curve it was close to the
-*NSEC*.
-
-Design also affected the **EC~x~** estimates, which tended to be larger than
-their theoretical value where sampling effort was low, with the bias decreasing
-as effort increased.
-
-### A case study
-
-The same comparison was made on real data. For *Stylophora variolaris*, the
-weight was divided between two smooth equations and the *NEC* returned by the set
-was definitively higher than the EC10.
-
-```{r}
-#| label: fig-svariolis
-#| out-width: "70%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The *S. variolaris* case study of @fisheretal2023. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L^-1^, the dotted line the EC10 at 530 µg L^-1^, and the dashed line the *NEC* at 800 µg L^-1^."
-knitr::include_graphics("images/svariolis.jpg")
-```
-
-The N(S)EC of 140 µg L^-1^ was the most conservative of the three and represented
-a measured effect of about 1.5%. The *NEC* of 800 µg L^-1^ was the least
-conservative, which is what fitting a threshold to smooth data produces. Across
-the case studies examined, the measured effect at the N(S)EC ran from 1.5% to
-6.6%, and in every case the N(S)EC was higher than the *NOEC* calculated from the
-same data.
 
 ## Choosing an estimate
 
