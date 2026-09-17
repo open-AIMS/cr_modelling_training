@@ -10,8 +10,25 @@ bibliography: bayesnec.bib
 knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
 library(brms)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 options(mc.cores = 4)
 set.seed(333)
+data(nec_data)
+
+# The prior figures below draw the densities `get_priors()` returns, rather than
+# idealised curves, so that what is plotted is what a fit would actually use.
+# sample_priors() returns a named list of draws with a `b_` prefix per parameter.
+prior_draws <- function(priors, set) {
+  sample_priors(priors, n_samples = 4000, plot = NA) |>
+    data.frame() |>
+    tidyr::pivot_longer(dplyr::everything(),
+                        names_to = "parameter", values_to = "value") |>
+    dplyr::mutate(parameter = sub("^b_", "", parameter), set = set)
+}
+
+prior_cols <- c("uninformative" = "#1b6ca8", "regularizing" = "#c1440e")
 ```
 
 ## Background
@@ -156,6 +173,54 @@ formals(bnec)$prior_type
 deliberately narrower set, and it is the option to reach for where a default fit
 is unstable.
 
+The narrower set is recent, and it is not the default for a reason that has
+nothing to do with which set performs better. `"uninformative"` reproduces the
+priors described in the paper that documents the package [@fisheretal2024], so
+it is what a published `bayesnec` analysis was run under, and changing the
+default would silently change the result of re-running one. The narrower set is
+offered alongside it instead.
+
+On the evidence so far the narrower set is the better choice for a new analysis.
+It was measured on the two designs that cause the most trouble, complete effect
+at the highest concentration and a hurdle or zero-inflated fit whose survival
+declines with concentration: over 420 `top` and `bot` entries built from
+simulated responses across ten seeds, three designs and five families, the true
+value fell outside the central 95% of its own prior in 12 entries under the
+narrower set and in 127 under `"uninformative"`. Expect it to become the default
+in a later version, and state which set was used either way.
+
+```{r}
+#| label: fig-prior-sets
+#| fig-height: 2.8
+#| echo: false
+#| fig-cap: "The two prior sets for `nec4param` fitted to `nec_data` with a Gaussian response. The shaded band on each panel is the observed range of the quantity that parameter describes. `top` and `bot` are narrower under the regularizing set by a factor of 0.4 and `bot` is also relocated, from the 10th quantile of the response to the mean at the highest concentration. The prior on `nec` is almost unchanged, because it is set by the concentration series rather than by the response."
+f_gauss <- bayesnecformula(y ~ crf(x, model = "nec4param"))
+p_unin <- get_priors(f_gauss, data = nec_data, family = gaussian())
+p_regl <- get_priors(f_gauss, data = nec_data, family = gaussian(),
+                     prior_type = "regularizing")
+
+sets <- bind_rows(prior_draws(p_unin, "uninformative"),
+                  prior_draws(p_regl, "regularizing")) |>
+  filter(parameter %in% c("top", "bot", "nec")) |>
+  mutate(parameter = factor(parameter, c("top", "bot", "nec")))
+
+observed <- data.frame(
+  parameter = factor(c("top", "bot", "nec"), c("top", "bot", "nec")),
+  lo = c(min(nec_data$y), min(nec_data$y), min(nec_data$x)),
+  hi = c(max(nec_data$y), max(nec_data$y), max(nec_data$x)))
+
+ggplot(sets, aes(value, colour = set, fill = set)) +
+  geom_rect(data = observed, aes(xmin = lo, xmax = hi, ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE, fill = "grey90", colour = NA) +
+  geom_density(alpha = 0.25, linewidth = 0.6) +
+  facet_wrap(~parameter, scales = "free", nrow = 1) +
+  scale_colour_manual(values = prior_cols) +
+  scale_fill_manual(values = prior_cols) +
+  labs(x = NULL, y = "prior density", colour = NULL, fill = NULL) +
+  theme_classic() +
+  theme(legend.position = "top")
+```
+
 The narrower set is stated once, as a location and a spread, and each family's
 entry is derived from that statement using whichever distribution matches the
 parameter's support. The location is the mean response at the end of the
@@ -208,6 +273,35 @@ between 0 and 1 on the identity link, so no scaling to the response is needed.
 `beta(5, 2)` and `beta(2, 5)` give broad densities over the upper and lower parts
 of that range respectively.
 
+```{r}
+#| label: fig-family-priors
+#| fig-height: 2.8
+#| echo: false
+#| fig-cap: "The `top` and `bot` priors under three families, read off `get_priors()` for `nec4param`. A Gaussian response gives normal priors, which admit negative values. A count gives gamma priors, bounded at zero and right skewed, on the scale of the counts themselves. A count out of a total gives beta priors on the identity link, bounded at 0 and 1, with `top` over the upper part of the range and `bot` over the lower."
+count_data <- nec_data |>
+  mutate(y = abs(round(y * 100 + rnorm(nrow(nec_data), 0, 15))) |> as.integer())
+binom_data <- read.csv("example_binomial.csv")
+
+f_binom <- bayesnecformula(suc | trials(tot) ~ crf(raw_x, model = "nec4param"))
+
+by_family <- bind_rows(
+  prior_draws(get_priors(f_gauss, data = nec_data,   family = gaussian()), "gaussian"),
+  prior_draws(get_priors(f_gauss, data = count_data, family = poisson()),  "poisson"),
+  prior_draws(get_priors(f_binom, data = binom_data, family = binomial()), "binomial")) |>
+  filter(parameter %in% c("top", "bot")) |>
+  mutate(family = factor(set, c("gaussian", "poisson", "binomial")),
+         parameter = factor(parameter, c("top", "bot")))
+
+ggplot(by_family, aes(value, colour = parameter, fill = parameter)) +
+  geom_density(alpha = 0.3, linewidth = 0.6) +
+  facet_wrap(~family, scales = "free", nrow = 1) +
+  scale_colour_manual(values = c(top = "#1b6ca8", bot = "#c1440e")) +
+  scale_fill_manual(values = c(top = "#1b6ca8", bot = "#c1440e")) +
+  labs(x = NULL, y = "prior density", colour = NULL, fill = NULL) +
+  theme_classic() +
+  theme(legend.position = "top")
+```
+
 ### Predictor-scaled parameters
 
 $\eta = \text{nec}$ and $\omega = \text{ec50}$ are estimated in units of the
@@ -231,6 +325,35 @@ The width is stated rather than chosen: the central 95% interval of the
 untruncated prior reaches every concentration tested. A prior on a threshold
 should not exclude a concentration the experiment applied, at either end, and
 that criterion is the whole of the rule.
+
+```{r}
+#| label: fig-nec-prior
+#| fig-height: 2.6
+#| echo: false
+#| fig-cap: "The `nec` prior for the binomial example of module 5, on a logarithmic concentration axis. Red ticks are the eight concentrations tested, dashed lines the truncation bounds, and the shaded region the prior the fit actually uses. The central 95% of the untruncated lognormal runs from 0.1 to 12,500, so it reaches the lowest concentration exactly and extends well past the highest before truncation removes the upper tail."
+nec_prior <- get_priors(f_binom, data = binom_data, family = binomial())
+pars <- as.numeric(strsplit(
+  gsub("lognormal\\(|\\)", "", nec_prior$prior[nec_prior$nlpar == "nec"]),
+  ", ")[[1]])
+concs <- sort(unique(binom_data$raw_x))
+
+# The axis is logarithmic, so the density is taken with respect to log(x);
+# plotting dlnorm() against a log axis would distort the shape into a decay.
+grid <- data.frame(x = exp(seq(log(min(concs)) - 2, log(max(concs)) + 4,
+                               length.out = 600)))
+grid$d <- dnorm(log(grid$x), pars[1], pars[2])
+
+ggplot(grid, aes(x, d)) +
+  geom_area(data = subset(grid, x >= min(concs) & x <= max(concs)),
+            fill = "#1b6ca8", alpha = 0.25) +
+  geom_line(colour = "#1b6ca8", linewidth = 0.7) +
+  geom_vline(xintercept = range(concs), linetype = 2, colour = "grey40") +
+  geom_rug(data = data.frame(x = concs), aes(x = x), inherit.aes = FALSE,
+           length = unit(0.09, "npc"), linewidth = 0.8, colour = "#c1440e") +
+  scale_x_log10() +
+  labs(x = "concentration", y = "prior density") +
+  theme_classic()
+```
 
 One consequence reaches how you record your data. Because the width is set by the
 two extreme concentrations rather than by the spread of the series between them,
