@@ -1,0 +1,199 @@
+---
+title: "Concentration-response modelling in R"
+subtitle: "SETAC Australasia 2026 --- Room 303"
+author: "Rebecca Fisher, Australian Institute of Marine Science"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    transition: none
+    embed-resources: true
+    width: 1280
+    height: 800
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## The presenters
+
+Rebecca Fisher, Australian Institute of Marine Science.
+
+`bayesnec`, the package used through the day, is developed at AIMS by Fisher,
+Barneche, Ricardo and Fox, and is described in *Journal of Statistical Software*
+110(5).
+
+Helpers are in the room during the sessions where you run the code. Put a hand
+up and one will come to you rather than waiting until the break.
+
+::: {.notes}
+Fifteen minutes for this block, 10:00 to 10:15. Module 1 starts at 10:15.
+:::
+
+## The shape of the day
+
+| Time | |
+|---|---|
+| 10:00 | Welcome, and an introduction to concentration-response modelling |
+| 10:15 | The software stack, and fitting your first model in `bayesnec` |
+| 12:30 | Lunch, served one level below |
+| 13:15 | Toxicity estimates, model averaging, and choosing a statistical distribution |
+| 14:30 | Break. Coffee, tea and snacks in Room 301. |
+| 14:45 | Priors, and a worked case study from start to finish |
+| 16:00 | Finish |
+
+Coffee and tea are next door in Room 301. The day ends at 16:00, in time for the
+conference opening ceremony at 16:30.
+
+## The outcomes
+
+By the end of the day you will be able to:
+
+- distinguish linear, non-linear and threshold concentration-response models,
+  and say which suits a given endpoint;
+- identify the statistical distribution appropriate to a response variable;
+- fit concentration-response models in R and plot the results;
+- derive NEC, NSEC and ECx estimates, and explain what each measures;
+- apply model averaging across a candidate set, and interpret the weights;
+- produce a complete workflow for estimating no-effect toxicity, suitable for
+  use in a species sensitivity distribution.
+
+## Concentration-response data
+
+```{r}
+#| label: fig-crdata
+#| fig-width: 8
+#| fig-height: 3.6
+#| fig-align: center
+library(ggplot2)
+data("nec_data", package = "bayesnec")
+ggplot(nec_data, aes(x = x, y = y)) +
+  geom_point(size = 2.2, alpha = 0.7) +
+  labs(x = "Concentration", y = "Response") +
+  theme_classic(base_size = 18)
+```
+
+An exposure across a concentration series, with a measured response at each
+concentration. The response falls as concentration rises, and the question is
+where it begins to fall and by how much.
+
+## Estimates read from a fitted curve
+
+Four quantities are in use, and they measure different things.
+
+- The **NEC** is the concentration at which the response begins to decline. It
+  is a parameter of a threshold model, estimated directly.
+- The **NSEC** is the concentration at which the fitted curve crosses a lower
+  quantile of the control response. It is defined for a smooth curve, which has
+  no threshold to estimate.
+- An **ECx** is the concentration producing an x per cent change from the
+  control, most often EC10 or EC50.
+- The **NOEC** is the highest test concentration whose treatment mean is not
+  statistically distinguishable from the control.
+
+Module 3 takes each of these on a fitted curve.
+
+## The place of a no-effect estimate
+
+A no-effect estimate for each of several species is what a species sensitivity
+distribution is built from, and the distribution is what a guideline value is
+derived from.
+
+The estimate you report therefore propagates into the protective concentration
+someone else calculates.
+
+Warne et al. (2025), the current Australian and New Zealand method, lists the
+NEC and the NSEC as the two most preferred statistical estimates of toxicity.
+
+## The difficulty with the NOEC
+
+The NOEC is one of the concentrations you happened to test, so it cannot fall
+between two of them and it cannot be reported with an interval.
+
+It also rewards an imprecise experiment. Wider variation makes a treatment
+harder to distinguish from the control, which raises the concentration declared
+to have no effect.
+
+Fisher and Fox (2023) introduce the NSEC as the estimate that answers the same
+question from a fitted curve.
+
+## Fitting in a Bayesian framework
+
+`bayesnec` fits these models through `brms` and Stan.
+
+The fit returns a posterior distribution for every quantity, so an NEC, an NSEC
+and an ECx each come with an interval without a separate calculation.
+
+A prior is stated for each parameter. `bayesnec` sets weakly informative priors
+from the data by default, and module 6 covers reading them and changing them.
+
+## Model averaging
+
+A candidate set of equations is fitted rather than one equation.
+
+Each equation is weighted by how well it predicts, and the estimates are
+averaged across the set by those weights.
+
+The reason is that the equation is rarely known in advance, and a guideline
+value derived from a single equation chosen after the fact omits the
+uncertainty in that choice. Module 4 covers the weights and how to read them.
+
+## The frequentist comparison
+
+`drc` fits the same curves by maximum likelihood, and many people in this field
+already use it.
+
+It is supplied as a reference page rather than taught, and it is explicit about
+where the two engines answer the same question and where they do not.
+
+## The page and the teaching modes
+
+The page on the projector is the page on your own screen, and each module shows
+the code that produced every result on it.
+
+Three modes are used through the day:
+
+- **hands-on**, where you run the code as it is introduced;
+- **demonstration**, where you watch it run and have the script to run later;
+- **walk-through**, where the page is read and its output discussed.
+
+## Fits that are loaded rather than sampled
+
+A single model takes minutes to fit and a model-averaged set takes longer, so
+nothing is sampled from scratch in the room.
+
+Every fit appears as three steps: the `bnec()` call, the `save()` that keeps the
+result, and the `load()` that reads it back. The call and the save are shown;
+the load is what runs.
+
+The saved objects are the download named in the setup instructions, and they are
+on the USB sticks at the front. That sequence is what a real analysis does,
+which is why it is on the page rather than hidden.
+
+## A broken installation
+
+You will be able to follow every demonstration, and the material stays online
+afterwards.
+
+Bring your laptop to a helper during a break rather than during a session, and
+run `check_setup.R` first so that the output is in front of us.
+
+Nothing is installed or repaired during teaching time; there is no slot for it
+in the day.
+
+## The material
+
+<https://open-aims.github.io/cr_modelling_training/>
+
+The site stays available after the workshop, and the source is at
+<https://github.com/open-AIMS/cr_modelling_training>.
+
+Corrections and questions are welcome as issues on that repository, including
+after today.
+
+## Module 1, the software stack
+
+What R, Stan, `brms` and `bayesnec` each contribute, and how they fit together.
+
+Open the site, and open Positron beside it.

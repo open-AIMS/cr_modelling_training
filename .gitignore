@@ -77,3 +77,6 @@ vignettes/fits/
 
 # distribution build output
 dist/
+
+# rendered decks, built from slides/*.qmd
+slides/*.html

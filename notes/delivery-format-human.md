@@ -202,10 +202,18 @@ Each step is complete when the stated condition holds.
 Steps 1 and 2 are independent of the revision and can proceed alongside it.
 Step 5 depends on step 4 and on the module content being settled.
 
-State on 2026-09-17: steps 1 and 3 hold. Every taught module shows call, save
-and load, a render of the development site samples nothing, and the bundle is
-built, measured and published as a release asset. Steps 2, 4, 5 and 6 are
-outstanding, and `scripts/live/` does not exist.
+State on 2026-09-17: steps 1, 3, 4 and 6 hold. Every taught module shows call,
+save and load, a render of the development site samples nothing, the bundle is
+built, measured and published as a release asset, `workshop-agenda.md` gives each
+module its minutes, and the opening deck is drafted at `slides/opening.qmd`.
+Steps 2 and 5 are outstanding: `scripts/live/` does not exist, and no module
+opens with a runs-here callout.
+
+The deck is a `revealjs` document with `embed-resources: true`, so it renders to
+one self-contained `slides/opening.html` that opens from a USB stick with no
+other files beside it. It is not in either `render:` list, so a project render
+neither builds nor deletes it; build it with `quarto render slides/opening.qmd`.
+The rendered file is git-ignored.
 
 ## Rejected routes
 
