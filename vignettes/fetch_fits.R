@@ -36,7 +36,13 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # The number of saved fits the archive holds. Checked after extraction, because
 # a truncated download has a plausible size and unpacks into a subset that
 # fails later and obscurely.
-N_FITS <- 20L
+#
+# Count this against vignettes/fits/ when the archive is rebuilt rather than
+# trusting the number below. Modules are being revised in parallel and each
+# revision that changes a fitted model adds or replaces objects here; the value
+# was 18, then 20, and was 25 on 2026-09-17. An under-set value does not break
+# the fetch, it only guards less.
+N_FITS <- 25L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")
