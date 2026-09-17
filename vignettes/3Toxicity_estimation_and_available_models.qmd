@@ -309,7 +309,7 @@ A valid *NSEC* therefore depends on the control variability being a good
 representation of natural variability in an unimpacted population. That in turn
 depends on modelling the response with an appropriate statistical distribution,
 which module 5 covers, and on the fitted model reproducing the variability the
-data show, which module 2 covers under `check_fit()`.
+data show, which `check_fit()` measures and module 4 covers.
 
 The same exposure applies to an **EC~x~**. @mebane2015 states the limit directly:
 where the control mean has a standard error of 20%, an EC10 is not a meaningful

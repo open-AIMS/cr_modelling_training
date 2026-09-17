@@ -286,8 +286,9 @@ data were simulated from that equation. The Bayesian R² values show how little 
 the variation the smooth exponential decline accounts for.
 
 The summary also warns that `ecxexp` reproduces the observed variability at the
-control poorly. That is the check module 2 introduced as `check_fit()`, applied
-here to every equation in the set and reported where it fails. It is a statement
+control poorly. That is `check_fit()`, named in module 2 and set out below,
+applied here to every equation in the set and reported where it fails. It is a
+statement
 about how well that equation describes the data rather than a fault in the
 fitting, and `ecxexp` holds almost none of the weight, so it does not reach the
 averaged estimate. The same warning against a heavily weighted equation would
@@ -398,8 +399,8 @@ It reports the weight alongside the number of candidates it chose from, because
 the two together say whether the selection means anything. The largest weight in
 a flat set of twenty is barely more than the equal share of 0.05, and a model
 holding it describes the averaged prediction hardly at all. That model is the one
-worth putting through the fit checks of module 2, since it contributes most to
-the reported estimate.
+worth putting through the fit checks below, since it contributes most to the
+reported estimate.
 
 `summary()` gives the weights, the dispersion, the no-effect estimate and the
 Bayesian R², and no parameter estimates at all. `curve_params()` returns those:
@@ -474,20 +475,47 @@ check_chains(bmanecfit_more)
 
 ## Screening the set
 
-Reading plots for a set of twenty-three is not a workable check. Module 2
-introduced `check_sampling()` on a single fit; on a set it returns one row per
-model:
+Reading plots for a set of twenty-three is not a workable check. Module 2 named
+`check_sampling()` on a single fit; on a set it returns one row per model:
 
 ```{r}
 #| label: check-sampling-set
 check_sampling(bmanecfit_more)
 ```
 
-The three diagnostics and their cutoffs are the ones module 2 describes: R-hat
-against 1.01 [@Vehtari2021], the smallest effective sample size against 400, and
-the number of divergent transitions against 10. `failed` is `TRUE` where any of
-the three is missed. All three cutoffs are arguments and can be changed, which is
-why the values used belong in the write-up.
+`failed` is `TRUE` where any of the three diagnostics misses its cutoff.
+
+`max_rhat` is the largest R-hat over the parameters, and the cutoff is 1.01
+following @Vehtari2021. R-hat compares the variation within each chain against
+the variation between chains, so a value near 1 says the chains are describing
+the same distribution.
+
+`min_ess` is the smallest effective sample size, and the cutoff is 400. Draws
+from a Markov chain are correlated, so 8,000 of them hold less information than
+8,000 independent draws would; the effective sample size is how many independent
+draws they are worth. The floor of 400 is an absolute one, below which the R-hat
+and effective sample size estimates are themselves unreliable, and it corresponds
+to 100 draws per chain at the four chains `bnec()` fits. Read `min_ess_ratio`
+beside it: the ratio separates a model that cleared 400 because a great many
+draws were taken from one that cleared it efficiently.
+
+`n_divergent` is the number of divergent transitions, and the cutoff is 10. A
+divergent transition is recorded when the sampler's path through parameter space
+goes numerically unstable, which happens where the posterior has curvature too
+sharp for the step size chosen during warm-up. This one is a `bayesnec`
+convention rather than a published recommendation: Stan's own guidance is that
+any divergence means the sampler failed to explore the posterior, and the
+allowance of ten reflects that these non-linear models commonly produce a few
+near a parameter boundary.
+
+The two counts are absolute, so the number of retained draws changes what each
+one demands, and it changes them in opposite directions. A longer run makes the
+effective sample size cutoff easier to clear and the divergence cutoff harder,
+because at an unchanged divergence rate more draws produce more divergences. A
+screen result is therefore a property of the settings as much as of the model,
+and the settings belong in the write-up beside it. All three cutoffs are
+arguments to `check_sampling()` and can be changed, which is a further reason to
+report the values used.
 
 `rhat()` reports the first of them on its own, keyed by model name:
 
@@ -674,6 +702,110 @@ workers on a large dataset can exhaust memory where eight cores would not have,
 and a worker killed by the operating system ends the whole call rather than the
 one model it was fitting. Where a run dies without an R error, reduce the worker
 count before looking anywhere else.
+
+## Checking the fit against the data
+
+Everything above asks whether the sampler explored the posterior. None of it
+asks whether the fitted model reproduces the data, and those are different
+questions: a model can converge perfectly onto a description of the data that is
+wrong. `check_fit()`, named in module 2, answers the second, and on a set it
+returns one block per equation.
+
+```{r}
+#| label: check-fit-set
+#| warning: false
+cf <- check_fit(bmanecfit_more)
+```
+
+Each row compares a statistic computed from the observations in a group of the
+predictor against the same statistic computed from data simulated by the fitted
+model.
+
+- `mean_ratio` and `sd_ratio` are the observed values divided by the simulated
+  ones.
+- `ppp_mean` and `ppp_sd` are posterior predictive p-values, each the proportion
+  of simulated datasets in which the simulated statistic was at least as large
+  as the observed one. A value near 0.5 says the observed statistic sits in the
+  middle of what the model produces, and a value near 0 or 1 says it sits in a
+  tail.
+- `control` flags the lowest value of the predictor, which is the group both
+  `nsec()` and `ecx()` read their reference from. That row is the one to look at
+  first.
+- `wi` is the stacking weight of the equation the row belongs to, so a failure
+  can be read against how much the averaged estimate depends on it.
+
+Read the p-values rather than the ratios, because a ratio says nothing about how
+well determined it is.
+
+The control rows of the three equations state the case for checking each
+equation separately rather than the average:
+
+```{r}
+#| label: check-fit-control
+subset(as.data.frame(cf), control,
+       select = c(model, wi, group, mean_ratio, ppp_mean, sd_ratio, ppp_sd))
+```
+
+`nec3param` and `ecxll3` reproduce the control almost exactly, with `sd_ratio`
+at 0.99 and 0.95. `ecxexp` simulates nearly three times the spread the data
+show, at `sd_ratio` 0.37 and `ppp_sd` 0.97, and it does so across every group
+rather than only at the control. This is the warning the summary raised earlier
+in the module, now located. `ecxexp` holds a stacking weight of 4e-39, so it
+reaches the averaged estimate not at all; the same result against `nec3param`,
+which holds 0.81, would stop the analysis.
+
+```{r}
+#| label: fig-check-fit-set
+#| fig-height: 6
+#| fig-cap: "Observed mean and standard deviation in each group against the 95% span of what each equation simulates."
+plot(cf)
+```
+
+Each panel shows the observed statistic against the 95% span of what the model
+simulates, and a point outside its bar is a group the model does not reproduce.
+Location and scale are drawn separately because they fail independently. Every
+group of `ecxexp` falls outside its bar on scale, and its highest bin falls
+outside on location as well. `ecxll3` and `nec3param` reproduce both statistics
+in every group.
+
+::: {.callout-note collapse="true" title="Why one number for the whole fit will not do"}
+
+The distinction matters most for the *NSEC*, which module 3 introduces.
+`nsec()` sets its reference at a quantile of the posterior of the control mean,
+and the width of that posterior is the variability the fit estimated at the
+control. A model simulating more variability at the control than the data show
+places that reference lower, so the curve crosses it further along and the
+reported concentration is higher and less protective. A model simulating less
+variability returns a lower one. The direction is not known in advance, and no
+convergence diagnostic reveals it.
+
+A single summary statistic for the whole fit will not detect this. Every family
+with a free dispersion parameter estimates that parameter from the same
+residuals such a number would summarise, so the parameter absorbs the
+discrepancy: the fit reports close agreement overall while simulating the wrong
+spread at the concentrations that determine the estimate. The check is therefore
+made within groups of the predictor.
+:::
+
+::: {.callout-note collapse="true" title="Bins and design points"}
+
+The predictor in `nec_data` is continuous, with a different value for every
+observation, so there are no repeated concentrations to group by. `check_fit()`
+cuts the range into ten bins and says so in a warning. A bin is not a design
+point, and a single row of a binned table is indicative rather than conclusive.
+On a real dilution series the groups are the tested concentrations and no
+binning happens; pass `group` explicitly where the binning is not what you want.
+:::
+
+::: {.callout-note collapse="true" title="The message and the bars use different criteria"}
+
+The message flags a posterior predictive p-value outside 0.05 to 0.95, and the
+bars in the plot are the 95% span, which is 0.025 to 0.975. A group can fall
+beyond the first and inside the second, so the two can disagree. Read the
+message as a prompt to look at that group rather than as a verdict on the fit.
+:::
+
+Module 7 shows what both checks contribute to a written analysis, on real data.
 
 ## Evidence from the simulation study
 

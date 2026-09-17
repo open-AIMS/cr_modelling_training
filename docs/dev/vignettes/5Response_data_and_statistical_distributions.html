@@ -130,6 +130,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -303,6 +332,10 @@ div.csl-indent {
    
   <ul>
   <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#preparing-the-response" id="toc-preparing-the-response" class="nav-link" data-scroll-target="#preparing-the-response">Preparing the response</a>
+  <ul class="collapse">
+  <li><a href="#the-reason-a-divisor-gets-reached-for" id="toc-the-reason-a-divisor-gets-reached-for" class="nav-link" data-scroll-target="#the-reason-a-divisor-gets-reached-for">The reason a divisor gets reached for</a></li>
+  </ul></li>
   <li><a href="#generalised-modelling" id="toc-generalised-modelling" class="nav-link" data-scroll-target="#generalised-modelling">Generalised modelling</a></li>
   <li><a href="#families-available-in-brms" id="toc-families-available-in-brms" class="nav-link" data-scroll-target="#families-available-in-brms">Families available in <code>brms</code></a></li>
   <li><a href="#link-functions" id="toc-link-functions" class="nav-link" data-scroll-target="#link-functions">Link functions</a></li>
@@ -382,6 +415,90 @@ div.csl-indent {
 <p><strong>Positive continuous</strong>, modelled by the gamma. Growth where shrinkage is not possible: 0.92 5.11 0.46 5.13 1.67 8.9 0.66 0.62 0.82 1.43.</p>
 <p><strong>Unbounded continuous</strong>, modelled by the Gaussian. Growth where shrinkage is possible: 0.08 -0.22 -0.94 0.04 -0.12 0.16 -0.8 -0.09 0.88 0.06.</p>
 </section>
+<section id="preparing-the-response" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-the-response">Preparing the response</h2>
+<p>Supply the response as it was measured, and match a statistical family to it. The common alternative is to convert it first, to percent inhibition, percent of control or percent of the observed maximum. That conversion introduces error, and the family choice set out in the rest of this module avoids it.</p>
+<p>Normalising to the control is conventional in ecotoxicology, usually as <span class="math inline">\(y^0_i = 1 - y_i / \bar{y}_{con}\)</span>, where <span class="math inline">\(\bar{y}_{con}\)</span> is the mean of three to six control replicates. <span class="citation" data-cites="Ritz2026">Ritz et al. (<a href="#ref-Ritz2026" role="doc-biblioref">2026</a>)</span> measured what it does.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ritz" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ritz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Ritz_etal2026.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ritz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Ritz, Gerhard and Streibig (2026), the source of the measurements in this section.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Every observation is divided by the <em>same random quantity</em>, so the normalised values are correlated and the sampling variability of the divisor is discarded.</li>
+<li>The expected value of a reciprocal is not the reciprocal of an expected value, so the inhibition trend is biased downwards and the effect concentrations read off it are biased upwards.</li>
+<li>Nothing is lost by leaving the response alone. The concentration at which inhibition rises by <span class="math inline">\(x\)</span> per cent is the concentration at which the response falls by <span class="math inline">\(x\)</span> per cent, and the second is what <code>ecx()</code> returns by default.</li>
+<li>Dividing by the observed maximum instead of the control mean is worse again, and it forces one observation onto the boundary of the beta’s support.</li>
+<li>Where a divisor is unavoidable it must be a constant fixed in advance of the analysis, such as a physiological or design ceiling.</li>
+<li><code>bnec()</code> looks for both practices and reports them.</li>
+</ul>
+<p>Many proportional responses need no divisor at all. The maximum quantum yield used in module 7 is a genuine physical proportion, as is a survival fraction or a bleached-area fraction, and these are modelled as they stand.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="The size of the error">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The size of the error
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>From the simulation of an ED10 with six control replicates in <span class="citation" data-cites="Ritz2026">Ritz et al. (<a href="#ref-Ritz2026" role="doc-biblioref">2026</a>)</span>: normalising gave a bias of 6.8% and a coefficient of variation of 26.4%, against 2.1% and 12.7% for the same quantity estimated from the raw response, and nominal 95% intervals covered at 90% rather than 95%. With a single control replicate the coverage of the normalised analysis fell to 57%.</p>
+<p><code>ecx()</code> returns a decline relative to the <em>fitted</em> control rather than to an observed control mean, and because it is evaluated separately within every posterior draw the uncertainty about the control level propagates into the credible interval instead of being thrown away.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Division by the observed maximum">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Division by the observed maximum
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Dividing by the observed maximum is worse than dividing by the control mean on three counts. An extreme order statistic is more variable and more biased than a mean of three to six values. The divisor then depends on every treatment rather than on the controls alone, so treated groups partly determine their own denominator. And it forces exactly one observation to exactly 1, which is outside the open interval a beta distribution is defined on, so <code>bnec()</code> has to shift it off the boundary.</p>
+<p><code>bnec()</code> detects both practices from the response as supplied. Dividing by the observed maximum leaves a maximum of exactly 1 attained by exactly one observation, and dividing by the control mean leaves the control observations averaging to exactly 1. The first check is suppressed where the response lies on a rational grid, because a genuine count-derived proportion such as 19 of 20 surviving routinely produces a single observation at 1 and is not evidence of anything.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="A divisor fixed in advance">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>A divisor fixed in advance
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A response above 1 that has to be modelled with a beta distribution needs a divisor. It must be a constant settled before the analysis: a physiological or design ceiling, or a value from accumulated historical controls. <span class="citation" data-cites="Ritz2026">Ritz et al. (<a href="#ref-Ritz2026" role="doc-biblioref">2026</a>)</span> are explicit that the problem is dividing by something <em>random</em> rather than dividing as such. An <strong>EC<sub>x</sub></strong> is unaffected by the choice of a constant divisor, because it is a relative decline from the fitted <code>top</code>, and the same holds for any linear rescaling of the response <span class="citation" data-cites="Weimer2012">(<a href="#ref-Weimer2012" role="doc-biblioref">Weimer et al. 2012</a>)</span>.</p>
+</div>
+</div>
+</div>
+<section id="the-reason-a-divisor-gets-reached-for" class="level3">
+<h3 class="anchored" data-anchor-id="the-reason-a-divisor-gets-reached-for">The reason a divisor gets reached for</h3>
+<p>Dividing by the observed maximum is often done for a reason that has nothing to do with normalisation. A response on an arbitrary scale, such as a luminescence reading or a cell count, is divided to put it between 0 and 1 so that a beta distribution can be used, because the beta accommodates variability that changes with the mean and a Gaussian does not.</p>
+<p>That reasoning identifies a real problem and answers it indirectly. The problem is that replicate variability at the high concentrations is not the same as at the control. The direct answer is the subject of this module: keep the response on its own scale, choose the family that suits it, and model the variability explicitly where it changes. The sections below cover both halves, the choice of family and the <code>disp</code> term for a dispersion that varies across the series.</p>
+<p>Doing it that way keeps <code>top</code>, <code>bot</code> and <code>nec</code> in the units the experiment was measured in, avoids the bias <span class="citation" data-cites="Ritz2026">Ritz et al. (<a href="#ref-Ritz2026" role="doc-biblioref">2026</a>)</span> measured, and states the change in variability as something estimated from the data rather than absorbed by a transformation. It also avoids forcing an observation onto the boundary of the beta’s support, which division by a maximum does by construction.</p>
+</section>
+</section>
 <section id="generalised-modelling" class="level2">
 <h2 class="anchored" data-anchor-id="generalised-modelling">Generalised modelling</h2>
 <p>Generalised modelling fits data with a statistical distribution matched to the natural range and scaling of the response, rather than assuming one.</p>
@@ -389,13 +506,13 @@ div.csl-indent {
 <p>That constraint no longer applies. Matching the response to an appropriate statistical family is now standard practice, and the theory is covered well elsewhere; this module is concerned with making the right choice in <code>bayesnec</code> rather than with the underlying mathematics.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-glmbooks" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<div id="fig-glmbooks" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-glmbooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/glmbooks.jpg" id="fig-glmbooks" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-glmbooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1
+Figure&nbsp;2
 </figcaption>
 </figure>
 </div>
@@ -407,13 +524,13 @@ Figure&nbsp;1
 <p><code>brms</code> supports many families, including most of those in the base <code>stats</code> package that other R fitting routines use:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-statsfams" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<div id="fig-statsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-statsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/statsfams.jpg" id="fig-statsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-statsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
+Figure&nbsp;3
 </figcaption>
 </figure>
 </div>
@@ -422,13 +539,13 @@ Figure&nbsp;2
 <p>and a number that are specific to it:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-brmsfams" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="60%">
+<div id="fig-brmsfams" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-brmsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/brmsfams.jpg" id="fig-brmsfams" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-brmsfams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3
+Figure&nbsp;4
 </figcaption>
 </figure>
 </div>
@@ -458,7 +575,8 @@ Figure&nbsp;3
  [5] "bernoulli"                 "binomial"                 
  [7] "beta_binomial"             "beta"                     
  [9] "hurdle_gamma"              "zero_inflated_beta"       
-[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"</code></pre>
+[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"
+[13] "hurdle_poisson"            "hurdle_negbinomial"       </code></pre>
 </div>
 </div>
 <p>The first eight are the ordinary cases covered below. <code>hurdle_gamma</code>, <code>zero_inflated_beta</code>, <code>zero_inflated_poisson</code> and <code>zero_inflated_negbinomial</code> handle responses with an excess of zeros — a separate topic, treated in the <code>bayesnec</code> article on hurdle families.</p>
@@ -529,7 +647,7 @@ Figure&nbsp;3
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-binom-nec-1.png" id="fig-binom-nec" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-binom-nec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4
+Figure&nbsp;5
 </figcaption>
 </figure>
 </div>
@@ -579,7 +697,7 @@ Figure&nbsp;4
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-binom-ecx-1.png" id="fig-binom-ecx" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-binom-ecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5
+Figure&nbsp;6
 </figcaption>
 </figure>
 </div>
@@ -623,7 +741,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-betabinom-1.png" id="fig-betabinom" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-betabinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6
+Figure&nbsp;7
 </figcaption>
 </figure>
 </div>
@@ -644,14 +762,14 @@ Figure&nbsp;6
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-ppcheck-1.png" id="fig-ppcheck" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7
+Figure&nbsp;8
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The dark line is the observed count in each category and the light intervals are the same quantity simulated from the fit, one panel per concentration. A discrete response takes <code>type = "bars_grouped"</code>; a continuous one takes <code>type = "dens_overlay_grouped"</code>, which module 2 uses. Ten posterior draws are simulated by default, which is enough to see a gross mismatch and few enough to plot; raise it with <code>ndraws</code> to judge a marginal one.</p>
-<p><code>check_fit()</code>, also from module 2, puts numbers on the same comparison within each concentration group, and flags the control row. That row is the one to read first, because both <code>nsec()</code> and <code>ecx()</code> take their reference from the fitted mean at the control.</p>
+<p>The dark line is the observed count in each category and the light intervals are the same quantity simulated from the fit, one panel per concentration. A discrete response takes <code>type = "bars_grouped"</code>; a continuous one takes <code>type = "dens_overlay_grouped"</code>. Ten posterior draws are simulated by default, which is enough to see a gross mismatch and few enough to plot; raise it with <code>ndraws</code> to judge a marginal one.</p>
+<p><code>check_fit()</code>, named in module 2 and set out in module 4, puts numbers on the same comparison within each concentration group, and flags the control row. That row is the one to read first, because both <code>nsec()</code> and <code>ecx()</code> take their reference from the fitted mean at the control.</p>
 </section>
 </section>
 <section id="beta" class="level2">
@@ -688,7 +806,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-beta-1.png" id="fig-beta" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8
+Figure&nbsp;9
 </figcaption>
 </figure>
 </div>
@@ -706,7 +824,7 @@ nec3param               NA                  NA</code></pre>
 </div>
 </div>
 <p>The beta has two parameters, so it can generally accommodate the variance in the data, and these bounds are reasonable. The threshold model takes most of the weight here and describes the data much better than the three-parameter log-logistic.</p>
-<p><code>bnec()</code> also reports that the observed and simulated responses at the control differ by more than 15% for both equations. That is the <code>check_fit()</code> comparison of module 2, run over every equation in the set and reported where it fails, and the control group is singled out because <code>nsec()</code> reads its reference from there. It is a statement about how well these equations describe this control rather than a fault in the fitting. Run <code>check_fit()</code> on the fit to see the per-group table before reporting an <em>NSEC</em> from it.</p>
+<p><code>bnec()</code> also reports that the observed and simulated responses at the control differ by more than 15% for both equations. That is the <code>check_fit()</code> comparison, run over every equation in the set and reported where it fails, and the control group is singled out because <code>nsec()</code> reads its reference from there. It is a statement about how well these equations describe this control rather than a fault in the fitting. Run <code>check_fit()</code> on the fit to see the per-group table before reporting an <em>NSEC</em> from it.</p>
 <p>Note that the predictor was square-root transformed in the formula. Estimates returned by <code>nec()</code>, <code>nsec()</code> and <code>ecx()</code> are then on the transformed scale, and must be back-transformed with the <code>xform</code> argument to be read as concentrations.</p>
 <section id="values-on-the-boundary" class="level3">
 <h3 class="anchored" data-anchor-id="values-on-the-boundary">Values on the boundary</h3>
@@ -766,7 +884,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-pois-1.png" id="fig-pois" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pois-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9
+Figure&nbsp;10
 </figcaption>
 </figure>
 </div>
@@ -813,7 +931,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-negbin-1.png" id="fig-negbin" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-negbin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10
+Figure&nbsp;11
 </figcaption>
 </figure>
 </div>
@@ -856,7 +974,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gamma-1.png" id="fig-gamma" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11
+Figure&nbsp;12
 </figcaption>
 </figure>
 </div>
@@ -897,7 +1015,7 @@ Ignoring unknown labels:
 <img src="5Response_data_and_statistical_distributions_files/figure-html/fig-gauss-1.png" id="fig-gauss" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gauss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12
+Figure&nbsp;13
 </figcaption>
 </figure>
 </div>
@@ -1005,7 +1123,8 @@ Figure&nbsp;12
  [5] "bernoulli"                 "binomial"                 
  [7] "beta_binomial"             "beta"                     
  [9] "hurdle_gamma"              "zero_inflated_beta"       
-[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"</code></pre>
+[11] "zero_inflated_poisson"     "zero_inflated_negbinomial"
+[13] "hurdle_poisson"            "hurdle_negbinomial"       </code></pre>
 </div>
 </div>
 <p><code>bnec_hurdle()</code> and <code>bnec_joint()</code> fit the two blocks, and the <code>bayesnec</code> article on hurdle and zero-inflated models covers them. They are a subject of their own and are not taught here.</p>
@@ -1058,7 +1177,7 @@ Figure&nbsp;12
 </table>
 <p>Three things to take from that table.</p>
 <p>The constant-dispersion fit simulated about eleven times more spread at the control than the data show, which is the <code>sd_ratio</code> of 0.09. Nothing in its sampler diagnostics said so.</p>
-<p>The <em>NSEC</em> halves. A control posterior that is too wide places the significance reference too low, and a reference placed too low is crossed further along the curve, so the constant-dispersion fit reports the <strong>less protective</strong> of the two figures. This is the mechanism module 2 describes under <code>check_fit()</code>, measured.</p>
+<p>The <em>NSEC</em> halves. A control posterior that is too wide places the significance reference too low, and a reference placed too low is crossed further along the curve, so the constant-dispersion fit reports the <strong>less protective</strong> of the two figures. This is the mechanism <code>check_fit()</code> measures, set out in module 4.</p>
 <p>The <strong>EC<sub>x</sub></strong> changes by much less, from 0.083 to 0.070 mg/L, because it is measured at a fixed fraction of the control mean rather than at a quantile of its posterior. Its interval narrows sharply all the same.</p>
 <p>The estimated exponent was 0.78, with a 95% interval of 0.64 to 0.93. Regressing the within-concentration coefficient of variation on the fitted mean, with no model involved at all, gives 0.77 from the replicate wells. The sub-model is therefore describing variation the design measured rather than absorbing a failure of the curve, which is the check the three exclusions above are for.</p>
 <p>The general point is the one module 3 made about the <em>NSEC</em>: an estimate referenced against the control rests on how well the fit describes the control, and a constant-dispersion fit has not checked that.</p>
@@ -1067,7 +1186,7 @@ Figure&nbsp;12
 <section id="open-questions" class="level2">
 <h2 class="anchored" data-anchor-id="open-questions">Open questions</h2>
 <p>The families implemented in <code>bayesnec</code> cover the common cases in concentration-response work.</p>
-<p>The important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience rather than a substitute for that judgement, and module 2 gives the two functions that make the check.</p>
+<p>The important practical point is the one at the top of this module: check which distribution was used, and check that it reproduces the variability in the data. The default inference is a convenience rather than a substitute for that judgement, and module 4 gives the two functions that make the check.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
@@ -1087,8 +1206,14 @@ Martin, Tara G., Brendan A. Wintle, Jonathan R. Rhodes, et al. 2005. <span>“Ze
 <div id="ref-oecd2026tg201" class="csl-entry" role="listitem">
 OECD. 2026. <em>Test No. 201: Freshwater Alga and Cyanobacteria, Growth Inhibition Test</em>. OECD Guidelines for the Testing of Chemicals, Section 2. OECD Publishing. <a href="https://doi.org/10.1787/9789264069923-en">https://doi.org/10.1787/9789264069923-en</a>.
 </div>
+<div id="ref-Ritz2026" class="csl-entry" role="listitem">
+Ritz, Christian, Daniel Gerhard, and Jens C. Streibig. 2026. <span>“<span class="nocase">Better alternatives than normalizing to control: case studies with algae toxicity and dose-response analysis</span>.”</span> <em>Environmental and Ecological Statistics</em> 33 (1): 35–55. <a href="https://doi.org/10.1007/s10651-025-00698-y">https://doi.org/10.1007/s10651-025-00698-y</a>.
+</div>
 <div id="ref-warton2005" class="csl-entry" role="listitem">
 Warton, David I. 2005. <span>“Many Zeros Does Not Mean Zero Inflation: Comparing the Goodness-of-Fit of Parametric Models to Multivariate Abundance Data.”</span> <em>Environmetrics</em> 16 (3): 275–89. <a href="https://doi.org/10.1002/env.702">https://doi.org/10.1002/env.702</a>.
+</div>
+<div id="ref-Weimer2012" class="csl-entry" role="listitem">
+Weimer, Marc, Xiaoqi Jiang, Oriana Ponta, Sven Stanzel, Alexius Freyberger, and Annette Kopp-Schneider. 2012. <span>“<span class="nocase">The impact of data transformations on concentration-response modeling</span>.”</span> <em>Toxicology Letters</em> 213 (2): 292–98. <a href="https://doi.org/10.1016/j.toxlet.2012.07.012">https://doi.org/10.1016/j.toxlet.2012.07.012</a>.
 </div>
 </div>
 

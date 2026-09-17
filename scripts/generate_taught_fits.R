@@ -69,9 +69,9 @@ runnable_chunks <- function(qmd) {
     targets <- sub('.*file\\s*=\\s*"([^"]+)".*', "\\1",
                    grep('save\\s*\\(.*file\\s*=\\s*"fits/', code, value = TRUE))
     if (eval_false && length(targets) == 0) next
-    # Module 2 illustrates the fit-save-load pattern with a chunk that repeats
-    # its own fit call verbatim, so the same object would be fitted twice. A
-    # chunk whose every target has already been written this run is skipped.
+    # A module can show the same fit call twice, once to fit and once to
+    # illustrate the fit-save-load pattern, which would fit the object twice.
+    # A chunk whose every target has already been written this run is skipped.
     if (length(targets) > 0 && all(targets %in% seen)) next
     seen <- c(seen, targets)
     out <- c(out, code, "")

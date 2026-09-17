@@ -684,7 +684,7 @@ and 0%. Fix a parameter only where there is a compelling reason.
 That case is the one to refuse outright. A response divided by its control mean
 has a maximum of 1 by construction, and fixing `top` at 1 is a common reflex.
 Normalising to an *estimated* control already discards the sampling variability
-of the divisor, as module 2 sets out, and fixing the asymptote afterwards makes
+of the divisor, as module 5 sets out, and fixing the asymptote afterwards makes
 that loss invisible rather than merely present, because the intervals it narrows
 were already too narrow.
 
