@@ -1439,8 +1439,20 @@ produced files that do not parse.
 
 ### Distribution
 
-Zenodo, with a USB stick as the fallback on the day. The reasoning, and the
-alternatives rejected, are in the human document.
+A release asset on the course repository, with a USB stick as the fallback on
+the day. The reasoning, and the alternatives rejected, are in the human
+document. The tag is `fits`, the asset is `cr_modelling_fits.zip`, and the
+address is
+
+```
+https://github.com/open-AIMS/cr_modelling_training/releases/download/fits/cr_modelling_fits.zip
+```
+
+Rebuild with `Rscript scripts/bundle_fits.R`, then
+`gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training`.
+The tag does not change, so the address holds and nothing else needs editing.
+Commit the rewritten `vignettes/fits.sha256` in the same change as the upload,
+since that file is what a participant's download is verified against.
 
 Four supporting pieces. `scripts/bundle_fits.R` zips `fits/` and writes a
 SHA-256 and a provenance file to `dist/`; the checksum matters because a
@@ -1451,13 +1463,18 @@ through `record("fits", NA, ...)` so that a missing archive is a warning rather
 than a failure, matching its optional status. And `0Software-setup.qmd` gained
 a section beside the existing clone and ZIP instructions.
 
+Zenodo is deferred rather than rejected. It gives a citable identifier and is
+the right destination once the material is frozen; it is not the route for the
+workshop, because the archive is rebuilt as modules are revised and a Zenodo
+record is versioned rather than replaced in place.
+
 `scripts/zenodo_deposit.R` creates the deposition, uploads the archive and sets
 the metadata, then stops. It does not publish, because a published Zenodo record
 cannot be withdrawn, only superseded. It takes `--sandbox` for rehearsal against
 `sandbox.zenodo.org`, which uses separate tokens. `httr` and `jsonlite` are both
 installed.
 
-The identifier lives in one constant, `ZENODO_RECORD` at the top of
+The address lives in one constant, `FITS_URL` at the top of
 `fetch_fits.R`, with a `CR_FITS_URL` environment override for testing before any
 deposit exists. `0Software-setup.qmd` names the command rather than the address
 and has no R chunks at all, so setting the real identifier is one line and a
@@ -1724,10 +1741,18 @@ a prefix. A `load("fits/...")` in a module therefore resolves to
 `vignettes/fits/`, and putting the objects at the repository root would have
 failed at the first render. `.gitignore` holds `vignettes/fits/`.
 
-The archive is 23.2 MB over eighteen objects, against an estimate of 100 to 200
-MB made before anything was built. The estimate was wrong by roughly an order of
-magnitude, and the consequence is that the distribution question is much less
-constrained than it appeared: 23 MB is an unremarkable download.
+The archive was 23.2 MB over eighteen objects when first built, against an
+estimate of 100 to 200 MB made before anything was built. The estimate was wrong
+by roughly an order of magnitude, and the consequence is that the distribution
+question is much less constrained than it appeared. It is 42.3 MB over 25
+objects as of 2026-09-17, and still an unremarkable download: an end-to-end run
+of `source("vignettes/fetch_fits.R")` took 32 seconds on that date. The count
+grows as modules are revised, so read it from `dist/cr_modelling_fits.txt` and
+reset `N_FITS` in `fetch_fits.R` after every rebuild.
+
+The zip is reproducible. Rebuilding on 2026-09-17 from unchanged objects gave
+the same sha256 as the previous build, so a rebuild that changes nothing does
+not invalidate a copy a participant already holds.
 
 `scripts/bundle_fits.R` had a path defect on its first run, caught by the
 overnight chain rather than by review. It changed into the parent of the fits

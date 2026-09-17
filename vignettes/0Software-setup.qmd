@@ -355,7 +355,7 @@ folder. To take a later revision you download the ZIP again rather than running
 The modules fit Bayesian models, and some of them take a while: on a four-core
 machine module 5 takes about thirteen minutes and module 6 about sixteen. You do
 not have to wait for that during the workshop. Every fit used in the material is
-available as a single download of about 39 MB, and with those objects in place
+available as a single download of about 42 MB, and with those objects in place
 each module loads its fits in seconds instead of sampling them.
 
 Each module shows you the `bnec()` call that produced a fit, then the `save()`
@@ -381,10 +381,10 @@ days before the workshop. Re-running it replaces the saved fits in place.
 ::: {.callout-note}
 ## Copying the fits by hand
 
-The archive is also on a USB stick on the day, and you can put the objects in
-place yourself without running anything. The stick holds a `fits` folder
-containing twenty-three `.RData` files. Copy that whole folder into the `vignettes`
-folder of your `cr_modelling_training` folder, so that the files end up at:
+The same archive, `cr_modelling_fits.zip`, is on a USB stick on the day, and
+you can put the objects in place yourself without running anything. Copy it into
+your `cr_modelling_training` folder and extract it there. It holds the folders
+as well as the files, so the twenty-five `.RData` objects end up at:
 
 ```
 cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
@@ -394,7 +394,9 @@ cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 
 The path matters, because each module runs with `vignettes` as its working
 directory and reads `fits/` relative to that. A `fits` folder placed at the top
-level of `cr_modelling_training` is not found.
+level of `cr_modelling_training` is not found. Extract the archive at the top
+level of that folder and the path comes out right; extracting it inside
+`vignettes` gives `vignettes/vignettes/fits`, which is not found either.
 :::
 
 The download is optional. Without it the material is complete and the modules

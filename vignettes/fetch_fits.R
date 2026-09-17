@@ -15,22 +15,25 @@
 # instead, and the material behaves identically.
 # ---------------------------------------------------------------------------
 
-# Where the archive is hosted. A shared folder is used while the material is
-# still being revised, because the file can be replaced in place and the link
-# stays the same. A Zenodo deposit is the destination once the content is
-# frozen, since it gives a permanent identifier, and the only change needed
-# then is the address below.
+# Where the archive is hosted. A release asset on the course repository, under
+# a tag that does not change, so the address below stays valid when the archive
+# is rebuilt: `gh release upload fits dist/cr_modelling_fits.zip --clobber`
+# replaces the file and the link still resolves.
 #
-# A OneDrive or SharePoint share link serves a web page rather than the file, so
-# the address below ends in `&download=1`. Test any replacement by running this
-# script rather than by opening the link in a browser: measured 2026-09-17, the
-# plain share link returns 200 with 58 KB of HTML, which lands in a file named
-# .zip and fails later at unzip rather than here.
+# It is fetched anonymously. That is the property being bought here, and it is
+# what a share link on institutional OneDrive or SharePoint does not give:
+# measured 2026-09-17, the AIMS share link used before this one redirected to
+# the file and then returned 403 to a client that was not signed in to the
+# tenant, so no participant outside AIMS could have run this script.
+#
+# Test any replacement by running this script rather than by opening the link
+# in a browser. A SharePoint link without `&download=1` returns 200 with 58 KB
+# of HTML, which lands in a file named .zip and fails later at unzip.
 #
 # CR_FITS_URL overrides this for testing against any host.
 FITS_URL <- paste0(
-  "https://aimsgovau-my.sharepoint.com/:u:/g/personal/r_fisher_aims_gov_au/",
-  "IQDag6rnW-2cQqI2C8Dozb9jARrz7DFsmv22c_Kvq5le-WQ?e=ucW2LI&download=1")
+  "https://github.com/open-AIMS/cr_modelling_training/",
+  "releases/download/fits/cr_modelling_fits.zip")
 ARCHIVE <- "cr_modelling_fits.zip"
 
 # The number of saved fits the archive holds. Checked after extraction, because

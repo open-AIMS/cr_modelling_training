@@ -231,38 +231,46 @@ what makes the distribution below part of the method rather than a convenience.
 
 ## Distributing the fitted models
 
-The archive goes on Zenodo, and a USB stick holds the same file on the day.
-The two cover different failures: the download is pre-work and can be done on a
-connection that works, and the stick covers anyone whose download failed or who
-arrives without having done it. Several hundred megabytes over conference wifi
-on the morning is not a plan.
+The archive is a release asset on the course repository, and a USB stick holds
+the same file on the day. The two cover different failures: the download is
+pre-work and can be done on a connection that works, and the stick covers anyone
+whose download failed or who arrives without having done it. Several hundred
+megabytes over conference wifi on the morning is not a plan.
 
-The archive is **23.2 MB**, which is much smaller than the 100 to 200 MB
-estimated before it was built, and small enough that the download is no obstacle
-to anyone. Eighteen fitted objects compress to that because a `bayesnec` fit of
-these teaching datasets is a few megabytes at most.
+The archive is **42.3 MB** over 25 objects, measured on 2026-09-17. That is much
+smaller than the 100 to 200 MB estimated before it was built, and small enough
+that the download is no obstacle: an end-to-end run of
+`source("vignettes/fetch_fits.R")` on that date took 32 seconds. A `bayesnec`
+fit of these teaching datasets is a few megabytes at most. The figure was 23.2
+MB over eighteen objects when this note was written, and it grows as modules are
+revised, so take it from `dist/cr_modelling_fits.txt` rather than from here.
 
-Zenodo was chosen over the alternatives because it needs no account to download,
-issues a citable identifier that stays valid, and versions cleanly when the
-archive is rebuilt. An institutional deposit through the AIMS data repository
-would serve as well and takes longer to arrange; a file-transfer service is
-unsuitable because its links expire.
+A release asset was chosen over the alternatives because it needs no account to
+download, sits beside the material it belongs to, and can be replaced in place
+under a tag that does not change, so the address in `fetch_fits.R` stays valid
+when the archive is rebuilt. An institutional OneDrive share was used first and
+was withdrawn on 2026-09-17: fetched by a client not signed in to the AIMS
+tenant, the share link returned 403, so no participant outside AIMS could have
+run `fetch_fits.R`. A file-transfer service is unsuitable because its links
+expire.
 
-Four pieces support it. `scripts/bundle_fits.R` builds the archive with a
-checksum. `vignettes/fetch_fits.R` downloads it, verifies it and unpacks it,
-and states that fitting the models instead is fine where it fails.
+Zenodo remains the destination for a citable identifier once the material is
+frozen. `scripts/zenodo_deposit.R` uploads the archive and sets the metadata,
+and deliberately stops before publishing, because a published Zenodo record
+cannot be withdrawn. The last step is a person looking at the draft. It is not
+the route for the workshop, because the archive is still being rebuilt as
+modules are revised and a Zenodo record is versioned rather than replaced.
+
+Four pieces support the distribution. `scripts/bundle_fits.R` builds the archive
+with a checksum. `vignettes/fetch_fits.R` downloads it, verifies it and unpacks
+it, and states that fitting the models instead is fine where it fails.
 `check_setup.R` gained a seventh stage that reports whether the fits are
 present, as a warning rather than a failure because they are optional. And the
 software setup module gained a section covering both routes.
 
-`scripts/zenodo_deposit.R` uploads the archive and sets the metadata, and
-deliberately stops before publishing, because a published Zenodo record cannot
-be withdrawn. The last step is a person looking at the draft.
-
-The identifier is held in one constant at the top of `fetch_fits.R`, and the
-setup module names the command rather than the address, so putting the real
-identifier in place changes one line and requires no re-rendering of anything
-that fits a model.
+The address is held in one constant at the top of `fetch_fits.R`, and the setup
+module names the command rather than the address, so hosting it elsewhere changes
+one line and requires no re-rendering of anything that fits a model.
 
 ## Shipped datasets
 

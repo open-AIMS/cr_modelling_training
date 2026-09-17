@@ -64,10 +64,12 @@ rejected.
 
 ## Fits loaded rather than sampled
 
-Every fit call that the render executes is wrapped in `cached()` from
-`vignettes/fit_cache.R`. A participant holding the fits bundle then gets the
-saved object in seconds, and a participant without it fits the model exactly as
-the module says, so the material still works for someone reading it at home.
+Every fit in a taught module is shown as three steps: the `bnec()` call, the
+`save()` that keeps the result, and the `load()` that reads it back. The first
+two are displayed and not run; the third is what the render and the participant
+execute. A participant holding the fits bundle has the fit in seconds, and a
+participant without it runs the `bnec()` call instead and waits, so the material
+still works for someone reading it at home.
 
 The measured fit times are the reason. Rendering the development site on a
 four-core WSL2 machine on 2026-09-16 took 1.5 minutes for module 2, 4.5 minutes
@@ -75,11 +77,12 @@ for module 4 and 12.9 minutes for module 5. A room that
 waits thirteen minutes for one module has stopped learning, and there is no
 version of the day in which those fits are sampled live.
 
-Wrapping the calls also removes the need to rewrite the fit line in the live
-script. The script is the module's own code, unaltered, and the caching is a
-property of the code itself. Specification section *Wrapping the fit calls*
-lists the eighteen calls involved, and the fourteen demonstration calls that the
-render never runs and that are left unwrapped.
+A `cached()` helper wrapping each fit call was written first and then withdrawn
+on 2026-09-17. It worked. It also invented a course-specific abstraction for the
+thing a participant should be learning to do, which is to fit once, save the
+object, and load it next time. `vignettes/fit_cache.R` does not exist, and the
+specification sections describing it are superseded; the reasoning is in
+`intermediate-revision-human.md`, section *Constraint on new code*.
 
 ## The boundary between running and loading
 
@@ -111,12 +114,23 @@ The distribution of the bundle is settled before the course rather than during
 it. Under the format decided here a participant without the bundle cannot run
 any of the code, so it is no longer an optional download.
 
-Two routes are used together. A GitHub release asset gives a stable URL that
-can go in the setup pre-work, and USB sticks cover a venue where several dozen
-people download at once. The bundle has not been generated yet, so its size is
-unmeasured; `scripts/generate_taught_fits.R` reports the total when it runs, and
-that number decides whether the release-asset route is usable. Specification
-section *Bundle distribution*.
+Two routes are used together. The bundle is a release asset on the course
+repository, at
+<https://github.com/open-AIMS/cr_modelling_training/releases/download/fits/cr_modelling_fits.zip>,
+which `vignettes/fetch_fits.R` downloads; USB sticks hold the same file for a
+venue where several dozen people download at once. The tag `fits` does not
+change, so rebuilding the archive replaces the asset and the address in
+`fetch_fits.R` stays valid.
+
+The archive is 42.3 MB over 25 objects, measured on 2026-09-17, which is well
+inside the 2 GB limit on a release asset and downloads in about half a minute.
+
+An institutional OneDrive share was used first and does not work. Fetched on
+2026-09-17 by a client not signed in to the AIMS tenant, the share link
+redirected to the file and then returned 403, so no participant outside AIMS
+could have run `fetch_fits.R`. A share link is served through a sign-in, and
+that cannot be tested by opening it in the browser of someone who is already
+signed in. Specification section *Bundle distribution*.
 
 The same script must be re-run after any upgrade to `bayesnec`, `brms` or Stan,
 for the reason `CLAUDE.md` section 10 gives for `_freeze/`: a saved result does
@@ -172,9 +186,8 @@ the day.
 
 Each step is complete when the stated condition holds.
 
-1. Wrap the fit calls in the taught modules in `cached()`. Done when a render
-   with `fits/` populated reports a loaded fit for every call and samples
-   nothing.
+1. Show each fit in the taught modules as its call, its `save()` and its
+   `load()`. Done when a render with `fits/` populated samples nothing.
 2. Move `executable_chunks()` to a shared file and add the live script
    generator. Done when `scripts/live/` holds one script per taught module and
    each runs start to finish against the bundle.
@@ -188,6 +201,11 @@ Each step is complete when the stated condition holds.
 
 Steps 1 and 2 are independent of the revision and can proceed alongside it.
 Step 5 depends on step 4 and on the module content being settled.
+
+State on 2026-09-17: steps 1 and 3 hold. Every taught module shows call, save
+and load, a render of the development site samples nothing, and the bundle is
+built, measured and published as a release asset. Steps 2, 4, 5 and 6 are
+outstanding, and `scripts/live/` does not exist.
 
 ## Rejected routes
 

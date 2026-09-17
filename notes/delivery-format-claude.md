@@ -158,6 +158,17 @@ on a miss, so the two are distinguishable from the message stream.
 
 # Wrapping the fit calls
 
+This section is superseded as of 2026-09-17 and must not be implemented. The
+`cached()` helper was written, used, and withdrawn. Each taught module now shows the
+`bnec()` call and the `save()` beside it with `eval: false`, followed by the
+`load()` that the render executes. The reason is in `intermediate-revision-human.md`,
+section *Constraint on new code*: a course-specific caching abstraction hides
+the fit-save-load sequence that participants are here to learn. `vignettes/fit_cache.R`
+does not exist, and neither does the hash-keyed cache directory the file layout
+above describes. The section is kept because it records what was tried and why
+it was dropped, and because the fit call inventory below is still accurate about
+which calls execute.
+
 ## The change to each call
 
 Wrap the right-hand side of each executing fit call in `cached()`. The call
@@ -330,16 +341,67 @@ USB sticks cover the case where several dozen people download at a venue at
 once. The zip also holds `site/`, an unzipped copy of `docs/`, so the material
 opens from the file system if the network fails entirely.
 
-## Size is unmeasured
+## The published asset
 
-`fits/` does not exist yet. `scripts/generate_taught_fits.R` reports the total
-megabytes when it runs, and `PROVENANCE.txt` records it. Take that number before
-deciding whether the download is reasonable as pre-work.
+The tag is `fits` and the asset is `cr_modelling_fits.zip`, so the address is
+
+```
+https://github.com/open-AIMS/cr_modelling_training/releases/download/fits/cr_modelling_fits.zip
+```
+
+and it is held in `FITS_URL` at the top of `vignettes/fetch_fits.R`. The tag
+does not change. Rebuild with `Rscript scripts/bundle_fits.R` and replace the
+asset with
+
+```bash
+gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training
+```
+
+which leaves the address valid, so no module and no script needs editing when
+the fits are rebuilt. `scripts/bundle_fits.R` also rewrites `vignettes/fits.sha256`,
+which is committed and is what a participant's download is checked against;
+commit it in the same change as the upload or the check reports a mismatch that
+is not one.
+
+## Measured size
+
+42.3 MB over 25 objects and `PROVENANCE.txt`, measured 2026-09-17. The archive
+stores its paths as `vignettes/fits/<object>.RData`, so it extracts correctly at
+the root of a `cr_modelling_training` folder and nowhere else. An end-to-end run
+of `source("vignettes/fetch_fits.R")` on that date downloaded and unpacked all
+25 objects in 32 seconds.
+
+The zip is reproducible. Rebuilding it from unchanged objects on 2026-09-17
+produced the same sha256, `0a1186c2...`, as the previous build, so a rebuild
+that changes nothing does not invalidate a participant's copy.
 
 For scale, the 2023 objects it replaces are `fitted_model.RData` at 124 MB,
-`manfecfit.RData` at 451 MB and `ametryn.RData` at 65 MB. The new bundle should
-be smaller, because it holds only what the taught modules fit and the modules
-now fit smaller sets, but that is a prediction and not a measurement.
+`manfecfit.RData` at 451 MB and `ametryn.RData` at 65 MB.
+
+## The rejected institutional share
+
+A OneDrive share link on the AIMS tenant was used between 2026-09-17 and the
+release asset above, and it does not work for participants. Fetched with `curl`
+from a client not signed in to the tenant, the `&download=1` form returned 302
+to the file path and then 403 with `Access denied. Before opening files in this
+location, you must first browse to the web site and select the option to login
+automatically`. The form without `&download=1` returns 200 with 58 KB of HTML,
+which lands in a file named `.zip` and fails at `unzip` rather than at the
+download.
+
+Neither failure is visible to the person who created the share, because their
+browser is signed in. Test a hosting change by fetching it unauthenticated:
+
+```bash
+curl -sIL '<url>' | grep -iE '^HTTP|content-type|content-length'
+```
+
+## Zenodo
+
+Still the destination for a citable identifier once the material is frozen, and
+`scripts/zenodo_deposit.R` uploads and sets the metadata without publishing. It
+is not the route for the workshop, because the archive is still being rebuilt as
+modules are revised and a Zenodo record is versioned rather than replaced.
 
 ## Regeneration trigger
 
