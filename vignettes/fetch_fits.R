@@ -21,13 +21,16 @@
 # frozen, since it gives a permanent identifier, and the only change needed
 # then is the address below.
 #
-# A OneDrive or SharePoint share link serves a web page rather than the file.
-# Use the download form of the address, which ends in `&download=1` on personal
-# OneDrive and `?download=1` on SharePoint, and test it by running this script
-# rather than by opening it in a browser.
+# A OneDrive or SharePoint share link serves a web page rather than the file, so
+# the address below ends in `&download=1`. Test any replacement by running this
+# script rather than by opening the link in a browser: measured 2026-09-17, the
+# plain share link returns 200 with 58 KB of HTML, which lands in a file named
+# .zip and fails later at unzip rather than here.
 #
 # CR_FITS_URL overrides this for testing against any host.
-FITS_URL <- NA_character_
+FITS_URL <- paste0(
+  "https://aimsgovau-my.sharepoint.com/:u:/g/personal/r_fisher_aims_gov_au/",
+  "IQDag6rnW-2cQqI2C8Dozb9jARrz7DFsmv22c_Kvq5le-WQ?e=ucW2LI&download=1")
 ARCHIVE <- "cr_modelling_fits.zip"
 
 # The number of saved fits the archive holds. Checked after extraction, because
