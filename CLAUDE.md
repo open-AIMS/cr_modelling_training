@@ -360,14 +360,6 @@ it after a toolchain change. Where a fit does run, its `save()` is commented out
 script would overwrite the distributed objects and `vignettes/fits.sha256` would no longer
 match what a participant downloaded.
 
-**No module sets the Stan backend.** `brms` uses `rstan` unless
-`options(brms.backend = "cmdstanr")` is set, and `rstan` compiles a model far more
-slowly. Module 1 tells a participant to set it and no module does, so someone running
-`bnec()` while following module 2 waits about two and a half times as long with nothing on
-the page to say why: measured 2026-09-19, module 2's two fits took 199 seconds under the
-`rstan` default against about 76 under `cmdstanr`. The generated live scripts set it in
-their preamble, guarded on `cmdstanr` being installed. The modules do not.
-
 **`packages.R` does not exist** (§4).
 
 **The publisher-typeset figures are unresolved** (§5). `notes/image-provenance.md` lists
@@ -493,6 +485,17 @@ rendering, reinstall if it has moved, and record the commit used in the table in
 `notes/setup-evidence.md`. The commit is recorded rather than pinned, so a published page
 stays attributable without holding the course behind the package. Module 1 is the exception:
 it tells participants which version to install, so it names a release rather than a branch.
+
+**Every module that fits sets the Stan backend.** `brms` uses `rstan` unless
+`options(brms.backend = "cmdstanr")` is set, and `rstan` compiles a model a good deal more
+slowly. Measured 2026-09-19: module 2's two fits took 199 seconds under the `rstan` default
+against 73 under `cmdstanr` on the same four-core machine, almost all of the difference
+being compilation. Until that day no module set it, so a participant following module 2 and
+running `bnec()` waited about two and a half times as long with nothing on the page to say
+why. It is now in the `setup` chunk of modules 2, 4, 5, 6, 7 and 8, and stated visibly in
+module 2 beside `mc.cores`. Keep it in the setup chunk of any new module that fits. The
+live scripts take it from there rather than setting it themselves, so that a line in a
+script is the same text as the line on the page.
 
 **Prompt logging.** Parent §10 applies. Course modules are teaching material about the
 analyses, so a change to a module's explanation of a method, to its code, or to which model

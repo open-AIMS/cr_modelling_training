@@ -144,7 +144,7 @@ You can set the backend once at the top of any script, and the whole session wil
 options(brms.backend = "cmdstanr")
 ```
 
-If you don't set this `rtan` will be used by default.
+If you don't set this, `rstan` will be used by default.
 
 **`brms`** [@Burkner2017; @Burkner2018] is an R package that removes the need to write Stan code.
 

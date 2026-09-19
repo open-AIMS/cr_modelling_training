@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
 library(dplyr)
 library(ggplot2)
+options(brms.backend = "cmdstanr")
 options(mc.cores = 4)
 set.seed(333)
 ```

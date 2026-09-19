@@ -327,25 +327,28 @@ what they teach.
 
 ### The Stan backend
 
-A script that fits sets `options(brms.backend = "cmdstanr")` in its preamble,
-guarded on `cmdstanr` being installed. `brms` uses `rstan` unless told
-otherwise, and `rstan` compiles a model far more slowly.
+`brms` uses `rstan` unless `options(brms.backend = "cmdstanr")` is set, and
+`rstan` compiles a model a good deal more slowly.
 
 This was found by running the scripts rather than by reading them. Module 2's
 two fits took 199 seconds against an estimate of 76, and the log held
 `SAMPLING FOR MODEL 'anon_model'`, which is `rstan` output. `COMPILE_SECONDS`
 had been measured in a session with the backend set, so the estimate was right
-for `cmdstanr` and wrong for the backend the script used.
+for `cmdstanr` and wrong for the backend the script used. Under `cmdstanr` the
+same two fits took 73 seconds.
 
-The guard matters because a participant who has not finished the software setup
-has no `cmdstanr`, and setting the option unconditionally would leave every fit
-failing rather than merely slow.
+The gap was in the modules rather than in the generator. Module 1 tells a
+participant to set the backend and no module set it, so someone who ran
+`bnec()` while following module 2 compiled under `rstan` and waited about two
+and a half times as long, with nothing on the page to say why. The option is now
+in the `setup` chunk of every module that fits, and module 2 states it visibly
+beside `mc.cores` with the measurement above, that being the first place a
+participant fits anything.
 
-The same gap is in the modules. Module 1 tells a participant to set the backend
-and no module sets it, so someone who runs `bnec()` while following module 2
-compiles under `rstan` and waits about two and a half times as long, with
-nothing on the page to say why. The live scripts no longer have that problem and
-the modules still do.
+The generator set it in the script preamble for a few hours before the modules
+were corrected. That is now removed: a line in a script should be the same text
+as the line on the page, and the module is where a reader of the page will look
+for it.
 
 ### The save() inside a fit that runs
 

@@ -37,6 +37,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(knitr)
+options(brms.backend = "cmdstanr")
 
 
 # Background -----------------------------------------------------------------

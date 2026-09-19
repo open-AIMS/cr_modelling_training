@@ -31,12 +31,6 @@ if (basename(getwd()) != "vignettes") {
   }
 }
 
-# brms uses rstan by default, which compiles much more slowly. Module 1
-# covers this; the fits below assume cmdstanr.
-if (requireNamespace("cmdstanr", quietly = TRUE)) {
-  options(brms.backend = "cmdstanr")
-}
-
 # The saved model objects. Sampling is what takes the minutes, so the fits
 # are made once and loaded here. If this stops the script, fetch them:
 #   source("fetch_fits.R")
@@ -48,6 +42,7 @@ if (!length(list.files("fits", pattern = "\\.RData$"))) {
 options(width = 100)
 library(bayesnec)
 library(ggplot2)
+options(brms.backend = "cmdstanr")
 
 
 # Background -----------------------------------------------------------------

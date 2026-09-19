@@ -486,27 +486,11 @@ for (i in seq_along(MODULES)) {
     ''
   )
 
-  # The Stan backend, where the script fits anything.
-  #
-  # brms uses rstan unless told otherwise, and rstan compiles a model far more
-  # slowly than cmdstanr. Module 1 tells a participant to set this and the
-  # estimates beside the fits below assume it, so a script that fits sets it
-  # too rather than leaving the slow default in place. Measured on 2026-09-19:
-  # module 2's two fits took 199 seconds under the rstan default.
-  #
-  # Guarded, because a participant who has not finished the software setup has
-  # no cmdstanr and setting the option would leave every fit failing rather
-  # than merely slow.
-  if (n_fit_live > 0L) {
-    preamble <- c(preamble,
-      '# brms uses rstan by default, which compiles much more slowly. Module 1',
-      '# covers this; the fits below assume cmdstanr.',
-      'if (requireNamespace("cmdstanr", quietly = TRUE)) {',
-      '  options(brms.backend = "cmdstanr")',
-      '}',
-      ''
-    )
-  }
+  # No backend is set here. Every module that fits sets
+  # options(brms.backend = "cmdstanr") in its own setup chunk, so the line
+  # arrives through the module like any other, and a line in this script stays
+  # the same text as the line on the page. The generator set it in the preamble
+  # for a few hours on 2026-09-19, before the modules were corrected.
 
   if (loads_fits) {
     preamble <- c(preamble,

@@ -9,6 +9,7 @@ bibliography: bayesnec.bib
 #| include: false
 knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
+options(brms.backend = "cmdstanr")
 options(mc.cores = 4)
 set.seed(333)
 ```
@@ -263,19 +264,29 @@ Three things happen when that call runs.
   the first fit of a session is slower than later ones, and why a compiler is
   needed at all.
 - **Sampling.** How long this takes depends on the machine, the number of chains
-  and the number of iterations. The fit above took a little over two minutes on
-  four cores.
+  and the number of iterations. This fit samples in under three seconds on four
+  cores. Compiling it takes considerably longer, so the wait for a model this
+  small is mostly the step above rather than this one.
 - **Reporting.** `bayesnec` names the model that was fitted and the statistical
   distribution used, here a `nec3param` model with a beta distribution.
 
-Set `mc.cores` to at least the number of chains before fitting, so that the
-chains run at the same time rather than in turn:
+Set two options before fitting. `mc.cores` decides how many chains run at the
+same time rather than in turn, so set it to at least the number of chains.
+`brms.backend` decides which interface to Stan is used, and `brms` uses `rstan`
+unless told otherwise. `rstan` compiles a model a good deal more slowly: the two
+fits in this module took 199 seconds under `rstan` and 73 under `cmdstanr` on
+the same four-core machine, almost all of the difference being compilation
+rather than sampling.
 
 ```{r}
 #| label: cores
 #| eval: false
 options(mc.cores = 4)
+options(brms.backend = "cmdstanr")
 ```
+
+Both apply for the rest of the session, so they belong at the top of a script.
+Module 1 covers what `cmdstanr` and `rstan` each are.
 
 Warnings may also appear when you run the fit yourself, which the page does
 not, since it loads a saved object. The two this fit produces concern the Pareto

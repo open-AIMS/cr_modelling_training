@@ -9,6 +9,7 @@ bibliography: bayesnec.bib
 #| include: false
 knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
+options(brms.backend = "cmdstanr")
 options(mc.cores = 4)
 set.seed(333)
 data(nec_data)

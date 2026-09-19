@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 options(width = 100)
 library(bayesnec)
 library(ggplot2)
+options(brms.backend = "cmdstanr")
 ```
 
 ## Background
