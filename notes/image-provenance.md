@@ -3,9 +3,10 @@
 Written 2026-09-17. The repository is public and the site is served from it, so
 every image in `vignettes/images/` is republished to anyone who opens a module.
 `CLAUDE.md` section 5 records that several are screenshots of publisher-typeset
-journal pages and that each has to be checked before the course. This note is
-the list to check against, and it records the decision beside each file once one
-is made.
+journal pages and that each has to be checked before the course. That check is
+done. Every source was looked up, and on 2026-09-20 the presenter decided that
+every capture stays; the section *The licence of each source* records both. This
+note is now the provenance record rather than a list of work outstanding.
 
 The inventory was taken mechanically on 2026-09-17 by matching each filename in
 `vignettes/images/` against the text of every `.qmd`. It says where a file is
@@ -62,12 +63,20 @@ day are all within the licence.
 `bayesnec`, under CC BY. The slide that shows it names the authors, the journal
 and the issue in the sentence above it, which is the attribution.
 
-Three files are not settled. `Fox2010.png` and `Fox2010_nec.png` are pages of a
-subscription Elsevier article with no reuse licence, and `Ritz_etal2026.png` is a
-page of a Springer article with none. For the two Fox captures the route that
-removes the question is the one module 1 already takes in the paragraph below the
-figure: the model is set out there as Quarto mathematics, so the capture of the
-typeset equations adds the article's typography and nothing else.
+Three files have no reuse licence. `Fox2010.png` and `Fox2010_nec.png` are pages
+of a subscription Elsevier article, and `Ritz_etal2026.png` is a page of a
+Springer article. For the two Fox captures the route that would have removed the
+question is the one module 1 already takes in the paragraph below the figure: the
+model is set out there as Quarto mathematics, so the capture of the typeset
+equations adds the article's typography and nothing else.
+
+### The decision on the unlicensed captures
+
+Every capture stays. RF decided this on 2026-09-20, with the licence of each
+source stated and with the offer to delete the two Fox captures, which module 1
+does not depend on. Nothing is to be removed or redrawn on this account, and the
+inventory above is kept as the record of what each file is and where it came
+from rather than as a list of work outstanding.
 
 ## Captures from published articles, still in use
 
@@ -82,7 +91,7 @@ like one. The third column is what the module's own caption says it is.
 | `etnc_fig1.jpg` | module 3, line 113 | a threshold and a smooth curve, "Reproduced from @fisherfox2023 under CC BY-NC 4.0" |
 | `etnc_fig2.jpg` | module 3, lines 47 and 529 | the four toxicity estimates, "Reproduced from @fisherfox2023 under CC BY-NC 4.0" |
 | `necmod_fox2010.jpg` | module 3, line 171 | panel A redrawn from Fox (2010) |
-| `Ritz_etal2026.png` | module 5, line 57 | no caption; shown with `echo: false` |
+| `Ritz_etal2026.png` | module 5, line 979 | Ritz, Gerhard and Streibig (2026), "the source of the measurements in this section" |
 | `modelave_ecol.jpg` | module 4, line 64 | no caption; shown with `echo: false` |
 | `glmbooks.jpg` | module 5, line 165 | no caption; shown with `echo: false` |
 | `Fox2010.png` | module 1, line 195 | the title block of @Fox2010 |
@@ -92,13 +101,15 @@ like one. The third column is what the module's own caption says it is.
 The last three rows were added on 2026-09-19 and were not in the mechanical
 inventory. The licence of each source is in the section above.
 
-`Ritz_etal2026.png`, `modelave_ecol.jpg` and `glmbooks.jpg` state no source on
-the page they appear on. Whatever is decided about reproducing them, a figure
-taken from somewhere has to name where, so each needs a caption or has to go,
-and the caption cannot be written until someone identifies what the file is.
-`modelave_ecol.jpg` and `glmbooks.jpg` were not matched to an article by the
-licence check, because the inventory records where a file is used and not what
-is in it.
+`Ritz_etal2026.png` was captioned after the inventory was taken and the row
+above now gives that caption. `modelave_ecol.jpg` and `glmbooks.jpg` still state
+no source on the page they appear on, and neither was matched to an article by
+the licence check, because the inventory records where a file is used and not
+what is in it. That is a question of what the figure is rather than of whether it
+may be reproduced, which the decision above settles.
+
+The line numbers in the table were taken on 2026-09-17 and several are now
+wrong. Find a file by name rather than by line.
 
 ## Images no longer used
 
