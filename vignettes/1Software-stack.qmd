@@ -10,8 +10,8 @@ bibliography: bayesnec.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Fitting a concentration-response model in this course requires several pieces of
-software to working together, and a failure in any of them will mean the model cannot be fitted. 
+Fitting a concentration-response model using `bayesnec` requires several pieces of
+software to work together, and a failure in any of them will mean the model cannot be fitted. 
 Knowing what each layer does makes those
 errors easier to understand, and it explains several things about the workflow that are
 otherwise arbitrary: why the first model of a session is slow, why a C++
@@ -19,18 +19,24 @@ compiler has to be installed to fit a curve, and why a fitted object is large.
 
 ## The working environment
 
-bayesnec is written in the R statistical programming language. While it is possible
-to use R from some things as a stand alone program, there are additional open-source 
+`bayesnec` is written in the R statistical programming language. 
+
+![The Basic R GUI.](images/R.png){#fig-R}
+
+While it is possible
+to use R for some things as a stand alone program, there are additional open-source 
 third-party software that make R more intuitive and easy to use. Almost no one uses R by itself.
-The course uses the Positron integrated development environment (IDE) for R, 
+
+The course uses the Positron integrated development environment (IDE), 
 which is a free and open-source software that provides a user-friendly interface to R.
-It is available for Windows, MacOS, and Linux operating systems, and is the more 
-recently preferred IDE for R
-and will likely replace the popular RStudio IDE for most users in the future.
 
-A new session starts empty.
+It is available for Windows, MacOS, and Linux operating systems. It is the more 
+recently preferred IDE for R, and is based on Visual Studio.
+It will likely replace the popular RStudio IDE for most users in the future and it has some useful features that I think make it worth adopting now.
 
-![Positron with a new R session. The console reports which R started, and the
+In Positron, a new session starts essentially empty. The console shows which R version (intepreter) has started. 
+
+![Positron with a new R session. The console reports which R version available and started, and the
 interpreter in use is named at the top right with the open project beside
 it.](images/positron_R.png){#fig-positron-new}
 
@@ -39,7 +45,7 @@ it.](images/positron_R.png){#fig-positron-new}
 was sent, the Variables pane lists the objects that now exist and what they
 contain, and the plot appears in the Plots pane.](images/positron_R2.png){#fig-positron-run}
 
-Four parts of that window are worth knowing before the first model is fitted.
+Four parts of that window are worth knowing before we do any modelling.
 
 **The editor**, top left, holds the script. Run the current line or selection
 with `Ctrl`+`Enter` (`Cmd`+`Enter` on macOS) and it is sent to the console below.
@@ -56,7 +62,7 @@ vector.
 **Plots**, bottom right, collects the figures produced, with arrows to step back
 through earlier ones and a control to save the current figure.
 
-Probably the most important thing is the editor pane, because it is where the script is written.
+Probably the most important thing is the editor pane, because it is where you write your R code.
 The script is the record of what was done, and it can be re-run from the top to reproduce the results.
 
 The console is where the code is run, and where its output is displayed.
@@ -70,8 +76,8 @@ pre-packaged software, where the user clicks buttons and the software does
 things behind the scenes.
 
 Having a script means that you have a permanent record of everything that was done
-in the analysis, so that the results can be completely reproduced, which is something that
-is very important in environmental sciences (or any science).
+in the analysis, so that the results can be completely reproduced. Reproducibility is a serious problem in science, and
+is particularly important in environmental sciences (or any science).
 
 The interpreter in use, which is R in this course, is named at the top right of
 the window, with the open project beside it. Check it when something is missing
@@ -109,15 +115,15 @@ flowchart TD
     A --> B --> C --> D --> E
 ```
 
-**Stan** is the engine. It is a separate piece of software, not an R package,
+**Stan** is the underlying engine. It is a separate piece of software, not an R package,
 that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program
 describes a statistical model; Stan translates it to C++, compiles it into an
-executable, and runs that executable to draw samples from the posterior. This is
-the source of the compile step: a Stan model is a program that has to be built
-before it can run, which is why a C++ compiler is a requirement and why the first
-fit of a session takes noticeably longer than later ones.
+executable, and runs that executable to draw samples from the posterior. 
 
-This may seem very opaque of you are not familiar with Bayesian inference, 
+A Stan model is a program that has to be built
+before it can run, which is why a C++ compiler is required.
+
+This may seem very opaque of you are not familiar with Bayesian statistics, 
 but we will cover more detail about Bayesian inference and how Stan works in module 
 6.
 
@@ -125,8 +131,12 @@ but we will cover more detail about Bayesian inference and how Stan works in mod
 either. This course uses `cmdstanr`, which drives a normal CmdStan installation
 as a separate process. `rstan` embeds Stan inside R instead, which couples the
 Stan version to the package version and has historically been the more fragile
-arrangement on Windows. `rstan` still has to be installed, because `brms` imports
-it, but it is not the sampler here. The backend is selected once:
+arrangement on Windows. 
+
+`rstan` still has to be installed, because `brms` imports
+it, but it is not what we are using here because cmdstanr is faster and more reliable.
+
+You can set the backend once at the top of any script, and the whole session will use that backend:
 
 ```{r}
 #| label: backend
@@ -134,43 +144,66 @@ it, but it is not the sampler here. The backend is selected once:
 options(brms.backend = "cmdstanr")
 ```
 
-**`brms`** [@Burkner2017; @Burkner2018] removes the need to write Stan code,
-which is quite complicated and beyond the capability of most ecotoxicologists to implement in practice. 
+If you don't set this `rtan` will be used by default.
 
-Relatively complex models can be fit using `brms`, using a relatively straightforward formula syntax. 
+**`brms`** [@Burkner2017; @Burkner2018] is an R package that removes the need to write Stan code.
+
+Coding up models by hand in Stan is quite complicated and beyond the capability of most ecotoxicologists to implement in practice. 
+
+Relatively complex models can be fit using `brms`, using a simple straightforward formula syntax. 
 A typical model specification might be
 `response ~ predictor1 + predictor2 + (1 | group)`,
 which is similar to the syntax used in many widely used R packages, such as `lme4`, 
 for example.
 
-`brms` supports a wide range of response
+The below screenshot shows an example of what raw stan code looks like, to give you an idea of the kind of thing we are avoiding.
+
+![Example stan code.](images/stancode.png){#fig-stancode}
+
+`brms` is an extremely flexible Bayesian modelling package that supports a wide range of response
 distributions and model structures — non-linear and smooth terms, multilevel
-structure, censoring, distributional regression — and provides the methods for
+structure, censoring, and distributional regression — and provides the methods for
 checking a fit once it exists. Why these are useful will be discussed in later modules.
 
-**`bayesnec`** [@Fisher2020] is the software package this course is about. `brms` will fit a
+**`bayesnec`** [@fisheretal2024] is the software package this course is focused  on. 
+`brms` will fit a
 non-linear model, but only if you supply the equation, sensible starting values
 and priors for every parameter. For concentration-response work that is the
-barrier: the models are non-linear, the priors are not obvious, and a poorly
+barrier: the models are non-linear, the priors are not obvious and `brms` provides no defaults, and a poorly
 initialised non-linear fit fails in ways that need relatively advanced statistical 
-understanding in order to resolve. This is a
+understanding in order to resolve. The greater complexity of implementing Bayesian modelling is a
 substantial part of why Bayesian methods are not widely used for *NEC* estimation
 in ecotoxicology, where specialist statistical support is rarely or infrequently available.
 
 `bayesnec` takes a short formula naming a concentration-response equation, and
 combined with the data input constructs the full non-linear `brms` formula,
 generates priors and initial values, chooses a statistical distribution
-appropriate to the response, fits the model, and extracts toxicity estimates from
-it.
+appropriate to the response, fits the model. It then provides functions for extracting the toxicity estimates that we need for ecotoxicology from
+the model fit in a straightforward way.
 
-The idea was to may non-linear Bayesian concentration-response modelling accessible to 
+The idea behind `bayesnec` was to make non-linear Bayesian concentration-response modelling accessible to 
 ecotoxicologists without specialist statistical expertise. 
 
 ## Package history
 
 The package began as `jagsNEC` [@Fisher2020], an implementation of the *NEC*
-model of @Fox2010 using JAGS, which is one fo the other widely used Bayesian packages available in R,
-based of one of the earliest Bayesian software pacakges `winbugs`. 
+model of @Fox2010 using JAGS, which is another of the widely used Bayesian packages available in R,
+based on one of the earliest Bayesian software packages, WinBUGS. 
+
+::: {#fig-fox2010 layout-ncol=2}
+
+![The article.](images/Fox2010.png){#fig-fox2010-article}
+
+![The model as it is defined there.](images/Fox2010_nec.png){#fig-fox2010-model}
+
+The *NEC* model of @Fox2010.
+:::
+
+@fig-fox2010 gives the model that `jagsNEC` implemented. The mean response is
+constant at $\alpha$ up to a threshold concentration $\gamma$ and decays
+exponentially above it, at a rate $\beta$. That threshold is the *NEC*, and it
+is a parameter of the model, estimated with an interval like any other, rather
+than a quantity read off a curve after the fit.
 
 `bayesnec` was rewritten based on `brms` and Stan, largely because of `brms` extensive
 set of helper and other support functions for working with Bayesian model output.
@@ -196,7 +229,7 @@ The versions in use when a model is fitted should always be recorded as part of 
 This is because sometimes the
 default settings used and the behaviour of estimators can change between releases. 
 
-Recording them costs one line:
+Recording them is relatively straight forward:
 
 ```{r}
 #| label: versions
@@ -208,7 +241,7 @@ cat(sprintf("%-10s %s\n", "R", getRversion()))
 ```
 
 This course is built against the development version of `bayesnec`, which is
-ahead of the release on CRAN. The setup instructions refer the version to install.
+ahead of the release on CRAN. There is a lot of functionality, as well as some significant other behaviour changes currently in the development branch that are worth using, particularly for modules 7 and 8.
 
 ## Documentation and support
 
@@ -227,7 +260,7 @@ preferring over any transcription of it, including the ones in this course.
 development: estimator behaviour and default priors have both changed between
 recent versions.
 
-The package is developed as open source software. We want to grow `bayesnec` andmake it more useful to people.
+The package is developed as open source software. We want to grow `bayesnec` and make it more useful to people.
 Please provide feedback and report software bugs.
 
 Please use the [issues](https://github.com/open-aims/bayesnec/issues) page to report any problems.
@@ -241,3 +274,4 @@ data that someone else can run to see the same behaviour.
 Without a reproducible example a problem cannot
 be diagnosed by anyone who does not have your dataset. 
 A good resource for understanding how to build a reprex is the [reprex package](https://reprex.tidyverse.org/).
+
