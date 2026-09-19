@@ -224,8 +224,11 @@ checked on 2026-09-11, and `etnc_fig1.jpg`, `etnc_fig2.jpg`, `NSEC_ieam.jpg`,
 `ieam_head.jpg`, `necmod_fox2010.jpg`, `modelave_ecol.jpg` and `glmbooks.jpg` are named as
 the same kind of capture. Some are the presenter's own papers, which does not by itself
 settle the position, because copyright in the typeset version usually sits with the
-publisher. The repository is public. Check each before the course, and prefer redrawing a
-figure from its underlying quantities over reproducing a publisher's rendering.
+publisher. The repository is public. Each was checked against its Crossref licence record
+on 2026-09-19, and RF decided on 2026-09-20 that every capture stays;
+`notes/image-provenance.md` holds the licence of each source and the decision. Do not
+reopen it. For a figure added from now on, still prefer redrawing from the underlying
+quantities over reproducing a publisher's rendering.
 
 ---
 
@@ -360,8 +363,11 @@ match what a participant downloaded.
 
 **`packages.R` does not exist** (§4).
 
-**The publisher-typeset figures are unresolved** (§5). `notes/image-provenance.md` lists
-each one, where it is used, and what has to be decided.
+**The publisher-typeset figures are resolved.** Every source was looked up in its
+Crossref record on 2026-09-19, and on 2026-09-20 RF decided that every capture stays,
+including the three whose source registers no reuse licence. Nothing is to be removed or
+redrawn on this account. `notes/image-provenance.md` is now the provenance record rather
+than a list of work outstanding, and holds the licence of each source.
 
 ## 9. Known defects in the current material
 
