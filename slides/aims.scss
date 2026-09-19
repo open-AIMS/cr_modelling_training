@@ -1,0 +1,203 @@
+/*-- scss:defaults --*/
+
+// The AIMS presentation template. The palette is taken from the slide masters
+// of the corporate template in `ignore/3.06-T01 - Fisher.pptx`, read on
+// 2026-09-19, so that the native slides in this deck match the exported
+// introduction slides that use the same template.
+$aims-deep:   #005b9e;
+$aims-bright: #00a3de;
+$aims-green:  #9fcc3b;
+$aims-amber:  #fbae40;
+$aims-orange: #f26b43;
+
+// Arial is the template's typeface, in both the major and minor font scheme.
+$font-family-sans-serif: Arial, Helvetica, sans-serif !default;
+$presentation-font-size-root: 32px !default;
+$presentation-heading-font: Arial, Helvetica, sans-serif !default;
+$presentation-heading-font-weight: 700 !default;
+$presentation-heading-color: $aims-deep !default;
+$presentation-h2-font-size: 1.45em !default;
+
+$body-color: #1a1a1a !default;
+$body-bg: #ffffff !default;
+$link-color: $aims-deep !default;
+$code-color: #8b2500 !default;
+
+/*-- scss:rules --*/
+
+// The template background image carries a blue sidebar down the left-hand
+// 6.35% of the slide. All slide content is inset past it.
+$sidebar-width: 6.35%;
+
+.reveal .slides > section,
+.reveal .slides > section > section {
+  box-sizing: border-box;
+  text-align: left;
+  padding-left: 9.5%;
+  padding-right: 4%;
+}
+
+// The slide number already reports position; the progress bar cuts across the
+// template sidebar at the foot of every slide.
+.reveal .progress {
+  display: none !important;
+}
+
+.reveal h2 {
+  color: $aims-deep;
+  margin-bottom: 0.55em;
+  padding-bottom: 0.12em;
+  border-bottom: 2px solid rgba($aims-bright, 0.4);
+  line-height: 1.15;
+}
+
+.reveal h3 {
+  color: $aims-deep;
+  font-size: 0.95em;
+}
+
+.reveal ul,
+.reveal ol {
+  margin-left: 0.6em;
+}
+
+.reveal li {
+  margin-bottom: 0.35em;
+}
+
+.reveal strong {
+  color: $aims-deep;
+}
+
+.reveal a {
+  color: $aims-deep;
+  text-decoration: underline;
+  text-decoration-color: rgba($aims-bright, 0.6);
+}
+
+.reveal code {
+  color: $code-color;
+}
+
+// Title slide. The background is the template front cover exported from the
+// source deck, so the sidebar, the logos and the photographs are already in
+// the image and only the text is set here. It is placed over the open water
+// in the upper left, clear of the three photographs at lower right.
+.reveal .slides > section#title-slide {
+  top: 0 !important;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 12% 10% 0 12%;
+  text-align: left;
+}
+
+#title-slide .title,
+#title-slide .subtitle,
+#title-slide .quarto-title-author-name {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 2px 14px rgba(0, 28, 48, 0.85);
+}
+
+#title-slide .title {
+  font-size: 1.5em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+#title-slide .subtitle {
+  font-size: 0.8em;
+  margin-top: 0.7em;
+}
+
+#title-slide .quarto-title-authors {
+  margin-top: 1.7em;
+}
+
+#title-slide .quarto-title-author-name {
+  font-size: 0.78em;
+}
+
+// A slide that is nothing but an exported template image needs no inset, and
+// no heading: the title is already inside the image.
+.reveal section.image-slide {
+  padding: 0;
+}
+
+.reveal section.image-slide h2 {
+  display: none;
+}
+
+// The agenda is read at a glance from the back of the room. It is set in two
+// columns, morning and afternoon, because fifteen rows in one column ran off
+// the foot of the slide at projector aspect ratios narrower than the one it
+// was laid out on.
+.reveal .agenda table {
+  font-size: 0.55em;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+// Pandoc emits a <colgroup> with equal inline widths for a pipe table whose
+// delimiter dashes are equal, and an inline width beats an ordinary rule. The
+// column widths are therefore set on the <col> elements with !important, which
+// does win, rather than on the cells.
+.reveal .agenda col:nth-child(1) { width: 14% !important; }
+.reveal .agenda col:nth-child(2) { width: 8% !important; }
+.reveal .agenda col:nth-child(3) { width: 78% !important; }
+
+.reveal .agenda th:nth-child(2),
+.reveal .agenda td:nth-child(2) { text-align: right; }
+
+.reveal .agenda th {
+  text-align: left;
+  color: $aims-deep;
+  border-bottom: 2px solid $aims-deep;
+  padding: 0.2em 0.5em;
+}
+
+.reveal .agenda td {
+  padding: 0.22em 0.5em;
+  border: none;
+  border-bottom: 1px solid #e4e4e4;
+  vertical-align: top;
+}
+
+.reveal .agenda tr td:first-child {
+  font-weight: 700;
+  color: $aims-deep;
+  white-space: nowrap;
+}
+
+.reveal .mode {
+  display: block;
+  color: #6a6a6a;
+  font-style: italic;
+}
+
+.reveal h3 {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+
+.reveal .small {
+  font-size: 0.62em;
+  color: #4a4a4a;
+}
+
+.reveal .footnote {
+  font-size: 0.55em;
+  color: #5a5a5a;
+  margin-top: 0.9em;
+}
+
+.reveal .slide-number {
+  color: $aims-deep;
+  background: rgba(255, 255, 255, 0.75);
+}

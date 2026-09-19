@@ -1,50 +1,193 @@
 ---
 title: "Concentration-response modelling in R"
-subtitle: "SETAC Australasia 2026 --- Room 303"
+subtitle: "SETAC Australasia 2026, Room 303"
 author: "Rebecca Fisher, Australian Institute of Marine Science"
 format:
   revealjs:
-    theme: simple
+    theme: [default, aims.scss]
     slide-number: true
     transition: none
     embed-resources: true
     width: 1280
-    height: 800
+    height: 720
+    title-slide-attributes:
+      data-background-image: ../ignore/slide_assets/title_bg.png
+      data-background-size: contain
+      data-background-color: "#ffffff"
+    include-in-header:
+      text: |
+        <style>
+        /* The AIMS template chrome: the blue sidebar with the Australian
+           Government and AIMS logos and the 50-years mark. It is the slide
+           master background of the corporate template, and it is applied to
+           the viewport so that it sits behind every native slide. The
+           exported introduction slides carry the same chrome inside the
+           image, so `contain` keeps the two in register at any window shape. */
+        .reveal-viewport {
+          background-color: #ffffff;
+          background-image: url("../ignore/slide_assets/aims_template.jpg");
+          background-size: contain;
+          background-position: center center;
+          background-repeat: no-repeat;
+        }
+        </style>
 execute:
   echo: false
   warning: false
   message: false
 ---
 
-## The presenters
+<!--
+Slide assets.
 
-Rebecca Fisher, Australian Institute of Marine Science.
+The nine introduction slides are exported from the AIMS corporate template deck
+`ignore/3.06-T01 - Fisher.pptx`, which is the talk that introduces AIMS, the
+tropical ecotoxicology team, the ANZG, and the statistical methods adopted into
+it. They are exported rather than rebuilt because they are composite layouts of
+photographs, journal headers and a map that no reasonable amount of HTML would
+reproduce faithfully.
 
-`bayesnec`, the package used through the day, is developed at AIMS by Fisher,
-Barneche, Ricardo and Fox, and is described in *Journal of Statistical Software*
-110(5).
+`ignore/` is git-ignored, so the assets are local to the presenter's machine and
+are not published with the repository. That is deliberate: the exported slides
+contain screenshots of publisher-typeset journal pages, which is the question
+`notes/image-provenance.md` is open on, and photographs of AIMS staff.
 
-Helpers are in the room during the sessions where you run the code. Put a hand
-up and one will come to you rather than waiting until the break.
+To rebuild them from the source deck:
+
+  cp "ignore/3.06-T01 - Fisher.pptx" ignore/intro_for_export.pptx
+  powershell.exe -NoProfile -Command "
+  \$app = New-Object -ComObject PowerPoint.Application
+  \$p = \$app.Presentations.Open('C:\Rworking\cr_modelling_training\ignore\intro_for_export.pptx', \$false, \$false, \$false)
+  \$p.Slides(9).Delete(); \$p.Slides(1).Delete(); \$p.Save()
+  foreach (\$s in \$p.Slides) { \$s.Export(('C:\Rworking\cr_modelling_training\ignore\slide_assets\intro{0:d2}.png' -f \$s.SlideIndex), 'PNG', 1600, 900) }
+  \$p.Close(); \$app.Quit()"
+
+Slide 1 of the source is its own title slide and slide 9 is a build-up
+duplicate of slide 10, so both are dropped. Two headings were renumbered in the
+copy, because cutting the talk down left two developments both numbered "2.".
+
+`aims_template.jpg` is the slide master background of the template, taken from
+`ppt/media/image4.jpg` inside the same file. `title_bg.png` is slide 1 of the
+source deck with its `TextBox 6` deleted and the slide exported the same way,
+so that this deck's own title is set in HTML over the front cover.
+-->
+
+## {background-image="../ignore/slide_assets/intro01.png" background-size="contain" background-color="#ffffff" .image-slide}
 
 ::: {.notes}
-Fifteen minutes for this block, 10:00 to 10:15. Module 1 starts at 10:15.
+Acknowledgement of Country. Wadjuk people of the Noongar nation.
 :::
 
-## The shape of the day
+## {background-image="../ignore/slide_assets/intro02.png" background-size="contain" background-color="#ffffff" .image-slide}
 
-| Time | |
-|---|---|
-| 10:00 | Welcome, and an introduction to concentration-response modelling |
-| 10:15 | The software stack, and fitting your first model in `bayesnec` |
-| 12:30 | Lunch, served one level below |
-| 13:15 | Toxicity estimates, model averaging, and choosing a statistical distribution |
-| 14:30 | Break. Coffee, tea and snacks in Room 301. |
-| 14:45 | Priors, and a worked case study from start to finish |
-| 16:00 | Finish |
+::: {.notes}
+AIMS: Australia's tropical marine research agency. Townsville, Perth, Darwin.
+I am based in Perth.
+:::
 
-Coffee and tea are next door in Room 301. The day ends at 16:00, in time for the
-conference opening ceremony at 16:30.
+## {background-image="../ignore/slide_assets/intro03.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+The Tropical Ecotoxicology and Risk Assessment team. Darren Koppel, bottom
+left, is in the room today as one of the helpers.
+:::
+
+## {background-image="../ignore/slide_assets/intro04.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+Where the numbers go. The method document at the bottom of the chain is what
+the next three slides are about.
+:::
+
+## {background-image="../ignore/slide_assets/intro05.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+First of three statistical developments: species sensitivity distributions in
+`ssdtools`, now approved for use in the ANZG.
+:::
+
+## {background-image="../ignore/slide_assets/intro06.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+Second: mixture distributions for bi-modal sensitivity data.
+:::
+
+## {background-image="../ignore/slide_assets/intro07.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+Third, and the one this course is built on: the no-significant-effect
+concentration, and model averaging across a candidate set.
+:::
+
+## {background-image="../ignore/slide_assets/intro08.png" background-size="contain" background-color="#ffffff" .image-slide}
+
+::: {.notes}
+Warne et al. (2025) is the current technical guidance. Every method in it is
+free and open source, which is why a day like this one is possible at all.
+:::
+
+## The package this course uses
+
+:::: {.columns}
+
+::: {.column width="44%"}
+![](../vignettes/images/Fisher_etal2024_JSS.png){width="100%"}
+:::
+
+::: {.column width="52%"}
+`bayesnec` was developed at AIMS by myself and Diego Barneche, and is described
+in *Journal of Statistical Software* 110(5).
+
+It fits concentration-response models in a Bayesian framework through `brms` and
+Stan, and returns NEC, NSEC and ECx estimates averaged over a candidate set of
+equations.
+
+The whole of today is spent in it.
+:::
+
+::::
+
+::: {.notes}
+Hand over from the ANZG context to the software. Ten minutes gone by here.
+:::
+
+## In the room today
+
+Rebecca Fisher, Australian Institute of Marine Science, presenting.
+
+Alex Bastick and Darren Koppel are helping. They are in the room through every
+session where you run code.
+
+Put a hand up and one of them will come to you. Do not wait for the break.
+
+::: {.notes}
+Point both of them out. They have the fits bundle, the live scripts, and the
+three failures that check_setup.R reports.
+:::
+
+## Concentration-response data
+
+```{r}
+#| label: crdata
+#| fig-width: 8
+#| fig-height: 3.3
+#| fig-align: center
+library(ggplot2)
+data("nec_data", package = "bayesnec")
+ggplot(nec_data, aes(x = x, y = y)) +
+  geom_point(size = 2.4, alpha = 0.75, colour = "#005b9e") +
+  labs(x = "Concentration", y = "Response") +
+  theme_classic(base_size = 18)
+```
+
+An exposure across a concentration series, with a measured response at each
+concentration. The response falls as concentration rises, and the question is
+where it begins to fall and by how much.
+
+::: {.notes}
+One slide only. Everything about how the curve is fitted and read belongs to
+modules 2 and 3.
+:::
 
 ## The outcomes
 
@@ -59,141 +202,91 @@ By the end of the day you will be able to:
 - produce a complete workflow for estimating no-effect toxicity, suitable for
   use in a species sensitivity distribution.
 
-## Concentration-response data
+## The shape of the day
 
-```{r}
-#| label: fig-crdata
-#| fig-width: 8
-#| fig-height: 3.6
-#| fig-align: center
-library(ggplot2)
-data("nec_data", package = "bayesnec")
-ggplot(nec_data, aes(x = x, y = y)) +
-  geom_point(size = 2.2, alpha = 0.7) +
-  labs(x = "Concentration", y = "Response") +
-  theme_classic(base_size = 18)
-```
+:::: {.columns}
 
-An exposure across a concentration series, with a measured response at each
-concentration. The response falls as concentration rises, and the question is
-where it begins to fall and by how much.
+::: {.column width="49%"}
+### Morning
 
-## Estimates read from a fitted curve
+::: {.agenda}
 
-Four quantities are in use, and they measure different things.
+| Time | Min | |
+|---|---|---|
+| 09:30 | 30 | Arrival, coffee, installation check |
+| 10:00 | 15 | Welcome and introduction |
+| 10:15 | 30 | 1. The software stack [demonstration]{.mode} |
+| 10:45 | 15 | Break, coffee in Room 301 |
+| 11:00 | 50 | 2. Fitting a single model [hands-on]{.mode} |
+| 11:50 | 40 | 3. Toxicity estimation and the model set [hands-on]{.mode} |
+| 12:30 | 45 | Lunch, one level below |
 
-- The **NEC** is the concentration at which the response begins to decline. It
-  is a parameter of a threshold model, estimated directly.
-- The **NSEC** is the concentration at which the fitted curve crosses a lower
-  quantile of the control response. It is defined for a smooth curve, which has
-  no threshold to estimate.
-- An **ECx** is the concentration producing an x per cent change from the
-  control, most often EC10 or EC50.
-- The **NOEC** is the highest test concentration whose treatment mean is not
-  statistically distinguishable from the control.
+:::
+:::
 
-Module 3 takes each of these on a fitted curve.
+::: {.column width="49%"}
+### Afternoon
 
-## The place of a no-effect estimate
+::: {.agenda}
 
-A no-effect estimate for each of several species is what a species sensitivity
-distribution is built from, and the distribution is what a guideline value is
-derived from.
+| Time | Min | |
+|---|---|---|
+| 13:15 | 45 | 4. Model averaging and multi-model inference [hands-on]{.mode} |
+| 14:00 | 30 | 5. Response data and distributions [demonstration]{.mode} |
+| 14:30 | 15 | Break, coffee and snacks |
+| 14:45 | 30 | 6. Priors and Bayesian inference [demonstration]{.mode} |
+| 15:15 | 35 | 7. A worked case study, with module 8 shown [walk-through]{.mode} |
+| 15:50 | 10 | Close, and what to read next |
+| 16:00 | | Finish |
+| 16:30 | | Conference opening ceremony |
 
-The estimate you report therefore propagates into the protective concentration
-someone else calculates.
+:::
+:::
 
-Warne et al. (2025), the current Australian and New Zealand method, lists the
-NEC and the NSEC as the two most preferred statistical estimates of toxicity.
+::::
 
-## The difficulty with the NOEC
+::: {.notes}
+285 teaching minutes. Lunch is bento boxes and can be brought back to the room.
 
-The NOEC is one of the concentrations you happened to test, so it cannot fall
-between two of them and it cannot be reported with an interval.
+The three modes, if anyone asks: hands-on means you run the code as it is
+introduced, demonstration means you watch it run and have the script to run
+later, and walk-through means the page is read and its output discussed. The
+"Running the code" slide covers this.
+:::
 
-It also rewards an imprecise experiment. Wider variation makes a treatment
-harder to distinguish from the control, which raises the concentration declared
-to have no effect.
-
-Fisher and Fox (2023) introduce the NSEC as the estimate that answers the same
-question from a fitted curve.
-
-## Fitting in a Bayesian framework
-
-`bayesnec` fits these models through `brms` and Stan.
-
-The fit returns a posterior distribution for every quantity, so an NEC, an NSEC
-and an ECx each come with an interval without a separate calculation.
-
-A prior is stated for each parameter. `bayesnec` sets weakly informative priors
-from the data by default, and module 6 covers reading them and changing them.
-
-## Model averaging
-
-A candidate set of equations is fitted rather than one equation.
-
-Each equation is weighted by how well it predicts, and the estimates are
-averaged across the set by those weights.
-
-The reason is that the equation is rarely known in advance, and a guideline
-value derived from a single equation chosen after the fact omits the
-uncertainty in that choice. Module 4 covers the weights and how to read them.
-
-## The frequentist comparison
-
-`drc` fits the same curves by maximum likelihood, and many people in this field
-already use it.
-
-It is supplied as a reference page rather than taught, and it is explicit about
-where the two engines answer the same question and where they do not.
-
-## The page and the teaching modes
+## Running the code
 
 The page on the projector is the page on your own screen, and each module shows
 the code that produced every result on it.
 
-Three modes are used through the day:
-
-- **hands-on**, where you run the code as it is introduced;
-- **demonstration**, where you watch it run and have the script to run later;
-- **walk-through**, where the page is read and its output discussed.
-
-## Fits that are loaded rather than sampled
-
 A single model takes minutes to fit and a model-averaged set takes longer, so
-nothing is sampled from scratch in the room.
-
-Every fit appears as three steps: the `bnec()` call, the `save()` that keeps the
-result, and the `load()` that reads it back. The call and the save are shown;
-the load is what runs.
+nothing is sampled from scratch in the room. Every fit appears as three steps:
+the `bnec()` call, the `save()` that keeps the result, and the `load()` that
+reads it back. The call and the save are shown; the load is what runs.
 
 The saved objects are the download named in the setup instructions, and they are
-on the USB sticks at the front. That sequence is what a real analysis does,
-which is why it is on the page rather than hidden.
+on the USB sticks at the front.
 
-## A broken installation
-
-You will be able to follow every demonstration, and the material stays online
-afterwards.
-
-Bring your laptop to a helper during a break rather than during a session, and
-run `check_setup.R` first so that the output is in front of us.
-
-Nothing is installed or repaired during teaching time; there is no slot for it
-in the day.
+::: {.notes}
+That three-step sequence is what a real analysis does, which is why it is on the
+page rather than hidden.
+:::
 
 ## The material
 
 <https://open-aims.github.io/cr_modelling_training/>
 
 The site stays available after the workshop, and the source is at
-<https://github.com/open-AIMS/cr_modelling_training>.
+<https://github.com/open-AIMS/cr_modelling_training>. Corrections and questions
+are welcome as issues on that repository, including after today.
 
-Corrections and questions are welcome as issues on that repository, including
-after today.
+It includes a reference page fitting the same models with `drc`, which is not
+taught today and is there for anyone comparing a frequentist result with a
+Bayesian one.
 
-## Module 1, the software stack
+Module 1 is next: what R, Stan, `brms` and `bayesnec` each contribute, and how
+they fit together. Open the site, and open Positron beside it.
 
-What R, Stan, `brms` and `bayesnec` each contribute, and how they fit together.
-
-Open the site, and open Positron beside it.
+::: {.notes}
+10:15. Hand to module 1.
+:::
