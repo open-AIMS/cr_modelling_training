@@ -45,7 +45,7 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # revision that changes a fitted model adds or replaces objects here; the value
 # was 18, then 20, and was 25 on 2026-09-17. An under-set value does not break
 # the fetch, it only guards less.
-N_FITS <- 25L
+N_FITS <- 26L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")

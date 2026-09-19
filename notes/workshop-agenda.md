@@ -96,30 +96,138 @@ Module 1 is cut to 30 minutes against its own length. The software setup is
 pre-work, so module 1 explains what R, Stan, `brms` and `bayesnec` each
 contribute rather than installing any of them.
 
-## Decisions left to the survey
+## Decisions taken from the survey
 
-The pre-workshop survey in `participant-survey-questions.md` bears on four of
-the decisions above. None of them changes the total, so each is an exchange
-between blocks.
+The pre-workshop survey in `participant-survey-questions.md` bore on four of the
+decisions above, and all four are settled here. None of them changes the total
+of 285 teaching minutes, and none of the block times in the agenda above is
+altered. What the responses change is the emphasis within three modules and the
+staffing of the arrival window.
 
-Question 4, comfort with Bayesian statistics, decides whether module 6 holds at
-30 minutes or takes 10 minutes from module 7, and whether the opening block
-needs to cover what a posterior is before module 2 rather than leaving it to
-module 6.
+Responses closed with 18 of the 50 registered participants answering, a response
+rate of 36 per cent. The counts below are out of those 18. They are the only
+evidence available before the day, and a block that 18 people report needing is
+not evidence about the other 32.
 
-Question 7, which toxicity values participants report in their own work, decides
-the balance within module 3 between NEC, NSEC and ECx.
+The deployed form differs from the design in `participant-survey-questions.md`.
+Questions 14, 15, 17 and 18 (operating system, installation rights, point of
+failure, and the pasted `check_setup.R` output) are absent, and a single
+question asking whether the toolchain is ready to compile and run `bayesnec`
+models stands in their place. There is therefore a count of installation
+failures and no diagnosis of any of them.
+
+### The time given to module 6
+
+Question 4, comfort with Bayesian statistics, returned 10 responses of "new to
+me", 6 of "know the basic idea" and 2 of "have interpreted posteriors before".
+No respondent reported working with Bayesian methods routinely. Question 10,
+reading a posterior distribution or a credible interval, returned 11 of "not
+really" and 7 of "somewhat", and again no respondent reported being comfortable.
+Question 12, informative against weakly informative priors, returned 14 of "new
+territory".
+
+Module 6 therefore holds at 30 minutes and does not give 10 minutes to module 7.
+
+### The posterior in module 2
+
+The same three questions decide the second half of question 4's purpose, which
+was whether the opening block covers what a posterior is before module 2 reaches
+one. It does not, because the opening block is 15 minutes and already covers
+the welcome, the agenda and the introduction to concentration-response
+modelling.
+
+The explanation is given instead at the point in module 2 where the first fit is
+plotted and a credible interval appears on the screen, within module 2's
+existing 50 minutes. Module 2 was given 50 rather than 40 to absorb the failures
+that the software setup did not catch (above), so the reserve is spent on
+whichever of the two arises. Where module 2 overruns, module 4 gives back the
+5 minutes, for the reason the next section gives.
+
+### The balance within module 3
+
+Question 7, which toxicity values participants report in their own work,
+returned 12 responses of "a mix, depending on the study", 2 of "NOEC only", 2 of
+"not sure what these are", 1 of "ECx" and 1 of "NEC or NSEC". No single estimate
+has a constituency large enough to favour, so module 3 divides its 40 minutes
+evenly between NEC, NSEC and ECx.
+
+Question 9, what distinguishes a NEC model from an ECx model, returned 9
+responses of "no", 7 of "roughly" and 2 of "yes". Eight respondents chose
+"understanding when NEC and when ECx is appropriate" among their priorities for
+the day. Module 3's 40 minutes are therefore the minimum rather than a generous
+allocation, and the distinction itself is taught rather than assumed.
+
+Two respondents reported not knowing what NOEC, ECx, NEC and NSEC are, and 9 of
+18 cannot distinguish a NEC model from an ECx model. The four terms are used
+from module 2 onwards. Whether the opening deck names them before module 2 does
+is outstanding (RF, 2026-09-19): the slide defining them was cut from the deck
+on the ground that the deck should introduce the presenter rather than pre-empt
+module 3, and these responses are the case for one sentence naming the four
+going back in.
+
+### Module 8 as reading
 
 Questions 6 and 8, the priorities for the day and the intended application,
-decide whether module 8 stays as reading. A substantial number of participants
-intending to compare curves across groups would return it to the taught
-sequence, and the 30 minutes would come from modules 5 and 6.
+decide whether module 8 returns to the taught sequence. Question 8 drew 7 free
+text answers, of which one describes a grouped comparison: toxicity thresholds
+of biodegradable against conventional polymers, and of different particle
+shapes, tested for a difference. The others are transcriptomic endpoints (2),
+mixtures of low-concentration chemicals with incomplete curves, a pharmaceutical
+dose-response curve, a comparison of Bayesian posterior slopes against
+frequentist estimates, and one respondent still designing a study.
 
-Questions 16 to 18, the setup check results, decide how many people work the
-arrival window and what they are briefed on. Responses are anonymous, so a
-participant reporting a failure cannot be contacted beforehand, and the count of
-failures is the only signal available before the day. A high count is the case
-for putting both helpers on the door at 09:30 rather than one.
+One respondent of 18 is not the substantial number that would return module 8 to
+the sequence. Module 8 stays as reading, shown for 10 minutes at the end of the
+module 7 block.
+
+### Module 4 as the reserve
+
+Question 13, the importance of model averaging against selecting a single best
+model, returned 7 responses of "not something I currently need", 5 of
+"essential", 3 of "useful" and 3 of "not sure what model averaging is".
+
+Module 4 holds at 45 minutes, because model averaging is two of the six outcomes
+in `index.qmd` and 5 respondents report needing it. It is named here as the
+block to trim first if the day runs late, because it is the only block whose
+subject a majority of respondents report not currently needing.
+
+### Staffing of the arrival window
+
+The toolchain question returned 7 responses of "yes", 10 of "not sure" and 1 of
+"no". Eleven of 18 respondents have not confirmed that they can compile and run
+a model, and 32 registered participants did not answer at all.
+
+Both helpers therefore work the door from 09:30 rather than one, and the
+presenter sets up the projector alone. "Not sure" means `check_setup.R` has not
+been run, so the reminder sent before the day asks for it to be run and names
+the three failures it reports.
+
+### Points for the pre-workshop message
+
+One respondent asked whether the day works in R or in RStudio. Module 1 uses
+Positron, so the message states that any editor is fine and that Positron is
+what will be on the projector.
+
+Ten respondents chose "confidence installing and running `bayesnec` myself"
+among their priorities, equal first with applying the methods to their own data.
+Eight chose comparing Bayesian and frequentist results, which is
+`vignettes/drc-reference.qmd`. That page is reference rather than taught, so it
+is named in the closing block, and it has to be on the approved site by then
+(`CLAUDE.md` section 8).
+
+### Experience with R
+
+Question 1 returned 11 responses of "use it occasionally", 6 of "use it
+regularly" and 1 of "never used it". Question 2, prior concentration-response
+fitting, returned 8 of "a few times", 7 of "never" and 3 of "routinely".
+Question 3 returned 9 responses of "none of these" against the list of `drc`,
+`bayesnec`, `brms` and Stan; `drc` was the most used, at 5.
+
+This changes no timing, and it is recorded because the hands-on blocks are
+written for competent R users. Half the respondents use R occasionally and have
+fitted no concentration-response model in any software, so module 2 is the first
+time most of the room will have run `bnec()` and the first time many will have
+run a model fit of any kind.
 
 ## The room and the set-up
 

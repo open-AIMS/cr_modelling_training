@@ -171,7 +171,7 @@ from under a running script.
 ## 5. Data files and their availability
 
 **The fitted objects live in `vignettes/fits/`, which is git-ignored, and are
-distributed as a release asset.** 25 objects, 42.3 MB zipped, built by
+distributed as a release asset.** 26 objects, 43.1 MB zipped, built by
 `scripts/bundle_fits.R` into `dist/` and published under the fixed tag `fits`:
 
 ```bash

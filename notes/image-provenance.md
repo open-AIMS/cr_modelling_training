@@ -28,6 +28,47 @@ page from a subscription journal usually does not, and authorship of the article
 does not by itself settle it, because copyright in the typeset version commonly
 sits with the publisher. The licence has to be read for the specific article.
 
+## The licence of each source
+
+Each source was looked up on 2026-09-19 in the Crossref record for its DOI,
+which states the licence the publisher registered for the version of record. The *Journal of
+Statistical Software* registers no licence with Crossref, so its article page
+and its DOAJ record were read instead.
+
+| Source | DOI | Licence of the version of record |
+|---|---|---|
+| @fisheretal2023, IEAM | `10.1002/ieam.4809` | CC BY 4.0 |
+| @fisherfox2023, ET&C | `10.1002/etc.5610` | CC BY-NC 4.0 |
+| Fisher et al. (2024), JSS | `10.18637/jss.v110.i05` | CC BY 4.0 in the article metadata; the site's general licence block says CC BY 3.0 |
+| @Fox2010, Ecotoxicology and Environmental Safety | `10.1016/j.ecoenv.2009.09.012` | none; Elsevier registers a text-and-data-mining licence only |
+| @Ritz2026, Environmental and Ecological Statistics | `10.1007/s10651-025-00698-y` | none; Springer registers a text-and-data-mining licence only |
+
+Six files are settled by this and need only attribution, which each caption now
+gives as the source and the licence together.
+
+`Fisher_IEAM_Table1.png`, `NSEC_ieam.jpg` and `ieam_head.jpg` are from
+@fisheretal2023 under CC BY 4.0, which permits reproduction for any purpose with
+attribution. `NSEC_ieam.jpg` was shown in module 7 with no caption at all and now
+has one.
+
+`etnc_fig1.jpg` and `etnc_fig2.jpg` are from @fisherfox2023 under CC BY-NC 4.0.
+The non-commercial condition turns on whether the use is directed toward
+commercial advantage or monetary compensation. The published site is free to read
+and shows no advertising, and the presenter recorded on 2026-09-19 that the
+workshop is free to attend, so the site, the deck and anything handed out on the
+day are all within the licence.
+
+`Fisher_etal2024_JSS.png` is the title block of the JSS description of
+`bayesnec`, under CC BY. The slide that shows it names the authors, the journal
+and the issue in the sentence above it, which is the attribution.
+
+Three files are not settled. `Fox2010.png` and `Fox2010_nec.png` are pages of a
+subscription Elsevier article with no reuse licence, and `Ritz_etal2026.png` is a
+page of a Springer article with none. For the two Fox captures the route that
+removes the question is the one module 1 already takes in the paragraph below the
+figure: the model is set out there as Quarto mathematics, so the capture of the
+typeset equations adds the article's typography and nothing else.
+
 ## Captures from published articles, still in use
 
 Each of these is named in `CLAUDE.md` section 5 as a publisher capture, or looks
@@ -35,26 +76,29 @@ like one. The third column is what the module's own caption says it is.
 
 | File | Used in | What the caption says |
 |---|---|---|
-| `Fisher_IEAM_Table1.png` | module 3, line 551 | a table of toxicity estimates, "Reproduced from @fisheretal2023" |
-| `NSEC_ieam.jpg` | module 4, line 113; module 7, line 979 | the N(S)EC figure, "Reproduced from @fisheretal2023" |
-| `ieam_head.jpg` | module 4, line 824 | the title block of @fisheretal2023, described there as open access |
-| `etnc_fig1.jpg` | module 3, line 113 | a threshold and a smooth curve, "Reproduced from @fisherfox2023" |
-| `etnc_fig2.jpg` | module 3, lines 47 and 529 | the four toxicity estimates, "Reproduced from @fisherfox2023" |
+| `Fisher_IEAM_Table1.png` | module 3, line 551 | a table of toxicity estimates, "Reproduced from @fisheretal2023 under CC BY 4.0" |
+| `NSEC_ieam.jpg` | module 4, line 113; module 7, line 979 | the N(S)EC figure, "Reproduced from @fisheretal2023 under CC BY 4.0" in both |
+| `ieam_head.jpg` | module 4, line 824 | the title block of @fisheretal2023, "open access under CC BY 4.0" |
+| `etnc_fig1.jpg` | module 3, line 113 | a threshold and a smooth curve, "Reproduced from @fisherfox2023 under CC BY-NC 4.0" |
+| `etnc_fig2.jpg` | module 3, lines 47 and 529 | the four toxicity estimates, "Reproduced from @fisherfox2023 under CC BY-NC 4.0" |
 | `necmod_fox2010.jpg` | module 3, line 171 | panel A redrawn from Fox (2010) |
 | `Ritz_etal2026.png` | module 5, line 57 | no caption; shown with `echo: false` |
 | `modelave_ecol.jpg` | module 4, line 64 | no caption; shown with `echo: false` |
 | `glmbooks.jpg` | module 5, line 165 | no caption; shown with `echo: false` |
+| `Fox2010.png` | module 1, line 195 | the title block of @Fox2010 |
+| `Fox2010_nec.png` | module 1, line 197 | the definition of the model in @Fox2010 |
+| `Fisher_etal2024_JSS.png` | the opening deck, slide *The presenters* | no caption; the slide text above it names the paper |
 
-Two things follow from the table itself, before any licence is read.
+The last three rows were added on 2026-09-19 and were not in the mechanical
+inventory. The licence of each source is in the section above.
 
-The four images with no caption state no source on the page. Whatever is decided
-about reproducing them, a figure taken from somewhere has to name where, so each
-needs a caption or has to go.
-
-`@fisheretal2023` is open access, and module 4 says so in its own caption and
-links the code repository for the paper. Read its licence first: if it is a
-Creative Commons licence permitting reuse with attribution, three of the nine
-files above are settled at once.
+`Ritz_etal2026.png`, `modelave_ecol.jpg` and `glmbooks.jpg` state no source on
+the page they appear on. Whatever is decided about reproducing them, a figure
+taken from somewhere has to name where, so each needs a caption or has to go,
+and the caption cannot be written until someone identifies what the file is.
+`modelave_ecol.jpg` and `glmbooks.jpg` were not matched to an article by the
+licence check, because the inventory records where a file is used and not what
+is in it.
 
 ## Images no longer used
 
@@ -69,7 +113,8 @@ help pages and package websites taken for the 2023 learnr modules.
 `etnc_header.jpg` is in this group. It is the ET&C title block of
 @fisherfox2023, and it is the file `CLAUDE.md` section 5 confirms was checked on
 2026-09-11, so the one capture whose identity is established is the one no page
-uses any more.
+uses any more. Its source is CC BY-NC 4.0, so holding it in the repository raises
+nothing that needs undoing.
 
 Deleting a file here removes it from the working tree and not from the history,
 so a capture that should never have been committed needs more than a delete.
