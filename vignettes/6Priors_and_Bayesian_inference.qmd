@@ -41,8 +41,7 @@ statistical support is not usually available [@Fisher2019].
 
 Three things justify the overhead: a stable and flexible fitting platform,
 estimates of uncertainty that mean what people assume they mean, and the
-posterior sample itself, which module 7 uses to compare toxicity between
-datasets.
+posterior sample itself, which every estimate in this course is read from.
 
 ```{r}
 #| label: fig-bayes
@@ -74,6 +73,45 @@ handled properly, which is the subject of this module.
 This introduction covers the principles without the mathematics:
 
 {{< video https://www.youtube.com/watch?v=0F0QoMCSKJ4 >}}
+
+## The posterior sample
+
+A Bayesian fit returns draws from the joint posterior of every parameter, and
+what follows in an analysis is done on those draws rather than on a point
+estimate and a standard error.
+
+A derived quantity is computed once per draw, so it arrives with an interval of
+its own. `ecx()`, `nsec()` and `ecnsec()` each evaluate the fitted curve draw by
+draw and return the distribution that results. The interval on the estimate
+therefore follows from the parameter draws with no separate approximation.
+Maximum likelihood needs the delta method or a bootstrap for the same interval,
+and the [`drc` reference](drc-reference.qmd) page derives an *NSEC* that has no
+interval at all for that reason.
+
+A question about two estimates becomes a proportion of draws.
+`compare_posterior()` pairs the draws of two fits and reports the probability
+that one estimate exceeds the other. Module 2 shows it on two equations fitted
+to `nec_data`, and module 8 uses it to compare the toxicity of copper and zinc.
+The same count answers whether a threshold falls below a guideline value, which
+is the form a risk assessment usually needs [@fisher2018c].
+
+Model averaging is done on the draws as well. `bnec()` weights the candidate
+equations by their leave-one-out predictive performance and draws from each in
+proportion to its weight, so an estimate taken from a model-averaged fit
+includes the uncertainty about which equation describes the data. Module 4
+covers how the weights are computed.
+
+The draws also travel into work downstream of the fit. A species sensitivity
+distribution fitted to point estimates treats each species value as known
+exactly, and fitting it to the draws instead propagates the uncertainty in each
+species into the hazard concentration that comes out
+[@Charles2020a; @Gottschalk2013]. Module 7 lists other uses the draws have been
+put to.
+
+None of this removes the overhead. A fit takes minutes rather than seconds and
+needs a working toolchain. The priors are a further assumption that a maximum
+likelihood fit does not make, and stating them, checking them and knowing how
+much they matter is what the rest of this module covers.
 
 ## Sampling
 
