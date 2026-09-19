@@ -331,11 +331,19 @@ module.
 
 **`bayesnec` is installed from a moving branch** (§4). Pin it.
 
-**The day does not fit in the day.** `notes/delivery-format-human.md`, section *The time
-budget*, measures 155 executing chunks against 380 teaching minutes and states that the
-triage needs the presenter's judgement. Three other steps wait on it: the runs-here
-callout in each module, the live scripts at `scripts/live/`, and the opening deck. None of
-those exist.
+**The runs-here callout is not written.** `notes/delivery-format-human.md` step 5 asks each
+taught module to open with a note naming the code a participant runs and the code they
+watch, so that nobody starts a fit that will not finish before the module ends. No module
+has one. The triage it depends on is settled: `notes/workshop-agenda.md` gives every block
+a stated number of minutes against the real 285. The other two steps that waited on that
+triage are done. `slides/opening.qmd` is the opening deck, and `scripts/live/` holds one
+generated `.R` file per taught module.
+
+**The live scripts are generated, not written.** `scripts/generate_live_scripts.R` builds
+`scripts/live/` from the module sources, using the chunk parser in `scripts/qmd_chunks.R`
+that `scripts/generate_taught_fits.R` also uses. Regenerate after any change to a module;
+a hand edit to a file under `scripts/live/` is lost at the next run and leaves the script
+disagreeing with the page while the room is looking at both.
 
 **`packages.R` does not exist** (§4).
 

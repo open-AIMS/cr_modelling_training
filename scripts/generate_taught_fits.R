@@ -41,43 +41,9 @@ MODULES <- c(
   "6Priors_and_Bayesian_inference"
 )
 
-# Which chunks to run.
-#
-# An executed chunk is run, because later chunks depend on the data it reads and
-# the objects it builds. A chunk marked `eval: false` is skipped, except where it
-# saves into `fits/`: those are the fit chunks, and they are the whole point of
-# this script. Skipping every `eval: false` chunk, which an earlier version did,
-# left it unable to fit anything at all.
-#
-# knitr::purl() cannot make this distinction. Chunk option hooks are applied
-# when a document is knitted and not when it is purled, so purling extracts the
-# `eval: false` demonstrations as well -- module 4's parallel plan among them --
-# and sourcing the result would run them.
-runnable_chunks <- function(qmd) {
-  lines <- readLines(qmd, warn = FALSE)
-  starts <- grep("^```\\{r[ ,}]", lines)
-  ends <- grep("^```\\s*$", lines)
-  out <- character()
-  seen <- character()
-  for (s in starts) {
-    e <- ends[ends > s][1]
-    if (is.na(e)) next
-    body <- lines[(s + 1):(e - 1)]
-    opts <- grep("^#\\|", body, value = TRUE)
-    code <- body[!grepl("^#\\|", body)]
-    eval_false <- any(grepl("^#\\|\\s*eval:\\s*false", opts))
-    targets <- sub('.*file\\s*=\\s*"([^"]+)".*', "\\1",
-                   grep('save\\s*\\(.*file\\s*=\\s*"fits/', code, value = TRUE))
-    if (eval_false && length(targets) == 0) next
-    # A module can show the same fit call twice, once to fit and once to
-    # illustrate the fit-save-load pattern, which would fit the object twice.
-    # A chunk whose every target has already been written this run is skipped.
-    if (length(targets) > 0 && all(targets %in% seen)) next
-    seen <- c(seen, targets)
-    out <- c(out, code, "")
-  }
-  out
-}
+# `runnable_chunks()` lives in scripts/qmd_chunks.R, shared with the live-script
+# generator so that the two cannot read a module differently.
+source("scripts/qmd_chunks.R")
 
 # Resets the environment attached to each stored `bayesnecformula`.
 #

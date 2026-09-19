@@ -228,6 +228,48 @@ maintenance problem the single-source decision was made to avoid.
 
 The retired `learnr` set and its shinyapps.io deployment are not revived.
 
+## The live scripts as built
+
+Step 2 of the order of work is done, and this section records what was built
+and what it was measured at. The parsing that both generators share is in
+`scripts/qmd_chunks.R`, and `scripts/generate_live_scripts.R` writes
+`scripts/live/`, holding one `.R` file per taught module and a README. The
+shared parser was checked against the function it replaced in
+`generate_taught_fits.R`: for all eight modules the extracted code is
+identical, so the fits bundle does not need rebuilding.
+
+Each script was sourced start to finish in a fresh R session on 2026-09-19,
+under R 4.6.1 with `bayesnec` 2.1.3.39, `brms` 2.23.0 and `cmdstanr` 0.9.0,
+against the 26 objects in `vignettes/fits/`. All eight completed without error.
+The elapsed times were 1, 18, 2, 113, 183, 4, 406 and 3 seconds for modules 1
+to 8 in order. Nothing was sampled in any of them. Module 7 spends its 406
+seconds on the posterior predictive checks and the model weights, which are
+computed from the loaded objects rather than read from them, and module 8 takes
+3 seconds because its results are read from `data/` as comma-separated files.
+
+Those times are for a whole module sourced in one go. A demonstration block
+runs a few lines at a time, so the figures above are a ceiling rather than a
+wait anyone will sit through.
+
+A chunk the page shows and does not run is commented out in the script.
+`if (FALSE) { ... }` was written first and rejected. It keeps the syntax
+highlighting, and in Positron and RStudio a cursor on a line inside the block
+still sends that line to the console, so a participant working down the file
+line by line starts the fit anyway. That is the failure the runs-here callout
+exists to prevent. The projector shows the rendered page, which is where the
+call is read from, so the script gains nothing from being the prettier of the
+two.
+
+A chunk whose body is nothing but `knitr::include_graphics()` is dropped. It
+places a figure on the page and does nothing in a console, and no later chunk
+depends on it. Thirty-two were dropped across the eight modules, eleven of them
+in module 3.
+
+Each script sets the working directory to `vignettes/` before anything else.
+Every path in a module resolves from there, and setting the directory keeps a
+line in the script identical to the line on the page. Rewriting the paths
+instead would give a participant comparing the two a difference to explain.
+
 ## Specification
 
 `delivery-format-claude.md` holds the file layout, the generator, the callout
