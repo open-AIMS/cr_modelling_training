@@ -37,110 +37,6 @@ possible: `r paste(round(rgamma(10, 1, 0.5), 2), collapse = " ")`.
 **Unbounded continuous**, modelled by the Gaussian. Growth where shrinkage is
 possible: `r paste(round(rnorm(10, 0, 0.5), 2), collapse = " ")`.
 
-## Preparing the response
-
-Supply the response as it was measured, and match a statistical family to it.
-The common alternative is to convert it first, to percent inhibition, percent of
-control or percent of the observed maximum. That conversion introduces error,
-and the family choice set out in the rest of this module avoids it.
-
-Normalising to the control is conventional in ecotoxicology, usually as
-$y^0_i = 1 - y_i / \bar{y}_{con}$, where $\bar{y}_{con}$ is the mean of three to
-six control replicates. @Ritz2026 measured what it does.
-
-```{r}
-#| label: fig-ritz
-#| fig-cap: "Ritz, Gerhard and Streibig (2026), the source of the measurements in this section."
-#| out-width: "70%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/Ritz_etal2026.png")
-```
-
-- Every observation is divided by the *same random quantity*, so the normalised
-  values are correlated and the sampling variability of the divisor is
-  discarded.
-- The expected value of a reciprocal is not the reciprocal of an expected value,
-  so the inhibition trend is biased downwards and the effect concentrations read
-  off it are biased upwards.
-- Nothing is lost by leaving the response alone. The concentration at which
-  inhibition rises by $x$ per cent is the concentration at which the response
-  falls by $x$ per cent, and the second is what `ecx()` returns by default.
-- Dividing by the observed maximum instead of the control mean is worse again,
-  and it forces one observation onto the boundary of the beta's support.
-- Where a divisor is unavoidable it must be a constant fixed in advance of the
-  analysis, such as a physiological or design ceiling.
-- `bnec()` looks for both practices and reports them.
-
-Many proportional responses need no divisor at all. The maximum quantum yield
-used in module 7 is a genuine physical proportion, as is a survival fraction or
-a bleached-area fraction, and these are modelled as they stand.
-
-::: {.callout-note collapse="true" title="The size of the error"}
-
-From the simulation of an ED10 with six control replicates in @Ritz2026:
-normalising gave a bias of 6.8% and a coefficient of variation of 26.4%, against
-2.1% and 12.7% for the same quantity estimated from the raw response, and
-nominal 95% intervals covered at 90% rather than 95%. With a single control
-replicate the coverage of the normalised analysis fell to 57%.
-
-`ecx()` returns a decline relative to the *fitted* control rather than to an
-observed control mean, and because it is evaluated separately within every
-posterior draw the uncertainty about the control level propagates into the
-credible interval instead of being thrown away.
-:::
-
-::: {.callout-note collapse="true" title="Division by the observed maximum"}
-
-Dividing by the observed maximum is worse than dividing by the control mean on
-three counts. An extreme order statistic is more variable and more biased than a
-mean of three to six values. The divisor then depends on every treatment rather
-than on the controls alone, so treated groups partly determine their own
-denominator. And it forces exactly one observation to exactly 1, which is
-outside the open interval a beta distribution is defined on, so `bnec()` has to
-shift it off the boundary.
-
-`bnec()` detects both practices from the response as supplied. Dividing by the
-observed maximum leaves a maximum of exactly 1 attained by exactly one
-observation, and dividing by the control mean leaves the control observations
-averaging to exactly 1. The first check is suppressed where the response lies on
-a rational grid, because a genuine count-derived proportion such as 19 of 20
-surviving routinely produces a single observation at 1 and is not evidence of
-anything.
-:::
-
-::: {.callout-note collapse="true" title="A divisor fixed in advance"}
-
-A response above 1 that has to be modelled with a beta distribution needs a
-divisor. It must be a constant settled before the analysis: a physiological or
-design ceiling, or a value from accumulated historical controls. @Ritz2026 are
-explicit that the problem is dividing by something *random* rather than dividing
-as such. An **EC~x~** is unaffected by the choice of a constant divisor, because
-it is a relative decline from the fitted `top`, and the same holds for any
-linear rescaling of the response [@Weimer2012].
-:::
-
-### The reason a divisor gets reached for
-
-Dividing by the observed maximum is often done for a reason that has nothing to
-do with normalisation. A response on an arbitrary scale, such as a luminescence
-reading or a cell count, is divided to put it between 0 and 1 so that a beta
-distribution can be used, because the beta accommodates variability that changes
-with the mean and a Gaussian does not.
-
-That reasoning identifies a real problem and answers it indirectly. The problem
-is that replicate variability at the high concentrations is not the same as at
-the control. The direct answer is the subject of this module: keep the response
-on its own scale, choose the family that suits it, and model the variability
-explicitly where it changes. The sections below cover both halves, the choice of
-family and the `disp` term for a dispersion that varies across the series.
-
-Doing it that way keeps `top`, `bot` and `nec` in the units the experiment was
-measured in, avoids the bias @Ritz2026 measured, and states the change in
-variability as something estimated from the data rather than absorbed by a
-transformation. It also avoids forcing an observation onto the boundary of the
-beta's support, which division by a maximum does by construction.
-
 ## Generalised modelling
 
 Generalised modelling fits data with a statistical distribution matched to the
@@ -255,6 +151,10 @@ variability and the estimate becomes less conservative
 The sections below fit a threshold and a smooth model to each of several
 response types. Several of the examples come from [Gerard Ricardo's
 repository](https://github.com/gerard-ricardo/NECs/blob/master/NECs).
+
+*Preparing the response*, near the end of the module, covers what to do where a
+response has already been divided by its control mean or by its observed
+maximum.
 
 ## Binomial
 
@@ -427,38 +327,16 @@ named `beta_binomial`; code written against `beta_binomial2` will no longer run.
 ### Checking the fit within concentrations
 
 A dispersion ratio is one number for the whole fit, and one number can hide a
-model that is right on average and wrong where it matters. Two functions make the
-comparison within concentration groups instead.
+model that is right on average and wrong where it matters. `check_fit()`, from
+module 2 and set out in module 4, makes the same comparison within concentration
+groups. On a model set it reports every equation separately.
 
-`pp_check()` compares data simulated from the fitted model against the data
-observed, and grouping it by concentration is what makes the comparison
-informative: pooled over the whole dataset a model can match the overall
-distribution while being wrong at every concentration.
+Run on the binomial fit from the section above:
 
 ```{r}
-#| label: fig-ppcheck
-#| fig-height: 5
-#| message: false
-brms::pp_check(pull_brmsfit(exp_1nec), type = "bars_grouped", group = "log.x")
-```
-
-The dark line is the observed count in each category and the light intervals are
-the same quantity simulated from the fit, one panel per concentration. The
-grouping variable has to be one the model was fitted on, so the panels are
-labelled with logged concentrations: -2.30 is the 0.1 control and 5.99 the
-highest dose of 400. A discrete response takes `type = "bars_grouped"`; a
-continuous one takes
-`type = "dens_overlay_grouped"`. Ten posterior draws are simulated by default,
-which is enough to see a gross mismatch and few enough to plot; raise it with
-`ndraws` to judge a marginal one.
-
-`check_fit()`, from module 2 and set out in module 4, puts numbers on the same
-comparison and reports it per equation in the set:
-
-```{r}
-#| label: check-fit-betabinom
-cf_1b <- check_fit(exp_1b)
-cf_1b
+#| label: check-fit-binom
+cf_1nec <- check_fit(exp_1nec)
+cf_1nec
 ```
 
 `obs_sd` and `sim_sd` are the observed and simulated spread within a group, and
@@ -468,17 +346,47 @@ ratios, and read the `control` row first, because both `nsec()` and `ecx()` take
 their reference from the fitted mean there.
 
 ```{r}
+#| label: fig-checkfit-binom
+#| fig-height: 4.5
+#| fig-cap: "`check_fit()` on the binomial fit. Each point is the observed statistic for one concentration group against the 95% span of what the fit simulates, with location and scale drawn separately."
+plot(cf_1nec)
+```
+
+The groups are labelled on the logged scale, because that is the scale the model
+was fitted on: -2.30 is the 0.1 control and 5.99 the highest dose of 400. Seven
+of the eight points on the scale panel sit above their bar, `sd_ratio` runs from
+1.6 to 7.3, and `ppp_sd` is 0.000 in seven groups. Four of the eight points on
+the location panel sit outside their bar as well, because a variance held too low
+leaves the simulated mean too tightly determined to contain the observed one.
+This is the dispersion ratio of about 18 seen group by group.
+
+The same check on the beta-binomial fit of the same data:
+
+```{r}
+#| label: check-fit-betabinom
+cf_1b <- check_fit(exp_1b)
+cf_1b
+```
+
+```{r}
 #| label: fig-checkfit-betabinom
 #| fig-height: 4.5
+#| fig-cap: "The same check on the beta-binomial fit, reported for each equation in the set."
 plot(cf_1b)
 ```
 
-The groups are again labelled on the logged scale. No group is flagged on the
-mean for either equation. On spread, only the
-highest concentration is flagged, where the fit simulates three to four times the
+No group is flagged on the mean for either equation. On spread, only the highest
+concentration is flagged, where the fit simulates three to four times the
 observed variability. Six replicates at a response near complete mortality supply
 very little information about spread, so this is what the top of a series usually
 looks like rather than a fault in the family.
+
+`brms::pp_check()` shows the same comparison as distributions rather than as
+summary statistics, and module 7 uses it on a continuous response. The grouped
+form is the one to use, `type = "dens_overlay_grouped"` for a continuous response
+and `type = "bars_grouped"` for a discrete one: pooled over the whole dataset a
+model can match the overall distribution while being wrong at every
+concentration.
 
 ## Beta
 
@@ -636,6 +544,26 @@ dispersion, so it fails the screen whatever the data are doing, and it holds
 almost no weight for the same reason. A failure matters where it belongs to an
 equation that contributes to the averaged estimate, which is the case here.
 
+`check_fit()` shows where that extra variation sits. These counts were built from
+`nec_data`, whose predictor takes a different value in almost every replicate, so
+there are no concentration groups to compare within and `check_fit()` cuts the
+predictor into ten bins instead. A bin is not a design point, so read the pattern
+across the bins rather than any single row.
+
+```{r}
+#| label: fig-checkfit-pois
+#| fig-height: 5
+#| warning: false
+#| fig-cap: "`check_fit()` on the Poisson fit, with the predictor cut into ten bins."
+plot(check_fit(exp_3))
+```
+
+The means are reproduced, one bin excepted. On spread, six of the ten bins for
+`nec3param` sit above their bar, and every bin has `sd_ratio` above 1, running
+from 1.11 to 2.70 with the two largest values in the top two bins. The counts are
+more variable than a Poisson allows across the whole series rather than in one
+part of it.
+
 ### Counts observed over an exposure
 
 A count is very often observed over an exposure that differs between replicates:
@@ -696,6 +624,23 @@ autoplot(exp_3b, all_models = TRUE)
 ```
 
 The bounds widen, as they did for the beta-binomial, and for the same reason.
+
+The same check on this fit:
+
+```{r}
+#| label: fig-checkfit-negbin
+#| fig-height: 5
+#| warning: false
+#| fig-cap: "`check_fit()` on the negative binomial fit of the same counts."
+plot(check_fit(exp_3b))
+```
+
+No bin is flagged on the mean. On spread, two of the ten bins for `nec3param` sit
+outside their bar against six under the Poisson, and `sd_ratio` now runs from
+0.54 to 1.90, so the misses fall on both sides rather than all in one direction.
+The two are the highest bin, where the fit simulates less spread than the counts
+show, and one in the middle of the decline, where it simulates about twice as
+much.
 
 ## Gamma
 
@@ -770,6 +715,33 @@ before generalised methods were routine. Modelling the response on its own scale
 with the beta, as above, is preferable: it keeps the parameters interpretable as
 proportions, and it does not require the transformation to have made the
 variance constant.
+
+`check_fit()` measures the last of those. These are the proportion data of the
+beta example, so the eight concentrations are design points with twenty
+replicates each and no binning is needed:
+
+```{r}
+#| label: check-fit-gauss
+cf_5 <- check_fit(exp_5)
+cf_5[, c("model", "wi", "group", "sd_ratio", "ppp_sd", "control")]
+```
+
+```{r}
+#| label: fig-checkfit-gauss
+#| fig-height: 5
+#| fig-cap: "`check_fit()` on the Gaussian fit of the logit-transformed proportions."
+plot(cf_5)
+```
+
+The means are reproduced for both equations. The spread is not, and it misses in
+opposite directions at the two ends of the series. For `nec4param`, `sd_ratio` is
+0.38 at the control, where the fit simulates about two and a half times the
+observed variability, and it is above 1.3 at the three highest concentrations,
+where it simulates less variability than the data show. One standard deviation is
+describing a series whose variability changes with concentration, and the logit
+transformation has not removed that change. *Dispersion that changes across the
+curve* below takes the same data on the beta scale and measures what the `disp`
+term does about it.
 
 ### Growth rates
 
@@ -986,7 +958,112 @@ that an *NEC* or an **EC~x~** is read from. The equivalent construction for
 `hurdle_gamma` is exact, because a gamma distribution has no mass at zero to
 begin with, which is why the problem appears only for counts.
 
-### Dispersion that changes across the curve
+## Preparing the response
+
+Supply the response as it was measured, and match a statistical family to it.
+The common alternative is to convert it first, to percent inhibition, percent of
+control or percent of the observed maximum. That conversion introduces error,
+and the family choice set out above avoids it.
+
+Normalising to the control is conventional in ecotoxicology, usually as
+$y^0_i = 1 - y_i / \bar{y}_{con}$, where $\bar{y}_{con}$ is the mean of three to
+six control replicates. @Ritz2026 measured what it does.
+
+```{r}
+#| label: fig-ritz
+#| fig-cap: "Ritz, Gerhard and Streibig (2026), the source of the measurements in this section."
+#| out-width: "70%"
+#| fig-align: center
+#| echo: false
+knitr::include_graphics("images/Ritz_etal2026.png")
+```
+
+- Every observation is divided by the *same random quantity*, so the normalised
+  values are correlated and the sampling variability of the divisor is
+  discarded.
+- The expected value of a reciprocal is not the reciprocal of an expected value,
+  so the inhibition trend is biased downwards and the effect concentrations read
+  off it are biased upwards.
+- Nothing is lost by leaving the response alone. The concentration at which
+  inhibition rises by $x$ per cent is the concentration at which the response
+  falls by $x$ per cent, and the second is what `ecx()` returns by default.
+- Dividing by the observed maximum instead of the control mean is worse again,
+  and it forces one observation onto the boundary of the beta's support.
+- Where a divisor is unavoidable it must be a constant fixed in advance of the
+  analysis, such as a physiological or design ceiling.
+- `bnec()` looks for both practices and reports them.
+
+Many proportional responses need no divisor at all. The maximum quantum yield
+used in module 7 is a genuine physical proportion, as is a survival fraction or
+a bleached-area fraction, and these are modelled as they stand.
+
+::: {.callout-note collapse="true" title="The size of the error"}
+
+From the simulation of an ED10 with six control replicates in @Ritz2026:
+normalising gave a bias of 6.8% and a coefficient of variation of 26.4%, against
+2.1% and 12.7% for the same quantity estimated from the raw response, and
+nominal 95% intervals covered at 90% rather than 95%. With a single control
+replicate the coverage of the normalised analysis fell to 57%.
+
+`ecx()` returns a decline relative to the *fitted* control rather than to an
+observed control mean, and because it is evaluated separately within every
+posterior draw the uncertainty about the control level propagates into the
+credible interval instead of being thrown away.
+:::
+
+::: {.callout-note collapse="true" title="Division by the observed maximum"}
+
+Dividing by the observed maximum is worse than dividing by the control mean on
+three counts. An extreme order statistic is more variable and more biased than a
+mean of three to six values. The divisor then depends on every treatment rather
+than on the controls alone, so treated groups partly determine their own
+denominator. And it forces exactly one observation to exactly 1, which is
+outside the open interval a beta distribution is defined on, so `bnec()` has to
+shift it off the boundary.
+
+`bnec()` detects both practices from the response as supplied. Dividing by the
+observed maximum leaves a maximum of exactly 1 attained by exactly one
+observation, and dividing by the control mean leaves the control observations
+averaging to exactly 1. The first check is suppressed where the response lies on
+a rational grid, because a genuine count-derived proportion such as 19 of 20
+surviving routinely produces a single observation at 1 and is not evidence of
+anything.
+:::
+
+::: {.callout-note collapse="true" title="A divisor fixed in advance"}
+
+A response above 1 that has to be modelled with a beta distribution needs a
+divisor. It must be a constant settled before the analysis: a physiological or
+design ceiling, or a value from accumulated historical controls. @Ritz2026 are
+explicit that the problem is dividing by something *random* rather than dividing
+as such. An **EC~x~** is unaffected by the choice of a constant divisor, because
+it is a relative decline from the fitted `top`, and the same holds for any
+linear rescaling of the response [@Weimer2012].
+:::
+
+### The reason a divisor gets reached for
+
+Dividing by the observed maximum is often done for a reason that has nothing to
+do with normalisation. A response on an arbitrary scale, such as a luminescence
+reading or a cell count, is divided to put it between 0 and 1 so that a beta
+distribution can be used, because the beta accommodates variability that changes
+with the mean and a Gaussian does not.
+
+That reasoning identifies a real problem and answers it indirectly. The problem
+is that replicate variability at the high concentrations is not the same as at
+the control. The direct answer is the subject of this module: keep the response
+on its own scale, choose the family that suits it, and model the variability
+explicitly where it changes. The sections above covered the choice of family,
+and the section below covers the `disp` term for a dispersion that varies across
+the series.
+
+Doing it that way keeps `top`, `bot` and `nec` in the units the experiment was
+measured in, avoids the bias @Ritz2026 measured, and states the change in
+variability as something estimated from the data rather than absorbed by a
+transformation. It also avoids forcing an observation onto the boundary of the
+beta's support, which division by a maximum does by construction.
+
+## Dispersion that changes across the curve
 
 One further assumption is worth naming, because it is made by default and rarely
 checked. A fit holds the dispersion parameter of the chosen family constant
@@ -1026,6 +1103,8 @@ concentration is a property of the data alone, with no model involved:
 #| label: fig-disp-cv
 #| fig-height: 2.8
 #| fig-cap: "Within-concentration coefficient of variation for `example_proportion.csv`, twenty replicates at each of eight concentrations. It runs from 0.043 at the control to 0.254 at the highest concentration, a six-fold change, so one dispersion parameter cannot describe the whole series."
+conc_breaks <- c(0.01, 0.1, 1, 10, 100)
+
 cv_by_conc <- prop_data |>
   group_by(raw_x) |>
   summarise(cv = sd(resp) / mean(resp), .groups = "drop")
@@ -1033,7 +1112,7 @@ cv_by_conc <- prop_data |>
 ggplot(cv_by_conc, aes(raw_x, cv)) +
   geom_line(colour = "grey60") +
   geom_point(size = 2.5, colour = "#1b6ca8") +
-  scale_x_log10() +
+  scale_x_log10(breaks = conc_breaks, labels = conc_breaks) +
   labs(x = "concentration", y = "coefficient of variation") +
   theme_classic()
 ```
@@ -1088,6 +1167,59 @@ That is why the constant-dispersion fit returns the higher *NEC* and the higher
 *NSEC*. Its credible band on the control mean is 40% wider than the `disp`
 fit's, so the *NSEC* reference sits lower on the control posterior, and a lower
 reference is reached further along the curve.
+
+`autoplot()` draws the credible band on the fitted mean. The quantity the `disp`
+term acts on is the spread of the individual replicates around that mean, and
+simulating new observations from each fit shows it directly.
+
+```{r}
+#| label: fig-disp-predict
+#| fig-height: 3.6
+#| fig-cap: "The 95% posterior predictive intervals of the two fits drawn together, with the observations. The interval is where a single replicate is expected to fall, rather than the interval on the fitted mean that `autoplot()` draws."
+disp_grid <- data.frame(log.x = seq(min(prop_data$log.x), max(prop_data$log.x),
+                                    length.out = 100))
+
+pp_band <- function(fit, label) {
+  p <- predict(pull_brmsfit(fit), newdata = disp_grid)
+  data.frame(raw_x = exp(disp_grid$log.x), fit = label,
+             Estimate = p[, "Estimate"], Q2.5 = p[, "Q2.5"], Q97.5 = p[, "Q97.5"])
+}
+
+bands <- rbind(pp_band(exp_2_const, "constant dispersion"),
+               pp_band(exp_2_disp, "disp(\"power\")"))
+
+disp_cols <- c("constant dispersion" = "#1b6ca8", "disp(\"power\")" = "#c1440e")
+
+ggplot(bands, aes(raw_x)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, fill = fit), alpha = 0.35) +
+  geom_line(aes(y = Estimate, colour = fit), linewidth = 0.7) +
+  geom_point(data = prop_data, aes(y = resp), size = 1.2, alpha = 0.6) +
+  scale_x_log10(breaks = conc_breaks, labels = conc_breaks) +
+  scale_fill_manual(values = disp_cols) +
+  scale_colour_manual(values = disp_cols) +
+  labs(x = "concentration", y = "response", fill = NULL, colour = NULL) +
+  theme_classic() +
+  theme(legend.position = "top")
+```
+
+Under constant dispersion the 95% predictive interval is
+`r sprintf("%.3f", diff(unlist(bands[bands$fit == "constant dispersion" & bands$raw_x == min(bands$raw_x), c("Q2.5", "Q97.5")])))`
+wide at the lowest concentration and
+`r sprintf("%.3f", diff(unlist(bands[bands$fit == "constant dispersion" & bands$raw_x == max(bands$raw_x), c("Q2.5", "Q97.5")])))`
+at the highest, so it hardly changes across a series whose coefficient of
+variation changes six-fold. The twenty replicates at the lowest concentration
+cover a range of
+`r sprintf("%.3f", diff(range(prop_data$resp[prop_data$raw_x == min(prop_data$raw_x)])))`
+and those at the highest a range of
+`r sprintf("%.3f", diff(range(prop_data$resp[prop_data$raw_x == max(prop_data$raw_x)])))`,
+so the single interval is too wide at the bottom of the series and too narrow at
+the top. With `disp("power")` the two widths are
+`r sprintf("%.3f", diff(unlist(bands[bands$fit != "constant dispersion" & bands$raw_x == min(bands$raw_x), c("Q2.5", "Q97.5")])))`
+and
+`r sprintf("%.3f", diff(unlist(bands[bands$fit != "constant dispersion" & bands$raw_x == max(bands$raw_x), c("Q2.5", "Q97.5")])))`,
+and the band follows the data down the series. The two mean curves separate only
+around the break, at 18.1 against 11.7, so most of what the term changes here is
+the spread rather than the position.
 
 ```{r}
 #| label: fig-disp-checkfit
