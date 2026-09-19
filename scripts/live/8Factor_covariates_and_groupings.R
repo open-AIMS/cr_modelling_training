@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -54,8 +59,8 @@ library(knitr)
 
 # Group-level terms in `bayesnec` --------------------------------------------
 
-#> term-syntax -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> term-syntax -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # y ~ crf(x, model = "nec4param") + ogl(tank)        # the whole curve is displaced
 # y ~ crf(x, model = "nec4param") + (top | tank)     # one named parameter varies
 # y ~ crf(x, model = "nec4param") + pgl(plate)       # every parameter varies
@@ -84,8 +89,8 @@ ggplot(colour, aes(x, y, colour = groupvar)) +
   labs(x = "Concentration", y = "Proportional change in colour index") +
   theme_classic()
 
-#> ogl-fit -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> ogl-fit -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fit_plain <- bnec(y ~ crf(x, model = "ecxlin"), data = colour, seed = 70)
 # fit_ogl   <- bnec(y ~ crf(x, model = "ecxlin") + ogl(groupvar),
 #                   data = colour, seed = 70)
@@ -203,8 +208,8 @@ cu15 |>
 
 #   The plate term compared --------------------------------------------------
 
-#> plate-fits -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> plate-fits -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # plate_plain <- bnec(rlu_cens | cens(censoring) ~ crf(log(conc), "ecxll4") +
 #                       disp("power"),
 #                     data = cu15, family = Gamma(link = "identity"), seed = 70)
@@ -261,8 +266,8 @@ read.csv("data/grouping_plate_estimates.csv") |> kable()
 
 #   Fitting each level separately --------------------------------------------
 
-#> tox-group-fit -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> tox-group-fit -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # zn_cu_15 <- droplevels(subset(lum31, minutes == 15))
 #
 # fits_tox <- bnec_group(
@@ -307,8 +312,8 @@ ggplot(filter(tox_curves, !is.na(x_e)), aes(x = x_e, colour = fit, fill = fit)) 
 #> tbl-tox-estimates
 read.csv("data/grouping_tox_estimates.csv") |> kable()
 
-#> tox-compare -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> tox-compare -- not run here: it refers to fits_tox, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # cmp_tox <- compare_posterior(fits_tox, comparison = "nec")
 # cmp_tox$prob_diff
 
@@ -344,8 +349,8 @@ ggplot(zinc, aes(x = x, y = y, colour = hardness)) +
   labs(x = "Log zinc concentration", y = "Response", colour = "Hardness") +
   theme_classic()
 
-#> fi-fit-all -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fi-fit-all -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fit_all <- bnec(y ~ crf(x, model = "decline"), data = zinc, seed = 70)
 # best <- pull_best(fit_all)
 
@@ -354,46 +359,44 @@ read.csv("data/grouping_zinc_weights.csv") |>
   mutate(wi = round(wi, 3)) |>
   kable()
 
-#> fi-extract -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fi-extract -- not run here: it refers to best, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # best_brms <- pull_brmsfit(best)
 # best_brms$formula
 # priors <- brms::prior_summary(best_brms)
 
-#> fi-brms -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# # The right-hand side of each parameter line is what changes: `~ 1` fits one
-# # value for every level, and `~ hardness` fits one per level.
-# bf_plain <- brms::bf(
-#   y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
-#   bot + ec50 + top + beta ~ 1, nl = TRUE)
-#
-# bf_inter <- brms::bf(
-#   y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
-#   bot + ec50 + top + beta ~ hardness, nl = TRUE)
+#> fi-brms
+# The right-hand side of each parameter line is what changes: `~ 1` fits one
+# value for every level, and `~ hardness` fits one per level.
+bf_plain <- brms::bf(
+  y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
+  bot + ec50 + top + beta ~ 1, nl = TRUE)
 
-#> fi-priors -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# inter_priors <- c(
-#   # the intercept, as bayesnec set it
-#   prior(beta(5, 2), nlpar = "top",  coef = "Intercept"),
-#   prior(beta(2, 5), nlpar = "bot",  coef = "Intercept"),
-#   prior(normal(2.387, 24.803), nlpar = "ec50", coef = "Intercept"),
-#   prior(normal(0, 5), nlpar = "beta", coef = "Intercept"),
-#   # the differences between hardness levels
-#   prior(normal(0, 0.25), nlpar = "top"),   # a proportion
-#   prior(normal(0, 0.1),  nlpar = "bot"),   # a proportion, near zero
-#   prior(normal(0, 2),    nlpar = "ec50"),  # the log predictor scale
-#   prior(normal(0, 2),    nlpar = "beta"))  # a log slope
+bf_inter <- brms::bf(
+  y ~ bot + (top - bot) * exp(-exp(exp(beta) * (x - ec50))),
+  bot + ec50 + top + beta ~ hardness, nl = TRUE)
 
-#> fi-brms-fit -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fi-priors
+inter_priors <- c(
+  # the intercept, as bayesnec set it
+  prior(beta(5, 2), nlpar = "top",  coef = "Intercept"),
+  prior(beta(2, 5), nlpar = "bot",  coef = "Intercept"),
+  prior(normal(2.387, 24.803), nlpar = "ec50", coef = "Intercept"),
+  prior(normal(0, 5), nlpar = "beta", coef = "Intercept"),
+  # the differences between hardness levels
+  prior(normal(0, 0.25), nlpar = "top"),   # a proportion
+  prior(normal(0, 0.1),  nlpar = "bot"),   # a proportion, near zero
+  prior(normal(0, 2),    nlpar = "ec50"),  # the log predictor scale
+  prior(normal(0, 2),    nlpar = "beta"))  # a log slope
+
+#> fi-brms-fit -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fit_plain <- brms::brm(bf_plain, data = zinc, family = Beta(link = "identity"),
 #                        prior = priors, iter = 5000, seed = 700,
 #                        save_pars = brms::save_pars(all = TRUE))
 
-#> fi-init -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fi-init -- not run here: it refers to fit_plain, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # fx <- brms::fixef(fit_plain)
 # init_fun <- function() {
 #   list(b_bot  = as.array(c(fx["bot_Intercept",  "Estimate"], 0, 0)),
@@ -402,8 +405,8 @@ read.csv("data/grouping_zinc_weights.csv") |>
 #        b_beta = as.array(c(fx["beta_Intercept", "Estimate"], 0, 0)))
 # }
 
-#> fi-brms-inter -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fi-brms-inter -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fit_inter <- brms::brm(bf_inter, data = zinc, family = Beta(link = "identity"),
 #                        prior = inter_priors, iter = 5000, seed = 700,
 #                        init = init_fun, control = list(adapt_delta = 0.99),
@@ -437,8 +440,8 @@ ggplot(preds) +
 
 #   The hardness levels fitted separately ------------------------------------
 
-#> zinc-group-fit -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> zinc-group-fit -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # zinc_group <- bnec_group(y ~ crf(x, model = "decline"), data = zinc,
 #                          group_var = "hardness", seed = 70)
 
@@ -473,8 +476,8 @@ ggplot(filter(zinc_group_curves, !is.na(x_e)),
 
 # Comparing levels -----------------------------------------------------------
 
-#> compare-shown -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> compare-shown -- not run here: it refers to zinc_group, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # post_comp <- compare_posterior(zinc_group, comparison = "n(s)ec")
 # post_fitted <- compare_posterior(zinc_group, comparison = "fitted")
 

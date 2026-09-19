@@ -241,24 +241,170 @@ identical, so the fits bundle does not need rebuilding.
 Each script was sourced start to finish in a fresh R session on 2026-09-19,
 under R 4.6.1 with `bayesnec` 2.1.3.39, `brms` 2.23.0 and `cmdstanr` 0.9.0,
 against the 26 objects in `vignettes/fits/`. All eight completed without error.
-The elapsed times were 1, 18, 2, 113, 183, 4, 406 and 3 seconds for modules 1
-to 8 in order. Nothing was sampled in any of them. Module 7 spends its 406
-seconds on the posterior predictive checks and the model weights, which are
-computed from the loaded objects rather than read from them, and module 8 takes
-3 seconds because its results are read from `data/` as comma-separated files.
+The elapsed times were 0, 91, 6, 246, 248, 56, 416 and 4 seconds for modules 1
+to 8 in order, the ten live fits included. The 26 saved objects were checksummed
+before and after and none changed, which is what the commented `save()` lines
+are there to ensure.
+
+Module 2 is the check on the estimates. It ran in 91 seconds against a
+prediction of 94, being the 76 seconds estimated for its two fits on the 18
+seconds the script took before any fit was run live. Module 7 spends most of
+its 416 seconds on the posterior predictive checks and the model weights, which
+are computed from the loaded objects rather than read from them, and module 8
+takes 4 seconds because its results are read from `data/` as comma-separated
+files.
 
 Those times are for a whole module sourced in one go. A demonstration block
 runs a few lines at a time, so the figures above are a ceiling rather than a
 wait anyone will sit through.
 
-A chunk the page shows and does not run is commented out in the script.
-`if (FALSE) { ... }` was written first and rejected. It keeps the syntax
-highlighting, and in Positron and RStudio a cursor on a line inside the block
-still sends that line to the console, so a participant working down the file
-line by line starts the fit anyway. That is the failure the runs-here callout
-exists to prevent. The projector shows the rendered page, which is where the
-call is read from, so the script gains nothing from being the prettier of the
-two.
+A chunk is commented out in the script when running it would take too long or
+would fail, and `eval: false` on the page is neither of those. The page
+withholds a chunk for whatever suits the render. Most of those chunks are fits,
+and a few are a single `options()` call that returns instantly and that a
+participant should run. The first version of the generator commented out all 57
+of them, which teaches the wrong thing about `options(mc.cores = 4)` and spends
+on it the one mechanism available for saying *do not run this*.
+
+### The time a fit takes
+
+A fit is commented out where it would take more than `MAX_LIVE_SECONDS` in the
+generator, which is 50. Estimating that needs two quantities, because neither
+alone is the wall time a participant waits.
+
+The sampling time is in the saved object, and `scripts/measure_fit_times.R`
+reads it out with `rstan::get_elapsed_time` into `scripts/fit_times.csv`. A fit
+takes as long as its slowest chain, the chains being run at the same time, and
+a model set takes the sum over its models, `bnec()` fitting them in turn. Across
+the 26 saved objects the sampling times run from 0.8 seconds to 241 seconds,
+and 21 of the 26 sample in under 15 seconds.
+
+Compilation is the rest, and is the larger part of a small fit. It is not
+recorded in the object, so it was measured directly on 2026-09-19 on the
+four-core WSL2 machine: a `nec3param` fit on `nec_data` took 38.5 seconds of
+wall time against 2.9 seconds of sampling, and an `ecxll3` fit took 33.5
+seconds against 2.4. Refitting a model already compiled in the same session took
+6.6 seconds, so the charge falls once per distinct equation rather than once per
+call. `COMPILE_SECONDS` is set to 35 from those three measurements. A
+participant's machine is not that machine, and Windows with Rtools is generally
+slower, so the estimates are a floor.
+
+The estimate is therefore 35 seconds for each distinct equation plus the
+measured sampling. Module 2's first fit comes out at 38 seconds, which is what
+the module tells the participant when it says the fit took a little over two
+minutes on a slower machine. An `amend()` call is charged for the equations
+named in its `add` argument rather than for every equation in the result, since
+it refits only what it adds.
+
+A fit with no saved object cannot be estimated and stays commented. That covers
+the calls made only for illustration, such as module 4's `future` plans, and
+every fit in module 8, which are made on the cluster and never saved here.
+
+### The threshold and its effect on each module
+
+The threshold was set at 120 first and lowered to 50 on 2026-09-19 (RF). Two
+minutes is the right rule for a single fit and the wrong one for a module. At
+120 the nine fits of module 5 ran, about 10 minutes of a block the agenda gives
+30 minutes as a demonstration, and module 5 is about recognising which
+distribution suits an endpoint rather than about executing a particular call.
+
+At 50, ten fits run and twenty-eight stay commented. The time this adds is 76
+seconds for module 2, about 2 minutes for module 4, 72 seconds for module 5, 83
+seconds for module 6 and 40 seconds for module 7, so a little over five minutes
+across the day. Module 5 keeps its two single-equation fits and its seven
+two-equation sets are commented.
+
+The value is 50 rather than 45 because the estimates are not evenly spread. The
+ten fits that run estimate between 36 and 45.1 seconds and the next is 73, so
+any threshold from 46 to 72 gives the same ten. A threshold of exactly 45 would
+turn on the 0.1 second by which module 6's `fit-a` exceeds it, which is well
+inside the error of an estimate built on a compile time measured three times.
+
+A per-module budget was considered as the alternative to lowering the per-fit
+threshold, and is not implemented: it adds a second constant to reason about,
+and which fits it drops depends on their order in the module rather than on
+what they teach.
+
+### The Stan backend
+
+A script that fits sets `options(brms.backend = "cmdstanr")` in its preamble,
+guarded on `cmdstanr` being installed. `brms` uses `rstan` unless told
+otherwise, and `rstan` compiles a model far more slowly.
+
+This was found by running the scripts rather than by reading them. Module 2's
+two fits took 199 seconds against an estimate of 76, and the log held
+`SAMPLING FOR MODEL 'anon_model'`, which is `rstan` output. `COMPILE_SECONDS`
+had been measured in a session with the backend set, so the estimate was right
+for `cmdstanr` and wrong for the backend the script used.
+
+The guard matters because a participant who has not finished the software setup
+has no `cmdstanr`, and setting the option unconditionally would leave every fit
+failing rather than merely slow.
+
+The same gap is in the modules. Module 1 tells a participant to set the backend
+and no module sets it, so someone who runs `bnec()` while following module 2
+compiles under `rstan` and waits about two and a half times as long, with
+nothing on the page to say why. The live scripts no longer have that problem and
+the modules still do.
+
+### The save() inside a fit that runs
+
+The `save()` line inside a fit chunk is commented out wherever the fit itself
+runs. It writes into `vignettes/fits/`, which holds the distributed objects, so
+running the script would replace them with fits made under whatever versions the
+participant has and the checksum in `vignettes/fits.sha256` would no longer
+match what they downloaded. The fit still happens and the object is still in the
+session. The `load()` below it then restores the distributed copy, with a line
+saying so, because otherwise it reads as the participant's own fit being
+discarded for no reason.
+
+### Objects an earlier module fitted
+
+A chunk that refers to objects the script never creates raises an error and is
+commented, with the comment naming them: module 2's `ecx(fit, xform = ...)`
+refers to `fit`, where the script has `bnec_fit`. Module 3 is the exception.
+Its `ecnsec()` demonstration uses `bnec_fit` and module 3 never loads it,
+because the page reads on from module 2 where it was fitted. The generator
+resolves a name like that against the objects the modules save, and emits the
+`load()` that makes the block run, marked as an addition. The file chosen is the
+one saved by the latest module at or before this one, so module 3 gets module
+2's fit rather than module 6's, which is a different fit under the same name.
+
+A chunk whose body is a bare formula is commented as showing the shape of a
+term, its names being placeholders.
+
+### The free-variable check
+
+Whether a chunk refers to something absent is decided by
+`codetools::findGlobals` against the names assigned by the chunks emitted before
+it, rather than by `all.vars`, which reports a function's own arguments and its
+loop variables as references. Three corrections were needed before that was
+reliable.
+
+Formulas are removed before the free variables are counted, because a formula is
+not evaluated when the call around it is and its names are not references the
+script has to satisfy. Module 8's `brms::bf(y ~ bot + ..., nl = TRUE)` runs
+against an empty session, and counting `bot`, `top` and the rest would have
+commented out a call that cannot fail. The substitution puts `TRUE` in the
+formula's place rather than `NULL`, because assigning `NULL` into a call removes
+that element and shrinks the call underneath the loop walking it.
+
+The target of a replacement assignment is counted as a read, because module 6's
+`fixed_prior$prior[i] <- "beta(6, 6)"` needs `fixed_prior` to exist and
+`findGlobals` reports it as a local assignment.
+
+The map from a saved file to the names it restores is built across all eight
+modules rather than per module, because module 3 loads module 2's object. It is
+read from the `save()` call in the source rather than from the file, so
+generation works without the bundle on disk.
+
+The commented blocks are commented rather than wrapped in `if (FALSE) { ... }`.
+The wrapper was written first and rejected. It keeps the syntax highlighting,
+and in Positron and RStudio a cursor on a line inside the block still sends
+that line to the console, so a participant working down the file line by line
+starts the fit anyway. That is the failure the runs-here callout exists to
+prevent. The projector shows the rendered page, which is where the call is read
+from, so the script gains nothing from being the prettier of the two.
 
 A chunk whose body is nothing but `knitr::include_graphics()` is dropped. It
 places a figure on the page and does nothing in a console, and no later chunk

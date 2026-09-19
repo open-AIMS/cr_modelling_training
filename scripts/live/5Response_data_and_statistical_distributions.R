@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,12 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# brms uses rstan by default, which compiles much more slowly. Module 1
+# covers this; the fits below assume cmdstanr.
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  options(brms.backend = "cmdstanr")
 }
 
 # The saved model objects. Sampling is what takes the minutes, so the fits
@@ -73,19 +84,19 @@ binom_data <- read.csv("example_binomial.csv") |>
 summary(binom_data$raw_x)
 head(binom_data)
 
-#> binom-formula -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> binom-formula -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # suc | trials(tot) ~ crf(log.x, model = "your_model")
 
-#> fit-binom-nec -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# exp_1nec <- bnec(suc | trials(tot) ~ crf(log.x, model = "nec3param"),
-#                  data = binom_data, seed = 333)
-#
-# save(exp_1nec, file = "fits/m5_exp_1nec.RData")
+#> fit-binom-nec -- fits the model here, in about 36 s, most of it compiling.
+set.seed(333)
+exp_1nec <- bnec(suc | trials(tot) ~ crf(log.x, model = "nec3param"),
+                 data = binom_data, seed = 333)
+
+# save(exp_1nec, file = "fits/m5_exp_1nec.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-binom-nec
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m5_exp_1nec.RData")
 
 #> fig-binom-nec
@@ -97,15 +108,15 @@ autoplot(exp_1nec)
 #> dispersion-binom
 dispersion(exp_1nec, summary = TRUE)
 
-#> fit-binom-ecx -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# exp_1ecx <- bnec(suc | trials(tot) ~ crf(log.x, model = "ecxll3"),
-#                  data = binom_data, seed = 333)
-#
-# save(exp_1ecx, file = "fits/m5_exp_1ecx.RData")
+#> fit-binom-ecx -- fits the model here, in about 36 s, most of it compiling.
+set.seed(333)
+exp_1ecx <- bnec(suc | trials(tot) ~ crf(log.x, model = "ecxll3"),
+                 data = binom_data, seed = 333)
+
+# save(exp_1ecx, file = "fits/m5_exp_1ecx.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-binom-ecx
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m5_exp_1ecx.RData")
 
 #> fig-binom-ecx
@@ -114,8 +125,8 @@ autoplot(exp_1ecx)
 
 # Beta-binomial --------------------------------------------------------------
 
-#> fit-betabinom -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-betabinom -- not run here: fitting this takes about 76 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_1b <- bnec(suc | trials(tot) ~ crf(log.x, model = c("ecxll3", "nec3param")),
 #                data = binom_data, family = "beta_binomial", seed = 333)
@@ -152,8 +163,8 @@ plot(cf_1b)
 prop_data <- read.csv("example_proportion.csv") |>
   mutate(log.x = log(raw_x))
 
-#> fit-beta -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-beta -- not run here: fitting this takes about 80 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_2 <- bnec(resp ~ crf(log.x, model = c("ecxll3", "nec3param")),
 #               data = prop_data, seed = 333)
@@ -192,8 +203,8 @@ count_data <- nec_data |>
   )
 str(count_data)
 
-#> fit-pois -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-pois -- not run here: fitting this takes about 73 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_3 <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")), data = count_data)
 #
@@ -214,15 +225,15 @@ plot(check_fit(exp_3))
 
 #   Counts observed over an exposure -----------------------------------------
 
-#> rate-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> rate-demo -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # y | rate(n_females) ~ crf(x, model = "nec4param")
 
 
 # Negative binomial ----------------------------------------------------------
 
-#> fit-negbin -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-negbin -- not run here: fitting this takes about 75 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_3b <- bnec(y ~ crf(x, model = c("ecxll3", "nec3param")),
 #                data = count_data, family = "negbinomial")
@@ -246,8 +257,8 @@ data(nec_data)
 measure_data <- nec_data |>
   mutate(measure = exp(y))
 
-#> fit-gamma -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-gamma -- not run here: fitting this takes about 75 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_4 <- bnec(measure ~ crf(x, model = c("ecxll3", "nec3param")),
 #               data = measure_data)
@@ -267,8 +278,8 @@ autoplot(exp_4, all_models = TRUE)
 gaussian_data <- prop_data |>
   mutate(y = car::logit(resp))
 
-#> fit-gauss -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-gauss -- not run here: fitting this takes about 83 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_5 <- bnec(y ~ crf(log.x, model = c("ecxll4", "nec4param")),
 #               data = gaussian_data, seed = 333)
@@ -303,8 +314,8 @@ bnec_record(exp_2)$excluded
 
 #   Censored values ----------------------------------------------------------
 
-#> cens-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> cens-demo -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # y | cens(censoring) ~ crf(x, model = "nec4param")
 
 
@@ -328,8 +339,8 @@ names(bayesnec:::mod_fams)
 
 # Dispersion that changes across the curve -----------------------------------
 
-#> disp-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> disp-demo -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # y ~ crf(x, model = "nec4param") + disp(~x)         # varies along the predictor
 # y ~ crf(x, model = "nec4param") + disp("power")    # varies with the fitted mean
 
@@ -350,8 +361,8 @@ ggplot(cv_by_conc, aes(raw_x, cv)) +
   labs(x = "concentration", y = "coefficient of variation") +
   theme_classic()
 
-#> fit-disp -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-disp -- not run here: fitting this takes about 84 s.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exp_2_const <- bnec(resp ~ crf(log.x, model = "nec3param"),
 #                     data = prop_data, seed = 333)

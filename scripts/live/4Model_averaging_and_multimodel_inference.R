@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,12 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# brms uses rstan by default, which compiles much more slowly. Module 1
+# covers this; the fits below assume cmdstanr.
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  options(brms.backend = "cmdstanr")
 }
 
 # The saved model objects. Sampling is what takes the minutes, so the fits
@@ -60,8 +71,8 @@ data(nec_data)
 
 # Fitting a named set --------------------------------------------------------
 
-#> fit-named-set -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-named-set -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fit_set <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 333)
 
 #> model-sets
@@ -70,25 +81,25 @@ models()
 
 # Combining single fits ------------------------------------------------------
 
-#> fit-nec3param -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# data(nec_data)
-# bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
-#
-# save(bnec_fit, file = "fits/m4_bnec_fit.RData")
+#> fit-nec3param -- fits the model here, in about 38 s, most of it compiling.
+set.seed(333)
+data(nec_data)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+
+# save(bnec_fit, file = "fits/m4_bnec_fit.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-nec3param
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m4_bnec_fit.RData")
 
-#> fit-ecxll3 -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# bnec_fit_new <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
-#
-# save(bnec_fit_new, file = "fits/m4_bnec_fit_new.RData")
+#> fit-ecxll3 -- fits the model here, in about 37 s, most of it compiling.
+set.seed(333)
+bnec_fit_new <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
+
+# save(bnec_fit_new, file = "fits/m4_bnec_fit_new.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-ecxll3
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m4_bnec_fit_new.RData")
 
 #> fig-ecxll3
@@ -102,13 +113,13 @@ class(bnec_fit_new)
 class(bnec_fit)
 class(bmanecfit)
 
-#> amend -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# bmanecfit_more <- amend(bmanecfit, add = "ecxexp")
-#
-# save(bmanecfit_more, file = "fits/m4_bmanecfit_more.RData")
+#> amend -- fits the model here, in about 43 s, most of it compiling.
+bmanecfit_more <- amend(bmanecfit, add = "ecxexp")
+
+# save(bmanecfit_more, file = "fits/m4_bmanecfit_more.RData")   # not run: it would overwrite the distributed fit
 
 #> load-amend
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m4_bmanecfit_more.RData")
 
 
@@ -126,8 +137,8 @@ summary(bmanecfit_more)
 
 # The weighting method -------------------------------------------------------
 
-#> loo-controls -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> loo-controls -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # bnec(y ~ crf(x, model = "decline"), data = nec_data,
 #      loo_controls = list(weights = list(method = "stacking")))
 
@@ -158,9 +169,8 @@ autoplot(bmanecfit_more, all_models = TRUE)
 #> fig-worstchains
 plot(pull_brmsfit(bmanecfit_more, "ecxexp"))
 
-#> checkchains-file -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# check_chains(bmanecfit_more, filename = "bmanecfit_more_all_chains")
+#> checkchains-file
+check_chains(bmanecfit_more, filename = "bmanecfit_more_all_chains")
 
 #> fig-checkchains
 check_chains(bmanecfit_more)
@@ -180,15 +190,15 @@ screened <- screen_models(bmanecfit_more)
 
 # Fitting a set in parallel --------------------------------------------------
 
-#> parallel-basic -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> parallel-basic -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # library(future)
 # plan(multisession, workers = 8)
 # fit_par <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 322)
 # plan(sequential)
 
-#> parallel-nested -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> parallel-nested -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # plan(multisession, workers = 5)
 # fit_nested <- bnec(y ~ crf(x, model = "decline"), data = nec_data,
 #                    cores = 4, seed = 322)

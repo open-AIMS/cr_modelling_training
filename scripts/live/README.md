@@ -25,9 +25,16 @@ The model fits are loaded rather than sampled. Fetch them once with
 `source("vignettes/fetch_fits.R")`, which takes about half a minute; a
 script that loads a fit stops with an instruction if they are absent.
 
-A block that is commented out is one the page shows and does not run. Those
-are the `bnec()` calls, which sample for minutes, and the calls written to
-be read rather than executed. Remove the leading `#` to run one yourself.
+Every block runs unless the line above it says otherwise. A fit is commented
+out where it would take more than 50 seconds, and so is a block that refers
+to objects the script does not create. The line above each one says which,
+and gives the estimate for a fit. Remove the leading `#` to run a commented
+block yourself.
+
+The fits that do run are the short ones, and most of their time is Stan
+compiling the model rather than sampling it. Their `save()` is commented out
+so that the fits you downloaded are not overwritten, and the `load()` after
+each one restores the distributed copy so that what follows matches the page.
 
 ## Regenerating
 

@@ -345,6 +345,29 @@ that `scripts/generate_taught_fits.R` also uses. Regenerate after any change to 
 a hand edit to a file under `scripts/live/` is lost at the next run and leaves the script
 disagreeing with the page while the room is looking at both.
 
+Which fit calls run in the room rather than being commented out is decided from
+`scripts/fit_times.csv`, the sampling time of each saved object, written by
+`scripts/measure_fit_times.R`. **Re-run that after any rebuild of the fits and commit it
+with the archive**, for the reason §5 gives: a recorded time does not know that the call
+or the package which produced it has changed. It is tracked while `vignettes/fits/` is
+git-ignored, so that generating on a clone without the bundle gives the same result. The
+file being absent is not an error; every fit call is commented out instead.
+
+The estimate a fit is judged against adds `COMPILE_SECONDS`, 35, for each distinct
+equation, because Stan compilation is not recorded in a saved object and is most of the
+wall time of a small fit: module 2's fit samples in 2.8 seconds and takes 38.5. Re-measure
+it after a toolchain change. Where a fit does run, its `save()` is commented out, or the
+script would overwrite the distributed objects and `vignettes/fits.sha256` would no longer
+match what a participant downloaded.
+
+**No module sets the Stan backend.** `brms` uses `rstan` unless
+`options(brms.backend = "cmdstanr")` is set, and `rstan` compiles a model far more
+slowly. Module 1 tells a participant to set it and no module does, so someone running
+`bnec()` while following module 2 waits about two and a half times as long with nothing on
+the page to say why: measured 2026-09-19, module 2's two fits took 199 seconds under the
+`rstan` default against about 76 under `cmdstanr`. The generated live scripts set it in
+their preamble, guarded on `cmdstanr` being installed. The modules do not.
+
 **`packages.R` does not exist** (§4).
 
 **The publisher-typeset figures are unresolved** (§5). `notes/image-provenance.md` lists

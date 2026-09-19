@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,13 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# The saved model objects. Sampling is what takes the minutes, so the fits
+# are made once and loaded here. If this stops the script, fetch them:
+#   source("fetch_fits.R")
+if (!length(list.files("fits", pattern = "\\.RData$"))) {
+  stop("No fitted objects in vignettes/fits/. Run source(\"fetch_fits.R\") first.")
 }
 
 #> setup -- the libraries and options the rest of the module runs under.
@@ -65,12 +77,13 @@ names(models())
 
 #   The effect size at the NSEC ----------------------------------------------
 
-#> ecnsec-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# nsec_value <- nsec(bnec_fit)
-# attr(nsec_value, "ecnsec_relativeP")
-#
-# ecnsec(bnec_fit, nsec = nsec_value)
+#> ecnsec-demo
+#> bnec_fit comes from an earlier module. The page reads on from there; this line is added so the block runs.
+load("fits/m2_bnec_fit.RData")
+nsec_value <- nsec(bnec_fit)
+attr(nsec_value, "ecnsec_relativeP")
+
+ecnsec(bnec_fit, nsec = nsec_value)
 
 
 # The NSEC and the NOEC ------------------------------------------------------

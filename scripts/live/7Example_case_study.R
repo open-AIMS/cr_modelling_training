@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,12 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# brms uses rstan by default, which compiles much more slowly. Module 1
+# covers this; the fits below assume cmdstanr.
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  options(brms.backend = "cmdstanr")
 }
 
 # The saved model objects. Sampling is what takes the minutes, so the fits
@@ -88,8 +99,8 @@ spacing_cv <- function(x) sd(diff(sort(x))) / mean(diff(sort(x)))
 conc <- unique(ametryn$concentration)
 round(c(linear = spacing_cv(conc), log = spacing_cv(log(conc))), 2)
 
-#> scale-fit -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> scale-fit -- not run here: fitting this takes about 3 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # m7_scale_log <- bnec(fvfm ~ crf(log(concentration),
 #                                 model = c("nec4param", "ecx4param", "ecxll4")),
@@ -133,8 +144,8 @@ data.frame(elpd_loo = round(sapply(scale_fits, elpd), 1),
 
 # 2. Fitting the candidate set -----------------------------------------------
 
-#> fit-am-reduced -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-am-reduced -- not run here: fitting this takes about 6 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # m7_am_reduced <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
 #                       data = ametryn, family = fam,
 #                       iter = 4000, chains = 2, seed = 17)
@@ -195,8 +206,8 @@ screened_reduced <- screen_models(m7_am_reduced)
 
 #   Raising the settings -----------------------------------------------------
 
-#> fit-am-default -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-am-default -- not run here: fitting this takes about 6 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # m7_am_fit <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
 #                   data = ametryn, family = fam, seed = 17)
 #
@@ -251,15 +262,15 @@ plot(cf_best)
 
 #   Repairing the dispersion -------------------------------------------------
 
-#> fit-am-disp -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecxll4") +
-#                      disp(~ log(concentration)),
-#                    data = ametryn, family = fam, seed = 17)
-#
-# save(m7_am_disp, file = "fits/m7_am_disp.RData")
+#> fit-am-disp -- fits the model here, in about 40 s, most of it compiling.
+m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecxll4") +
+                     disp(~ log(concentration)),
+                   data = ametryn, family = fam, seed = 17)
+
+# save(m7_am_disp, file = "fits/m7_am_disp.RData")   # not run: it would overwrite the distributed fit
 
 #> load-am-disp
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m7_am_disp.RData")
 
 #> checkfit-disp

@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,12 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# brms uses rstan by default, which compiles much more slowly. Module 1
+# covers this; the fits below assume cmdstanr.
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  options(brms.backend = "cmdstanr")
 }
 
 # The saved model objects. Sampling is what takes the minutes, so the fits
@@ -178,15 +189,15 @@ get_priors(y ~ crf(x, model = "nec3param"), data = nec_data,
 
 # Inspecting the priors ------------------------------------------------------
 
-#> fit-base -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# data(nec_data)
-# bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
-#
-# save(bnec_fit, file = "fits/m6_bnec_fit.RData")
+#> fit-base -- fits the model here, in about 38 s, most of it compiling.
+set.seed(333)
+data(nec_data)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
+
+# save(bnec_fit, file = "fits/m6_bnec_fit.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-base
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m6_bnec_fit.RData")
 
 #> fig-sample-priors
@@ -198,23 +209,23 @@ check_priors(bnec_fit)
 
 # Specifying priors ----------------------------------------------------------
 
-#> fit-a -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# exmp_a <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
-#                family = Beta(link = "identity"),
-#                iter = 1e4, control = list(adapt_delta = 0.99))
-#
-# save(exmp_a, file = "fits/m6_exmp_a.RData")
+#> fit-a -- fits the model here, in about 45 s, most of it compiling.
+set.seed(333)
+exmp_a <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
+               family = Beta(link = "identity"),
+               iter = 1e4, control = list(adapt_delta = 0.99))
+
+# save(exmp_a, file = "fits/m6_exmp_a.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit-a
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m6_exmp_a.RData")
 
 #> pull-prior-a
 pull_prior(exmp_a)
 
-#> fit-b -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-b -- not run here: fitting this takes about 2 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # my_prior <- c(prior_string("beta(5, 1)", nlpar = "top"),
 #               prior_string("normal(1.3, 2.7)", nlpar = "nec"),
@@ -242,8 +253,8 @@ hist(exmp_b$ne_posterior, main = "User priors", xlab = "NEC")
 
 # Priors for a model set -----------------------------------------------------
 
-#> fit-c -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-c -- not run here: fitting this takes about 5 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # my_priors <- list(
 #   nec3param = c(prior_string("beta(5, 1)", nlpar = "top"),
@@ -268,8 +279,8 @@ pull_prior(exmp_c)
 
 #   Priors for part of a set -------------------------------------------------
 
-#> fit-d -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-d -- not run here: fitting this takes about 3 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # exmp_d <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
 #                family = Beta(link = "identity"), prior = my_priors[1],
@@ -283,8 +294,8 @@ load("fits/m6_exmp_d.RData")
 
 #   Priors when extending a set ----------------------------------------------
 
-#> fit-e -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
+#> fit-e -- not run here: fitting this takes about 5 min.
+#> Remove the leading # to fit it yourself; the load() below restores the saved object.
 # set.seed(333)
 # necsigm_priors <- c(prior_string("beta(5, 1)", nlpar = "top"),
 #                     prior_string("gamma(2, 6.5)", nlpar = "beta"),
@@ -300,8 +311,8 @@ load("fits/m6_exmp_e.RData")
 
 # Fixing a parameter ---------------------------------------------------------
 
-#> constant-prior -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> constant-prior -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # fixed_prior <- get_priors(y ~ crf(x, model = "nec3param"), data = avoid_data,
 #                           family = Beta(link = "identity"))
 # fixed_prior$prior[fixed_prior$nlpar == "top"] <- "constant(0.5)"
@@ -312,15 +323,15 @@ load("fits/m6_exmp_e.RData")
 
 #   The consequences of fixing a parameter -----------------------------------
 
-#> tight-prior -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> tight-prior -- not run here: it refers to fixed_prior, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # fixed_prior$prior[fixed_prior$nlpar == "top"] <- "beta(6, 6)"
 
 
 # Checking how much the priors matter ----------------------------------------
 
-#> sensitivity -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> sensitivity -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # set.seed(333)
 # exmp_reg <- bnec(y ~ crf(x, model = "nec4param"), data = nec_data,
 #                  family = Beta(link = "identity"),

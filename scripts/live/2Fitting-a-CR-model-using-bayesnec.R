@@ -12,9 +12,14 @@
 # Lines beginning `#>` name the chunk each block came from, so a block here
 # can be matched to the place on the page it is discussed.
 #
-# A block that is commented out is one the page shows and does not run. Those
-# are the model fits and the calls that are there to be read rather than
-# executed. Below each fit is the load() that restores the saved object.
+# Every block runs unless the line above it says otherwise. A fit is
+# commented out where it would take more than 50 seconds, and so is a
+# block that refers to objects this script does not create; the line above
+# each one says which, and gives the estimate for a fit.
+#
+# Where a fit does run, its save() is commented out so that the fits you
+# downloaded are not overwritten, and the load() after it restores the
+# distributed copy so the output below matches the page.
 ##############################################################################
 
 if (basename(getwd()) != "vignettes") {
@@ -24,6 +29,12 @@ if (basename(getwd()) != "vignettes") {
     stop("Open the cr_modelling_training project first: every path below is ",
          "relative to its vignettes/ folder.")
   }
+}
+
+# brms uses rstan by default, which compiles much more slowly. Module 1
+# covers this; the fits below assume cmdstanr.
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  options(brms.backend = "cmdstanr")
 }
 
 # The saved model objects. Sampling is what takes the minutes, so the fits
@@ -52,8 +63,8 @@ head(nec_data)
 
 # Reproducibility ------------------------------------------------------------
 
-#> seed -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> seed -- not run here: this samples, and is not among the fits that were timed.
+#> Remove the leading # to fit it yourself, and expect to wait.
 # set.seed(333)
 # bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data, seed = 333)
 
@@ -63,8 +74,8 @@ head(nec_data)
 
 # The formula ----------------------------------------------------------------
 
-#> formula-shape -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> formula-shape -- the shape of the term. The names in it are stand-ins.
+#> Remove the leading # to run it against your own objects.
 # y ~ crf(x, model = "modelname")
 
 #> model-list
@@ -76,35 +87,33 @@ names(models())
 
 # The scale of the predictor -------------------------------------------------
 
-#> xform-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
+#> xform-demo -- not run here: it refers to fit, which this script does not create.
+#> Remove the leading # to run it against your own objects.
 # ecx(fit, xform = function(x) exp(x) - 1)
 # autoplot(fit, xform = function(x) exp(x) - 1)
 
 
 # Calling `bnec` -------------------------------------------------------------
 
-#> fit -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data, seed = 333)
-#
-# save(bnec_fit, file = "fits/m2_bnec_fit.RData")
+#> fit -- fits the model here, in about 38 s, most of it compiling.
+set.seed(333)
+bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data, seed = 333)
+
+# save(bnec_fit, file = "fits/m2_bnec_fit.RData")   # not run: it would overwrite the distributed fit
 
 #> load-fit
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m2_bnec_fit.RData")
 
-#> cores -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# options(mc.cores = 4)
+#> cores
+options(mc.cores = 4)
 
 
 # Saving the fit -------------------------------------------------------------
 
-#> save-demo -- shown on the page and not run.
-#> Remove the leading # from the lines below to run it yourself.
-# saveRDS(bnec_fit, "nec3param_fit.rds")
-# bnec_fit <- readRDS("nec3param_fit.rds")
+#> save-demo
+saveRDS(bnec_fit, "nec3param_fit.rds")
+bnec_fit <- readRDS("nec3param_fit.rds")
 
 
 # The summary ----------------------------------------------------------------
@@ -176,14 +185,14 @@ curve_params(bnec_fit)
 
 # Comparing posteriors -------------------------------------------------------
 
-#> fit-ecxll3 -- the fit. Shown on the page and not run: it samples for minutes.
-#> Remove the leading # from the lines below to run it yourself.
-# set.seed(333)
-# ecxll3_fit <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data, seed = 333)
-#
-# save(ecxll3_fit, file = "fits/m2_ecxll3_fit.RData")
+#> fit-ecxll3 -- fits the model here, in about 38 s, most of it compiling.
+set.seed(333)
+ecxll3_fit <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data, seed = 333)
+
+# save(ecxll3_fit, file = "fits/m2_ecxll3_fit.RData")   # not run: it would overwrite the distributed fit
 
 #> load-ecxll3
+#> This restores the distributed object, so what follows matches the page.
 load("fits/m2_ecxll3_fit.RData")
 
 #> compare
