@@ -9,6 +9,7 @@ bibliography: bayesnec.bib
 #| include: false
 knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
+library(ggplot2)
 
 # args() returns a function whose body is NULL, which print() then shows on its
 # own line. Deparsing and dropping that line gives the signature alone, which is
@@ -33,42 +34,6 @@ about either choice. This module sets out the equations `bayesnec` can fit and
 which toxicity estimate each one supports. The distinction that organises
 everything below is between models with a threshold and models without one, and
 it determines what a no-effect estimate can mean.
-
-@fig-etnc2 sets out the four estimates and how each is obtained. It is
-reproduced in *The estimates side by side* at the end of the module, once each
-part of it has been covered.
-
-```{r}
-#| label: fig-etnc2
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The four toxicity estimates. (A) A threshold model, giving the *NEC* directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The *NOEC*, read from the treatment means. (D) The *NSEC*, read from a smooth model against a lower quantile of the control posterior. Reproduced from @fisherfox2023."
-knitr::include_graphics("images/etnc_fig2.jpg")
-```
-
-## The estimates in use
-
-Four estimates are in common use, and they differ in what they measure and in
-what produces them.
-
-The **NEC**, the no-effect concentration, is the minimum concentration above
-which an effect is predicted to occur. It is a parameter of a threshold model
-and is estimated directly [@Fox2010; @Pires2002; @vanderhoeven1997].
-
-The **EC~x~**, the *x*% effect concentration, is the concentration expected to
-produce an effect of size *x*. It is obtained by interpolation from a fitted
-curve, and it reports an effect by construction.
-
-The **NOEC**, the no-observed-effect concentration, is the highest tested
-concentration at which the mean response is statistically indistinguishable from
-the control. It comes from Dunnett's test on a one-way analysis of variance, so
-its value is always one of the concentrations that happened to be tested.
-
-The **NSEC**, the no-significant-effect concentration, is the concentration at
-which the modelled mean response becomes statistically distinguishable from the
-control [@fisherfox2023]. Like the **EC~x~** it is obtained by interpolation from
-a fitted curve, so it is not restricted to the tested concentrations.
 
 ## The model set
 
@@ -109,7 +74,7 @@ uniformly the more conservative.
 #| out-width: "100%"
 #| fig-align: center
 #| echo: false
-#| fig-cap: "A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from @fisherfox2023."
+#| fig-cap: "A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from @fisherfox2023 under CC BY-NC 4.0."
 knitr::include_graphics("images/etnc_fig1.jpg")
 ```
 
@@ -184,7 +149,7 @@ no-effect concentration.
 
 An **EC~x~** taken from a threshold equation and one taken from a smooth
 equation fitted to the same data will usually differ, and which is larger depends
-on which shape suits the data. Where the response really does decline smoothly, a
+on which shape fits the data. Where the response really does decline smoothly, a
 broken-stick curve is flat before the break and then falls sharply, so its
 **EC~x~** is the higher and less conservative of the two. Where a threshold is
 genuinely present, the smooth equation begins declining below it and returns the
@@ -403,7 +368,8 @@ the peak of the curve. `bayesnec` measures every **EC~x~**, *NSEC* and ECNSEC
 from the control, the predicted mean at the lowest concentration in the data,
 taken separately for each posterior draw. The two references coincide for a
 monotonically declining curve and differ for a hormetic one, so this choice
-changes the reported **EC~x~** for a hormesis equation and no other.
+changes the reported **EC~x~** for a hormesis equation and no other. Panel D
+of @fig-ecx-types draws the two references on a hormetic curve.
 
 ## Extracting estimates
 
@@ -463,14 +429,172 @@ constant is added to the concentrations so that a zero control can be plotted on
 a logarithmic axis. An experiment whose lowest treatment is not a control is
 being analysed as though it were, and should say so.
 
+The distance from the control to the reference is the **span** the percentage is
+taken over, and the four types differ only in it.
+
+```{r}
+#| label: fig-ecx-types
+#| echo: false
+#| fig-height: 5.8
+#| fig-cap: "The span each `type` measures over, and the EC10 each one gives. The dashed or dotted horizontal line is the lower end of the span, the arrow is its length, the solid horizontal line is the 10% target and the point is where the curve reaches it. (A) `ecxll4` with `bot` at 0.3, tested to a concentration of 10, so the curve reaches `bot` within the range. (B) the same equation at the same parameters, tested only to 3. (C) `ecxll3`, which has no `bot`. (D) `ecxhormebc4`, whose maximum of 1.32 is above its control of 0.99. The curves are drawn from the equations at fixed parameters, with no model fitted."
+# The four panels are drawn from the equations as bayesnec writes them in
+# pred_equations.R, at parameters chosen to make each comparison visible. No
+# model is fitted: the point is the geometry of the four spans, which does not
+# depend on any particular data set.
+p_ecxll4 <- function(x, top = 1, bot = 0.3, ec50 = 3, beta = log(1.5)) {
+  bot + (top - bot) / (1 + exp(exp(beta) * (x - ec50)))
+}
+p_ecxll3 <- function(x, top = 1, ec50 = 3, beta = log(1.5)) {
+  top / (1 + exp(exp(beta) * (x - ec50)))
+}
+p_ecxhormebc4 <- function(x, top = 1, ec50 = 3, beta = log(1.5),
+                          slope = log(0.3)) {
+  (top + exp(slope) * x) / (1 + exp(exp(beta) * (x - ec50)))
+}
+
+# Every x at which the curve meets the target, interpolated within the grid
+# interval, as crossing_x() does inside ecx(). All of them rather than the
+# first, because a target taken from the curve maximum has two on a hormetic
+# curve and that is what panel D is for.
+meets <- function(x, y, target) {
+  s <- sign(y - target)
+  i <- which(s[-1] != s[-length(s)])
+  x[i] + (y[i] - target) / (y[i] - y[i + 1]) * (x[i + 1] - x[i])
+}
+
+pct <- 10
+panel_spans <- function(label, fun, xmax, bot, use) {
+  x <- seq(0, xmax, length.out = 2000)
+  y <- fun(x)
+  upper <- c(absolute = y[1], relative = y[1], range = y[1], maximum = max(y))
+  lower <- c(absolute = 0, relative = bot, range = min(y), maximum = 0)
+  est <- do.call(rbind, lapply(seq_along(use), function(i) {
+    s <- use[i]
+    target <- upper[[s]] - (upper[[s]] - lower[[s]]) * pct / 100
+    data.frame(panel = label, span = s, lower = lower[[s]],
+               upper = upper[[s]], target = target,
+               # each span's bracket gets its own x so that two of equal
+               # length read as two lines rather than one
+               bx = xmax * (0.74 + 0.07 * (i - 1)))
+  }))
+  cross <- do.call(rbind, lapply(seq_len(nrow(est)), function(i) {
+    hit <- meets(x, y, est$target[i])
+    data.frame(panel = label, span = est$span[i], x = hit,
+               y = est$target[i])
+  }))
+  list(curve = data.frame(panel = label, x = x, y = y),
+       ctrl = data.frame(panel = label, control = y[1], xmax = xmax),
+       est = est, cross = cross)
+}
+
+parts <- list(
+  panel_spans("A  a curve that reaches bot", p_ecxll4, 10, 0.3,
+              c("absolute", "relative", "range")),
+  panel_spans("B  the same curve, tested only to 3", p_ecxll4, 3, 0.3,
+              c("absolute", "relative", "range")),
+  panel_spans("C  an equation with no bot", p_ecxll3, 10, 0,
+              c("absolute", "relative", "range")),
+  panel_spans("D  a hormetic curve", p_ecxhormebc4, 10, 0,
+              c("absolute", "maximum"))
+)
+curves <- do.call(rbind, lapply(parts, `[[`, "curve"))
+ctrl <- do.call(rbind, lapply(parts, `[[`, "ctrl"))
+est <- do.call(rbind, lapply(parts, `[[`, "est"))
+cross <- do.call(rbind, lapply(parts, `[[`, "cross"))
+
+# Two spans can end in the same place, which is what panels A and C are for.
+# The wider line is drawn first and the narrower over it, and the "range"
+# target is dashed, so a coincidence reads as two lines rather than one.
+wid <- c(absolute = 1.4, relative = 0.75, range = 0.3, maximum = 0.75)
+lty <- c(absolute = "longdash", relative = "dashed", range = "dotted",
+         maximum = "longdash")
+ord <- c(absolute = 1, relative = 2, maximum = 2, range = 3)
+est <- est[order(ord[est$span]), ]
+cross <- cross[order(ord[cross$span]), ]
+est$w <- wid[est$span]
+est$lt <- lty[est$span]
+est$tlt <- ifelse(est$span == "range", "22", "solid")
+cross$w <- wid[cross$span]
+
+lab <- c(absolute = 'type = "absolute": control to 0',
+         relative = 'type = "relative": control to bot',
+         range = 'type = "range": control to the lowest response predicted',
+         maximum = 'the reference before 2.2.0: curve maximum to 0')
+cols <- c(absolute = "#1b6ca8", relative = "#c1440e",
+          range = "#009E73", maximum = "#8a5fa8")
+
+ggplot() +
+  geom_hline(data = ctrl, aes(yintercept = control), colour = "grey55",
+             linetype = "dotted") +
+  geom_hline(data = est, aes(yintercept = lower, colour = span,
+                             linetype = lt), linewidth = 0.45) +
+  geom_hline(data = est, aes(yintercept = target, colour = span,
+                             linewidth = w, linetype = tlt)) +
+  geom_segment(data = cross, aes(x = x, xend = x, y = 0, yend = y,
+                                 colour = span),
+               linetype = "dotted", linewidth = 0.4) +
+  geom_segment(data = est, aes(x = bx, xend = bx, y = lower, yend = upper,
+                               colour = span), linewidth = 0.45,
+               arrow = arrow(ends = "both", length = unit(0.05, "in"),
+                             type = "closed")) +
+  geom_line(data = curves, aes(x, y), linewidth = 0.8) +
+  geom_point(data = cross, aes(x, y, colour = span, size = w)) +
+  geom_text(data = ctrl, aes(x = xmax, y = control, label = "control"),
+            hjust = 1, vjust = -0.6, size = 2.9, colour = "grey45") +
+  facet_wrap(~panel, scales = "free_x") +
+  scale_colour_manual(values = cols, labels = lab, breaks = names(lab),
+                      name = NULL) +
+  scale_linewidth_identity() +
+  scale_linetype_identity() +
+  scale_size_continuous(range = c(1.1, 2.3), guide = "none") +
+  labs(x = "concentration", y = "response") +
+  theme_classic() +
+  theme(legend.position = "top", legend.direction = "vertical",
+        legend.key.height = unit(0.85, "lines"))
+```
+
+In panel A of @fig-ecx-types the `ecxll4` curve reaches its `bot` of 0.3 within
+the concentration range, so the lowest response predicted and the theoretical
+asymptote are the same value. `"relative"` and `"range"` both return an EC10 of
+1.61, and `"absolute"`, whose span is 43% longer, returns 1.86.
+Panel B is the same equation at the same parameters, tested only to a
+concentration of 3. The curve is still at 0.65 there, so the `"range"` span is
+less than half the length of the `"relative"` span and the EC10 falls to 1.16.
+`"relative"` and `"absolute"` are unchanged at 1.61 and 1.86. A `"range"`
+estimate is a property of the design as well as of the fit, and two laboratories
+testing to different maximum concentrations will report different values from
+the same equation.
+
+Panel C is `ecxll3`, which has no `bot` and declines towards 0. All three
+references fall in the same place and the three types agree at 1.61. Panel D is
+`ecxhormebc4`. Measured from the control at 0.99 the 10% target of 0.89
+lies below the rising limb, and the curve reaches it once, at 3.10. Measured
+from the maximum of the curve at 1.32 the target of 1.19 lies above the control,
+and the curve crosses it twice, at 0.77 and 2.50. A target crossed twice does
+not identify a single concentration, which is the reason for measuring from the
+control.
+
 Three changes arrived in `bayesnec` 2.2.0 and matter when returning to an older
-analysis. `"range"` computes what `"relative"` computed up to version 2.1.3, and
-passing `type = "relative"` explicitly now raises a warning naming `"range"`.
+analysis.
+
+`"range"` computes what `"relative"` computed up to version 2.1.3, with one
+difference: the old span was taken from the maximum of the predicted curve
+rather than from the control. The two agree wherever the maximum is at the
+lowest concentration, and differ for a hormetic curve, which is panel D of
+@fig-ecx-types. Passing `type = "relative"` explicitly now raises a warning
+naming `"range"`.
+
 `"relative"` is refused where the equation has no `bot` and the family is
-unbounded below, because there is then no finite quantity to measure against. And
-the `hormesis_def` argument has been removed from `ecx()`, `nsec()`, `ecnsec()`
-and the comparison functions: with the control always the reference it selected
-nothing. A call still passing it is refused by name rather than ignored.
+unbounded below. In panel C of @fig-ecx-types the family is bounded below, so
+the 0 that `ecxll3` declines towards is a finite reference and the estimate
+agrees with `"absolute"`. Under a gaussian or student response there is no lower bound,
+nothing finite to measure towards, and the call is refused with a message naming
+`"absolute"` and `"range"` as the two types that still apply.
+
+The `hormesis_def` argument has been removed from `ecx()`, `nsec()`, `ecnsec()`
+and the comparison functions. It selected between the control and the peak as
+the reference, and with the control always the reference it selected nothing. A
+call still passing it is refused by name rather than ignored.
 
 ### Targets the curve never reaches
 
@@ -498,7 +622,7 @@ signature("nsec")
 decline, defaulting to 0.01, that is 99% certainty of a decline relative to the
 control. That value generally produces sensible results. Where it does not, the
 better response in a guideline-derivation context is usually to reconsider
-whether the statistical model suits the data, rather than to adjust the
+whether the statistical model fits the data, rather than to adjust the
 significance level. Other values may be appropriate in other decision contexts.
 
 Raising `sig_val` makes the estimate more conservative, because it places the
@@ -517,15 +641,14 @@ decline in the response may begin at the lowest concentration applied.
 
 ## The estimates side by side
 
-@fig-etnc2 from the start of the module sets the four estimates against one
-another.
+@fig-etnc2 sets the four estimates against one another.
 
 ```{r}
-#| label: fig-etnc2-again
+#| label: fig-etnc2
 #| out-width: "100%"
 #| fig-align: center
 #| echo: false
-#| fig-cap: "The four estimates again. Reproduced from @fisherfox2023."
+#| fig-cap: "The four toxicity estimates. (A) A threshold model, giving the *NEC* directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The *NOEC*, read from the treatment means. (D) The *NSEC*, read from a smooth model against a lower quantile of the control posterior. Reproduced from @fisherfox2023 under CC BY-NC 4.0."
 knitr::include_graphics("images/etnc_fig2.jpg")
 ```
 
@@ -547,7 +670,7 @@ produces it.
 #| out-width: "100%"
 #| fig-align: center
 #| echo: false
-#| fig-cap: "Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from @fisheretal2023."
+#| fig-cap: "Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from @fisheretal2023 under CC BY 4.0."
 knitr::include_graphics("images/Fisher_IEAM_Table1.png")
 ```
 
