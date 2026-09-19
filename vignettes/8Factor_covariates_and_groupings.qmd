@@ -1153,7 +1153,7 @@ cat(readLines("data/grouping_zinc_inter_sampling.txt"), sep = "\n")
 
 All four chains finish and the largest rhat is 1.0017, but the fit reports 323
 divergent transitions in 10000 draws, well above the threshold of ten that
-`check_sampling()` applies in module 4. Raising `adapt_delta` further does not
+`check_sampling()` applies in module 7. Raising `adapt_delta` further does not
 remove them, and the estimates are the same with and without the ones that
 remain. `bot` is estimated at 0.025, close to the boundary the identity link
 imposes, and that is where the divergences arise. Fitting the levels separately,

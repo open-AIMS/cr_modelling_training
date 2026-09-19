@@ -109,7 +109,7 @@ two [@fisheretal2023].
 #| out-width: "100%"
 #| fig-align: center
 #| echo: false
-#| fig-cap: "The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023."
+#| fig-cap: "The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023 under CC BY 4.0."
 knitr::include_graphics("images/NSEC_ieam.jpg")
 ```
 
@@ -354,9 +354,15 @@ an older analysis. `loo::loo_model_weights()` resolves an unspecified method to
 stacking, and some paths through earlier versions of `bayesnec` left it
 unspecified. A set assembled with `c()` or `amend()` could therefore be weighted
 by stacking while the same set fitted in one `bnec()` call was weighted by
-pseudo-BMA. Both routes now pass pseudo-BMA. Weights from an older analysis are
-not necessarily comparable with weights computed now, which is one more reason to
-record the package version alongside the models fitted.
+pseudo-BMA. Both routes now pass pseudo-BMA. The default is supplied where the
+set is assembled rather than at each entry point, so `c()`, `+`, `amend()` and
+`update()` weight a set as `bnec()` does, and the method used is recorded on the
+weights as `attr(mod_stats$wi, "method")`. Checked under `bayesnec` 2.1.3.39
+with `loo` 2.8.0: the two fits in the packaged `manec_example`, pulled out and
+recombined with `c()`, report `pseudobma`, as does the set fitted in one
+`bnec()` call. Weights from an older analysis are not necessarily comparable
+with weights computed now, which is one more reason to record the package
+version alongside the models fitted.
 
 The method is changed through the `loo_controls` argument of `bnec()` or
 `amend()`, which takes a named list with elements `fitting` and `weights`:
@@ -429,7 +435,7 @@ autoplot(bmanecfit_more, all_models = TRUE)
 ```
 
 `ecxexp` fits these data badly, which is why its weight is near zero. A model
-whose *shape* does not suit the data can be left in the set at a negligible
+whose *shape* does not fit the data can be left in the set at a negligible
 weight, because it cannot influence the averaged prediction.
 
 That holds for shape and it does not hold for convergence. A model the sampler
@@ -483,39 +489,10 @@ Reading plots for a set of twenty-three is not a workable check. Module 2 named
 check_sampling(bmanecfit_more)
 ```
 
-`failed` is `TRUE` where any of the three diagnostics misses its cutoff.
-
-`max_rhat` is the largest R-hat over the parameters, and the cutoff is 1.01
-following @Vehtari2021. R-hat compares the variation within each chain against
-the variation between chains, so a value near 1 says the chains are describing
-the same distribution.
-
-`min_ess` is the smallest effective sample size, and the cutoff is 400. Draws
-from a Markov chain are correlated, so 8,000 of them hold less information than
-8,000 independent draws would; the effective sample size is how many independent
-draws they are worth. The floor of 400 is an absolute one, below which the R-hat
-and effective sample size estimates are themselves unreliable, and it corresponds
-to 100 draws per chain at the four chains `bnec()` fits. Read `min_ess_ratio`
-beside it: the ratio separates a model that cleared 400 because a great many
-draws were taken from one that cleared it efficiently.
-
-`n_divergent` is the number of divergent transitions, and the cutoff is 10. A
-divergent transition is recorded when the sampler's path through parameter space
-goes numerically unstable, which happens where the posterior has curvature too
-sharp for the step size chosen during warm-up. This one is a `bayesnec`
-convention rather than a published recommendation: Stan's own guidance is that
-any divergence means the sampler failed to explore the posterior, and the
-allowance of ten reflects that these non-linear models commonly produce a few
-near a parameter boundary.
-
-The two counts are absolute, so the number of retained draws changes what each
-one demands, and it changes them in opposite directions. A longer run makes the
-effective sample size cutoff easier to clear and the divergence cutoff harder,
-because at an unchanged divergence rate more draws produce more divergences. A
-screen result is therefore a property of the settings as much as of the model,
-and the settings belong in the write-up beside it. All three cutoffs are
-arguments to `check_sampling()` and can be changed, which is a further reason to
-report the values used.
+`failed` is `TRUE` where any of the three diagnostics misses its cutoff. All
+three cutoffs are arguments to `check_sampling()`. Module 7 sets out what each of
+the three measures, why the number of draws retained changes what two of them
+demand, and what to do about a model that misses one.
 
 `rhat()` reports the first of them on its own, keyed by model name:
 
@@ -551,46 +528,17 @@ the models that remain rather than rescaling those retained, so the weights of a
 screened set are read from the screened object rather than adjusted by hand, and
 the reported no-effect estimate changes with them.
 
-### Models that never fitted
+An equation can also fail earlier, by producing no draws at all, and
+`failed_models()` names those. `bnec_record()`, from module 2, completes the
+account by naming any equation excluded before fitting and the reason for it. A
+set requested as `"decline"` or `"all"` commonly excludes several.
 
-A model can also fail earlier, by producing no draws at all. `failed_models()`
-names those:
-
-```{r}
-#| label: failed
-names(failed_models(bmanecfit_more))
-```
-
-`NULL` here, because all three equations fitted. Where it is not `NULL`, it
-returns more than the names: the priors and initial values each failed model was
-given, which are built inside `bnec()` and are otherwise unrecoverable, so they
-are the starting point for a retry. Module 6 covers what a sensible adjustment
-looks like and states the limit: a prior wide enough to make an
-over-parameterised equation fit is doing the work the data cannot, and the
-estimate it produces is a property of that prior.
-
-`bnec_record()`, from module 2, completes the account by naming any equation
-excluded before fitting and the reason for it. A set requested as `"decline"` or
-`"all"` commonly excludes several.
-
-### Acting on a failure
-
-The three diagnostics fail for different reasons and the response differs. A
-model that misses the effective sample size or R-hat cutoff, with no divergent
-transitions, was sampled from a posterior the sampler could traverse and was not
-sampled for long enough; refit it at a higher `iter`. A model failing on
-divergent transitions is reporting the shape of its posterior rather than the
-length of the run, and will produce them again at any setting. A model appearing
-in `failed_models()` is the same problem further along.
-
-The second and third are results about the experiment and are reportable as such.
-Adjusting the settings until enough equations survive is not the right response
-to either.
-
-Module 7 works through this against two datasets that ship with the package,
-which between them produce all three outcomes. It sits there rather than here
-because reading a divergent transition means knowing how the sampler explores a
-posterior, which module 6 covers.
+What to do about a model the screen removed depends on which cutoff it missed,
+and an equation that produced no draws is a different case again. Module 7 works
+through both against two datasets that ship with the package, which between them
+produce every outcome. It sits there rather than here because reading a divergent
+transition means knowing how the sampler explores a posterior, which module 6
+covers.
 
 ## Fitting a set in parallel
 
@@ -697,11 +645,14 @@ parallel runs agree.
 
 ### Memory
 
-Each worker holds a complete fit while it is working, and fits are large. Eight
-workers on a large dataset can exhaust memory where eight cores would not have,
-and a worker killed by the operating system ends the whole call rather than the
-one model it was fitting. Where a run dies without an R error, reduce the worker
-count before looking anywhere else.
+Each worker holds a complete fit while it is working, and fits are large. A plan
+of eight workers holds eight fitted models at once, and under `multisession`
+eight copies of the data as well. The same set fitted with `cores = 8` and no
+plan holds one model at a time, so it is the number of workers that sets the
+memory a run needs, rather than the number of cores it keeps busy. A worker
+killed by the operating system ends the whole call rather than the one model it
+was fitting. Where a run dies without an R error, reduce the worker count before
+looking anywhere else.
 
 ## Checking the fit against the data
 
@@ -820,7 +771,7 @@ weights and the true effect size behind each estimate could be measured.
 #| out-width: "100%"
 #| fig-align: center
 #| echo: false
-#| fig-cap: "@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>."
+#| fig-cap: "@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>."
 knitr::include_graphics("images/ieam_head.jpg")
 ```
 
