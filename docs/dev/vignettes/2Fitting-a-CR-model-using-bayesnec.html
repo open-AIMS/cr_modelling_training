@@ -130,35 +130,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -346,6 +317,10 @@ window.Quarto = {
   <li><a href="#plotting" id="toc-plotting" class="nav-link" data-scroll-target="#plotting">Plotting</a></li>
   <li><a href="#toxicity-estimates" id="toc-toxicity-estimates" class="nav-link" data-scroll-target="#toxicity-estimates">Toxicity estimates</a></li>
   <li><a href="#the-parameters-of-the-curve" id="toc-the-parameters-of-the-curve" class="nav-link" data-scroll-target="#the-parameters-of-the-curve">The parameters of the curve</a></li>
+  <li><a href="#comparing-posteriors" id="toc-comparing-posteriors" class="nav-link" data-scroll-target="#comparing-posteriors">Comparing posteriors</a>
+  <ul class="collapse">
+  <li><a href="#the-fitted-curves" id="toc-the-fitted-curves" class="nav-link" data-scroll-target="#the-fitted-curves">The fitted curves</a></li>
+  </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -380,7 +355,7 @@ window.Quarto = {
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p><code>bayesnec</code> fits concentration-response curves to toxicity data and derives no-effect concentration (<em>NEC</em>), no-significant-effect concentration (<em>NSEC</em>, <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>) and effect concentration (<strong>EC<sub>x</sub></strong>) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via <code>brms</code> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> and Stan. It is an extension of <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>.</p>
+<p><code>bayesnec</code> <span class="citation" data-cites="fisheretal2024">(<a href="#ref-fisheretal2024" role="doc-biblioref">Fisher et al. 2024</a>)</span> fits concentration-response curves to toxicity data and derives no-effect concentration (<em>NEC</em>), no-significant-effect concentration (<em>NSEC</em>, <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>) and effect concentration (<strong>EC<sub>x</sub></strong>) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via <code>brms</code> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> and Stan. It is an extension of <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>.</p>
 <p>This module fits one model to one dataset and works through what is done with the result: looking inside the fitted object, plotting it, and extracting toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, priors, and the checks that go with each.</p>
 <p>If you have not yet installed R, a C++ compiler, CmdStan and <code>bayesnec</code>, work through the <a href="../vignettes/0Software-setup.html">software setup</a> first. Nothing in this module will run without them.</p>
 </section>
@@ -417,20 +392,14 @@ window.Quarto = {
 <section id="the-bnec-function" class="level2">
 <h2 class="anchored" data-anchor-id="the-bnec-function">The <code>bnec</code> function</h2>
 <p><code>bnec</code> is the working function of the package. It assembles the non-linear model formula, generates priors and initial values, and calls <code>brms</code>.</p>
-<p>Beyond the formula and the data, its arguments fall into four groups. Run <code>?bnec</code> for the full list.</p>
+<p>The formula names the equation to fit and every column the fit uses, so neither is an argument. Beyond the formula and the data, the arguments fall into three groups. Run <code>?bnec</code> for the full list.</p>
 <ul>
-<li><strong>The model or set to fit:</strong> <code>model</code>.</li>
 <li><strong>How toxicity estimates are computed from the fit:</strong> <code>x_range</code>, <code>resolution</code>, <code>sig_val</code>.</li>
-<li><strong>How the response and predictor are identified</strong> where the formula alone is not enough: <code>x_var</code>, <code>y_var</code>, <code>trials_var</code>.</li>
-<li><strong>How priors are set:</strong> <code>prior</code>, <code>prior_type</code>.</li>
+<li><strong>How priors are set:</strong> <code>prior</code>, <code>prior_type</code>, <code>predictor_scale</code>.</li>
+<li><strong>How a model set is weighted, and when a fit that will not return is abandoned:</strong> <code>loo_controls</code>, <code>timeout</code>. Module 4 covers both.</li>
 </ul>
+<p><code>model</code>, <code>x_var</code>, <code>y_var</code> and <code>trials_var</code> named the equation and the columns before version 2.0. They are still accepted and warn that the formula has been used instead.</p>
 <p>Anything else is passed through to <code>brms::brm()</code> by <code>...</code>, so the full <code>brm</code> argument list is available. <code>bayesnec</code> sets three of those arguments differently from <code>brms</code>: it generates its own <code>family</code> and <code>prior</code> rather than taking the <code>brms</code> defaults, and it raises <code>iter</code> from 2,000 to 10,000 with a correspondingly longer warm-up, because the non-linear models here often need it.</p>
-<p>Two arguments are the ones to reach for when a fit is marginal:</p>
-<ul>
-<li>Raise <code>iter</code> and <code>warmup</code> where the convergence diagnostic is borderline or the effective sample size is low.</li>
-<li>Pass <code>control = list(adapt_delta = 0.99, max_treedepth = 12)</code> where the sampler reports divergent transitions or reports hitting the maximum tree depth.</li>
-</ul>
-<p>Both increase the run time, and neither corrects a model that does not suit the data.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Iterations, warm-up and retained draws">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -484,6 +453,38 @@ window.Quarto = {
 </div>
 <p>The left-hand side is the response, exactly as in <code>brms</code>. The right-hand side uses <code>crf()</code>, a function specific to <code>bayesnec</code>, which stands for <strong>c</strong>oncentration-<strong>r</strong>esponse <strong>f</strong>unction. It takes the predictor and the name of the model to fit, and it accepts a transformation of the predictor, such as <code>crf(log(x), ...)</code>.</p>
 <p>Term names must match the columns of the data frame exactly, as in any R formula.</p>
+<p>The left-hand side also takes the <code>brms</code> aterms, which name a column the response cannot be interpreted without. They follow the response after a vertical bar, as <code>y | trials(n) ~ crf(x, model = "modelname")</code>. <code>bayesnec</code> supports four:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>What it declares</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>trials(n)</code></td>
+<td>the number of trials behind a binomial or beta-binomial count</td>
+</tr>
+<tr class="even">
+<td><code>rate(n)</code></td>
+<td>the denominator a Poisson or negative binomial count was observed over</td>
+</tr>
+<tr class="odd">
+<td><code>cens(indicator)</code></td>
+<td>which observations are censored, with <code>cens(indicator, upper)</code> for interval censoring</td>
+</tr>
+<tr class="even">
+<td><code>weights(w)</code></td>
+<td>a weight per observation</td>
+</tr>
+</tbody>
+</table>
+<p>Any other aterm is an error rather than a warning. Module 5 uses <code>trials()</code>, <code>rate()</code> and <code>cens()</code> on the response types that need them.</p>
 <p>The available models are:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">models</span>()<span class="sc">$</span>all</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -508,103 +509,22 @@ window.Quarto = {
 </section>
 <section id="the-scale-of-the-predictor" class="level2">
 <h2 class="anchored" data-anchor-id="the-scale-of-the-predictor">The scale of the predictor</h2>
-<p>Settle the scale of the predictor before fitting anything. It changes the curve being fitted rather than only the axis the curve is drawn against, and it generally matters more than the choice of equation.</p>
+<p>Settle the scale of the predictor before fitting anything. The predictor enters the equations directly, so a transformation changes the curve being fitted and not only the axis it is drawn against. <code>bnec()</code> takes the concentration exactly as it is supplied and does not make the decision for you.</p>
+<p>Read the spacing of the <strong>design</strong>. A dilution series makes each concentration a fixed multiple of the one below it, so its steps are even on a logarithmic scale and uneven on a linear one. On a linear axis such a design crushes the low concentrations together and spreads the high ones out, so the equation spends its flexibility at the top of the range, where the response is often already flat. Fitting on <code>log(concentration)</code> makes the steps even and commonly samples more stably. Module 7, in <em>The scale of the predictor</em>, measures what the choice is worth on a designed series.</p>
+<p>The mechanics are:</p>
 <ul>
-<li>The predictor enters the equations directly. <code>bnec()</code> takes the concentration exactly as it is given and does not make this decision for you.</li>
-<li>Read the spacing of the <strong>design</strong> rather than the shape of the response. Concentrations near evenly spaced after a logarithmic transformation were laid out on a log scale, and are usually best modelled there.</li>
-<li>Write the transformation inside <code>crf()</code>, as <code>crf(log(x), model = "nec4param")</code>.</li>
-<li>Add any offset to the data yourself first. A control recorded as <code>0</code> arrives at the data check as <code>log(0)</code> and the fit stops.</li>
+<li>Write the transformation inside <code>crf()</code>, as <code>crf(log(x), model = "nec4param")</code>, or apply it to the data before the call.</li>
+<li>Add any offset to the data yourself first. For <code>log(x)</code>, a control recorded as <code>0</code> arrives at the data check as <code>log(0)</code> and the fit stops.</li>
 <li>Back-transform the estimates through the <code>xform</code> argument, which <code>nec()</code>, <code>ecx()</code>, <code>nsec()</code> and <code>autoplot()</code> all take.</li>
-<li>State the scale alongside any value you report.</li>
+<li>Report the scale alongside any value you report.</li>
 </ul>
-<p>A dilution series makes each concentration a fixed multiple of the one below it. On a linear axis such a design crushes the low concentrations together and spreads the high ones out, so the equation spends its flexibility at the top of the range, where the response is often already flat. The coefficient of variation of the gaps separates the two cases. The ametryn series in the <code>herbicide</code> data that ships with <code>bayesnec</code> is a three-fold dilution from 0.1 to 300 <span class="math inline">\(\mu g L^{-1}\)</span>, twelve replicates at each of eight concentrations:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>spacing_cv <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sd</span>(<span class="fu">diff</span>(<span class="fu">sort</span>(x))) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">diff</span>(<span class="fu">sort</span>(x)))</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(herbicide)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ametryn <span class="ot">&lt;-</span> <span class="fu">subset</span>(herbicide, herbicide <span class="sc">==</span> <span class="st">"ametryn"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>conc <span class="ot">&lt;-</span> <span class="fu">unique</span>(ametryn<span class="sc">$</span>concentration)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">linear =</span> <span class="fu">spacing_cv</span>(conc), <span class="at">log =</span> <span class="fu">spacing_cv</span>(<span class="fu">log</span>(conc))), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>linear    log 
-  1.72   0.05 </code></pre>
-</div>
-</div>
-<p>The coefficient of variation is 1.72 on the linear axis and 0.05 on the log axis, which is the signature of a series designed on the log scale.</p>
 <p>Where the predictor is transformed, <code>xform</code> takes the inverse and returns the estimates as concentrations:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit, <span class="at">xform =</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(fit, <span class="at">xform =</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="The size of the difference between scales">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>The size of the difference between scales
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Fitting the ametryn series on each axis in turn measures what the scale does here. Three equations are fitted on <code>log(concentration)</code> and <code>nec4param</code> alone on the raw concentration axis. All four use the same response and the same 96 observations, so <code>elpd_loo</code> is comparable between them.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>m2_scale_log <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"nec4param"</span>, <span class="st">"ecx4param"</span>, <span class="st">"ecxll4"</span>)),</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data =</span> ametryn, <span class="at">seed =</span> <span class="dv">333</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m2_scale_log, <span class="at">file =</span> <span class="st">"fits/m2_scale_log.RData"</span>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>m2_scale_raw <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(concentration, <span class="at">model =</span> <span class="st">"nec4param"</span>),</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data =</span> ametryn, <span class="at">seed =</span> <span class="dv">333</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m2_scale_raw, <span class="at">file =</span> <span class="st">"fits/m2_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m2_scale_log.RData"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m2_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>elpd <span class="ot">&lt;-</span> <span class="cf">function</span>(fit) {</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  brms<span class="sc">::</span><span class="fu">loo</span>(<span class="fu">pull_brmsfit</span>(fit))<span class="sc">$</span>estimates[<span class="st">"elpd_loo"</span>, <span class="st">"Estimate"</span>]</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The largest gap between the fitted mean and the observed mean at a tested</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># concentration, which is the departure a plot of the curve would show.</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>max_departure <span class="ot">&lt;-</span> <span class="cf">function</span>(fit) {</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  by_conc <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(observed, fitted) <span class="sc">~</span> concentration,</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">concentration =</span> ametryn<span class="sc">$</span>concentration,</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">observed =</span> ametryn<span class="sc">$</span>fvfm,</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">fitted =</span> <span class="fu">fitted</span>(<span class="fu">pull_brmsfit</span>(fit))[, <span class="st">"Estimate"</span>]),</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    mean)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>(<span class="fu">abs</span>(by_conc<span class="sc">$</span>observed <span class="sc">-</span> by_conc<span class="sc">$</span>fitted))</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>scale_fits <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">nec4param_raw =</span> m2_scale_raw,</span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nec4param_log =</span> <span class="fu">pull_out</span>(m2_scale_log, <span class="st">"nec4param"</span>),</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ecx4param_log =</span> <span class="fu">pull_out</span>(m2_scale_log, <span class="st">"ecx4param"</span>),</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ecxll4_log    =</span> <span class="fu">pull_out</span>(m2_scale_log, <span class="st">"ecxll4"</span>))</span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">elpd_loo =</span> <span class="fu">round</span>(<span class="fu">sapply</span>(scale_fits, elpd), <span class="dv">1</span>),</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">max_departure =</span> <span class="fu">round</span>(<span class="fu">sapply</span>(scale_fits, max_departure), <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              elpd_loo max_departure
-nec4param_raw    204.6         0.041
-nec4param_log    228.3         0.032
-ecx4param_log    232.5         0.022
-ecxll4_log       232.6         0.022</code></pre>
-</div>
-</div>
-<p>Fitting <code>nec4param</code> on the log axis rather than the raw axis raises <code>elpd_loo</code> by 23.7. The three equations fitted on the log axis span 4.3 between them. On these data the scale separates the fits by about five times what the choice of equation does.</p>
-<p>The group means are reproduced on both axes. The largest departure of the fitted mean from the observed mean at a tested concentration is 0.041 on the raw axis and 0.032 on the log axis, on a response spanning 0.7, so the difference is not one a plot of the curve would show. <code>elpd_loo</code> is what reports it.</p>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit, <span class="at">xform =</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(fit, <span class="at">xform =</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Zero on the predictor axis">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -613,7 +533,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The transformation is evaluated before <code>bayesnec</code> inspects the predictor, which is why the fit stops with a report that the predictor is not finite rather than with anything naming the transformation.</p>
 <p><code>bayesnec</code> does not correct a zero on the predictor axis. A concentration of zero is an ordinary control, and no response distribution constrains the values a predictor may take. Choose the offset yourself and add it to the data first, as <code>log(x + 1)</code> or a smaller constant suited to the series.</p>
@@ -621,7 +541,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Reporting a value on the fitted scale">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -630,7 +550,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>A value reported on the fitted scale reads as a concentration and is not one. Reporting a logged value as a concentration understates the threshold by a factor of e for every unit on the logged scale, and only a negative logarithm announces the error.</p>
 </div>
@@ -642,13 +562,13 @@ ecxll4_log       232.6         0.022</code></pre>
 <h2 class="anchored" data-anchor-id="calling-bnec">Calling <code>bnec</code></h2>
 <p>A formula and a data frame are the minimum required to fit a <code>bayesnec</code> model, and every other argument has a default. Understand what those defaults are and whether they suit your data; for this example they do.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit, <span class="at">file =</span> <span class="st">"fits/m2_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit, <span class="at">file =</span> <span class="st">"fits/m2_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m2_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m2_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Three things happen when that call runs.</p>
 <ul>
@@ -658,11 +578,11 @@ ecxll4_log       232.6         0.022</code></pre>
 </ul>
 <p>Set <code>mc.cores</code> to at least the number of chains before fitting, so that the chains run at the same time rather than in turn:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Warnings may also appear when you run the fit yourself, which the page does not, since it loads a saved object. The two this fit produces concern the Pareto <em>k</em> diagnostic and <code>p_waic</code>, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Chains in series and in parallel">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -671,7 +591,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>A model is fitted by running several chains, and those chains are independent of one another until the results are combined. Run in <strong>series</strong> they wait their turn and the fit takes as long as all of them added together. Run in <strong>parallel</strong> they run at the same time on different processor cores, and the fit takes about as long as the slowest one.</p>
 <p>More cores than chains gives no benefit here, because there is nothing else to run at the same time. A second level of parallelism applies once a <em>set</em> of models is being fitted rather than one, since the models can run alongside each other as well as the chains within them. Module 4 covers it.</p>
@@ -683,8 +603,8 @@ ecxll4_log       232.6         0.022</code></pre>
 <h2 class="anchored" data-anchor-id="saving-the-fit">Saving the fit</h2>
 <p>Fit once, save, and load the saved object everywhere afterwards. Sampling is what takes the minutes and it never needs repeating.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bnec_fit, <span class="st">"nec3param_fit.rds"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"nec3param_fit.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bnec_fit, <span class="st">"nec3param_fit.rds"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"nec3param_fit.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Every module in this course is built that way, and so is a real analysis:</p>
 <ul>
@@ -694,7 +614,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </ul>
 <p>The workshop distributes these saved objects, so the modules load in seconds rather than sampling for minutes. The <a href="../vignettes/0Software-setup.html">software setup</a> covers retrieving them. Fitting the models yourself works and is slower, which is worth doing at least once to see how long it takes.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Where to put the file">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -703,7 +623,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>This is one of the smallest fits in the course and the object is 1.3 Mb, because it stores every posterior draw for every parameter. A model-averaged set of all 23 models is very much larger, and a fit to real data with a grouping variable larger again.</p>
 <p>A folder synchronised by OneDrive or a similar service is a poor choice: the upload is slow, and on some configurations it interferes with writing the file at all.</p>
@@ -714,7 +634,10 @@ ecxll4_log       232.6         0.022</code></pre>
 <section id="the-summary" class="level2">
 <h2 class="anchored" data-anchor-id="the-summary">The summary</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required namespace: rstan</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Object of class bayesnecfit containing the nec3param model
 
@@ -760,7 +683,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <li><strong>The <em>NEC</em> estimate and the Bayesian R².</strong> The estimate is a median with a 95% credible interval. The R² here is high, as you would expect of a simulated example where the curve is well-determined; real data rarely look this tidy.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled" title="The identity link">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -769,7 +692,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The link will mean something only to a reader familiar with generalised linear models, which are usually parameterised for linear modelling. A beta response in <code>brms</code> defaults to the logit link.</p>
 <p><code>bayesnec</code> overrides that for every family, so that the <code>top</code>, <code>bot</code> and <code>nec</code> parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a <code>bayesnec</code> fit against a <code>brm</code> model you have written yourself: unless you pass the link explicitly, the two are different models.</p>
@@ -781,16 +704,16 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <h2 class="anchored" data-anchor-id="the-fitting-record">The fitting record</h2>
 <p><code>bnec()</code> reports what it did as it goes, through messages. A knitted document or a call wrapped in <code>suppressMessages()</code> keeps none of them, so the same information is stored on the fitted object and read back with <code>bnec_record()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">bnec_record</span>(bnec_fit)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(rec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">bnec_record</span>(bnec_fit)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(rec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "requested"     "attempted"     "excluded"      "substitutions"</code></pre>
 </div>
 </div>
 <p>Two of those elements are the ones to read after a fit.</p>
-<p><code>excluded</code> names every equation dropped before fitting, with the reason. An equation is excluded where it is invalid for the family or the predictor. <code>requested</code> divides exactly between <code>attempted</code> and <code>excluded</code>, and an equation that was attempted and then failed to fit stays in <code>attempted</code>, where module 4 covers how to find it.</p>
+<p><code>excluded</code> names every equation dropped before fitting, with the reason. An equation is excluded where it is invalid for the family or the predictor. <code>requested</code> divides exactly between <code>attempted</code> and <code>excluded</code>, and an equation that was attempted and then failed to fit stays in <code>attempted</code>, where module 7 covers how to find it.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>excluded</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>excluded</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] model  reason
 &lt;0 rows&gt; (or 0-length row.names)</code></pre>
@@ -799,7 +722,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <p>Nothing was excluded here, because one model was requested and it is valid for a beta response.</p>
 <p><code>substitutions</code> names every value <code>bayesnec</code> altered because the family cannot represent it as recorded. A beta distribution is defined on the open interval between 0 and 1, so a response of exactly 0 or exactly 1 lies outside it; <code>bayesnec</code> replaces a zero with one tenth of the smallest non-zero value and reduces a one by 0.001.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>substitutions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>rec<span class="sc">$</span>substitutions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>NULL</code></pre>
 </div>
@@ -837,16 +760,16 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </tbody>
 </table>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      model max_rhat  min_ess min_ess_ratio n_divergent failed
 1 nec3param 1.000764 3702.317     0.4627896           0  FALSE</code></pre>
 </div>
 </div>
-<p><code>failed</code> is <code>FALSE</code>, so this fit clears all three sampler cutoffs. Module 4 sets out what each of the three measures and what to do when one is missed.</p>
+<p><code>failed</code> is <code>FALSE</code>, so this fit clears all three sampler cutoffs. Module 7 sets out what each of the three measures and what to do when one is missed.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(bnec_fit)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(bnec_fit)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -860,8 +783,8 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <p>Module 4 sets out the table <code>check_fit()</code> returns, what the control row contributes to an <em>NSEC</em>, and how both checks behave across a set of twenty-three equations. Module 7 shows what they contribute to a written analysis, on real data. Leave the detail until then; for a first fit, run both and read <code>failed</code>.</p>
 <p>The visual form of the sampling check is worth seeing once. Extract the underlying <code>brms</code> model and plot it, which gives the marginal posterior of each parameter beside its trace:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>brm_fit <span class="ot">&lt;-</span> <span class="fu">pull_brmsfit</span>(bnec_fit)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(brm_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>brm_fit <span class="ot">&lt;-</span> <span class="fu">pull_brmsfit</span>(bnec_fit)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(brm_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -876,7 +799,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <h2 class="anchored" data-anchor-id="inside-the-fitted-object">Inside the fitted object</h2>
 <p>A <code>bayesnecfit</code> is a list holding the <code>brms</code> fit and a set of derived quantities.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "fit"             "model"           "init"            "bayesnecformula"
  [5] "pred_vals"       "top"             "beta"            "ne"             
@@ -887,7 +810,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </div>
 <p><code>pred_vals</code> holds fitted values across the range of the predictor, which is what the plotting methods use and what you would use for a custom figure:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           x  Estimate      Q2.5     Q97.5
 1 0.03234801 0.8890196 0.8788117 0.8984557
@@ -900,8 +823,8 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </div>
 <p>Every fitted model holds a posterior for the no-effect estimate, in <code>ne_posterior</code>, with <code>ne_type</code> recording what kind of estimate it is. For models in the <code>nec</code> group this is the posterior of the <code>nec</code> parameter itself. For models in the <code>ecx</code> group, which have no threshold parameter, it is the posterior of the <em>NSEC</em> <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Module 3 explains why those are different things.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(bnec_fit<span class="sc">$</span>ne_posterior,</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">""</span>, <span class="at">xlab =</span> <span class="st">"No-effect concentration"</span>, <span class="at">col =</span> <span class="st">"grey80"</span>, <span class="at">border =</span> <span class="st">"white"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(bnec_fit<span class="sc">$</span>ne_posterior,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">""</span>, <span class="at">xlab =</span> <span class="st">"No-effect concentration"</span>, <span class="at">col =</span> <span class="st">"grey80"</span>, <span class="at">border =</span> <span class="st">"white"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -915,8 +838,8 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <h2 class="anchored" data-anchor-id="plotting">Plotting</h2>
 <p><code>plot()</code> extends the base method and <code>autoplot()</code> extends the <code>ggplot2</code> method. Both take arguments controlling what is drawn; see <code>?autoplot.bayesnecfit</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bnec_fit) <span class="sc">+</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">xlab</span>(<span class="st">"Concentration"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bnec_fit) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">xlab</span>(<span class="st">"Concentration"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • fill : "NA"
@@ -937,7 +860,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <h2 class="anchored" data-anchor-id="toxicity-estimates">Toxicity estimates</h2>
 <p>Three functions extract estimates from a fitted model: <code>ecx()</code>, <code>nec()</code> and <code>nsec()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
 1.596696 1.564458 1.626689 
@@ -948,14 +871,14 @@ attr(,"ecx_val")
 attr(,"toxicity_estimate")
 [1] "ecx"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
 1.535280 1.498376 1.569226 
 attr(,"toxicity_estimate")
 [1] "nec"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nsec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nsec</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
 1.542506 1.501780 1.575577 
@@ -977,7 +900,7 @@ attr(,"ecnsec_relativeP")
 <h2 class="anchored" data-anchor-id="the-parameters-of-the-curve">The parameters of the curve</h2>
 <p><code>summary()</code> reports the toxicity estimate and the fit statistics, and for a single model the parameters are reachable through the underlying <code>brmsfit</code>. <code>curve_params()</code> returns them directly, and returns them for a model-averaged set as well, which nothing else does:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      model wi dpar     link parameter  Estimate      Q2.5     Q97.5
 1 nec3param  1   mu identity       top 0.8890196 0.8788117 0.8984557
@@ -988,6 +911,148 @@ attr(,"ecnsec_relativeP")
 <p>These are the quantities the toxicity estimates are read from, and they belong in a methods section beside them. <code>top</code> is the control level the curve is referenced to, <code>beta</code> is the decay rate, and <code>nec</code> is the threshold. A four-parameter equation would add <code>bot</code>, the lower asymptote.</p>
 <p><code>xform</code> applies to <code>nec</code> and <code>ec50</code> and to no other parameter, because those two are measured on the predictor axis while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters, on which a transformation of the predictor has no meaning.</p>
 </section>
+<section id="comparing-posteriors" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-posteriors">Comparing posteriors</h2>
+<p>A fit holds the whole posterior, so a comparison between two estimates is a count of draws rather than a test statistic. <code>compare_posterior()</code> does this for a named list of fits, and returns both the posteriors it used and the probability that one estimate exceeds the other.</p>
+<p>There is one fit so far, so the comparison needs a second. <code>ecxll3</code> is a smooth equation with the same three free parameters as <code>nec3param</code> and the same lower asymptote fixed at zero, so the two fits differ in the shape of the curve rather than in what each is free to estimate.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>ecxll3_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecxll3"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(ecxll3_fit, <span class="at">file =</span> <span class="st">"fits/m2_ecxll3_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m2_ecxll3_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both equations support an <strong>EC<sub>x</sub></strong>, which is the estimate compared here. Their no-effect estimates are not the same quantity as each other, and module 3 covers that difference before it is put to use.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>post_comp <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"nec3param"</span> <span class="ot">=</span> bnec_fit, <span class="st">"ecxll3"</span> <span class="ot">=</span> ecxll3_fit),</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">comparison =</span> <span class="st">"ecx"</span>, <span class="at">ecx_val =</span> <span class="dv">10</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(post_comp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "posterior_list" "posterior_data" "diff_list"      "diff_data"     
+[5] "prob_diff"     </code></pre>
+</div>
+</div>
+<p><code>posterior_data</code> holds the draws of both estimates in long form, which is what a figure is drawn from:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(post_comp<span class="sc">$</span>posterior_data, <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">group =</span> model, <span class="at">colour =</span> model, <span class="at">fill =</span> model), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-compare-post" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-compare-post-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2Fitting-a-CR-model-using-bayesnec_files/figure-html/fig-compare-post-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-compare-post-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Posterior EC10 from two equations fitted to the same data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(post_comp<span class="sc">$</span>posterior_list, quantile, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      nec3param   ecxll3
+2.5%   1.564412 1.431476
+50%    1.596652 1.500418
+97.5%  1.626640 1.561214</code></pre>
+</div>
+</div>
+<p>The EC10 is 1.60 from the <code>nec3param</code> fit, with a 95% credible interval from 1.56 to 1.63, and 1.50 from the <code>ecxll3</code> fit, from 1.43 to 1.56. The two intervals overlap over a narrow region.</p>
+<p><code>prob_diff</code> is the proportion of paired draws in which the first estimate exceeds the second, and <code>diff_list</code> holds the differences those proportions are taken from:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>post_comp<span class="sc">$</span>prob_diff</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        comparison     prob
+1 nec3param-ecxll3 0.996375</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_comp<span class="sc">$</span>diff_list[[<span class="st">"nec3param-ecxll3"</span>]], <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      2.5%        50%      97.5% 
+0.02783748 0.09651025 0.17092004 </code></pre>
+</div>
+</div>
+<p>The probability is 0.996, so the <code>nec3param</code> EC10 is the higher of the two in almost every paired draw. The difference is 0.10, with a 95% interval from 0.03 to 0.17, which is the size of the disagreement rather than the confidence in it. Read both: a probability near 1 on a difference of no practical consequence is a result a large sample can produce on its own.</p>
+<section id="the-fitted-curves" class="level3">
+<h3 class="anchored" data-anchor-id="the-fitted-curves">The fitted curves</h3>
+<p><code>comparison = "fitted"</code> compares the curves themselves at a grid of concentrations across the range of the predictor, rather than one estimate read off each.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>post_fitted <span class="ot">&lt;-</span> <span class="fu">compare_posterior</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"nec3param"</span> <span class="ot">=</span> bnec_fit, <span class="st">"ecxll3"</span> <span class="ot">=</span> ecxll3_fit),</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">comparison =</span> <span class="st">"fitted"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>posterior_data</code> holds the two fitted curves on that grid, each with a credible interval at every point, which is what the difference below is taken between:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(post_fitted<span class="sc">$</span>posterior_data, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> nec_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), <span class="at">colour =</span> <span class="st">"grey60"</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate), <span class="at">colour =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> model) <span class="sc">+</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Response"</span>) <span class="sc">+</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-fitted-curves" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fitted-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2Fitting-a-CR-model-using-bayesnec_files/figure-html/fig-fitted-curves-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fitted-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The two fitted curves over the observed data, each with its 95% credible interval, on the 50-point grid the comparison uses.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Both curves pass through the data, and the shape of each is visible in its panel. <code>nec3param</code> holds the control level flat to its threshold a little below 1.5 and turns sharply there. <code>ecxll3</code> has begun to decline before 1.5 and turns gradually, so it sits below <code>nec3param</code> just before the threshold and above it just after. Reading a separation off two panels stops at that description, and the difference below puts a number and an interval on it at every concentration.</p>
+<p><code>diff_data</code> holds that difference at each of the 50 grid points, with its 95% credible interval:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(post_fitted<span class="sc">$</span>diff_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        comparison diff.Estimate   diff.Q2.5  diff.Q97.5          x
+1 nec3param-ecxll3  -0.007745042 -0.02297649 0.007778212 0.03234801
+2 nec3param-ecxll3  -0.007680555 -0.02284218 0.007832999 0.09741274
+3 nec3param-ecxll3  -0.007587839 -0.02268714 0.007928750 0.16247747
+4 nec3param-ecxll3  -0.007456651 -0.02250829 0.008033341 0.22754220
+5 nec3param-ecxll3  -0.007280507 -0.02232278 0.008169700 0.29260692
+6 nec3param-ecxll3  -0.007078695 -0.02206294 0.008358580 0.35767165</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(post_fitted<span class="sc">$</span>diff_data) <span class="sc">+</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> diff.Q2<span class="fl">.5</span>, <span class="at">ymax =</span> diff.Q97<span class="fl">.5</span>),</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> diff.Estimate), <span class="at">colour =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Concentration"</span>, <span class="at">y =</span> <span class="st">"Difference in fitted response"</span>) <span class="sc">+</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-compare-fitted" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-compare-fitted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2Fitting-a-CR-model-using-bayesnec_files/figure-html/fig-compare-fitted-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-compare-fitted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Difference between the two fitted curves across the concentration range, with its 95% credible interval. The difference is taken as <code>nec3param</code> minus <code>ecxll3</code>, so a positive value is a higher predicted response from the threshold equation.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Where the band excludes zero the two curves differ at that concentration. These two agree from 0.03 to 1.14 and differ over 25 of the 50 grid points. The <code>nec3param</code> curve is the higher of the two from 1.20 to 1.53, the lower from 1.72 to 2.05, and the higher again from 2.44 to 3.22. The largest difference is 0.089 at a concentration of 1.85, on a response spanning about 0.95.</p>
+<p><code>nec_data</code> was simulated from a four-parameter threshold equation with its threshold set at 1.5, which <code>data-raw/nec_data.R</code> in the <code>bayesnec</code> sources records, and the pattern follows from that. The threshold equation holds the control level up to 1.5, where the log-logistic has already begun to decline, and then falls more steeply than the log-logistic immediately above it. Above 2.44 the log-logistic approaches zero the faster of the two.</p>
+<p>Two readings of the same pair of fits therefore disagree on how far apart they are: the EC10 posteriors separate at a probability of 0.996, and the curves are indistinguishable over the lower third of the concentration range. A single estimate is one point on a curve, and which of the two answers the question depends on what is being reported.</p>
+<p>The draws are paired at random, which approximates the difference of two independent posteriors. Both fits here are to the same 100 observations, so this comparison measures the difference between two equations rather than between two experiments. Module 4 covers averaging over the equations rather than choosing between them.</p>
+<p>The comparison a real analysis makes is between fits to different data, such as two exposure durations or two levels of a factor. Module 8 does that with <code>bnec_group()</code>, through this same function. <code>comparison</code> also takes <code>"nec"</code>, <code>"nsec"</code> and <code>"n(s)ec"</code>, which compare the no-effect estimates module 3 covers.</p>
+</section>
+</section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
@@ -996,6 +1061,9 @@ Bürkner, Paul Christian. 2017. <span>“<span class="nocase">brms: An R package
 </div>
 <div id="ref-Burkner2018" class="csl-entry" role="listitem">
 Bürkner, Paul-Christian. 2018. <span>“Advanced <span>Bayesian</span> Multilevel Modeling with the <span>R</span> Package <span class="nocase">brms</span>.”</span> <em>The R Journal</em> 10 (1): 395–411. <a href="https://doi.org/10.32614/RJ-2018-017">https://doi.org/10.32614/RJ-2018-017</a>.
+</div>
+<div id="ref-fisheretal2024" class="csl-entry" role="listitem">
+Fisher, Rebecca, Diego R. Barneche, Gerard F. Ricardo, and David R. Fox. 2024. <span>“<span class="nocase">bayesnec</span>: An <span>R</span> Package for Concentration-Response Modeling and Estimation of Toxicity Metrics.”</span> <em>Journal of Statistical Software</em> 110 (5): 1–41. <a href="https://doi.org/10.18637/jss.v110.i05">https://doi.org/10.18637/jss.v110.i05</a>.
 </div>
 <div id="ref-fisherfox2023" class="csl-entry" role="listitem">
 Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant-Effect Concentration.”</span> <em>Environmental Toxicology and Chemistry</em> n/a (n/a). https://doi.org/<a href="https://doi.org/10.1002/etc.5610">https://doi.org/10.1002/etc.5610</a>.

@@ -332,7 +332,6 @@ window.Quarto = {
    
   <ul>
   <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
-  <li><a href="#the-estimates-in-use" id="toc-the-estimates-in-use" class="nav-link" data-scroll-target="#the-estimates-in-use">The estimates in use</a></li>
   <li><a href="#the-model-set" id="toc-the-model-set" class="nav-link" data-scroll-target="#the-model-set">The model set</a></li>
   <li><a href="#parameter-definitions" id="toc-parameter-definitions" class="nav-link" data-scroll-target="#parameter-definitions">Parameter definitions</a></li>
   <li><a href="#threshold-models" id="toc-threshold-models" class="nav-link" data-scroll-target="#threshold-models">Threshold models</a></li>
@@ -388,29 +387,6 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="background">Background</h2>
 <p>A toxicity estimate is rarely the end of an analysis. In guideline derivation it becomes one point in a species sensitivity distribution, from which the concentration protecting a stated proportion of the community is read. For that guideline to achieve the level of protection it states, each point entering the distribution should be the highest concentration at which that species shows no effect <span class="citation" data-cites="fisheretal2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>)</span>.</p>
 <p>Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module sets out the equations <code>bayesnec</code> can fit and which toxicity estimate each one supports. The distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean.</p>
-<p><a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a> sets out the four estimates and how each is obtained. It is reproduced in <em>The estimates side by side</em> at the end of the module, once each part of it has been covered.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-etnc2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/etnc_fig2.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: The four toxicity estimates. (A) A threshold model, giving the <em>NEC</em> directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The <em>NOEC</em>, read from the treatment means. (D) The <em>NSEC</em>, read from a smooth model against a lower quantile of the control posterior. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="the-estimates-in-use" class="level2">
-<h2 class="anchored" data-anchor-id="the-estimates-in-use">The estimates in use</h2>
-<p>Four estimates are in common use, and they differ in what they measure and in what produces them.</p>
-<p>The <strong>NEC</strong>, the no-effect concentration, is the minimum concentration above which an effect is predicted to occur. It is a parameter of a threshold model and is estimated directly <span class="citation" data-cites="Fox2010 Pires2002 vanderhoeven1997">(<a href="#ref-Fox2010" role="doc-biblioref">Fox 2010</a>; <a href="#ref-Pires2002" role="doc-biblioref">Pires et al. 2002</a>; <a href="#ref-vanderhoeven1997" role="doc-biblioref">Van Der Hoeven et al. 1997</a>)</span>.</p>
-<p>The <strong>EC<sub>x</sub></strong>, the <em>x</em>% effect concentration, is the concentration expected to produce an effect of size <em>x</em>. It is obtained by interpolation from a fitted curve, and it reports an effect by construction.</p>
-<p>The <strong>NOEC</strong>, the no-observed-effect concentration, is the highest tested concentration at which the mean response is statistically indistinguishable from the control. It comes from Dunnett’s test on a one-way analysis of variance, so its value is always one of the concentrations that happened to be tested.</p>
-<p>The <strong>NSEC</strong>, the no-significant-effect concentration, is the concentration at which the modelled mean response becomes statistically distinguishable from the control <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>. Like the <strong>EC<sub>x</sub></strong> it is obtained by interpolation from a fitted curve, so it is not restricted to the tested concentrations.</p>
 </section>
 <section id="the-model-set" class="level2">
 <h2 class="anchored" data-anchor-id="the-model-set">The model set</h2>
@@ -435,7 +411,7 @@ Figure&nbsp;1: The four toxicity estimates. (A) A threshold model, giving the <e
 <img src="images/vignette-fig-exmp2b-theoretical_nec_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the <em>NEC</em>. They differ in the decline after it and in whether the response rises first.
+Figure&nbsp;1: The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the <em>NEC</em>. They differ in the decline after it and in whether the response rises first.
 </figcaption>
 </figure>
 </div>
@@ -449,7 +425,7 @@ Figure&nbsp;2: The threshold equations. Each is flat to a breakpoint and then de
 <img src="images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> rather than an <em>NEC</em>.
+Figure&nbsp;2: The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> rather than an <em>NEC</em>.
 </figcaption>
 </figure>
 </div>
@@ -464,7 +440,7 @@ Figure&nbsp;3: The smooth equations. None has a breakpoint, so each declines fro
 <img src="images/etnc_fig1.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>.
+Figure&nbsp;3: A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> under CC BY-NC 4.0.
 </figcaption>
 </figure>
 </div>
@@ -559,7 +535,7 @@ f(x_i, \eta) = \begin{cases}
 <img src="images/necmod_fox2010.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Panel A of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a>. The <em>NEC</em> (<span class="math inline">\(\eta\)</span>) is the breakpoint itself. The EC10 is read from the curve and sits above it.
+Figure&nbsp;4: Panel A of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NEC</em> (<span class="math inline">\(\eta\)</span>) is the breakpoint itself. The EC10 is read from the curve and sits above it.
 </figcaption>
 </figure>
 </div>
@@ -567,7 +543,7 @@ Figure&nbsp;5: Panel A of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 </div>
 <p>These models assume the response remains at a stable level, near the control mean, across the lower concentrations, until a threshold is reached. That threshold is the <em>NEC</em>. Beyond it the response declines with increasing concentration at some rate. The original formulation of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span> assumed exponential decline after the threshold, which is <code>nec3param</code>; <code>bayesnec</code> also provides a linear decline in <code>neclin</code>.</p>
 <p>These models can also be used to estimate an <strong>EC<sub>x</sub></strong>, though the estimate of the threshold is what they are for. They are the only way to estimate a true no-effect concentration.</p>
-<p>An <strong>EC<sub>x</sub></strong> taken from a threshold equation and one taken from a smooth equation fitted to the same data will usually differ, and which is larger depends on which shape suits the data. Where the response really does decline smoothly, a broken-stick curve is flat before the break and then falls sharply, so its <strong>EC<sub>x</sub></strong> is the higher and less conservative of the two. Where a threshold is genuinely present, the smooth equation begins declining below it and returns the lower value.</p>
+<p>An <strong>EC<sub>x</sub></strong> taken from a threshold equation and one taken from a smooth equation fitted to the same data will usually differ, and which is larger depends on which shape fits the data. Where the response really does decline smoothly, a broken-stick curve is flat before the break and then falls sharply, so its <strong>EC<sub>x</sub></strong> is the higher and less conservative of the two. Where a threshold is genuinely present, the smooth equation begins declining below it and returns the lower value.</p>
 <p><span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> measured how large that difference becomes. Simulating from smooth curves of known shape and fitting a threshold equation to the result, the <em>NEC</em> returned represented an actual effect of 15% to 40% depending on the design. That percentage did not necessarily fall as sampling effort increased, because the problem is the shape of the equation rather than the amount of data. Choosing between the two shapes in advance therefore matters, and module 4 covers fitting both and letting the data weight them.</p>
 </section>
 <section id="smooth-models" class="level2">
@@ -581,7 +557,7 @@ Figure&nbsp;5: Panel A of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 <img src="images/ecxmod.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Panel B of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a>. There is no breakpoint, so the only estimate the curve supports directly is an <strong>EC<sub>x</sub></strong>.
+Figure&nbsp;5: Panel B of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. There is no breakpoint, so the only estimate the curve supports directly is an <strong>EC<sub>x</sub></strong>.
 </figcaption>
 </figure>
 </div>
@@ -601,7 +577,7 @@ Figure&nbsp;6: Panel B of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 <img src="images/nsec.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a>. The <em>NSEC</em> is where the fitted curve crosses a lower quantile of the control posterior. The EC10 for the same curve sits above it.
+Figure&nbsp;6: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NSEC</em> is where the fitted curve crosses a lower quantile of the control posterior. The EC10 for the same curve sits above it.
 </figcaption>
 </figure>
 </div>
@@ -635,7 +611,7 @@ Figure&nbsp;7: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 <img src="images/noec.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-noec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a>. The <em>NOEC</em> is one of the tested concentrations, chosen by a test on the treatment means with no curve fitted.
+Figure&nbsp;7: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NOEC</em> is one of the tested concentrations, chosen by a test on the treatment means with no curve fitted.
 </figcaption>
 </figure>
 </div>
@@ -676,7 +652,7 @@ Figure&nbsp;8: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 <img src="images/horme_nec.JPG" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hormenec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: Two threshold hormesis equations. The response rises linearly to the threshold and declines after it, so the <em>NEC</em> is still the breakpoint.
+Figure&nbsp;8: Two threshold hormesis equations. The response rises linearly to the threshold and declines after it, so the <em>NEC</em> is still the breakpoint.
 </figcaption>
 </figure>
 </div>
@@ -697,13 +673,13 @@ Figure&nbsp;9: Two threshold hormesis equations. The response rises linearly to 
 <img src="images/horme_ecx.JPG" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hormeecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10: Two smooth hormesis equations. The curve peaks above the control response, so an effect measured from the control and one measured from the peak differ.
+Figure&nbsp;9: Two smooth hormesis equations. The curve peaks above the control response, so an effect measured from the control and one measured from the peak differ.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>These do raise a difficulty for <strong>EC<sub>x</sub></strong>, because an effect has to be measured against something, and a hormetic curve offers two candidates: the control, and the peak of the curve. <code>bayesnec</code> measures every <strong>EC<sub>x</sub></strong>, <em>NSEC</em> and ECNSEC from the control, the predicted mean at the lowest concentration in the data, taken separately for each posterior draw. The two references coincide for a monotonically declining curve and differ for a hormetic one, so this choice changes the reported <strong>EC<sub>x</sub></strong> for a hormesis equation and no other.</p>
+<p>These do raise a difficulty for <strong>EC<sub>x</sub></strong>, because an effect has to be measured against something, and a hormetic curve offers two candidates: the control, and the peak of the curve. <code>bayesnec</code> measures every <strong>EC<sub>x</sub></strong>, <em>NSEC</em> and ECNSEC from the control, the predicted mean at the lowest concentration in the data, taken separately for each posterior draw. The two references coincide for a monotonically declining curve and differ for a hormetic one, so this choice changes the reported <strong>EC<sub>x</sub></strong> for a hormesis equation and no other. Panel D of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> draws the two references on a hormetic curve.</p>
 </section>
 <section id="extracting-estimates" class="level2">
 <h2 class="anchored" data-anchor-id="extracting-estimates">Extracting estimates</h2>
@@ -735,7 +711,27 @@ Figure&nbsp;10: Two smooth hormesis equations. The curve peaks above the control
 <p><code>type</code> determines what the percentage is measured against, which is the substantive decision here. <code>"absolute"</code>, the default, measures from the control to zero. <code>"relative"</code> measures from the control to the equation’s theoretical asymptote, the <code>bot</code> parameter where the equation has one. <code>"range"</code> measures from the control to the lowest response the fitted curve predicts. <code>"direct"</code> takes a response value rather than a percentage and returns the concentration at which the curve reaches it.</p>
 <p><code>resolution</code> sets the number of predictor values over which the crossing is located, and defaults to 200. <code>x_range</code> allows estimates outside the observed range of the predictor, which should be used deliberately, since it extrapolates the fitted curve.</p>
 <p>Every one of these measures <em>from</em> the control, which <code>bayesnec</code> takes to be the predicted mean at the lowest concentration in the data, evaluated separately for each posterior draw. <code>type</code> names what the percentage is measured <em>towards</em>. The control is identified by its position in the series rather than by its value, which keeps the convention intact under the usual preparation in which a small constant is added to the concentrations so that a zero control can be plotted on a logarithmic axis. An experiment whose lowest treatment is not a control is being analysed as though it were, and should say so.</p>
-<p>Three changes arrived in <code>bayesnec</code> 2.2.0 and matter when returning to an older analysis. <code>"range"</code> computes what <code>"relative"</code> computed up to version 2.1.3, and passing <code>type = "relative"</code> explicitly now raises a warning naming <code>"range"</code>. <code>"relative"</code> is refused where the equation has no <code>bot</code> and the family is unbounded below, because there is then no finite quantity to measure against. And the <code>hormesis_def</code> argument has been removed from <code>ecx()</code>, <code>nsec()</code>, <code>ecnsec()</code> and the comparison functions: with the control always the reference it selected nothing. A call still passing it is refused by name rather than ignored.</p>
+<p>The distance from the control to the reference is the <strong>span</strong> the percentage is taken over, and the four types differ only in it.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ecx-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecx-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="3Toxicity_estimation_and_available_models_files/figure-html/fig-ecx-types-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecx-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: The span each <code>type</code> measures over, and the EC10 each one gives. The dashed or dotted horizontal line is the lower end of the span, the arrow is its length, the solid horizontal line is the 10% target and the point is where the curve reaches it. (A) <code>ecxll4</code> with <code>bot</code> at 0.3, tested to a concentration of 10, so the curve reaches <code>bot</code> within the range. (B) the same equation at the same parameters, tested only to 3. (C) <code>ecxll3</code>, which has no <code>bot</code>. (D) <code>ecxhormebc4</code>, whose maximum of 1.32 is above its control of 0.99. The curves are drawn from the equations at fixed parameters, with no model fitted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In panel A of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> the <code>ecxll4</code> curve reaches its <code>bot</code> of 0.3 within the concentration range, so the lowest response predicted and the theoretical asymptote are the same value. <code>"relative"</code> and <code>"range"</code> both return an EC10 of 1.61, and <code>"absolute"</code>, whose span is 43% longer, returns 1.86. Panel B is the same equation at the same parameters, tested only to a concentration of 3. The curve is still at 0.65 there, so the <code>"range"</code> span is less than half the length of the <code>"relative"</code> span and the EC10 falls to 1.16. <code>"relative"</code> and <code>"absolute"</code> are unchanged at 1.61 and 1.86. A <code>"range"</code> estimate is a property of the design as well as of the fit, and two laboratories testing to different maximum concentrations will report different values from the same equation.</p>
+<p>Panel C is <code>ecxll3</code>, which has no <code>bot</code> and declines towards 0. All three references fall in the same place and the three types agree at 1.61. Panel D is <code>ecxhormebc4</code>. Measured from the control at 0.99 the 10% target of 0.89 lies below the rising limb, and the curve reaches it once, at 3.10. Measured from the maximum of the curve at 1.32 the target of 1.19 lies above the control, and the curve crosses it twice, at 0.77 and 2.50. A target crossed twice does not identify a single concentration, which is the reason for measuring from the control.</p>
+<p>Three changes arrived in <code>bayesnec</code> 2.2.0 and matter when returning to an older analysis.</p>
+<p><code>"range"</code> computes what <code>"relative"</code> computed up to version 2.1.3, with one difference: the old span was taken from the maximum of the predicted curve rather than from the control. The two agree wherever the maximum is at the lowest concentration, and differ for a hormetic curve, which is panel D of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a>. Passing <code>type = "relative"</code> explicitly now raises a warning naming <code>"range"</code>.</p>
+<p><code>"relative"</code> is refused where the equation has no <code>bot</code> and the family is unbounded below. In panel C of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> the family is bounded below, so the 0 that <code>ecxll3</code> declines towards is a finite reference and the estimate agrees with <code>"absolute"</code>. Under a gaussian or student response there is no lower bound, nothing finite to measure towards, and the call is refused with a message naming <code>"absolute"</code> and <code>"range"</code> as the two types that still apply.</p>
+<p>The <code>hormesis_def</code> argument has been removed from <code>ecx()</code>, <code>nsec()</code>, <code>ecnsec()</code> and the comparison functions. It selected between the control and the peak as the reference, and with the control always the reference it selected nothing. A call still passing it is refused by name rather than ignored.</p>
 </section>
 <section id="targets-the-curve-never-reaches" class="level3">
 <h3 class="anchored" data-anchor-id="targets-the-curve-never-reaches">Targets the curve never reaches</h3>
@@ -752,23 +748,23 @@ Figure&nbsp;10: Two smooth hormesis equations. The curve peaks above the control
     posterior = FALSE, dpar = NULL)  </code></pre>
 </div>
 </div>
-<p><code>sig_val</code> is the quantile of the control posterior used to define a significant decline, defaulting to 0.01, that is 99% certainty of a decline relative to the control. That value generally produces sensible results. Where it does not, the better response in a guideline-derivation context is usually to reconsider whether the statistical model suits the data, rather than to adjust the significance level. Other values may be appropriate in other decision contexts.</p>
+<p><code>sig_val</code> is the quantile of the control posterior used to define a significant decline, defaulting to 0.01, that is 99% certainty of a decline relative to the control. That value generally produces sensible results. Where it does not, the better response in a guideline-derivation context is usually to reconsider whether the statistical model fits the data, rather than to adjust the significance level. Other values may be appropriate in other decision contexts.</p>
 <p>Raising <code>sig_val</code> makes the estimate more conservative, because it places the reference higher on the control posterior and the curve crosses it sooner.</p>
 <p>One consequence of the construction catches people out. The reference is the <code>sig_val</code> quantile of the control posterior, so that proportion of draws have a control at or below the reference and reach it at the control concentration itself. Those draws sit at the bottom of the <em>NSEC</em> posterior. Where <code>sig_val</code> exceeds the quantile at which the lower credible bound is read, which is 0.025 for a 95% interval, the lower bound of the <em>NSEC</em> is therefore zero, or the lowest concentration tested where that is not zero. <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> report exactly this in their Table 3. A lower bound of zero at a high <code>sig_val</code> is the construction behaving as defined, and it reflects a real possibility: for a smooth curve, a decline in the response may begin at the lowest concentration applied.</p>
 </section>
 </section>
 <section id="the-estimates-side-by-side" class="level2">
 <h2 class="anchored" data-anchor-id="the-estimates-side-by-side">The estimates side by side</h2>
-<p><a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1</a> from the start of the module sets the four estimates against one another.</p>
+<p><a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a> sets the four estimates against one another.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-etnc2-again" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<div id="fig-etnc2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-etnc2-again-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/etnc_fig2.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc2-again-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: The four estimates again. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: The four toxicity estimates. (A) A threshold model, giving the <em>NEC</em> directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The <em>NOEC</em>, read from the treatment means. (D) The <em>NSEC</em>, read from a smooth model against a lower quantile of the control posterior. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> under CC BY-NC 4.0.
 </figcaption>
 </figure>
 </div>
@@ -787,7 +783,7 @@ Table&nbsp;1
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/Fisher_IEAM_Table1.png" class="img-fluid figure-img" style="width:100.0%"></p>
-<figcaption>Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>.</figcaption>
+<figcaption>Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.</figcaption>
 </figure>
 </div>
 </div>
@@ -813,9 +809,6 @@ Mattson, Mark P. 2008. <span>“Hormesis Defined.”</span> <em>Ageing Research 
 </div>
 <div id="ref-mebane2015" class="csl-entry" role="listitem">
 Mebane, Christopher A. 2015. <span>“In Response: Biological Arguments for Selecting Effect Sizes in Ecotoxicological Testing—a Governmental Perspective.”</span> Journal Article. <em>Environmental Toxicology and Chemistry</em> 34 (11): 2440–42.
-</div>
-<div id="ref-Pires2002" class="csl-entry" role="listitem">
-Pires, Ana M., João A. Branco, Ana Picado, and Elsa Mendonça. 2002. <span>“<span class="nocase">Models for the estimation of a ’no effect concentration’</span>.”</span> <em>Environmetrics</em> 13: 15–27. <a href="https://doi.org/10.1002/env.501">https://doi.org/10.1002/env.501</a>.
 </div>
 <div id="ref-vanderhoeven1997" class="csl-entry" role="listitem">
 Van Der Hoeven, Nelly, Frank Noppert, and Annegaaike Leopold. 1997. <span>“How to Measure No Effect. Part i: Towards a New Measure of Chronic Toxicity in Ecotoxicology. Introduction and Workshop Results.”</span> Journal Article. <em>Environmetrics</em> 8 (3): 241–48. https://doi.org/<a href="https://doi.org/10.1002/(SICI)1099-095X(199705)8:3<241::AID-ENV244>3.0.CO;2-7">https://doi.org/10.1002/(SICI)1099-095X(199705)8:3&lt;241::AID-ENV244&gt;3.0.CO;2-7</a>.

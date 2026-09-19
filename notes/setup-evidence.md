@@ -156,9 +156,58 @@ published page remains attributable to a state of the package.
 | 2026-09-16 | `dev` | 2.1.3.35 | 2, 3, 4, 5, 6, 7, 8 |
 | 2026-09-17 | `dev` `15c12765` | 2.1.3.37 | 2, 3, 4, 5, 6, 7, 8 |
 | 2026-09-17 | `dev`, after #228 merged | 2.1.3.39 | 3, 4, 5, 6, 8 |
+| 2026-09-19 | `dev`, the build installed 2026-09-17 | 2.1.3.39 | 2, 6 |
+| 2026-09-19 | `dev` `7fd05253`, the same installed build | 2.1.3.39 | 1, 2, 3, 4, 5, 7, 8 |
+| 2026-09-19 | `dev` `7fd05253`, the same installed build | 2.1.3.39 | 1, 2, 3, 4, 5, 6, 7, 8 |
+| 2026-09-19 | `dev` `7fd05253`, the same installed build | 2.1.3.39 | 5 |
 
-The last row is the re-render after the four parallel module revisions were
-merged. Modules 3, 4, 5, 6 and 8 had their stored results cleared and
+The fourth 2026-09-19 row is module 5 alone, re-rendered after *Preparing the
+response* was moved to sit immediately before *Dispersion that changes across the
+curve*, which was promoted to a section in its own right, and a posterior
+predictive band figure was added to the worked case. Module 5 was the only
+document that re-executed; every other page restored from `_freeze/` unchanged,
+their sources being untouched since the row above. `dev` had advanced two commits
+further, to `91a71a85`, and both change planning notes only, so the package code
+is as it was at `fca39e10`. The build was not reinstalled, for the reason given
+below, and the whole site remains attributable to `7fd05253`.
+
+The third 2026-09-19 row is module 5 alone, re-rendered after the grouped
+`pp_check()` display was replaced by `check_fit()` comparisons for the binomial,
+Poisson and Gaussian examples. The build was not reinstalled, for the reason
+given below, so the page is attributable to `7fd05253` along with the rest of the
+site. Modules 1, 2, 3, 4, 6, 7 and 8 re-executed in the same pass although nothing
+in this session touched them, because their sources hold uncommitted edits from
+other sessions and `freeze` keys on the source document. The `drc` reference
+restored from `_freeze/` unchanged.
+
+The second 2026-09-19 row is the re-render after module 4's screening sections
+were trimmed to a pointer at module 7 and the three cross-references into them
+were repointed. The stored results for modules 2, 4 and 8 were cleared
+deliberately, those being the three edited. Modules 1, 3, 5 and 7 re-executed as
+well, which their freeze timestamps record; 1, 3 and 7 hold uncommitted source
+edits from other sessions, and why module 5 re-executed was not established.
+Module 6 and the `drc` reference restored from `_freeze/` unchanged and remain
+attributable to the rows above.
+
+The build was not reinstalled for this pass, although `dev` had advanced
+twenty-eight commits past `7fd05253` by 2026-09-19, to `fca39e10`. The rule
+below is to track the head of `dev`, and it was set aside here because a partial
+upgrade is worse than a lag: `fca39e10` changes where the N(S)EC is censored and
+`eab1bc22` changes what a `bayesmanecfit` retains, so modules 2, 4 and 8 would
+have reported estimates the rest of the site was not rendered under. Rendering
+against `7fd05253` leaves every page attributable to one commit. RF approved this against
+the two alternatives, a partial upgrade and a full reinstall with a rebuild of
+the fits archive. Taking the upgrade means re-rendering everything and
+rebuilding `vignettes/fits/`, which §5 requires after any `bayesnec` upgrade.
+
+The first 2026-09-19 row is modules 2 and 6 alone, re-rendered into `docs/dev/`
+after a `compare_posterior()` section was added to module 2 and a section on the
+uses of the posterior sample to module 6. `vignettes/fits/m2_ecxll3_fit.RData` was
+fitted in the same pass and under the same build, which makes it the only object
+in the archive fitted under 2.1.3.39.
+
+The 2026-09-17 row against 2.1.3.39 is the re-render after the four parallel
+module revisions were merged. Modules 3, 4, 5, 6 and 8 had their stored results cleared and
 re-executed; the rest of the site was restored from `_freeze/` unchanged, so
 those pages remain attributable to the row above.
 

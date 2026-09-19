@@ -130,35 +130,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -345,11 +316,7 @@ window.Quarto = {
   <li><a href="#elements-of-the-fitted-object" id="toc-elements-of-the-fitted-object" class="nav-link" data-scroll-target="#elements-of-the-fitted-object">Elements of the fitted object</a></li>
   <li><a href="#every-model-in-the-set" id="toc-every-model-in-the-set" class="nav-link" data-scroll-target="#every-model-in-the-set">Every model in the set</a></li>
   <li><a href="#diagnostics-across-a-set" id="toc-diagnostics-across-a-set" class="nav-link" data-scroll-target="#diagnostics-across-a-set">Diagnostics across a set</a></li>
-  <li><a href="#screening-the-set" id="toc-screening-the-set" class="nav-link" data-scroll-target="#screening-the-set">Screening the set</a>
-  <ul class="collapse">
-  <li><a href="#models-that-never-fitted" id="toc-models-that-never-fitted" class="nav-link" data-scroll-target="#models-that-never-fitted">Models that never fitted</a></li>
-  <li><a href="#acting-on-a-failure" id="toc-acting-on-a-failure" class="nav-link" data-scroll-target="#acting-on-a-failure">Acting on a failure</a></li>
-  </ul></li>
+  <li><a href="#screening-the-set" id="toc-screening-the-set" class="nav-link" data-scroll-target="#screening-the-set">Screening the set</a></li>
   <li><a href="#fitting-a-set-in-parallel" id="toc-fitting-a-set-in-parallel" class="nav-link" data-scroll-target="#fitting-a-set-in-parallel">Fitting a set in parallel</a>
   <ul class="collapse">
   <li><a href="#choosing-a-plan" id="toc-choosing-a-plan" class="nav-link" data-scroll-target="#choosing-a-plan">Choosing a plan</a></li>
@@ -459,7 +426,7 @@ Figure&nbsp;2
 <img src="images/NSEC_ieam.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: The N(S)EC. <em>NEC</em> values from threshold equations and <em>NSEC</em> values from smooth equations are combined by weight into one estimate, shown on the right against the <em>NEC</em> and <em>NSEC</em> it sits between. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>.
+Figure&nbsp;3: The N(S)EC. <em>NEC</em> values from threshold equations and <em>NSEC</em> values from smooth equations are combined by weight into one estimate, shown on the right against the <em>NEC</em> and <em>NSEC</em> it sits between. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.
 </figcaption>
 </figure>
 </div>
@@ -703,7 +670,7 @@ Figure&nbsp;7
 <p><em>Stacking</em> minimises prediction error by maximising the leave-one-out predictive density of the combined distribution <span class="citation" data-cites="Yao2018 vehtari2020">(<a href="#ref-Yao2018" role="doc-biblioref">Yao et al. 2018</a>; <a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>. It prioritises the accuracy of the joint prediction.</p>
 <p><em>Pseudo-BMA</em> takes weights proportional to the expected log pointwise predictive density of each model <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, estimating relative predictive accuracy. It can be combined with a Bayesian bootstrap, which accounts for the uncertainty of a finite sample and pulls the weights away from 0 and 1.</p>
 <p>Pseudo-BMA with the Bayesian bootstrap is the default, and <code>bayesnec</code> passes it explicitly. The summary above names it, as <code>Method: pseudobma_bb_weights</code>. The reasoning is that the purpose of averaging here is to represent uncertainty about the shape of the curve rather than to minimise prediction error, and that stacking is not well suited to the sample sizes concentration-response experiments produce.</p>
-<p>The default has not always been applied consistently, which matters when reading an older analysis. <code>loo::loo_model_weights()</code> resolves an unspecified method to stacking, and some paths through earlier versions of <code>bayesnec</code> left it unspecified. A set assembled with <code>c()</code> or <code>amend()</code> could therefore be weighted by stacking while the same set fitted in one <code>bnec()</code> call was weighted by pseudo-BMA. Both routes now pass pseudo-BMA. Weights from an older analysis are not necessarily comparable with weights computed now, which is one more reason to record the package version alongside the models fitted.</p>
+<p>The default has not always been applied consistently, which matters when reading an older analysis. <code>loo::loo_model_weights()</code> resolves an unspecified method to stacking, and some paths through earlier versions of <code>bayesnec</code> left it unspecified. A set assembled with <code>c()</code> or <code>amend()</code> could therefore be weighted by stacking while the same set fitted in one <code>bnec()</code> call was weighted by pseudo-BMA. Both routes now pass pseudo-BMA. The default is supplied where the set is assembled rather than at each entry point, so <code>c()</code>, <code>+</code>, <code>amend()</code> and <code>update()</code> weight a set as <code>bnec()</code> does, and the method used is recorded on the weights as <code>attr(mod_stats$wi, "method")</code>. Checked under <code>bayesnec</code> 2.1.3.39 with <code>loo</code> 2.8.0: the two fits in the packaged <code>manec_example</code>, pulled out and recombined with <code>c()</code>, report <code>pseudobma</code>, as does the set fitted in one <code>bnec()</code> call. Weights from an older analysis are not necessarily comparable with weights computed now, which is one more reason to record the package version alongside the models fitted.</p>
 <p>The method is changed through the <code>loo_controls</code> argument of <code>bnec()</code> or <code>amend()</code>, which takes a named list with elements <code>fitting</code> and <code>weights</code>:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
@@ -798,7 +765,7 @@ Figure&nbsp;8: Each equation in the set plotted separately.
 </div>
 </div>
 </div>
-<p><code>ecxexp</code> fits these data badly, which is why its weight is near zero. A model whose <em>shape</em> does not suit the data can be left in the set at a negligible weight, because it cannot influence the averaged prediction.</p>
+<p><code>ecxexp</code> fits these data badly, which is why its weight is near zero. A model whose <em>shape</em> does not fit the data can be left in the set at a negligible weight, because it cannot influence the averaged prediction.</p>
 <p>That holds for shape and it does not hold for convergence. A model the sampler never explored properly still contributes to the averaged prediction, and its weight was computed from that same unexplored posterior, so a low weight is no evidence that keeping it is safe. A model that has not converged is removed; a converged model of the wrong shape can stay.</p>
 <p>Telling the two apart is the subject of the next section.</p>
 </section>
@@ -877,11 +844,7 @@ Figure&nbsp;12
 3    ecxexp 1.001767 3143.243     0.3929054           0  FALSE</code></pre>
 </div>
 </div>
-<p><code>failed</code> is <code>TRUE</code> where any of the three diagnostics misses its cutoff.</p>
-<p><code>max_rhat</code> is the largest R-hat over the parameters, and the cutoff is 1.01 following <span class="citation" data-cites="Vehtari2021">Vehtari et al. (<a href="#ref-Vehtari2021" role="doc-biblioref">2021</a>)</span>. R-hat compares the variation within each chain against the variation between chains, so a value near 1 says the chains are describing the same distribution.</p>
-<p><code>min_ess</code> is the smallest effective sample size, and the cutoff is 400. Draws from a Markov chain are correlated, so 8,000 of them hold less information than 8,000 independent draws would; the effective sample size is how many independent draws they are worth. The floor of 400 is an absolute one, below which the R-hat and effective sample size estimates are themselves unreliable, and it corresponds to 100 draws per chain at the four chains <code>bnec()</code> fits. Read <code>min_ess_ratio</code> beside it: the ratio separates a model that cleared 400 because a great many draws were taken from one that cleared it efficiently.</p>
-<p><code>n_divergent</code> is the number of divergent transitions, and the cutoff is 10. A divergent transition is recorded when the sampler’s path through parameter space goes numerically unstable, which happens where the posterior has curvature too sharp for the step size chosen during warm-up. This one is a <code>bayesnec</code> convention rather than a published recommendation: Stan’s own guidance is that any divergence means the sampler failed to explore the posterior, and the allowance of ten reflects that these non-linear models commonly produce a few near a parameter boundary.</p>
-<p>The two counts are absolute, so the number of retained draws changes what each one demands, and it changes them in opposite directions. A longer run makes the effective sample size cutoff easier to clear and the divergence cutoff harder, because at an unchanged divergence rate more draws produce more divergences. A screen result is therefore a property of the settings as much as of the model, and the settings belong in the write-up beside it. All three cutoffs are arguments to <code>check_sampling()</code> and can be changed, which is a further reason to report the values used.</p>
+<p><code>failed</code> is <code>TRUE</code> where any of the three diagnostics misses its cutoff. All three cutoffs are arguments to <code>check_sampling()</code>. Module 7 sets out what each of the three measures, why the number of draws retained changes what two of them demand, and what to do about a model that misses one.</p>
 <p><code>rhat()</code> reports the first of them on its own, keyed by model name:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rhat</span>(bmanecfit_more) <span class="sc">|&gt;</span> <span class="fu">sapply</span>(<span class="st">"[["</span>, <span class="st">"failed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -900,42 +863,26 @@ Figure&nbsp;12
 </div>
 <p>It reports what it removed and why, one line per model, naming every threshold a model missed rather than only the first. That message is the record of the exclusion, and an exclusion with no record is not reproducible, which is why <code>quiet = TRUE</code> should not be used in an analysis that will be written up. Where every candidate fails it stops with an error listing the reasons, rather than returning an average of nothing. Where none fails, as here, it says so and returns the set unchanged.</p>
 <p><code>screen_models()</code> does its work through <code>amend()</code>, which is the only route by which a model leaves a <code>bayesmanecfit</code>. <code>amend()</code> recomputes the weights across the models that remain rather than rescaling those retained, so the weights of a screened set are read from the screened object rather than adjusted by hand, and the reported no-effect estimate changes with them.</p>
-<section id="models-that-never-fitted" class="level3">
-<h3 class="anchored" data-anchor-id="models-that-never-fitted">Models that never fitted</h3>
-<p>A model can also fail earlier, by producing no draws at all. <code>failed_models()</code> names those:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">failed_models</span>(bmanecfit_more))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>NULL</code></pre>
-</div>
-</div>
-<p><code>NULL</code> here, because all three equations fitted. Where it is not <code>NULL</code>, it returns more than the names: the priors and initial values each failed model was given, which are built inside <code>bnec()</code> and are otherwise unrecoverable, so they are the starting point for a retry. Module 6 covers what a sensible adjustment looks like and states the limit: a prior wide enough to make an over-parameterised equation fit is doing the work the data cannot, and the estimate it produces is a property of that prior.</p>
-<p><code>bnec_record()</code>, from module 2, completes the account by naming any equation excluded before fitting and the reason for it. A set requested as <code>"decline"</code> or <code>"all"</code> commonly excludes several.</p>
-</section>
-<section id="acting-on-a-failure" class="level3">
-<h3 class="anchored" data-anchor-id="acting-on-a-failure">Acting on a failure</h3>
-<p>The three diagnostics fail for different reasons and the response differs. A model that misses the effective sample size or R-hat cutoff, with no divergent transitions, was sampled from a posterior the sampler could traverse and was not sampled for long enough; refit it at a higher <code>iter</code>. A model failing on divergent transitions is reporting the shape of its posterior rather than the length of the run, and will produce them again at any setting. A model appearing in <code>failed_models()</code> is the same problem further along.</p>
-<p>The second and third are results about the experiment and are reportable as such. Adjusting the settings until enough equations survive is not the right response to either.</p>
-<p>Module 7 works through this against two datasets that ship with the package, which between them produce all three outcomes. It sits there rather than here because reading a divergent transition means knowing how the sampler explores a posterior, which module 6 covers.</p>
-</section>
+<p>An equation can also fail earlier, by producing no draws at all, and <code>failed_models()</code> names those. <code>bnec_record()</code>, from module 2, completes the account by naming any equation excluded before fitting and the reason for it. A set requested as <code>"decline"</code> or <code>"all"</code> commonly excludes several.</p>
+<p>What to do about a model the screen removed depends on which cutoff it missed, and an equation that produced no draws is a different case again. Module 7 works through both against two datasets that ship with the package, which between them produce every outcome. It sits there rather than here because reading a divergent transition means knowing how the sampler explores a posterior, which module 6 covers.</p>
 </section>
 <section id="fitting-a-set-in-parallel" class="level2">
 <h2 class="anchored" data-anchor-id="fitting-a-set-in-parallel">Fitting a set in parallel</h2>
 <p>Module 2 covered the chains of a single model running at the same time on different cores. A set of models is a second opportunity, and usually a larger one, because the models do not depend on one another and there are more of them than there are chains.</p>
 <p><code>bnec()</code> and <code>amend()</code> fit their models under whatever <a href="https://cran.r-project.org/package=future"><code>future</code></a> plan is set when they are called. Setting one before the call is the whole of it:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">8</span>)</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>fit_par <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">322</span>)</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">8</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>fit_par <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">322</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>There is no argument to <code>bnec()</code> that turns this on. The plan already records how much of the machine you are willing to use, and a second way of saying it would disagree with the first the moment both were set. <code>future</code> and <code>future.apply</code> are suggested rather than required packages, so a session without them, or without a plan, fits the models one after another exactly as earlier versions did.</p>
 <p>The two levels nest rather than compete. Under a plan of more than one worker, <code>bnec()</code> passes <code>cores = 1</code> to <code>brm()</code>, because otherwise <code>workers</code> multiplied by <code>chains</code> processes would be requested, which is sixteen for four workers and the default four chains. Passing <code>cores</code> yourself is left alone, and is how the two levels are divided deliberately:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>fit_nested <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">322</span>)</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>fit_nested <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">322</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>That fits five models at a time with four chains each, so twenty chains sample at once. It is the arrangement that suits a cluster allocation, where the number of cores is known in advance and is larger than any one model can use.</p>
 <section id="choosing-a-plan" class="level3">
@@ -982,14 +929,14 @@ Figure&nbsp;12
 </section>
 <section id="memory" class="level3">
 <h3 class="anchored" data-anchor-id="memory">Memory</h3>
-<p>Each worker holds a complete fit while it is working, and fits are large. Eight workers on a large dataset can exhaust memory where eight cores would not have, and a worker killed by the operating system ends the whole call rather than the one model it was fitting. Where a run dies without an R error, reduce the worker count before looking anywhere else.</p>
+<p>Each worker holds a complete fit while it is working, and fits are large. A plan of eight workers holds eight fitted models at once, and under <code>multisession</code> eight copies of the data as well. The same set fitted with <code>cores = 8</code> and no plan holds one model at a time, so it is the number of workers that sets the memory a run needs, rather than the number of cores it keeps busy. A worker killed by the operating system ends the whole call rather than the one model it was fitting. Where a run dies without an R error, reduce the worker count before looking anywhere else.</p>
 </section>
 </section>
 <section id="checking-the-fit-against-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="checking-the-fit-against-the-data">Checking the fit against the data</h2>
 <p>Everything above asks whether the sampler explored the posterior. None of it asks whether the fitted model reproduces the data, and those are different questions: a model can converge perfectly onto a description of the data that is wrong. <code>check_fit()</code>, named in module 2, answers the second, and on a set it returns one block per equation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Each row compares a statistic computed from the observations in a group of the predictor against the same statistic computed from data simulated by the fitted model.</p>
 <ul>
@@ -1001,8 +948,8 @@ Figure&nbsp;12
 <p>Read the p-values rather than the ratios, because a ratio says nothing about how well determined it is.</p>
 <p>The control rows of the three equations state the case for checking each equation separately rather than the average:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(<span class="fu">as.data.frame</span>(cf), control,</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">select =</span> <span class="fu">c</span>(model, wi, group, mean_ratio, ppp_mean, sd_ratio, ppp_sd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(<span class="fu">as.data.frame</span>(cf), control,</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">select =</span> <span class="fu">c</span>(model, wi, group, mean_ratio, ppp_mean, sd_ratio, ppp_sd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       model           wi          group mean_ratio ppp_mean  sd_ratio ppp_sd
 1     ecxll3 1.854376e-01 [0.0323,0.235]  1.0033418    0.433 0.9476755  0.576
@@ -1012,7 +959,7 @@ Figure&nbsp;12
 </div>
 <p><code>nec3param</code> and <code>ecxll3</code> reproduce the control almost exactly, with <code>sd_ratio</code> at 0.99 and 0.95. <code>ecxexp</code> simulates nearly three times the spread the data show, at <code>sd_ratio</code> 0.37 and <code>ppp_sd</code> 0.97, and it does so across every group rather than only at the control. This is the warning the summary raised earlier in the module, now located. <code>ecxexp</code> holds a stacking weight of 4e-39, so it reaches the averaged estimate not at all; the same result against <code>nec3param</code>, which holds 0.81, would stop the analysis.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-check-fit-set" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1089,7 +1036,7 @@ Figure&nbsp;13: Observed mean and standard deviation in each group against the 9
 <img src="images/ieam_head.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14: <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>, the source of the simulation and case study results in this section. The paper is open access and the code for every result in it is at <a href="https://github.com/open-AIMS/NSEC_IEAM" class="uri">https://github.com/open-AIMS/NSEC_IEAM</a>.
+Figure&nbsp;14: <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <a href="https://github.com/open-AIMS/NSEC_IEAM" class="uri">https://github.com/open-AIMS/NSEC_IEAM</a>.
 </figcaption>
 </figure>
 </div>
@@ -1166,9 +1113,6 @@ Vehtari, Aki, Jonah Gabry, Mans Magnusson, et al. 2020. <em>Loo: Efficient Leave
 </div>
 <div id="ref-vehtari2017" class="csl-entry" role="listitem">
 Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”</span> <em>Statistics and Computing</em> 27: 1413–32. <a href="https://doi.org/10.1007/s11222-016-9696-4">https://doi.org/10.1007/s11222-016-9696-4</a>.
-</div>
-<div id="ref-Vehtari2021" class="csl-entry" role="listitem">
-Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved <span><span class="math inline">\(\widehat{R}\)</span></span> for Assessing Convergence of <span>MCMC</span> (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2): 667–718. <a href="https://doi.org/10.1214/20-BA1221">https://doi.org/10.1214/20-BA1221</a>.
 </div>
 <div id="ref-Vehtari2019" class="csl-entry" role="listitem">
 Vehtari, Aki, Daniel Simpson, Andrew Gelman, Yuling Yao, and Jonah Gabry. 2019. <em>Pareto Smoothed Importance Sampling</em>. arXiv. <a href="https://doi.org/10.48550/ARXIV.1507.02646">https://doi.org/10.48550/ARXIV.1507.02646</a>.
