@@ -573,13 +573,15 @@ div.csl-indent {
 <p>Three things happen when that call runs.</p>
 <ul>
 <li><strong>Compilation.</strong> Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.</li>
-<li><strong>Sampling.</strong> How long this takes depends on the machine, the number of chains and the number of iterations. The fit above took a little over two minutes on four cores.</li>
+<li><strong>Sampling.</strong> How long this takes depends on the machine, the number of chains and the number of iterations. This fit samples in under three seconds on four cores. Compiling it takes considerably longer, so the wait for a model this small is mostly the step above rather than this one.</li>
 <li><strong>Reporting.</strong> <code>bayesnec</code> names the model that was fitted and the statistical distribution used, here a <code>nec3param</code> model with a beta distribution.</li>
 </ul>
-<p>Set <code>mc.cores</code> to at least the number of chains before fitting, so that the chains run at the same time rather than in turn:</p>
+<p>Set two options before fitting. <code>mc.cores</code> decides how many chains run at the same time rather than in turn, so set it to at least the number of chains. <code>brms.backend</code> decides which interface to Stan is used, and <code>brms</code> uses <code>rstan</code> unless told otherwise. <code>rstan</code> compiles a model a good deal more slowly: the two fits in this module took 199 seconds under <code>rstan</code> and 73 under <code>cmdstanr</code> on the same four-core machine, almost all of the difference being compilation rather than sampling.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>Both apply for the rest of the session, so they belong at the top of a script. Module 1 covers what <code>cmdstanr</code> and <code>rstan</code> each are.</p>
 <p>Warnings may also appear when you run the fit yourself, which the page does not, since it loads a saved object. The two this fit produces concern the Pareto <em>k</em> diagnostic and <code>p_waic</code>, both of which relate to the leave-one-out cross-validation used to compute model weights. Weights are irrelevant when a single model has been fitted, and module 4 returns to them when they are not.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Chains in series and in parallel">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">

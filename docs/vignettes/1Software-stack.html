@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>The software stack – Concentration-response modelling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" rel="next">
+<link href="../vignettes/0Software-setup.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Concentration-response modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/open-AIMS/cr_modelling_training/issues"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">Questions and corrections</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">1. The software stack</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Before you start</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/4Model_averaging_and_multimodel_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. Model averaging</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Frequentist comparison</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/drc-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fitting the same models with drc</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-working-environment" id="toc-the-working-environment" class="nav-link active" data-scroll-target="#the-working-environment">The working environment</a></li>
+  <li><a href="#the-dependency-chain" id="toc-the-dependency-chain" class="nav-link" data-scroll-target="#the-dependency-chain">The dependency chain</a></li>
+  <li><a href="#package-history" id="toc-package-history" class="nav-link" data-scroll-target="#package-history">Package history</a></li>
+  <li><a href="#versions" id="toc-versions" class="nav-link" data-scroll-target="#versions">Versions</a></li>
+  <li><a href="#documentation-and-support" id="toc-documentation-and-support" class="nav-link" data-scroll-target="#documentation-and-support">Documentation and support</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">1. The software stack</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">The software stack</h1>
+<p class="subtitle lead">What R, Stan, <code>brms</code> and <code>bayesnec</code> each do, and why all four are needed</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Fitting a concentration-response model using <code>bayesnec</code> requires several pieces of software to work together, and a failure in any of them will mean the model cannot be fitted. Knowing what each layer does makes those errors easier to understand, and it explains several things about the workflow that are otherwise arbitrary: why the first model of a session is slow, why a C++ compiler has to be installed to fit a curve, and why a fitted object is large.</p>
+<section id="the-working-environment" class="level2">
+<h2 class="anchored" data-anchor-id="the-working-environment">The working environment</h2>
+<p><code>bayesnec</code> is written in the R statistical programming language.</p>
+<div id="fig-R" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-R-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/R.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-R-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The Basic R GUI.
+</figcaption>
+</figure>
+</div>
+<p>While it is possible to use R for some things as a stand alone program, there are additional open-source third-party software that make R more intuitive and easy to use. Almost no one uses R by itself.</p>
+<p>The course uses the Positron integrated development environment (IDE), which is a free and open-source software that provides a user-friendly interface to R.</p>
+<p>It is available for Windows, MacOS, and Linux operating systems. It is the more recently preferred IDE for R, and is based on Visual Studio. It will likely replace the popular RStudio IDE for most users in the future and it has some useful features that I think make it worth adopting now.</p>
+<p>In Positron, a new session starts essentially empty. The console shows which R version (intepreter) has started.</p>
+<div id="fig-positron-new" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-positron-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/positron_R.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positron-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Positron with a new R session. The console reports which R version available and started, and the interpreter in use is named at the top right with the open project beside it.
+</figcaption>
+</figure>
+</div>
+<div id="fig-positron-run" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-positron-run-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/positron_R2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positron-run-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The same window after running a short script. The console echoes the lines it was sent, the Variables pane lists the objects that now exist and what they contain, and the plot appears in the Plots pane.
+</figcaption>
+</figure>
+</div>
+<p>Four parts of that window are worth knowing before we do any modelling.</p>
+<p><strong>The editor</strong>, top left, holds the script. Run the current line or selection with <code>Ctrl</code>+<code>Enter</code> (<code>Cmd</code>+<code>Enter</code> on macOS) and it is sent to the console below.</p>
+<p><strong>The console</strong>, bottom left, is the running R session. It echoes what it was sent, so <a href="#fig-positron-run" class="quarto-xref">Figure&nbsp;3</a> shows the same four lines in both panes.</p>
+<p><strong>Variables</strong>, top right, lists every object in the session with its type and contents — <code>x</code> as an integer vector of ten values and <code>y</code> as a double in the figure. It is the quickest way to see whether an object is what you expected, which matters later when a fitted model is a deeply nested list rather than a vector.</p>
+<p><strong>Plots</strong>, bottom right, collects the figures produced, with arrows to step back through earlier ones and a control to save the current figure.</p>
+<p>Probably the most important thing is the editor pane, because it is where you write your R code. The script is the record of what was done, and it can be re-run from the top to reproduce the results.</p>
+<p>The console is where the code is run, and where its output is displayed.</p>
+<p>The editor and console are linked: Code is sent from the script to the console a line or a block at a time, rather than typed into the console directly.</p>
+<p>This scripting workflow is a better way of working in many ways than most pre-packaged software, where the user clicks buttons and the software does things behind the scenes.</p>
+<p>Having a script means that you have a permanent record of everything that was done in the analysis, so that the results can be completely reproduced. Reproducibility is a serious problem in science, and is particularly important in environmental sciences (or any science).</p>
+<p>The interpreter in use, which is R in this course, is named at the top right of the window, with the open project beside it. Check it when something is missing that you know you installed: more than one R on a machine is common, and each has its own library, so a package installed under one is absent under another. You can also run other software, such as Python, from inside the Positron console, but that is not needed in this course.</p>
+<p>Two habits matter more here than in ordinary R work, althought I would apply them to any R projects I am working on.</p>
+<p><strong>Work in a project.</strong> A project fixes the working directory, so relative paths like <code>read.csv("mydata.csv")</code> resolve the same way for everyone. Without one, the same script behaves differently on two machines for reasons that are tedious to diagnose.</p>
+<p><strong>Do not save the workspace.</strong> R offers to store the objects in memory when a session ends and to restore them when it starts. Accept that and you will eventually be working with a fitted model whose provenance you cannot reconstruct — fitted under code you have since edited, indistinguishable from a current one. Start every session empty and re-run the script. The exception is a Bayesian fit, which is expensive enough to save deliberately to a file, covered in module 2.</p>
+</section>
+<section id="the-dependency-chain" class="level2">
+<h2 class="anchored" data-anchor-id="the-dependency-chain">The dependency chain</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-stack" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-stack">flowchart TD
+    A["&lt;b&gt;bayesnec&lt;/b&gt;&lt;br/&gt;concentration-response models,&lt;br/&gt;priors, toxicity estimates"]
+    B["&lt;b&gt;brms&lt;/b&gt;&lt;br/&gt;R formulas to Stan code"]
+    C["&lt;b&gt;cmdstanr&lt;/b&gt; or &lt;b&gt;rstan&lt;/b&gt;&lt;br/&gt;the interface to Stan"]
+    D["&lt;b&gt;Stan&lt;/b&gt;&lt;br/&gt;the sampler, written in C++"]
+    E["&lt;b&gt;C++ compiler&lt;/b&gt;&lt;br/&gt;Rtools, Xcode CLT, or gcc"]
+    A --&gt; B --&gt; C --&gt; D --&gt; E
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Each layer is called by the one above it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Stan</strong> is the underlying engine. It is a separate piece of software, not an R package, that performs Bayesian inference by Hamiltonian Monte Carlo. A Stan program describes a statistical model; Stan translates it to C++, compiles it into an executable, and runs that executable to draw samples from the posterior.</p>
+<p>A Stan model is a program that has to be built before it can run, which is why a C++ compiler is required.</p>
+<p>This may seem very opaque of you are not familiar with Bayesian statistics, but we will cover more detail about Bayesian inference and how Stan works in module 6.</p>
+<p><strong><code>cmdstanr</code> and <code>rstan</code></strong> are two R interfaces to Stan, and <code>brms</code> can use either. This course uses <code>cmdstanr</code>, which drives a normal CmdStan installation as a separate process. <code>rstan</code> embeds Stan inside R instead, which couples the Stan version to the package version and has historically been the more fragile arrangement on Windows.</p>
+<p><code>rstan</code> still has to be installed, because <code>brms</code> imports it, but it is not what we are using here because cmdstanr is faster and more reliable.</p>
+<p>You can set the backend once at the top of any script, and the whole session will use that backend:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>If you don’t set this, <code>rstan</code> will be used by default.</p>
+<p><strong><code>brms</code></strong> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> is an R package that removes the need to write Stan code.</p>
+<p>Coding up models by hand in Stan is quite complicated and beyond the capability of most ecotoxicologists to implement in practice.</p>
+<p>Relatively complex models can be fit using <code>brms</code>, using a simple straightforward formula syntax. A typical model specification might be <code>response ~ predictor1 + predictor2 + (1 | group)</code>, which is similar to the syntax used in many widely used R packages, such as <code>lme4</code>, for example.</p>
+<p>The below screenshot shows an example of what raw stan code looks like, to give you an idea of the kind of thing we are avoiding.</p>
+<div id="fig-stancode" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-stancode-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/stancode.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stancode-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Example stan code.
+</figcaption>
+</figure>
+</div>
+<p><code>brms</code> is an extremely flexible Bayesian modelling package that supports a wide range of response distributions and model structures — non-linear and smooth terms, multilevel structure, censoring, and distributional regression — and provides the methods for checking a fit once it exists. Why these are useful will be discussed in later modules.</p>
+<p><strong><code>bayesnec</code></strong> <span class="citation" data-cites="fisheretal2024">(<a href="#ref-fisheretal2024" role="doc-biblioref">Fisher et al. 2024</a>)</span> is the software package this course is focused on. <code>brms</code> will fit a non-linear model, but only if you supply the equation, sensible starting values and priors for every parameter. For concentration-response work that is the barrier: the models are non-linear, the priors are not obvious and <code>brms</code> provides no defaults, and a poorly initialised non-linear fit fails in ways that need relatively advanced statistical understanding in order to resolve. The greater complexity of implementing Bayesian modelling is a substantial part of why Bayesian methods are not widely used for <em>NEC</em> estimation in ecotoxicology, where specialist statistical support is rarely or infrequently available.</p>
+<p><code>bayesnec</code> takes a short formula naming a concentration-response equation, and combined with the data input constructs the full non-linear <code>brms</code> formula, generates priors and initial values, chooses a statistical distribution appropriate to the response, fits the model. It then provides functions for extracting the toxicity estimates that we need for ecotoxicology from the model fit in a straightforward way.</p>
+<p>The idea behind <code>bayesnec</code> was to make non-linear Bayesian concentration-response modelling accessible to ecotoxicologists without specialist statistical expertise.</p>
+</section>
+<section id="package-history" class="level2">
+<h2 class="anchored" data-anchor-id="package-history">Package history</h2>
+<p>The package began as <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>, an implementation of the <em>NEC</em> model of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span> using JAGS, which is another of the widely used Bayesian packages available in R, based on one of the earliest Bayesian software packages, WinBUGS.</p>
+<div id="fig-fox2010" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fox2010-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fox2010" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fox2010-article" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fox2010-article-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Fox2010.png" class="img-fluid figure-img" data-ref-parent="fig-fox2010">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fox2010-article-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) The article.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fox2010" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fox2010-model" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fox2010-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Fox2010_nec.png" class="img-fluid figure-img" data-ref-parent="fig-fox2010">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fox2010-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) The model as it is defined there.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fox2010-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: The <em>NEC</em> model of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span>.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-fox2010" class="quarto-xref">Figure&nbsp;6</a> gives the model that <code>jagsNEC</code> implemented. The mean response is constant at <span class="math inline">\(\alpha\)</span> up to a threshold concentration <span class="math inline">\(\gamma\)</span> and decays exponentially above it, at a rate <span class="math inline">\(\beta\)</span>. That threshold is the <em>NEC</em>, and it is a parameter of the model, estimated with an interval like any other, rather than a quantity read off a curve after the fit.</p>
+<p><code>bayesnec</code> was rewritten based on <code>brms</code> and Stan, largely because of <code>brms</code> extensive set of helper and other support functions for working with Bayesian model output.</p>
+<p><code>bayesnec</code> has also been generalised well beyond the original: the supported response distributions now include the beta-binomial alongside the Gaussian, Poisson, binomial, gamma, negative binomial and beta of the original. More recently, the dev version has also had some of the <code>brms</code> hurdle families.</p>
+<p>Any <code>brms</code> family can in principle be added.</p>
+<p>The model set was also extended. Alongside the threshold models that estimate an <em>NEC</em> directly, <code>bayesnec</code> includes smooth concentration-response equations of the kind used in most frequentist packages such as <code>drc</code> <span class="citation" data-cites="Ritz2015">(<a href="#ref-Ritz2015" role="doc-biblioref">Ritz et al. 2015</a>)</span> — three-, four- and five- parameter logistic and Weibull curves among them — which model the response as a smooth function of concentration rather than with a breakpoint. Module 3 sets out the full set and what each one supports.</p>
+</section>
+<section id="versions" class="level2">
+<h2 class="anchored" data-anchor-id="versions">Versions</h2>
+<p>The versions in use when a model is fitted should always be recorded as part of the result. This is because sometimes the default settings used and the behaviour of estimators can change between releases.</p>
+<p>Recording them is relatively straight forward:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"bayesnec"</span>, <span class="st">"brms"</span>, <span class="st">"cmdstanr"</span>, <span class="st">"rstan"</span>, <span class="st">"posterior"</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, p, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(p))))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>bayesnec   2.1.3.39
+brms       2.23.0
+cmdstanr   0.9.0
+rstan      2.32.7
+posterior  1.6.1</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R          4.6.1</code></pre>
+</div>
+</div>
+<p>This course is built against the development version of <code>bayesnec</code>, which is ahead of the release on CRAN. There is a lot of functionality, as well as some significant other behaviour changes currently in the development branch that are worth using, particularly for modules 7 and 8.</p>
+</section>
+<section id="documentation-and-support" class="level2">
+<h2 class="anchored" data-anchor-id="documentation-and-support">Documentation and support</h2>
+<p>The <code>bayesnec</code> reference site at <a href="https://open-aims.github.io/bayesnec/">open-aims.github.io/bayesnec</a> is the place to start.</p>
+<div id="fig-website" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-website-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/bayesnec_website.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-website-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: The <code>bayesnec</code> reference site. <em>Reference</em> documents every exported function, <em>Articles</em> covers single-model and multi-model usage, the model set, priors and comparing posterior predictions, and <em>Changelog</em> records what changed between versions.
+</figcaption>
+</figure>
+</div>
+<p><em>Reference</em> is the authoritative description of every argument, and is worth preferring over any transcription of it, including the ones in this course. <em>Changelog</em> matters more than it usually does for a package under active development: estimator behaviour and default priors have both changed between recent versions.</p>
+<p>The package is developed as open source software. We want to grow <code>bayesnec</code> and make it more useful to people. Please provide feedback and report software bugs.</p>
+<p>Please use the <a href="https://github.com/open-aims/bayesnec/issues">issues</a> page to report any problems.</p>
+<p>We can only fix bugs or help with issues if we can reproduce them.</p>
+<p>Tis requires a “reprex”: a self-contained reproducible example.</p>
+<p>This is essentially code and data that someone else can run to see the same behaviour. Without a reproducible example a problem cannot be diagnosed by anyone who does not have your dataset. A good resource for understanding how to build a reprex is the <a href="https://reprex.tidyverse.org/">reprex package</a>.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Burkner2017" class="csl-entry" role="listitem">
+Bürkner, Paul Christian. 2017. <span>“<span class="nocase">brms: An R package for Bayesian multilevel models using Stan</span>.”</span> <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01">https://doi.org/10.18637/jss.v080.i01</a>.
+</div>
+<div id="ref-Burkner2018" class="csl-entry" role="listitem">
+Bürkner, Paul-Christian. 2018. <span>“Advanced <span>Bayesian</span> Multilevel Modeling with the <span>R</span> Package <span class="nocase">brms</span>.”</span> <em>The R Journal</em> 10 (1): 395–411. <a href="https://doi.org/10.32614/RJ-2018-017">https://doi.org/10.32614/RJ-2018-017</a>.
+</div>
+<div id="ref-fisheretal2024" class="csl-entry" role="listitem">
+Fisher, Rebecca, Diego R. Barneche, Gerard F. Ricardo, and David R. Fox. 2024. <span>“<span class="nocase">bayesnec</span>: An <span>R</span> Package for Concentration-Response Modeling and Estimation of Toxicity Metrics.”</span> <em>Journal of Statistical Software</em> 110 (5): 1–41. <a href="https://doi.org/10.18637/jss.v110.i05">https://doi.org/10.18637/jss.v110.i05</a>.
+</div>
+<div id="ref-Fisher2020" class="csl-entry" role="listitem">
+Fisher, Rebecca, Gerard Ricardo, and David Fox. 2020. <em><span class="nocase">Bayesian concentration-response modelling using jagsNEC</span></em>. <a href="https://doi.org/10.5281/ZENODO.3966864">https://doi.org/10.5281/ZENODO.3966864</a>.
+</div>
+<div id="ref-Fox2010" class="csl-entry" role="listitem">
+Fox, David R. 2010. <span>“<span class="nocase">A Bayesian approach for determining the no effect concentration and hazardous concentration in ecotoxicology</span>.”</span> <em>Ecotoxicology and Environmental Safety</em> 73 (2): 123–31.
+</div>
+<div id="ref-Ritz2015" class="csl-entry" role="listitem">
+Ritz, Christian, Florent Baty, Jens C Streibig, and Daniel Gerhard. 2015. <span>“<span>Dose-Response Analysis Using R</span>.”</span> <em>PLoS ONE</em> 10 (12): e0146021. <a href="https://doi.org/10.1371/journal.pone.0146021">https://doi.org/10.1371/journal.pone.0146021</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/open-aims\.github\.io\/cr_modelling_training\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../vignettes/0Software-setup.html" class="pagination-link" aria-label="Software setup">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Software setup</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="pagination-link" aria-label="2. Fitting a single model">
+        <span class="nav-page-text">2. Fitting a single model</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Australian Institute of Marine Science</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

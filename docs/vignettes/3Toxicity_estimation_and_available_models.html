@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Toxicity estimation and the model set – Concentration-response modelling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../vignettes/4Model_averaging_and_multimodel_inference.html" rel="next">
+<link href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8317e07c38846ddd92fb20fa66b3c33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Concentration-response modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/0Software-setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/open-AIMS/cr_modelling_training/issues"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">Questions and corrections</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/3Toxicity_estimation_and_available_models.html">3. Toxicity estimation and the model set</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Before you start</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/4Model_averaging_and_multimodel_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. Model averaging</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Frequentist comparison</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/drc-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fitting the same models with drc</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#the-model-set" id="toc-the-model-set" class="nav-link" data-scroll-target="#the-model-set">The model set</a></li>
+  <li><a href="#parameter-definitions" id="toc-parameter-definitions" class="nav-link" data-scroll-target="#parameter-definitions">Parameter definitions</a></li>
+  <li><a href="#threshold-models" id="toc-threshold-models" class="nav-link" data-scroll-target="#threshold-models">Threshold models</a></li>
+  <li><a href="#smooth-models" id="toc-smooth-models" class="nav-link" data-scroll-target="#smooth-models">Smooth models</a></li>
+  <li><a href="#the-no-significant-effect-concentration" id="toc-the-no-significant-effect-concentration" class="nav-link" data-scroll-target="#the-no-significant-effect-concentration">The no-significant-effect concentration</a>
+  <ul class="collapse">
+  <li><a href="#the-effect-size-at-the-nsec" id="toc-the-effect-size-at-the-nsec" class="nav-link" data-scroll-target="#the-effect-size-at-the-nsec">The effect size at the NSEC</a></li>
+  </ul></li>
+  <li><a href="#the-nsec-and-the-noec" id="toc-the-nsec-and-the-noec" class="nav-link" data-scroll-target="#the-nsec-and-the-noec">The NSEC and the NOEC</a></li>
+  <li><a href="#choosing-an-estimate" id="toc-choosing-an-estimate" class="nav-link" data-scroll-target="#choosing-an-estimate">Choosing an estimate</a></li>
+  <li><a href="#hormesis" id="toc-hormesis" class="nav-link" data-scroll-target="#hormesis">Hormesis</a></li>
+  <li><a href="#extracting-estimates" id="toc-extracting-estimates" class="nav-link" data-scroll-target="#extracting-estimates">Extracting estimates</a>
+  <ul class="collapse">
+  <li><a href="#nec" id="toc-nec" class="nav-link" data-scroll-target="#nec"><code>nec()</code></a></li>
+  <li><a href="#ecx" id="toc-ecx" class="nav-link" data-scroll-target="#ecx"><code>ecx()</code></a></li>
+  <li><a href="#targets-the-curve-never-reaches" id="toc-targets-the-curve-never-reaches" class="nav-link" data-scroll-target="#targets-the-curve-never-reaches">Targets the curve never reaches</a></li>
+  <li><a href="#nsec" id="toc-nsec" class="nav-link" data-scroll-target="#nsec"><code>nsec()</code></a></li>
+  </ul></li>
+  <li><a href="#the-estimates-side-by-side" id="toc-the-estimates-side-by-side" class="nav-link" data-scroll-target="#the-estimates-side-by-side">The estimates side by side</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/1Software-stack.html">Modules</a></li><li class="breadcrumb-item"><a href="../vignettes/3Toxicity_estimation_and_available_models.html">3. Toxicity estimation and the model set</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Toxicity estimation and the model set</h1>
+<p class="subtitle lead">What <code>bayesnec</code> can fit, and which toxicity estimates can be derived from each</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>A toxicity estimate is rarely the end of an analysis. In guideline derivation it becomes one point in a species sensitivity distribution, from which the concentration protecting a stated proportion of the community is read. For that guideline to achieve the level of protection it states, each point entering the distribution should be the highest concentration at which that species shows no effect <span class="citation" data-cites="fisheretal2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>)</span>.</p>
+<p>Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module sets out the equations <code>bayesnec</code> can fit and which toxicity estimate each one supports. The distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean.</p>
+</section>
+<section id="the-model-set" class="level2">
+<h2 class="anchored" data-anchor-id="the-model-set">The model set</h2>
+<p>The <code>model</code> argument of a <code>bayesnecformula</code> names the equation or equations to fit. The complete set is:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">models</span>()<span class="sc">$</span>all</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "nec3param"     "nec4param"     "nechorme"      "nechorme4"    
+ [5] "necsigm"       "neclin"        "neclinhorme"   "nechormepwr"  
+ [9] "nechorme4pwr"  "nechormepwr01" "ecxlin"        "ecxexp"       
+[13] "ecxsigm"       "ecx4param"     "ecxwb1"        "ecxwb2"       
+[17] "ecxwb1p3"      "ecxwb2p3"      "ecxll5"        "ecxll4"       
+[21] "ecxll3"        "ecxhormebc4"   "ecxhormebc5"  </code></pre>
+</div>
+</div>
+<p>The names divide into two prefixes. Those beginning <code>nec</code> are threshold models; those beginning <code>ecx</code> are smooth models with no threshold.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-necmods" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/vignette-fig-exmp2b-theoretical_nec_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the <em>NEC</em>. They differ in the decline after it and in whether the response rises first.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ecxmods" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> rather than an <em>NEC</em>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Fitted to the same response range the two shapes cross twice, so neither is uniformly the more conservative.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-etnc1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-etnc1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/etnc_fig1.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> under CC BY-NC 4.0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Named subsets of the full set are also available, and are how a group of equations is requested rather than a single one:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">models</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "nec"          "ecx"          "all"          "bot_free"     "zero_bounded"
+[6] "decline"      "hormesis"    </code></pre>
+</div>
+</div>
+<p><code>hormesis</code> names the equations that allow the response to rise before it declines, which the <em>Hormesis</em> section below covers. Module 4 covers fitting a set and averaging across it to derive a model-averaged toxicity estimate.</p>
+</section>
+<section id="parameter-definitions" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-definitions">Parameter definitions</h2>
+<p>The parameters have been given consistent meanings across equations wherever possible, so that a parameter named <code>top</code> means the same thing in every model that has it. The equations range from two parameters, in the linear and exponential decay models <code>ecxlin</code> and <code>ecxexp</code>, to five in <code>nechorme4</code> and <code>ecxll5</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\tau\)</span></td>
+<td style="text-align: left;"><code>top</code></td>
+<td style="text-align: left;">The y-intercept or upper plateau: the mean response at zero concentration.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\eta\)</span></td>
+<td style="text-align: left;"><code>nec</code></td>
+<td style="text-align: left;">The no-effect concentration: the value of the predictor at which the threshold in the regression is estimated to lie.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\beta\)</span></td>
+<td style="text-align: left;"><code>beta</code></td>
+<td style="text-align: left;">The exponential decay rate of the response, either from zero concentration or from <span class="math inline">\(\eta\)</span>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\delta\)</span></td>
+<td style="text-align: left;"><code>bot</code></td>
+<td style="text-align: left;">The lower plateau: the response at infinite concentration.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\alpha\)</span></td>
+<td style="text-align: left;"><code>slope</code></td>
+<td style="text-align: left;">The linear decay rate in <code>neclin</code> and <code>ecxlin</code>, or the linear increase before <span class="math inline">\(\eta\)</span> in the hormesis models.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\omega\)</span></td>
+<td style="text-align: left;"><code>ec50</code></td>
+<td style="text-align: left;">Nominally the 50% effect concentration, though it is affected by scaling and should not be read strictly as an EC50.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\epsilon\)</span></td>
+<td style="text-align: left;"><code>d</code></td>
+<td style="text-align: left;">The exponent in <code>ecxsigm</code> and <code>necsigm</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\zeta\)</span></td>
+<td style="text-align: left;"><code>f</code></td>
+<td style="text-align: left;">A scaling exponent used only by <code>ecxll5</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>neclinhorme</code> is the exception on <span class="math inline">\(\beta\)</span>, where it is a linear decay from <span class="math inline">\(\eta\)</span>, because the slope <span class="math inline">\(\alpha\)</span> is already used for the linear increase.</p>
+<p>Every <code>nec</code> model also uses a step function to define the breakpoint:</p>
+<p><span class="math display">\[
+f(x_i, \eta) = \begin{cases}
+      0, &amp; x_i - \eta &lt; 0 \\
+      1, &amp; x_i - \eta \geq 0 \\
+   \end{cases}
+\]</span></p>
+</section>
+<section id="threshold-models" class="level2">
+<h2 class="anchored" data-anchor-id="threshold-models">Threshold models</h2>
+<p>For models prefixed <code>nec</code>, the no-effect concentration is a parameter of the model itself, <span class="math inline">\(\eta\)</span>, and is estimated directly, following the approach of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-necmod" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-necmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/necmod_fox2010.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Panel A of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NEC</em> (<span class="math inline">\(\eta\)</span>) is the breakpoint itself. The EC10 is read from the curve and sits above it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>These models assume the response remains at a stable level, near the control mean, across the lower concentrations, until a threshold is reached. That threshold is the <em>NEC</em>. Beyond it the response declines with increasing concentration at some rate. The original formulation of <span class="citation" data-cites="Fox2010">Fox (<a href="#ref-Fox2010" role="doc-biblioref">2010</a>)</span> assumed exponential decline after the threshold, which is <code>nec3param</code>; <code>bayesnec</code> also provides a linear decline in <code>neclin</code>.</p>
+<p>These models can also be used to estimate an <strong>EC<sub>x</sub></strong>, though the estimate of the threshold is what they are for. They are the only way to estimate a true no-effect concentration.</p>
+<p>An <strong>EC<sub>x</sub></strong> taken from a threshold equation and one taken from a smooth equation fitted to the same data will usually differ, and which is larger depends on which shape fits the data. Where the response really does decline smoothly, a broken-stick curve is flat before the break and then falls sharply, so its <strong>EC<sub>x</sub></strong> is the higher and less conservative of the two. Where a threshold is genuinely present, the smooth equation begins declining below it and returns the lower value.</p>
+<p><span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> measured how large that difference becomes. Simulating from smooth curves of known shape and fitting a threshold equation to the result, the <em>NEC</em> returned represented an actual effect of 15% to 40% depending on the design. That percentage did not necessarily fall as sampling effort increased, because the problem is the shape of the equation rather than the amount of data. Choosing between the two shapes in advance therefore matters, and module 4 covers fitting both and letting the data weight them.</p>
+</section>
+<section id="smooth-models" class="level2">
+<h2 class="anchored" data-anchor-id="smooth-models">Smooth models</h2>
+<p>Models prefixed with <code>ecx</code> are continuous or smooth curves. They have an intercept, the mean control response, but no threshold: the response begins to decline at any concentration above zero, at a rate set by the equation.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ecxmod" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecxmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ecxmod.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmod-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Panel B of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. There is no breakpoint, so the only estimate the curve supports directly is an <strong>EC<sub>x</sub></strong>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>They are appropriate where the data show no threshold, and are used to extract <strong>EC<sub>x</sub></strong> values such as the EC10 or EC50, which are widely used in species sensitivity distribution modelling for deriving water quality criteria.</p>
+<p>In the strictest sense they are not appropriate for estimating a no-effect concentration, because an <strong>EC<sub>x</sub></strong> value, by definition, represents an effect of size <em>x</em>.</p>
+</section>
+<section id="the-no-significant-effect-concentration" class="level2">
+<h2 class="anchored" data-anchor-id="the-no-significant-effect-concentration">The no-significant-effect concentration</h2>
+<p>A smooth model has no threshold parameter, so the <em>NEC</em> cannot be read from it. The <em>NSEC</em> is a way of obtaining a no-effect estimate from such a model <span class="citation" data-cites="fisherfox2023">(<a href="#ref-fisherfox2023" role="doc-biblioref">Fisher and Fox 2023</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-nsec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/nsec.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NSEC</em> is where the fitted curve crosses a lower quantile of the control posterior. The EC10 for the same curve sits above it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The construction starts from the fitted intercept, the mean response at the control. From the posterior of that parameter a lower bound on the control response is calculated. The <em>NSEC</em> is the concentration at which the fitted curve crosses that bound.</p>
+<p>Because the calculation is done for every posterior draw, the result is a posterior distribution for the <em>NSEC</em> rather than a point estimate, and a credible interval follows from it directly. Module 6 covers what a posterior is and where it comes from.</p>
+<p>The full derivation, in both frequentist and Bayesian form, is in <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>.</p>
+<section id="the-effect-size-at-the-nsec" class="level3">
+<h3 class="anchored" data-anchor-id="the-effect-size-at-the-nsec">The effect size at the NSEC</h3>
+<p>The <em>NSEC</em> is the concentration at which the response becomes distinguishable from the control, and that concentration corresponds to some decline on the fitted curve. The <strong>ECNSEC</strong> is that decline, expressed as a percentage: the effect size the <em>NSEC</em> represents. It is the quantity that says whether an <em>NSEC</em> is a no-effect estimate in any practical sense, or a low-effect estimate wearing the name.</p>
+<p><code>nsec()</code> reports it as an attribute of the value it returns, and <code>ecnsec()</code> computes it directly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>nsec_value <span class="ot">&lt;-</span> <span class="fu">nsec</span>(bnec_fit)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(nsec_value, <span class="st">"ecnsec_relativeP"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ecnsec</span>(bnec_fit, <span class="at">nsec =</span> nsec_value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For the <code>nec3param</code> fit of module 2 the <em>NSEC</em> of 1.54 corresponds to an ECNSEC of 1.4%, with a 95% credible interval from 0.2% to 2.4%. The effect being allowed is small, and it is not zero.</p>
+<p><code>ecnsec()</code> takes the same <code>type</code> argument as <code>ecx()</code>, described below, and measures against the same reference, so the two are on the same footing by construction. This matters for reporting: the current Australian and New Zealand method states that an <em>NSEC</em> whose measured effect size exceeds 20% should probably not be used to derive a guideline value <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>, and the ECNSEC is how that condition is checked.</p>
+</section>
+</section>
+<section id="the-nsec-and-the-noec" class="level2">
+<h2 class="anchored" data-anchor-id="the-nsec-and-the-noec">The NSEC and the NOEC</h2>
+<p>The <em>NSEC</em> is analogous to the <em>NOEC</em>: both identify the concentration at which the response becomes significantly different from the control.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-noec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-noec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/noec.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-noec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a>. The <em>NOEC</em> is one of the tested concentrations, chosen by a test on the treatment means with no curve fitted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The difference is that the <em>NSEC</em> interpolates from a fitted curve, so it is not restricted to the concentrations that happen to have been tested. This removes the most serious defect of the <em>NOEC</em>, whose value can only ever be one of the treatment concentrations and is therefore determined by the experimental design as much as by the toxicity.</p>
+<p>Because it rests on a comparison against control variability, the <em>NSEC</em> is sensitive to poorly designed experiments. High variability in the control produces a <em>less</em> conservative estimate, which is the opposite of what intuition suggests, and it is the single most important thing to watch when using it.</p>
+<p>A valid <em>NSEC</em> therefore depends on the control variability being a good representation of natural variability in an unimpacted population. That in turn depends on modelling the response with an appropriate statistical distribution, which module 5 covers, and on the fitted model reproducing the variability the data show, which <code>check_fit()</code> measures and module 4 covers.</p>
+<p>The same exposure applies to an <strong>EC<sub>x</sub></strong>. <span class="citation" data-cites="mebane2015">Mebane (<a href="#ref-mebane2015" role="doc-biblioref">2015</a>)</span> states the limit directly: where the control mean has a standard error of 20%, an EC10 is not a meaningful quantity, whatever the fitting routine returns.</p>
+</section>
+<section id="choosing-an-estimate" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-an-estimate">Choosing an estimate</h2>
+<p>Where no threshold can be estimated, the available options are the <em>NOEC</em>, an <strong>EC<sub>x</sub></strong> at some low value of <em>x</em>, or the <em>NSEC</em>.</p>
+<p>The Australian and New Zealand method sets out a hierarchy, and it was revised in 2025 <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>. The <em>NEC</em> and the <em>NSEC</em> are now the two most preferred estimates, both being negligible-effect concentrations estimated directly from the concentration-response relationship. An <strong>EC<sub>x</sub></strong> at <em>x</em> of 10 or less, and the BEC10, are listed as other appropriate estimates. An <strong>EC<sub>x</sub></strong> between 10 and 20, and the <em>NOEC</em>, are less preferred. The LOEC, the MATC and an EC50 require a conversion factor before they can be used at all.</p>
+<p>Two things follow for practice. The <em>NSEC</em> no longer needs justifying as a novel method in an Australian guideline derivation. And because it sits in the preferred tier alongside the <em>NEC</em>, the condition attached to it applies: an <em>NSEC</em> with a measured effect size above 20% should probably not be used to derive a guideline value, which is what the ECNSEC above is for.</p>
+<p>The <em>NOEC</em> has been discarded as a measure of toxicity and is among the least preferred methods <span class="citation" data-cites="warne2008 warne2018 warne2025">(<a href="#ref-warne2008" role="doc-biblioref">Warne and Van Dam 2008</a>; <a href="#ref-warne2018" role="doc-biblioref">Warne et al. 2018</a>; <a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>.</p>
+<p>An <strong>EC<sub>x</sub></strong>, and the EC10 in particular, is the method the earlier guidelines specify <span class="citation" data-cites="warne2018">(<a href="#ref-warne2018" role="doc-biblioref">Warne et al. 2018</a>)</span> and is widely used internationally. An <strong>EC<sub>x</sub></strong> at <em>x</em> of 5 or 10 has been endorsed by the OECD since <span class="citation" data-cites="vanderhoeven1997">Van Der Hoeven et al. (<a href="#ref-vanderhoeven1997" role="doc-biblioref">1997</a>)</span>.</p>
+<p>Where an estimate of no effect is required, an <strong>EC<sub>x</sub></strong> is arguably the wrong instrument, because it reports the concentration producing an effect of magnitude <em>x</em>. It is an effect concentration by construction.</p>
+<p>The <em>NSEC</em>, like the <em>NOEC</em> before it <span class="citation" data-cites="mebane2015">(<a href="#ref-mebane2015" role="doc-biblioref">Mebane 2015</a>)</span>, also represents some non-zero effect: for a smooth sigmoidal model any concentration above zero produces one. The difference is where the line is drawn. The <em>NSEC</em> is the concentration below which the response does not deviate significantly from the control, and a significant deviation can occur well before the effect reaches the 10% that an EC10 reports. Unless there is separate evidence that a 10% effect has no consequence for the population, an EC10 cannot be assumed protective.</p>
+</section>
+<section id="hormesis" class="level2">
+<h2 class="anchored" data-anchor-id="hormesis">Hormesis</h2>
+<p>Some equations in both groups allow an initial <em>increase</em> in the response at low concentrations before the decline begins <span class="citation" data-cites="Mattson2008">(see <a href="#ref-Mattson2008" role="doc-biblioref">Mattson 2008</a>)</span>. These are the hormesis models, and their names contain <code>horme</code>. The behaviour occurs for several reasons and is seen regularly in whole-effluent toxicity testing of mixed discharges.</p>
+<p>The threshold hormesis models are:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">intersect</span>(<span class="fu">models</span>()<span class="sc">$</span>hormesis, <span class="fu">models</span>()<span class="sc">$</span>nec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "nechorme"      "nechorme4"     "neclinhorme"   "nechormepwr"  
+[5] "nechorme4pwr"  "nechormepwr01"</code></pre>
+</div>
+</div>
+<p>These assume a linear increase up to the threshold and allow various decay functions after it. Hormesis raises no difficulty for the <em>NEC</em>, which remains the concentration at which the response begins to decline.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-hormenec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hormenec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/horme_nec.JPG" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hormenec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Two threshold hormesis equations. The response rises linearly to the threshold and declines after it, so the <em>NEC</em> is still the breakpoint.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The smooth hormesis models are:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">intersect</span>(<span class="fu">models</span>()<span class="sc">$</span>hormesis, <span class="fu">models</span>()<span class="sc">$</span>ecx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "ecxhormebc4" "ecxhormebc5"</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-hormeecx" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hormeecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/horme_ecx.JPG" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hormeecx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Two smooth hormesis equations. The curve peaks above the control response, so an effect measured from the control and one measured from the peak differ.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>These do raise a difficulty for <strong>EC<sub>x</sub></strong>, because an effect has to be measured against something, and a hormetic curve offers two candidates: the control, and the peak of the curve. <code>bayesnec</code> measures every <strong>EC<sub>x</sub></strong>, <em>NSEC</em> and ECNSEC from the control, the predicted mean at the lowest concentration in the data, taken separately for each posterior draw. The two references coincide for a monotonically declining curve and differ for a hormetic one, so this choice changes the reported <strong>EC<sub>x</sub></strong> for a hormesis equation and no other. Panel D of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> draws the two references on a hormetic curve.</p>
+</section>
+<section id="extracting-estimates" class="level2">
+<h2 class="anchored" data-anchor-id="extracting-estimates">Extracting estimates</h2>
+<p>Three functions extract toxicity estimates from a fitted model: <code>nec()</code>, <code>ecx()</code> and <code>nsec()</code>. Their full documentation is in the help files, which are the authoritative source; what follows covers the arguments that require a decision rather than every argument.</p>
+<section id="nec" class="level3">
+<h3 class="anchored" data-anchor-id="nec"><code>nec()</code></h3>
+<p>The <em>NEC</em> is a parameter of the model, so the function has little to do beyond summarising its posterior.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">signature</span>(<span class="st">"nec"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function (object, posterior = FALSE, xform = identity, prob_vals = c(0.5, 
+    0.025, 0.975), ...)  </code></pre>
+</div>
+</div>
+<p><code>posterior</code> returns the full posterior sample rather than a summary. <code>xform</code> applies a function to the returned values, which is how estimates are returned to the original scale when the predictor was transformed in the formula. <code>prob_vals</code> sets the quantiles summarised, by default the median and a 95% credible interval.</p>
+<p><code>nec()</code> applies only to models that have the parameter. Calling it on a smooth model is an error rather than a silent substitution.</p>
+</section>
+<section id="ecx" class="level3">
+<h3 class="anchored" data-anchor-id="ecx"><code>ecx()</code></h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">signature</span>(<span class="st">"ecx"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function (object, ecx_val = 10, resolution = 200, posterior = FALSE, 
+    type = "absolute", x_range = NA, xform = identity, prob_vals = c(0.5, 
+        0.025, 0.975), ..., dpar = NULL)  </code></pre>
+</div>
+</div>
+<p><code>ecx_val</code> is the effect percentage, defaulting to 10 for an EC10.</p>
+<p><code>type</code> determines what the percentage is measured against, which is the substantive decision here. <code>"absolute"</code>, the default, measures from the control to zero. <code>"relative"</code> measures from the control to the equation’s theoretical asymptote, the <code>bot</code> parameter where the equation has one. <code>"range"</code> measures from the control to the lowest response the fitted curve predicts. <code>"direct"</code> takes a response value rather than a percentage and returns the concentration at which the curve reaches it.</p>
+<p><code>resolution</code> sets the number of predictor values over which the crossing is located, and defaults to 200. <code>x_range</code> allows estimates outside the observed range of the predictor, which should be used deliberately, since it extrapolates the fitted curve.</p>
+<p>Every one of these measures <em>from</em> the control, which <code>bayesnec</code> takes to be the predicted mean at the lowest concentration in the data, evaluated separately for each posterior draw. <code>type</code> names what the percentage is measured <em>towards</em>. The control is identified by its position in the series rather than by its value, which keeps the convention intact under the usual preparation in which a small constant is added to the concentrations so that a zero control can be plotted on a logarithmic axis. An experiment whose lowest treatment is not a control is being analysed as though it were, and should say so.</p>
+<p>The distance from the control to the reference is the <strong>span</strong> the percentage is taken over, and the four types differ only in it.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ecx-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecx-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="3Toxicity_estimation_and_available_models_files/figure-html/fig-ecx-types-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecx-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: The span each <code>type</code> measures over, and the EC10 each one gives. The dashed or dotted horizontal line is the lower end of the span, the arrow is its length, the solid horizontal line is the 10% target and the point is where the curve reaches it. (A) <code>ecxll4</code> with <code>bot</code> at 0.3, tested to a concentration of 10, so the curve reaches <code>bot</code> within the range. (B) the same equation at the same parameters, tested only to 3. (C) <code>ecxll3</code>, which has no <code>bot</code>. (D) <code>ecxhormebc4</code>, whose maximum of 1.32 is above its control of 0.99. The curves are drawn from the equations at fixed parameters, with no model fitted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In panel A of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> the <code>ecxll4</code> curve reaches its <code>bot</code> of 0.3 within the concentration range, so the lowest response predicted and the theoretical asymptote are the same value. <code>"relative"</code> and <code>"range"</code> both return an EC10 of 1.61, and <code>"absolute"</code>, whose span is 43% longer, returns 1.86. Panel B is the same equation at the same parameters, tested only to a concentration of 3. The curve is still at 0.65 there, so the <code>"range"</code> span is less than half the length of the <code>"relative"</code> span and the EC10 falls to 1.16. <code>"relative"</code> and <code>"absolute"</code> are unchanged at 1.61 and 1.86. A <code>"range"</code> estimate is a property of the design as well as of the fit, and two laboratories testing to different maximum concentrations will report different values from the same equation.</p>
+<p>Panel C is <code>ecxll3</code>, which has no <code>bot</code> and declines towards 0. All three references fall in the same place and the three types agree at 1.61. Panel D is <code>ecxhormebc4</code>. Measured from the control at 0.99 the 10% target of 0.89 lies below the rising limb, and the curve reaches it once, at 3.10. Measured from the maximum of the curve at 1.32 the target of 1.19 lies above the control, and the curve crosses it twice, at 0.77 and 2.50. A target crossed twice does not identify a single concentration, which is the reason for measuring from the control.</p>
+<p>Three changes arrived in <code>bayesnec</code> 2.2.0 and matter when returning to an older analysis.</p>
+<p><code>"range"</code> computes what <code>"relative"</code> computed up to version 2.1.3, with one difference: the old span was taken from the maximum of the predicted curve rather than from the control. The two agree wherever the maximum is at the lowest concentration, and differ for a hormetic curve, which is panel D of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a>. Passing <code>type = "relative"</code> explicitly now raises a warning naming <code>"range"</code>.</p>
+<p><code>"relative"</code> is refused where the equation has no <code>bot</code> and the family is unbounded below. In panel C of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> the family is bounded below, so the 0 that <code>ecxll3</code> declines towards is a finite reference and the estimate agrees with <code>"absolute"</code>. Under a gaussian or student response there is no lower bound, nothing finite to measure towards, and the call is refused with a message naming <code>"absolute"</code> and <code>"range"</code> as the two types that still apply.</p>
+<p>The <code>hormesis_def</code> argument has been removed from <code>ecx()</code>, <code>nsec()</code>, <code>ecnsec()</code> and the comparison functions. It selected between the control and the peak as the reference, and with the control always the reference it selected nothing. A call still passing it is refused by name rather than ignored.</p>
+</section>
+<section id="targets-the-curve-never-reaches" class="level3">
+<h3 class="anchored" data-anchor-id="targets-the-curve-never-reaches">Targets the curve never reaches</h3>
+<p>A target the fitted curve does not reach within the range of the predictor returns <code>NA</code> for the affected draws, together with a warning naming how many. Earlier versions returned the grid point nearest the target, which for such a curve is the highest concentration tested, reported as an estimate with nothing said about it.</p>
+<p>An estimate summarised over the remaining draws is a <strong>censored</strong> estimate and has to be reported as one, naming how many draws were excluded and stating that the value is bounded below by the highest concentration tested. Reported without that label it reads as an ordinary estimate and understates the true value. This is a result about the experiment: the design did not reach the effect size asked for.</p>
+</section>
+<section id="nsec" class="level3">
+<h3 class="anchored" data-anchor-id="nsec"><code>nsec()</code></h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">signature</span>(<span class="st">"nsec"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function (object, sig_val = 0.01, resolution = 200, x_range = NA, 
+    xform = identity, prob_vals = c(0.5, 0.025, 0.975), ..., 
+    posterior = FALSE, dpar = NULL)  </code></pre>
+</div>
+</div>
+<p><code>sig_val</code> is the quantile of the control posterior used to define a significant decline, defaulting to 0.01, that is 99% certainty of a decline relative to the control. That value generally produces sensible results. Where it does not, the better response in a guideline-derivation context is usually to reconsider whether the statistical model fits the data, rather than to adjust the significance level. Other values may be appropriate in other decision contexts.</p>
+<p>Raising <code>sig_val</code> makes the estimate more conservative, because it places the reference higher on the control posterior and the curve crosses it sooner.</p>
+<p>One consequence of the construction catches people out. The reference is the <code>sig_val</code> quantile of the control posterior, so that proportion of draws have a control at or below the reference and reach it at the control concentration itself. Those draws sit at the bottom of the <em>NSEC</em> posterior. Where <code>sig_val</code> exceeds the quantile at which the lower credible bound is read, which is 0.025 for a 95% interval, the lower bound of the <em>NSEC</em> is therefore zero, or the lowest concentration tested where that is not zero. <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> report exactly this in their Table 3. A lower bound of zero at a high <code>sig_val</code> is the construction behaving as defined, and it reflects a real possibility: for a smooth curve, a decline in the response may begin at the lowest concentration applied.</p>
+</section>
+</section>
+<section id="the-estimates-side-by-side" class="level2">
+<h2 class="anchored" data-anchor-id="the-estimates-side-by-side">The estimates side by side</h2>
+<p><a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;11</a> sets the four estimates against one another.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-etnc2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/etnc_fig2.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-etnc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: The four toxicity estimates. (A) A threshold model, giving the <em>NEC</em> directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The <em>NOEC</em>, read from the treatment means. (D) The <em>NSEC</em>, read from a smooth model against a lower quantile of the control posterior. Reproduced from <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span> under CC BY-NC 4.0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Panel A is a threshold equation, where the <em>NEC</em> is the breakpoint parameter and the EC10 lies above it. Panel B is a smooth equation, which has no breakpoint, so the EC10 is the only estimate it supports directly. Panel C is the <em>NOEC</em>, obtained from the treatment means with no curve fitted, which is why it can only ever take one of the tested values. Panel D is the <em>NSEC</em>, the concentration at which the fitted curve crosses a lower quantile of the control posterior, with the EC10 for the same curve above it. In both panels B and D the EC10 is the larger and therefore the less conservative estimate.</p>
+<p><a href="#tbl-definitions" class="quarto-xref">Table&nbsp;1</a> gives the published wording for each estimate, which is the form to quote in a methods section, together with the statistical method that produces it.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-definitions" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-definitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1
+</figcaption>
+<div aria-describedby="tbl-definitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Fisher_IEAM_Table1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption>Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-fisherfox2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, and David R. Fox. 2023. <span>“Introducing the No-Significant-Effect Concentration.”</span> <em>Environmental Toxicology and Chemistry</em> n/a (n/a). https://doi.org/<a href="https://doi.org/10.1002/etc.5610">https://doi.org/10.1002/etc.5610</a>.
+</div>
+<div id="ref-fisheretal2023" class="csl-entry" role="listitem">
+Fisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. <span>“Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.”</span> <em>Integrated Environmental Assessment and Management</em>, ahead of print. https://doi.org/<a href="https://doi.org/10.1002/ieam.4809">https://doi.org/10.1002/ieam.4809</a>.
+</div>
+<div id="ref-Fox2010" class="csl-entry" role="listitem">
+Fox, David R. 2010. <span>“<span class="nocase">A Bayesian approach for determining the no effect concentration and hazardous concentration in ecotoxicology</span>.”</span> <em>Ecotoxicology and Environmental Safety</em> 73 (2): 123–31.
+</div>
+<div id="ref-Mattson2008" class="csl-entry" role="listitem">
+Mattson, Mark P. 2008. <span>“Hormesis Defined.”</span> <em>Ageing Research Reviews</em> 7 (1): 1–7. https://doi.org/<a href="https://doi.org/10.1016/j.arr.2007.08.007">https://doi.org/10.1016/j.arr.2007.08.007</a>.
+</div>
+<div id="ref-mebane2015" class="csl-entry" role="listitem">
+Mebane, Christopher A. 2015. <span>“In Response: Biological Arguments for Selecting Effect Sizes in Ecotoxicological Testing—a Governmental Perspective.”</span> Journal Article. <em>Environmental Toxicology and Chemistry</em> 34 (11): 2440–42.
+</div>
+<div id="ref-vanderhoeven1997" class="csl-entry" role="listitem">
+Van Der Hoeven, Nelly, Frank Noppert, and Annegaaike Leopold. 1997. <span>“How to Measure No Effect. Part i: Towards a New Measure of Chronic Toxicity in Ecotoxicology. Introduction and Workshop Results.”</span> Journal Article. <em>Environmetrics</em> 8 (3): 241–48. https://doi.org/<a href="https://doi.org/10.1002/(SICI)1099-095X(199705)8:3<241::AID-ENV244>3.0.CO;2-7">https://doi.org/10.1002/(SICI)1099-095X(199705)8:3&lt;241::AID-ENV244&gt;3.0.CO;2-7</a>.
+</div>
+<div id="ref-warne2018" class="csl-entry" role="listitem">
+Warne, M, GE Batley, RA van Dam, et al. 2018. <span>“Revised Method for Deriving Australian and New Zealand Water Quality Guideline Values for Toxicants – Update of 2015 Version.”</span> Journal Article. <em>Prepared for the Revision of the Australian and New Zealand Guidelines for Fresh and Marine Water Quality. Australian and New Zealand Governments and Australian State and Territory Governments, Canberra, 48 Pp</em>.
+</div>
+<div id="ref-warne2025" class="csl-entry" role="listitem">
+Warne, Michael St J., Graeme E. Batley, Rick A. van Dam, et al. 2025. <em>Method for Deriving <span>Australian</span> and <span>New Zealand</span> Water Quality Guideline Values for Protecting Aquatic Ecosystems from Toxicants — Update of 2018 Version</em>. Australian; New Zealand Governments; Australian state; territory governments.
+</div>
+<div id="ref-warne2008" class="csl-entry" role="listitem">
+Warne, Michael St J, and Rick Van Dam. 2008. <span>“NOEC and LOEC Data Should No Longer Be Generated or Used.”</span> Journal Article. <em>Australasian Journal of Ecotoxicology</em> 14 (1): 1–5.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/open-aims\.github\.io\/cr_modelling_training\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="pagination-link" aria-label="2. Fitting a single model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">2. Fitting a single model</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../vignettes/4Model_averaging_and_multimodel_inference.html" class="pagination-link" aria-label="4. Model averaging">
+        <span class="nav-page-text">4. Model averaging</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Australian Institute of Marine Science</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

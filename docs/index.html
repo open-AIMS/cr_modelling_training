@@ -104,6 +104,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./vignettes/0Software-setup.html"> 
 <span class="menu-text">Setup</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./vignettes/1Software-stack.html"> 
+<span class="menu-text">Modules</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
@@ -153,6 +157,82 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./vignettes/0Software-setup.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Software setup</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Modules</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/1Software-stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. The software stack</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/2Fitting-a-CR-model-using-bayesnec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Fitting a single model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/3Toxicity_estimation_and_available_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Toxicity estimation and the model set</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/4Model_averaging_and_multimodel_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. Model averaging</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/5Response_data_and_statistical_distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5. Response data and distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/6Priors_and_Bayesian_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Priors and Bayesian inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/7Example_case_study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. A worked case study</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/8Factor_covariates_and_groupings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8. Factor covariates and groupings</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Frequentist comparison</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./vignettes/drc-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fitting the same models with drc</span></a>
   </div>
 </li>
       </ul>
@@ -216,11 +296,6 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="modules">Modules</h2>
 <p>Before the modules: <a href="./vignettes/0Software-setup.html">software setup</a> installs R, a C++ compiler, CmdStan and the R packages, and verifies the installation. It is not taught; it is done beforehand.</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
@@ -231,47 +306,48 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>The software stack</td>
+<td><a href="./vignettes/1Software-stack.html">The software stack</a></td>
 <td>R, Stan, <code>brms</code> and <code>bayesnec</code>, and Positron</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>Fitting a single model</td>
+<td><a href="./vignettes/2Fitting-a-CR-model-using-bayesnec.html">Fitting a single model</a></td>
 <td>the <code>bnec</code> call, the fitted object, plotting</td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td>Toxicity estimation and the model set</td>
+<td><a href="./vignettes/3Toxicity_estimation_and_available_models.html">Toxicity estimation and the model set</a></td>
 <td>NEC, NSEC and ECx, and the available equations</td>
 </tr>
 <tr class="even">
 <td>4</td>
-<td>Model averaging and multi-model inference</td>
+<td><a href="./vignettes/4Model_averaging_and_multimodel_inference.html">Model averaging and multi-model inference</a></td>
 <td>candidate sets, weights, averaged estimates</td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>Response data and statistical distributions</td>
+<td><a href="./vignettes/5Response_data_and_statistical_distributions.html">Response data and statistical distributions</a></td>
 <td>matching the family to the endpoint</td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>Priors and Bayesian inference</td>
+<td><a href="./vignettes/6Priors_and_Bayesian_inference.html">Priors and Bayesian inference</a></td>
 <td>default priors, checking them, changing them</td>
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>A worked case study</td>
+<td><a href="./vignettes/7Example_case_study.html">A worked case study</a></td>
 <td>herbicide toxicity, start to finish</td>
 </tr>
 <tr class="even">
 <td>8</td>
-<td>Factor covariates and groupings</td>
+<td><a href="./vignettes/8Factor_covariates_and_groupings.html">Factor covariates and groupings</a></td>
 <td>comparing curves and estimates across groups</td>
 </tr>
 </tbody>
 </table>
-<p>The modules are being revised for this year’s course and are published as each is finished. Until then the working versions, including material still under revision and not yet reviewed, are at <a href="https://open-aims.github.io/cr_modelling_training/dev/">open-aims.github.io/cr_modelling_training/dev</a>.</p>
+<p>Modules 7 and 8 read results produced outside the render, by <code>scripts/generate_herbicide_fits.R</code> and <code>scripts/generate_grouping_fits.R</code>, because the fits behind them take hours and are not made when the site is built.</p>
+<p><a href="./vignettes/drc-reference.html">Frequentist fitting with <code>drc</code></a> is supplied as reference rather than taught. It shows the same questions asked of a maximum-likelihood engine, and is explicit about where the two engines answer the same question and where they do not.</p>
 </section>
 <section id="working-through-the-material-independently" class="level2">
 <h2 class="anchored" data-anchor-id="working-through-the-material-independently">Working through the material independently</h2>

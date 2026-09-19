@@ -457,7 +457,7 @@ Figure&nbsp;4: Each layer is called by the one above it.
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>If you don’t set this <code>rtan</code> will be used by default.</p>
+<p>If you don’t set this, <code>rstan</code> will be used by default.</p>
 <p><strong><code>brms</code></strong> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> is an R package that removes the need to write Stan code.</p>
 <p>Coding up models by hand in Stan is quite complicated and beyond the capability of most ecotoxicologists to implement in practice.</p>
 <p>Relatively complex models can be fit using <code>brms</code>, using a simple straightforward formula syntax. A typical model specification might be <code>response ~ predictor1 + predictor2 + (1 | group)</code>, which is similar to the syntax used in many widely used R packages, such as <code>lme4</code>, for example.</p>

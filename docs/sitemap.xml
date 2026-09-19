@@ -1,11 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/drc-reference.html</loc>
+    <lastmod>2026-09-17T02:36:14.136Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/7Example_case_study.html</loc>
+    <lastmod>2026-09-19T13:38:21.047Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/5Response_data_and_statistical_distributions.html</loc>
+    <lastmod>2026-09-19T13:38:21.045Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/3Toxicity_estimation_and_available_models.html</loc>
+    <lastmod>2026-09-19T07:19:14.164Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/1Software-stack.html</loc>
+    <lastmod>2026-09-19T13:37:33.747Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
+    <lastmod>2026-09-19T14:13:09.687Z</lastmod>
+  </url>
+  <url>
     <loc>https://open-aims.github.io/cr_modelling_training/vignettes/0Software-setup.html</loc>
     <lastmod>2026-09-17T12:09:23.125Z</lastmod>
   </url>
   <url>
-    <loc>https://open-aims.github.io/cr_modelling_training/index.html</loc>
-    <lastmod>2026-09-16T22:57:31.606Z</lastmod>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/2Fitting-a-CR-model-using-bayesnec.html</loc>
+    <lastmod>2026-09-19T13:41:47.494Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/4Model_averaging_and_multimodel_inference.html</loc>
+    <lastmod>2026-09-19T13:37:33.707Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/6Priors_and_Bayesian_inference.html</loc>
+    <lastmod>2026-09-19T13:38:21.047Z</lastmod>
+  </url>
+  <url>
+    <loc>https://open-aims.github.io/cr_modelling_training/vignettes/8Factor_covariates_and_groupings.html</loc>
+    <lastmod>2026-09-19T13:38:21.060Z</lastmod>
   </url>
 </urlset>

@@ -73,12 +73,14 @@ quarto render                 # -> docs/
 quarto render --profile dev   # -> docs/dev/
 ```
 
-As of 2026-09-17 the approved site holds `index.qmd` and `0Software-setup.qmd` only, and
-modules 1 to 8 and the `drc` reference are published under `/dev/` behind a
-not-reviewed banner. Participants must be given one URL and it must be the approved
-build, so promoting the modules means the `render:` list, the sidebar, and the
-`content-visible` module table in `index.qmd`, which carries a linked and an unlinked
-copy.
+As of 2026-09-19 the approved site holds every taught module, the `drc` reference and the
+software setup. The modules were promoted from `/dev/` that day: the `render:` list and
+the sidebar in `_quarto.yml`, and the module table in `index.qmd`, whose
+`content-visible` split into a linked and an unlinked copy was removed, both profiles now
+showing the same linked table. The `/dev/` build is still produced and still carries the
+not-reviewed banner, and is now a place to put a module under revision rather than a
+second copy of the course. `notes/delivery-format-human.md` records that the split should
+not survive to the day.
 
 ---
 
@@ -323,11 +325,7 @@ doing anything.
 
 Both items recorded here on 2026-09-11 are done: module 4 covers parallel fitting under a
 `future` plan, and the `drc` comparison was rewritten as `vignettes/drc-reference.qmd`.
-What is outstanding, as of 2026-09-17:
-
-**The modules are not on the approved site.** `_quarto.yml` renders `index.qmd` and
-`0Software-setup.qmd` only (§2). Participants get one URL and it must hold every taught
-module.
+What is outstanding, as of 2026-09-19:
 
 **`bayesnec` is installed from a moving branch** (§4). Pin it.
 
@@ -445,6 +443,26 @@ The default `resolution` had changed from 1000 to 200 between those versions, so
 published page would have reported a superseded default as current.
 
 After any package upgrade, clear `_freeze/` for every module that fits a model.
+
+**Freeze does not notice a prose change either.** The frozen `result.markdown` in
+`_freeze/vignettes/<module>/execute-results/html.json` holds the *whole* rendered document,
+prose included, and `freeze: auto` serves it without consulting the source. A correction to
+the text of a module can therefore render, report success, and publish the old wording,
+with nothing in the log to say so. Measured 2026-09-19: module 2's sampling bullet was
+corrected, two renders reported `approved OK`, and both published the superseded sentence;
+the frozen markdown held the old text and not the new.
+
+Clear the module's stored result after editing its prose, the same as after a package
+upgrade, and check the rendered page for the words that changed:
+
+```bash
+rm -rf _freeze/vignettes/<module>
+quarto render && quarto render --profile dev
+grep -c "<a phrase you added>" docs/vignettes/<module>.html
+```
+
+This is the more dangerous of the two freeze traps, because a prose edit gives no reason to
+suspect the cache and the rendered page looks finished.
 
 **A `future` multisession plan deadlocked the generation scripts.** `bnec()` fits a model
 set under whatever plan is active (`bayesnec` #184), and on 2026-09-17
