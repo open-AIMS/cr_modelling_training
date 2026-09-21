@@ -354,16 +354,12 @@ What is outstanding, as of 2026-09-19:
 
 **`bayesnec` is installed from a moving branch** (§4). Pin it.
 
-**The fits archive has not been re-uploaded since the 2026-09-21 revision.**
-`scripts/bundle_fits.R` was run and `vignettes/fits.sha256` rewritten, and the
-release asset still holds the previous set. Four objects went
-(`m2_ecxll3_fit`, and `m6_exmp_c`, `m6_exmp_d`, `m6_exmp_e`, whose sections were
-cut), two arrived (`m5_exp_6`, the `nassarius` hurdle fit, and `m6_ecxll3_fit`),
-and `m7_am_fit` and `m7_am_disp` were refitted. Upload before anyone fetches:
-
-```bash
-gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training
-```
+**The fits archive was rebuilt and re-uploaded on 2026-09-21.** Four objects
+went (`m2_ecxll3_fit`, and `m6_exmp_c`, `m6_exmp_d`, `m6_exmp_e`, whose sections
+were cut), two arrived (`m5_exp_6`, the `nassarius` hurdle fit, and
+`m6_ecxll3_fit`), and `m7_am_fit` and `m7_am_disp` were refitted, leaving 24
+objects at 40.3 MB. The upload was verified by running `fetch_fits.R` against
+the published asset from an empty directory.
 
 **Module 6's two videos have not been trimmed.** They are StataCorp's
 *Introduction to Bayesian statistics* parts 1 and 2, and each runs into

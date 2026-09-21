@@ -74,6 +74,16 @@ fetch_fits <- function(dest = "vignettes/fits", quiet = FALSE) {
   if (!quiet) message("Downloading the fitted models, about 42 MB. This is ",
                       "done once.")
 
+  # R's default download timeout is 60 seconds, which is not enough for an
+  # archive this size on anything but a fast connection. Measured 2026-09-21 on
+  # a domestic connection: the default stopped at 9.7 MB of 42.2 MB with
+  # "Timeout of 60 seconds was reached", and the script then reported the
+  # download as failed. The timeout is raised for this call and restored
+  # afterwards, so a participant's own session setting is left as they had it.
+  old_timeout <- getOption("timeout")
+  options(timeout = max(old_timeout, 1800))
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
   ok <- tryCatch({
     utils::download.file(url, tmp, mode = "wb", quiet = quiet)
     TRUE
