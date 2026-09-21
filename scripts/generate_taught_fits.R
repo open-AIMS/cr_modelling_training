@@ -100,20 +100,21 @@ for (mod in MODULES) {
 
   code <- runnable_chunks(qmd)
   targets <- sub('.*file\\s*=\\s*"([^"]+)".*', "\\1",
-                 grep('save\\s*\\(.*file\\s*=\\s*"fits/', code, value = TRUE))
+                 grep('save\\s*\\(.*file\\s*=\\s*"vignettes/fits/', code, value = TRUE))
   message("  ", length(targets), " fit(s) to make")
 
   # A module whose fits are all on disk is skipped, so that correcting one
   # module costs that module rather than the whole set. --force redoes
   # everything.
-  if (!FORCE && length(targets) > 0 &&
-      all(file.exists(file.path(vig_dir, targets)))) {
+  if (!FORCE && length(targets) > 0 && all(file.exists(targets))) {
     message("  skipping, every fit already saved")
     next
   }
 
+  # The chunks are evaluated from the project root, which is the directory a
+  # render uses (`execute-dir: project`) and the one a participant has open.
+  # Every path in a module is written `vignettes/...` to suit it.
   env <- new.env(parent = globalenv())
-  owd <- setwd(vig_dir)          # chunks resolve data by relative path
   grDevices::pdf(NULL)
   ok <- tryCatch({
     eval(parse(text = code), envir = env)
@@ -123,9 +124,8 @@ for (mod in MODULES) {
     FALSE
   })
   grDevices::dev.off()
-  setwd(owd)
 
-  if (ok) for (tg in targets) clean_saved(file.path(vig_dir, tg))
+  if (ok) for (tg in targets) clean_saved(tg)
 
   message("  ", if (ok) "done in " else "stopped after ",
           format(round(difftime(Sys.time(), m0), 1)))

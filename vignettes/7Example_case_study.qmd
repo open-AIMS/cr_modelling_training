@@ -33,61 +33,41 @@ The workflow is:
 A prior check belongs between steps 2 and 3, and module 6 covers `check_priors()`
 and the construction of the defaults.
 
-The posterior draws a Bayesian fit produces are useful well beyond a point
-estimate. They support the study of synergistic and antagonistic effects
-[@Fisher2019d; @flores2021], the propagation of endpoint uncertainty
-[@Charles2020a; @Gottschalk2013], and tests of hypotheses of no effect
-[@Thomas2006]. Every check and estimate below is read from those draws.
+::: {layout-ncol=2}
+![](images/dredging_effects.JPG)
 
-```{r}
-#| label: fig-context
-#| out-width: "48%"
-#| layout-ncol: 2
-#| echo: false
-knitr::include_graphics(c("images/dredging_effects.JPG", "images/herbicides_climate.JPG"))
-```
+![](images/herbicides_climate.JPG)
+:::
 
-### The assumptions the diagnostics test
+### Convergence and fit
 
 Convergence is what a Bayesian fit is usually judged on, and it is not the only
 thing that can be wrong. `rhat()`, `check_chains()` and `check_sampling()` ask
-whether the sampler explored the posterior. `loo` and `waic` rank the candidate
-equations against one another. None of them asks whether the variability the
-fitted model implies matches the variability in the data, and a threshold
-estimate depends on that assumption more than on any other.
+whether the sampler explored the posterior, and step 3 runs them. `check_fit()`
+asks whether the fitted model reproduces the data, and step 4 runs that. A model
+can converge perfectly onto a description of the data that is wrong, so both are
+needed and neither substitutes for the other.
 
-The *NSEC* depends on it most directly. `nsec()` sets its reference at a quantile
-of the posterior of the control mean, and the width of that posterior is set by
-the dispersion the fit estimated at the control. A model simulating more
-variability at the control than the data show places the reference lower, so the
-curve crosses it further along and the reported concentration is higher and less
-protective. A model simulating less variability places the reference higher and
-returns a lower concentration. The direction is not known in advance, and no
-convergence diagnostic reveals it. An **EC~x~** depends on it less: it is
-measured from the same control mean, but at a fixed fraction of that mean rather
-than at a quantile of its posterior, so an error in the variance widens or
-narrows its interval rather than relocating the reference.
-
-One ratio statistic for the whole fit does not detect this. Every family with a
-free dispersion parameter, which is `gaussian`, `Gamma`, `negbinomial`, `Beta`
-and `beta_binomial`, estimates that parameter from the same residuals such a
-statistic summarises. The parameter absorbs the discrepancy, so the fit reports a
-ratio near 1 while simulating the wrong spread at the concentrations that
-determine the estimate. The check is therefore made within concentration groups,
-which is what `check_fit()` does, and step 4 runs it.
+Module 5 sets out what `check_fit()` compares and why the comparison is made
+within concentration groups rather than once for the whole fit. The consequence
+that matters here is its direction. A model simulating more variability at the
+control than the data show gives the control posterior too much width, which
+places the *NSEC* reference lower, so the curve crosses it further along and the
+reported concentration is **higher and less protective**. A model simulating
+less variability returns a lower one. The direction is not known in advance and
+no convergence diagnostic reveals it, which is why step 4 exists and why what it
+finds has to be reported.
 
 ## The data
 
 The data are from @jones2003meps and ship with `bayesnec`, so nothing has to be
 read from a file.
 
-```{r}
-#| label: fig-source
-#| out-width: "48%"
-#| layout-ncol: 2
-#| echo: false
-knitr::include_graphics(c("images/jonesnkerswell.jpg", "images/s_hystrix.jpg"))
-```
+::: {layout-ncol=2}
+![](images/jonesnkerswell.jpg)
+
+![](images/s_hystrix.jpg)
+:::
 
 The response is the maximum effective quantum yield, $\Delta F / Fm'$, of
 symbiotic dinoflagellates in the tissue of the coral *Seriatopora hystrix*,
@@ -209,13 +189,46 @@ The concentrations run from `r min(ametryn$concentration)` to
 `r round(max(ametryn$concentration) / min(ametryn$concentration))`, in roughly
 even steps on a logarithmic scale. The predictor is logged in the formula.
 
-The predictor enters the equations directly, so a transform changes the shape
-being fitted and not merely the axis: the same equation describes a different
-curve in `concentration` and in `log(concentration)`. The default priors are also
-scaled from the predictor, so a transform rescales them. Neither consideration
-settles the question in general, and which scale samples better on a given
-dataset is an empirical matter. Here the series was designed as a logarithmic
-dilution, and a logarithm is what makes its steps even.
+Settle this before fitting anything. The predictor enters the equations
+directly, so a transform changes the shape being fitted and not merely the axis:
+the same equation describes a different curve in `concentration` and in
+`log(concentration)`. The default priors are also scaled from the predictor, so
+a transform rescales them. `bnec()` takes the concentration exactly as it is
+supplied and does not make the decision for you. Neither consideration settles
+the question in general, and which scale samples better on a given dataset is an
+empirical matter. Here the series was designed as a logarithmic dilution, and a
+logarithm is what makes its steps even.
+
+The mechanics are four:
+
+- Write the transform inside `crf()`, as `crf(log(concentration), ...)`, or
+  apply it to the data before the call.
+- Add any offset to the data yourself first. For `log(x)`, a control recorded as
+  `0` arrives at the data check as `log(0)` and the fit stops.
+- Back-transform the estimates through `xform`, which `nec()`, `ecx()`,
+  `nsec()`, `curve_params()` and `autoplot()` all take. Step 5 does this.
+- Report the scale alongside any value reported.
+
+::: {.callout-note collapse="true" title="Zero on the predictor axis"}
+
+The transform is evaluated before `bayesnec` inspects the predictor, which is
+why the fit stops with a report that the predictor is not finite rather than
+with anything naming the transform.
+
+`bayesnec` does not correct a zero on the predictor axis. A concentration of
+zero is an ordinary control, and no response distribution constrains the values
+a predictor may take. Choose the offset yourself and add it to the data first,
+as `log(x + 1)` or a smaller constant suited to the series. Module 8 places the
+control one decade below the lowest tested concentration for exactly this
+reason.
+:::
+
+Read the spacing of the **design**. A dilution series makes each concentration a
+fixed multiple of the one below it, so its steps are even on a logarithmic scale
+and uneven on a linear one. On a linear axis such a design crushes the low
+concentrations together and spreads the high ones out, so the equation spends
+its flexibility at the top of the range, where the response is often already
+flat.
 
 The coefficient of variation of the gaps between consecutive concentrations
 measures how even the steps are on each axis. It is a ratio of a standard
@@ -252,18 +265,18 @@ set.seed(333)
 m7_scale_log <- bnec(fvfm ~ crf(log(concentration),
                                 model = c("nec4param", "ecx4param", "ecxll4")),
                      data = ametryn, seed = 333)
-save(m7_scale_log, file = "fits/m7_scale_log.RData")
+save(m7_scale_log, file = "vignettes/fits/m7_scale_log.RData")
 
 set.seed(333)
 m7_scale_raw <- bnec(fvfm ~ crf(concentration, model = "nec4param"),
                      data = ametryn, seed = 333)
-save(m7_scale_raw, file = "fits/m7_scale_raw.RData")
+save(m7_scale_raw, file = "vignettes/fits/m7_scale_raw.RData")
 ```
 
 ```{r}
 #| label: scale-load
-load("fits/m7_scale_log.RData")
-load("fits/m7_scale_raw.RData")
+load("vignettes/fits/m7_scale_log.RData")
+load("vignettes/fits/m7_scale_raw.RData")
 ```
 
 ```{r}
@@ -312,6 +325,13 @@ excludes the equations that raise the predictor to a fractional power. Every
 estimate is returned on the logged scale unless `xform` is supplied, and step 5
 returns them.
 
+`nec_data`, the simulated example modules 2 to 4 use, is left on the linear
+scale throughout this course. It is 100 random draws rather than a designed
+series, and its true curve is defined as a function of linear `x`, so logging it
+would distort the generating scale rather than reveal it. The difference between
+that example and the dilution series here is the design rather than the
+package.
+
 ## 2. Fitting the candidate set
 
 The whole `decline` set is fitted in one call, under the family chosen in step 1.
@@ -335,32 +355,29 @@ m7_am_reduced <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
                       data = ametryn, family = fam,
                       iter = 4000, chains = 2, seed = 17)
 
-save(m7_am_reduced, file = "fits/m7_am_reduced.RData")
+save(m7_am_reduced, file = "vignettes/fits/m7_am_reduced.RData")
 ```
 
 ```{r}
 #| label: load-am-reduced
-load("fits/m7_am_reduced.RData")
+load("vignettes/fits/m7_am_reduced.RData")
 ```
 
-Compare the retained draws and not `iter`. `iter` counts warmup as well as
-sampling, and the fraction discarded is a choice each package makes for itself.
-`bayesnec` takes `chains = 4` and `iter = 1e4`, and sets `warmup` to
-`floor(iter / 5) * 4`, discarding four fifths and retaining 8000 draws. The call
-above sets `iter` to 4000 with two chains, and the same warmup rule leaves
-`r (4000 - floor(4000 / 5) * 4) * 2`. For comparison, `brms` discards half rather
-than four fifths, so its own defaults of `iter = 2000` over four chains retain
-4000, which is more than this call from a quarter of the iterations. A number of
-iterations means nothing until the warmup rule and the chain count are stated
-beside it.
+Compare the retained draws and not `iter`, for the reason module 2 sets out:
+`iter` counts warmup as well as sampling and the fraction discarded is a choice
+each package makes. `bayesnec`'s defaults retain 8000 draws. The call above sets
+`iter` to 4000 with two chains, and the same warmup rule leaves
+`r (4000 - floor(4000 / 5) * 4) * 2`. That number is what the diagnostic cutoffs
+below are read against, so it matters here rather than only as arithmetic.
 
 Where a fit is genuinely marginal, two arguments are the ones to reach for.
-`iter` and `warmup` come first when Rhat is marginal or the effective sample size
-is low, because a model with a poorly identified parameter may need more draws.
-`control = list(adapt_delta = 0.99, max_treedepth = 12)` comes next: raise
-`adapt_delta` when there are divergent transitions and `max_treedepth` when the
-sampler reports hitting it. Both increase runtime and neither corrects a
-misspecified model.
+`iter` and `warmup` come first when Rhat is marginal or the effective sample
+size is low, because a model with a poorly identified parameter may need more
+draws. `control = list(adapt_delta = 0.99, max_treedepth = 12)` comes next:
+raise `adapt_delta` when there are divergent transitions and `max_treedepth`
+when the sampler reports hitting it. Both increase runtime and neither corrects
+a misspecified model. Step 3 refits with all of them set and says what each one
+does.
 
 ### The set as fitted
 
@@ -532,6 +549,50 @@ behaves this way. It is why the thresholds have to be reported with the result,
 and why the screen names every threshold an equation missed rather than only the
 first.
 
+### Reading the chains
+
+The table is the screen. The plot behind it shows what each diagnostic
+summarises, which is why it is read at least once before the table is trusted. `pull_out()` gives back a single fit, so
+any `brms` method applies to it, and `pull_brmsfit()` gives the `brms` model
+inside:
+
+```{r}
+#| label: fig-onechains
+#| fig-height: 5
+#| fig-cap: "Chains for `ecxwb1`, one of the equations the screen removed at these settings."
+plot(pull_brmsfit(m7_am_reduced, "ecxwb1"))
+```
+
+Each parameter has its marginal posterior on the left and its trace on the
+right. Chains that overlap, with no drift and no sustained excursion, have
+converged on the same distribution; chains that separate into bands, or wander,
+have not. These traces are well mixed, which is consistent with the diagnosis
+above: the equation was not sampled for long enough rather than sampled from a
+posterior the sampler could not traverse.
+
+Reading plots for a set of ten does not scale, and for a set of twenty-three
+still less. `check_chains()` draws the whole set, and given a `filename` writes
+them to a PDF in the working directory rather than to the screen, which is the
+form to use when a set is large:
+
+```{r}
+#| label: checkchains-file
+#| eval: false
+check_chains(m7_am_reduced, filename = "am_reduced_all_chains")
+```
+
+`rhat()` reports the first of the three diagnostics on its own, and the shape of
+what it returns catches people out. On a `bayesmanecfit` it is a list with one
+element per model, each holding the R-hat values and a logical `failed`:
+
+```{r}
+#| label: rhat-set
+rhat(m7_am_reduced) |> sapply("[[", "failed")
+```
+
+Reaching for `rhat(fit)$failed` on a set returns `NULL` and silently finds
+nothing, which is a quiet way to conclude that every model converged.
+
 ### Screening the model set
 
 Only models that pass the sampler diagnostics are retained. The screen reads the
@@ -570,14 +631,32 @@ fit again at `bnec()`'s defaults.
 #| label: fit-am-default
 #| eval: false
 m7_am_fit <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
-                  data = ametryn, family = fam, seed = 17)
+                  data = ametryn, family = fam, seed = 17,
+                  control = list(adapt_delta = 0.99, max_treedepth = 12))
 
-save(m7_am_fit, file = "fits/m7_am_fit.RData")
+save(m7_am_fit, file = "vignettes/fits/m7_am_fit.RData")
 ```
+
+Three things changed from the call in step 2, and they are the three arguments
+worth reaching for in this order. `iter` and `chains` return to `bnec()`'s
+defaults of 10,000 and 4, which is the remedy for a missed effective sample
+size. `adapt_delta` rises from the Stan default of 0.8 to 0.99, which makes the
+sampler adapt a smaller step size during warmup and is the remedy for divergent
+transitions. `max_treedepth` rises from 10 to 12, which raises the ceiling on
+how far the sampler may travel in one iteration and is the remedy for a warning
+that the tree depth was hit. Both `control` arguments are passed through to
+`brms::brm()` by `...`.
+
+Neither `control` argument was needed here: no equation in either run recorded a
+divergent transition. They are set because a candidate set of this size on real
+data commonly produces a few on at least one equation, and because a run whose
+settings are stated is reproducible while one relying on defaults that change
+between versions is not. Both increase runtime, `adapt_delta` substantially, and
+neither corrects a misspecified model.
 
 ```{r}
 #| label: load-am-default
-load("fits/m7_am_fit.RData")
+load("vignettes/fits/m7_am_fit.RData")
 ```
 
 ```{r}
@@ -729,15 +808,26 @@ cf_best <- check_fit(best_fit)
 cf_best
 ```
 
-Location is reproduced at every concentration: `mean_ratio` runs from
+Location is reproduced at every concentration. `mean_ratio` runs from
 `r sprintf("%.3f", min(cf_best$mean_ratio))` to
-`r sprintf("%.3f", max(cf_best$mean_ratio))` and no `ppp_mean` is near either
-bound. The departure is entirely in scale, and it is systematic rather than
-confined to one group. `obs_sd` is close to constant across the series, from
-`r sprintf("%.3f", min(cf_best$obs_sd))` to
-`r sprintf("%.3f", max(cf_best$obs_sd))`, while `sim_sd` falls steadily from
-`r sprintf("%.3f", cf_best$sim_sd[1])` at the control to
-`r sprintf("%.3f", cf_best$sim_sd[nrow(cf_best)])` at the highest concentration.
+`r sprintf("%.3f", max(cf_best$mean_ratio))`, which looks like a large departure
+at the top of the series, and `ppp_mean` runs from
+`r sprintf("%.3f", min(cf_best$ppp_mean))` to
+`r sprintf("%.3f", max(cf_best$ppp_mean))`, entirely inside the 95% span the
+plot below draws. The two disagree because the fitted mean at the highest
+concentrations is
+`r sprintf("%.3f", min(cf_best$sim_mean))`, so a ratio of 1.4 is a difference of
+about `r sprintf("%.3f", abs(diff(unlist(cf_best[nrow(cf_best), c("sim_mean", "obs_mean")]))))`
+on a response spanning 0.7. This is why the p-value is read rather than the
+ratio: a ratio of two small numbers is large before it is meaningful.
+
+The departure is in scale, and it is systematic rather than confined to one
+group. `obs_sd` runs from `r sprintf("%.3f", min(cf_best$obs_sd))` to
+`r sprintf("%.3f", max(cf_best$obs_sd))` with no trend across the series, while
+`sim_sd` falls steadily from `r sprintf("%.3f", cf_best$sim_sd[1])` at the
+control to `r sprintf("%.3f", cf_best$sim_sd[nrow(cf_best)])` at the highest
+concentration, a fivefold decline over a series whose observed spread does not
+decline at all.
 
 That pattern is a property of the family, and it can be checked rather than
 asserted. A `Beta` variance is $\mu(1-\mu)/(1+\phi)$, with a single `phi`
@@ -817,16 +907,16 @@ reproduce. Location and scale are separate panels because they fail
 independently, and that is what has happened here: every point in the mean panel
 sits inside its bar while several in the standard deviation panel do not.
 
-The control row is the one the Overview singled out, and on these data it is the
-worst of the series rather than the best. The model simulates a standard
+The control row is the one *Convergence and fit* singled out, and on these
+data it is the worst of the series rather than the best. The model simulates a standard
 deviation of `r sprintf("%.3f", cf_best$sim_sd[cf_best$control])` against an
 observed `r sprintf("%.3f", cf_best$obs_sd[cf_best$control])`, a `sd_ratio` of
 `r sprintf("%.3f", cf_best$sd_ratio[cf_best$control])`, and a `ppp_sd` of
 `r sprintf("%.3f", cf_best$ppp_sd[cf_best$control])`, meaning that essentially
 every simulated draw was more variable than the data.
 
-That has a direction, and it is the one the Overview set out. `nsec()` reads its
-reference from the posterior of the control mean, and a fit simulating more
+That has a direction, and it is the one *Convergence and fit* set out.
+`nsec()` reads its reference from the posterior of the control mean, and a fit simulating more
 variability there than the data show gives that posterior too much width. The
 reference is placed lower, the curve crosses it further along, and the reported
 no-effect concentration is **higher than the data warrant, and so less
@@ -849,27 +939,48 @@ value for the whole series.
 ```{r}
 #| label: fit-am-disp
 #| eval: false
-m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecxll4") +
+m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecx4param") +
                      disp(~ log(concentration)),
                    data = ametryn, family = fam, seed = 17)
 
-save(m7_am_disp, file = "fits/m7_am_disp.RData")
+save(m7_am_disp, file = "vignettes/fits/m7_am_disp.RData")
 ```
 
 ```{r}
 #| label: load-am-disp
-load("fits/m7_am_disp.RData")
+load("vignettes/fits/m7_am_disp.RData")
 ```
 
-`ecxll4` is named directly because it is the equation `pull_best()` selected, so
-this is the same equation on the same data with the same priors, differing only
-in how the spread is modelled.
+`ecx4param` is named directly because it is the equation `pull_best()` returned
+above, so this is the same equation on the same data with the same priors,
+differing only in how the spread is modelled. Read the weight before copying the
+name: `ecx4param` and `ecxll4` are separated by 0.015 of the weight on these
+data, so the selection could change with the seed or the settings, and the
+equation to refit is whichever `pull_best()` returns in your own run.
 
 ```{r}
 #| label: checkfit-disp
 cf_disp <- check_fit(m7_am_disp)
 cf_disp
 ```
+
+```{r}
+#| label: fig-checkfit-disp
+#| fig-height: 4.5
+#| fig-cap: "`check_fit()` on the dispersion sub-model fit, drawn on the same axes as the constant-dispersion fit above. The scale panel is the one to compare."
+plot(cf_disp)
+```
+
+The comparison to make is between this plot and the one above it, panel for
+panel. The mean panel was already passing and still passes. On the scale panel
+the number of groups falling outside their bar drops from
+`r sum(cf_best$ppp_sd > 0.975 | cf_best$ppp_sd < 0.025)` to
+`r sum(cf_disp$ppp_sd > 0.975 | cf_disp$ppp_sd < 0.025)` of
+`r nrow(cf_disp)`, the control moves inside, and the simulated spread no longer
+falls away across a series whose observed spread does not. One group is still
+flagged, at a concentration where the fit simulates about twice the spread the
+data show, so the term has improved this series rather than resolved it. That is the more common outcome than a clean repair, and the
+diagnostic is what distinguishes the two.
 
 The control row is repaired. `sd_ratio` rises from
 `r sprintf("%.3f", cf_best$sd_ratio[cf_best$control])` to
@@ -945,7 +1056,7 @@ rbind(`constant dispersion` = nsec(best_fit, xform = exp),
 
 The *NSEC* falls by about a third once the control variability is described
 correctly, and its credible interval narrows to less than half its width. This
-is the direction the Overview predicted: a fit simulating too much variability at
+is the direction *Convergence and fit* predicted: a fit simulating too much variability at
 the control places the significance reference lower, the curve crosses it further
 along, and the estimate returned is higher than the data warrant. Correcting the
 dispersion returns a lower and more protective concentration.
@@ -1007,17 +1118,12 @@ each row.
 curve_params(fit_screened, xform = exp)
 ```
 
-The equations of a set do not share a parameter list, which is why nothing is
-averaged across them: only the threshold equations estimate `nec`, and the
-three-parameter equations have no `bot`. Averaging a parameter over whichever
-equations happen to estimate it would average over a different subset for each
-parameter. The weight beside each row is what makes the table readable, since a
-row holding a thousandth of the weight describes the averaged curve hardly at
-all.
-
-`xform` reaches `nec` and `ec50` and no other parameter, because those two are on
-the scale of the predictor while `top`, `bot` and `beta` are levels of the
-response or shape parameters.
+Nothing is averaged across the rows, for the reason module 4 gives: the
+equations of a set do not share a parameter list, so an average would be taken
+over a different subset of the set for each parameter. Read each row against the
+weight beside it. `xform` reaches `nec` and `ec50` and no other parameter,
+because those two are on the scale of the predictor while `top`, `bot` and
+`beta` are levels of the response or shape parameters.
 
 ### Effect concentrations and censoring
 
@@ -1061,15 +1167,6 @@ be used to derive a guideline value. Module 3 covers the ECNSEC, which is the
 quantity that measures it, and an analysis reporting an N(S)EC for guideline use
 should report that alongside.
 
-```{r}
-#| label: fig-nsecieam
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The N(S)EC, combined by weight from the *NEC* of the threshold equations and the *NSEC* of the smooth ones. Reproduced from @fisheretal2023 under CC BY 4.0."
-knitr::include_graphics("images/NSEC_ieam.jpg")
-```
-
 ## Reporting the analysis
 
 The estimates above are the output. What follows is what has to accompany them,
@@ -1089,9 +1186,11 @@ State **the candidate set as fitted**: the set requested, the equations excluded
 before fitting and why, and any equation that failed to fit at all.
 `bnec_record()` returns the first three and `failed_models()` the last.
 
-State **the sampler settings**, including the number of retained draws rather
-than `iter` alone, because two of the three diagnostic cutoffs are absolute
-counts read against them.
+State **the sampler settings**: the number of retained draws rather than `iter`
+alone, because two of the three diagnostic cutoffs are absolute counts read
+against them, and any `control` values used, `adapt_delta` and `max_treedepth`
+among them. Both are Stan defaults unless set, and a fit that needed them raised
+is a different fit from one that did not.
 
 State **the diagnostic thresholds**, all three of them. They are choices, they
 determine what was excluded, and `check_sampling()` allows each to be changed.

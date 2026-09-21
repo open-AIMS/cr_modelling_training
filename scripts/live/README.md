@@ -16,10 +16,10 @@ Open the file beside the page and run it as the module is worked through.
 
 ## Running them
 
-Open `cr_modelling_training.Rproj` first. Each script sets the working
-directory to `vignettes/`, because that is where the data files and the
-saved model objects sit, and every path in the module is written relative
-to it.
+Open `cr_modelling_training.Rproj` first. Every path in these scripts is
+written from the project root, as `vignettes/example_binomial.csv`, which
+is the same text the module page shows. Nothing sets the working
+directory, so a line copied from the page into the console resolves.
 
 The model fits are loaded rather than sampled. Fetch them once with
 `source("vignettes/fetch_fits.R")`, which takes about half a minute; a

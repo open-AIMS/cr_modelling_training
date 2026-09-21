@@ -308,15 +308,13 @@ div.csl-indent {
   <li><a href="#model-averaging" id="toc-model-averaging" class="nav-link" data-scroll-target="#model-averaging">Model averaging</a></li>
   <li><a href="#the-nsec" id="toc-the-nsec" class="nav-link" data-scroll-target="#the-nsec">The N(S)EC</a></li>
   <li><a href="#model-averaging-in-bayesnec" id="toc-model-averaging-in-bayesnec" class="nav-link" data-scroll-target="#model-averaging-in-bayesnec">Model averaging in <code>bayesnec</code></a></li>
-  <li><a href="#fitting-a-named-set" id="toc-fitting-a-named-set" class="nav-link" data-scroll-target="#fitting-a-named-set">Fitting a named set</a></li>
   <li><a href="#combining-single-fits" id="toc-combining-single-fits" class="nav-link" data-scroll-target="#combining-single-fits">Combining single fits</a></li>
+  <li><a href="#fitting-a-named-set" id="toc-fitting-a-named-set" class="nav-link" data-scroll-target="#fitting-a-named-set">Fitting a named set</a></li>
   <li><a href="#plotting-an-averaged-fit" id="toc-plotting-an-averaged-fit" class="nav-link" data-scroll-target="#plotting-an-averaged-fit">Plotting an averaged fit</a></li>
   <li><a href="#the-summary" id="toc-the-summary" class="nav-link" data-scroll-target="#the-summary">The summary</a></li>
   <li><a href="#the-weighting-method" id="toc-the-weighting-method" class="nav-link" data-scroll-target="#the-weighting-method">The weighting method</a></li>
   <li><a href="#elements-of-the-fitted-object" id="toc-elements-of-the-fitted-object" class="nav-link" data-scroll-target="#elements-of-the-fitted-object">Elements of the fitted object</a></li>
   <li><a href="#every-model-in-the-set" id="toc-every-model-in-the-set" class="nav-link" data-scroll-target="#every-model-in-the-set">Every model in the set</a></li>
-  <li><a href="#diagnostics-across-a-set" id="toc-diagnostics-across-a-set" class="nav-link" data-scroll-target="#diagnostics-across-a-set">Diagnostics across a set</a></li>
-  <li><a href="#screening-the-set" id="toc-screening-the-set" class="nav-link" data-scroll-target="#screening-the-set">Screening the set</a></li>
   <li><a href="#fitting-a-set-in-parallel" id="toc-fitting-a-set-in-parallel" class="nav-link" data-scroll-target="#fitting-a-set-in-parallel">Fitting a set in parallel</a>
   <ul class="collapse">
   <li><a href="#choosing-a-plan" id="toc-choosing-a-plan" class="nav-link" data-scroll-target="#choosing-a-plan">Choosing a plan</a></li>
@@ -324,7 +322,6 @@ div.csl-indent {
   <li><a href="#reproducibility-under-a-plan" id="toc-reproducibility-under-a-plan" class="nav-link" data-scroll-target="#reproducibility-under-a-plan">Reproducibility under a plan</a></li>
   <li><a href="#memory" id="toc-memory" class="nav-link" data-scroll-target="#memory">Memory</a></li>
   </ul></li>
-  <li><a href="#checking-the-fit-against-the-data" id="toc-checking-the-fit-against-the-data" class="nav-link" data-scroll-target="#checking-the-fit-against-the-data">Checking the fit against the data</a></li>
   <li><a href="#evidence-from-the-simulation-study" id="toc-evidence-from-the-simulation-study" class="nav-link" data-scroll-target="#evidence-from-the-simulation-study">Evidence from the simulation study</a>
   <ul class="collapse">
   <li><a href="#replication-across-treatments" id="toc-replication-across-treatments" class="nav-link" data-scroll-target="#replication-across-treatments">Replication across treatments</a></li>
@@ -379,19 +376,10 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="multi-model-inference">Multi-model inference</h2>
 <p>The alternative is not to choose. All the plausible models are fitted and used together, which is multi-model inference, and it is useful in exactly the case above: several plausible models and no basis for preferring one.</p>
 <p>This is the basis of model averaging <span class="citation" data-cites="Burnham2002">(<a href="#ref-Burnham2002" role="doc-biblioref">Burnham and Anderson 2002</a>)</span>, which is long established in ecology <span class="citation" data-cites="Dormann2018">(see <a href="#ref-Dormann2018" role="doc-biblioref">Dormann et al. 2018</a> for a review)</span>.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-modav" class="quarto-float quarto-figure quarto-figure-center anchored" width="90%" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-modav-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/modelave_ecol.jpg" id="fig-modav" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:90.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-modav-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/modelave_ecol.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%"></p>
 </figure>
-</div>
-</div>
 </div>
 </section>
 <section id="model-averaging" class="level2">
@@ -399,38 +387,25 @@ Figure&nbsp;1
 <p>Model averaging fits a candidate set and combines the estimates of interest, weighted by how well each model fits the data <span class="citation" data-cites="Burnham2002">(<a href="#ref-Burnham2002" role="doc-biblioref">Burnham and Anderson 2002</a>)</span>. In the frequentist case the weights are usually AICc weights.</p>
 <p>A well-fitting model takes a high weight and dominates the result. A poorly fitting one takes a weight near zero and has little influence. Where several models fit equally well they contribute comparably, and the resulting posterior reflects the uncertainty in model shape as well as in the parameters. That is the substantive gain: an interval from a single chosen equation is conditional on that equation being right, and does not reflect the fact that it was chosen.</p>
 <p>AICc-based averaging has been adopted in ecotoxicology for species sensitivity distributions <span class="citation" data-cites="Thorley2018 fox2020 Dalgarno">(<a href="#ref-Thorley2018" role="doc-biblioref">Thorley and Schwarz 2018</a>; <a href="#ref-fox2020" role="doc-biblioref">Fox et al. 2021</a>; <a href="#ref-Dalgarno" role="doc-biblioref">Dalgarno 2021</a>)</span>. David Fox’s course on <a href="https://training.ecotox.science/courses/an-introduction-to-model-averaging-using-ssdtools-in-r/">SSD model averaging in R</a> covers that application.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-ssd" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ssd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/ssd.jpg" id="fig-ssd" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:60.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ssd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ssd.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%"></p>
 </figure>
-</div>
-</div>
 </div>
 </section>
 <section id="the-nsec" class="level2">
 <h2 class="anchored" data-anchor-id="the-nsec">The N(S)EC</h2>
 <p>Module 3 set out two no-effect estimates: the <em>NEC</em>, which is a parameter of a threshold equation, and the <em>NSEC</em>, which is read from a smooth equation where no threshold parameter exists. A candidate set holding both kinds of equation therefore holds both kinds of estimate.</p>
 <p>Averaging over such a set removes the need to decide in advance which shape the data have. A <code>nec</code> equation contributes its <em>NEC</em> parameter, an <code>ecx</code> equation contributes its <em>NSEC</em>, and each is weighted by how well that equation fits the data. The averaged quantity is written <strong>N(S)EC</strong>, to record that it mixes the two <span class="citation" data-cites="fisheretal2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>)</span>.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
 <div id="fig-nsecieam" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/NSEC_ieam.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: The N(S)EC. <em>NEC</em> values from threshold equations and <em>NSEC</em> values from smooth equations are combined by weight into one estimate, shown on the right against the <em>NEC</em> and <em>NSEC</em> it sits between. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.
+Figure&nbsp;1: The N(S)EC. <em>NEC</em> values from threshold equations and <em>NSEC</em> values from smooth equations are combined by weight into one estimate, shown on the right against the <em>NEC</em> and <em>NSEC</em> it sits between. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.
 </figcaption>
 </figure>
-</div>
-</div>
 </div>
 </section>
 <section id="model-averaging-in-bayesnec" class="level2">
@@ -439,15 +414,86 @@ Figure&nbsp;3: The N(S)EC. <em>NEC</em> values from threshold equations and <em>
 <p>A single recognised model name fits one model and returns a <code>bayesnecfit</code>, which is what modules 2 and 3 used. Two or more names, or the name of a model set, fits each in turn and returns a <code>bayesmanecfit</code> holding the Bayesian model-averaged predictions over those that fitted successfully.</p>
 <p>Both compute time and object size scale with the size of the set. Every model is sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is large. Module 2 measured a single <code>nec3param</code> fit of these data at a little over two minutes; a set of twenty-three is not twenty-three times more convenient.</p>
 </section>
+<section id="combining-single-fits" class="level2">
+<h2 class="anchored" data-anchor-id="combining-single-fits">Combining single fits</h2>
+<p>A set is assembled from fits made separately, which is the route that starts from what module 2 produced. Any model fitted by <code>bnec</code> inherits class <code>bnecfit</code>, which has two methods of its own, <code>+</code> and <code>c</code>. Either will append fits to one another, so two or more <code>bayesnecfit</code> objects can be combined into a model-averaged <code>bayesmanecfit</code>.</p>
+<p>Starting from the <code>nec3param</code> fit of module 2:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit, <span class="at">file =</span> <span class="st">"vignettes/fits/m4_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m4_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>and adding a second equation of a different shape — <code>ecxll3</code>, a three-parameter log-logistic curve with no threshold:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bnec_fit_new <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecxll3"</span>), <span class="at">data =</span> nec_data)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit_new, <span class="at">file =</span> <span class="st">"vignettes/fits/m4_bnec_fit_new.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m4_bnec_fit_new.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bnec_fit_new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Ignoring unknown labels:
+• fill : "NA"
+• colour : "NA"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-ecxll3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-ecxll3-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The <code>ecxll3</code> fit. The annotated no-effect estimate is an <em>NSEC</em>, because this equation has no threshold parameter.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The two are combined with <code>c()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bmanecfit <span class="ot">&lt;-</span> <span class="fu">c</span>(bnec_fit_new, bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit_new)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bmanecfit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "bayesnecfit" "bnecfit"    
+[1] "bayesnecfit" "bnecfit"    
+[1] "bayesmanecfit" "bnecfit"      </code></pre>
+</div>
+</div>
+<p><code>amend()</code> adds or drops models from an existing set, or changes the weighting method, and <code>pull_out()</code> extracts one or more models back out of it. Adding a third equation:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bmanecfit_more <span class="ot">&lt;-</span> <span class="fu">amend</span>(bmanecfit, <span class="at">add =</span> <span class="st">"ecxexp"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bmanecfit_more, <span class="at">file =</span> <span class="st">"vignettes/fits/m4_bmanecfit_more.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m4_bmanecfit_more.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="fitting-a-named-set" class="level2">
 <h2 class="anchored" data-anchor-id="fitting-a-named-set">Fitting a named set</h2>
-<p><code>bnec()</code> takes the name of a set in the same <code>model</code> argument that names a single equation, and fits every equation the set contains:</p>
+<p>Assembling a set one fit at a time is not how a real candidate set is built. <code>bnec()</code> takes the name of a set in the same <code>model</code> argument that names a single equation, and fits every equation the set contains in one call:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>fit_set <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fit_set <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>models()</code> lists the sets and their members:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">models</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">models</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$nec
  [1] "nec3param"     "nec4param"     "nechorme"      "nechorme4"    
@@ -495,78 +541,7 @@ $hormesis
 <p><code>zero_bounded</code> are those for which negative response values are invalid.</p>
 <p><code>all</code> is every available equation. It currently includes <code>necsigm</code>, which should not be used; remove it with <code>amend()</code> if fitting the whole set.</p>
 <p>The sets are not mutually exclusive, and <code>bayesnec</code> discards any model in the set that is unsuitable for the statistical distribution of the response, which module 5 covers. <code>bnec_record()</code>, from module 2, names anything excluded that way.</p>
-<p>The worked example below uses three equations rather than a named set, so that this page renders in reasonable time. Everything shown of a three-equation <code>bayesmanecfit</code> holds for one of eleven. <em>Fitting a set in parallel</em> covers what to do once a set is large enough for the wait to matter.</p>
-</section>
-<section id="combining-single-fits" class="level2">
-<h2 class="anchored" data-anchor-id="combining-single-fits">Combining single fits</h2>
-<p>A set can also be assembled from fits made separately. Any model fitted by <code>bnec</code> inherits class <code>bnecfit</code>, which has two methods of its own, <code>+</code> and <code>c</code>. Either will append fits to one another, so two or more <code>bayesnecfit</code> objects can be combined into a model-averaged <code>bayesmanecfit</code>.</p>
-<p>Starting from the <code>nec3param</code> fit of module 2:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nec_data)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit, <span class="at">file =</span> <span class="st">"fits/m4_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m4_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>and adding a second equation of a different shape — <code>ecxll3</code>, a three-parameter log-logistic curve with no threshold:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>bnec_fit_new <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecxll3"</span>), <span class="at">data =</span> nec_data)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bnec_fit_new, <span class="at">file =</span> <span class="st">"fits/m4_bnec_fit_new.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m4_bnec_fit_new.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bnec_fit_new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Ignoring unknown labels:
-• fill : "NA"
-• colour : "NA"</code></pre>
-</div>
-<div class="cell-output-display">
-<div id="fig-ecxll3" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-ecxll3-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxll3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: The <code>ecxll3</code> fit. The annotated no-effect estimate is an <em>NSEC</em>, because this equation has no threshold parameter.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>The two are combined with <code>c()</code>:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bmanecfit <span class="ot">&lt;-</span> <span class="fu">c</span>(bnec_fit_new, bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Fitted models are: ecxll3 nec3param</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit_new)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bnec_fit)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(bmanecfit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "bayesnecfit" "bnecfit"    
-[1] "bayesnecfit" "bnecfit"    
-[1] "bayesmanecfit" "bnecfit"      </code></pre>
-</div>
-</div>
-<p><code>amend()</code> adds or drops models from an existing set, or changes the weighting method, and <code>pull_out()</code> extracts one or more models back out of it. Adding a third equation:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>bmanecfit_more <span class="ot">&lt;-</span> <span class="fu">amend</span>(bmanecfit, <span class="at">add =</span> <span class="st">"ecxexp"</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(bmanecfit_more, <span class="at">file =</span> <span class="st">"fits/m4_bmanecfit_more.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m4_bmanecfit_more.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>Everything shown of the three-equation <code>bayesmanecfit</code> assembled above holds for a set of eleven fitted this way, and the rest of this module stays with the three so that the page renders in reasonable time. <em>Fitting a set in parallel</em> covers what to do once a set is large enough for the wait to matter, and module 7 fits the whole <code>decline</code> set to real data.</p>
 </section>
 <section id="plotting-an-averaged-fit" class="level2">
 <h2 class="anchored" data-anchor-id="plotting-an-averaged-fit">Plotting an averaged fit</h2>
@@ -580,7 +555,7 @@ Figure&nbsp;4: The <code>ecxll3</code> fit. The annotated no-effect estimate is 
 <img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-manec-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-manec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: The model-averaged fit over three equations.
+Figure&nbsp;3: The model-averaged fit over three equations.
 </figcaption>
 </figure>
 </div>
@@ -630,39 +605,21 @@ This is a modelling result rather than a fault; inspect with check_fit().</code>
 </div>
 <p>The fitted models are listed with their weights. The summary warns that the averaged no-effect estimate contains <em>NSEC</em> values, and would warn again if any fit had divergent transitions.</p>
 <p><code>nec3param</code> takes most of the weight here, which is what should happen: these data were simulated from that equation. The Bayesian R² values show how little of the variation the smooth exponential decline accounts for.</p>
-<p>The summary also warns that <code>ecxexp</code> reproduces the observed variability at the control poorly. That is <code>check_fit()</code>, named in module 2 and set out below, applied here to every equation in the set and reported where it fails. It is a statement about how well that equation describes the data rather than a fault in the fitting, and <code>ecxexp</code> holds almost none of the weight, so it does not reach the averaged estimate. The same warning against a heavily weighted equation would need acting on.</p>
+<p>The summary also warns that <code>ecxexp</code> reproduces the observed variability at the control poorly. That is <code>check_fit()</code>, named in module 2, applied here to every equation in the set and reported where it fails. It is a statement about how well that equation describes the data rather than a fault in the fitting, and <code>ecxexp</code> holds almost none of the weight, so it does not reach the averaged estimate. The same warning against a heavily weighted equation would need acting on. Module 5 uses that check to choose a statistical family and module 7 reads it across a fitted set.</p>
 </section>
 <section id="the-weighting-method" class="level2">
 <h2 class="anchored" data-anchor-id="the-weighting-method">The weighting method</h2>
 <p>The summary reports a weight against each equation, and those weights decide what the averaged estimate is. How they are calculated is therefore worth knowing before reading any further output.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-dumbbell" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-dumbbell-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/dumbbell.jpg" id="fig-dumbbell" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-dumbbell-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/dumbbell.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
 </figure>
-</div>
-</div>
 </div>
 <p>In the frequentist setting AICc weights are standard and relate to the likelihood of the data given each model. The SSD course linked above treats them in detail.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-weights" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/weights.jpg" id="fig-weights" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" style="width:50.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/weights.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
 </figure>
-</div>
-</div>
 </div>
 <p>Bayesian weighting is less settled and there are many candidate methods. A full treatment is outside the scope of this course; what follows is what <code>bayesnec</code> does and why.</p>
 <p><code>bayesnec</code> uses the weighting implemented in <code>loo</code> <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, which performs approximate leave-one-out cross-validation for models fitted by MCMC <span class="citation" data-cites="vehtari2017">(<a href="#ref-vehtari2017" role="doc-biblioref">Vehtari et al. 2017</a>)</span>, using Pareto-smoothed importance sampling to regularise the importance weights <span class="citation" data-cites="Vehtari2019">(<a href="#ref-Vehtari2019" role="doc-biblioref">Vehtari et al. 2019</a>)</span>.</p>
@@ -710,7 +667,7 @@ ecxexp                  NA                  NA</code></pre>
 <pre><code>Pulling out model(s): nec3param</code></pre>
 </div>
 </div>
-<p>It reports the weight alongside the number of candidates it chose from, because the two together say whether the selection means anything. The largest weight in a flat set of twenty is barely more than the equal share of 0.05, and a model holding it describes the averaged prediction hardly at all. That model is the one worth putting through the fit checks below, since it contributes most to the reported estimate.</p>
+<p>It reports the weight alongside the number of candidates it chose from, because the two together say whether the selection means anything. The largest weight in a flat set of twenty is barely more than the equal share of 0.05, and a model holding it describes the averaged prediction hardly at all. That model is the one worth putting through the fit checks of module 7, since it contributes most to the reported estimate.</p>
 <p><code>summary()</code> gives the weights, the dispersion, the no-effect estimate and the Bayesian R², and no parameter estimates at all. <code>curve_params()</code> returns those:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -759,7 +716,7 @@ Ignoring unknown labels:
 <img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-allmodels-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-allmodels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Each equation in the set plotted separately.
+Figure&nbsp;4: Each equation in the set plotted separately.
 </figcaption>
 </figure>
 </div>
@@ -767,122 +724,25 @@ Figure&nbsp;8: Each equation in the set plotted separately.
 </div>
 <p><code>ecxexp</code> fits these data badly, which is why its weight is near zero. A model whose <em>shape</em> does not fit the data can be left in the set at a negligible weight, because it cannot influence the averaged prediction.</p>
 <p>That holds for shape and it does not hold for convergence. A model the sampler never explored properly still contributes to the averaged prediction, and its weight was computed from that same unexplored posterior, so a low weight is no evidence that keeping it is safe. A model that has not converged is removed; a converged model of the wrong shape can stay.</p>
-<p>Telling the two apart is the subject of the next section.</p>
-</section>
-<section id="diagnostics-across-a-set" class="level2">
-<h2 class="anchored" data-anchor-id="diagnostics-across-a-set">Diagnostics across a set</h2>
-<p><code>pull_out()</code> gives back a single fit, so any of the <code>brms</code> diagnostics apply. Taking the worst model in the set:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">pull_brmsfit</span>(bmanecfit_more, <span class="st">"ecxexp"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div id="fig-worstchains" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-worstchains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-worstchains-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-worstchains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: Chains for <code>ecxexp</code>, the worst-fitting equation in the set.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>The chains are well mixed. The model is a bad description of these data and a perfectly converged fit, which are different things.</p>
-<p>Checking every model this way does not scale. <code>check_chains()</code> handles a whole set, and given a <code>filename</code> it writes the plots to a PDF in the working directory rather than to the screen:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_chains</span>(bmanecfit_more, <span class="at">filename =</span> <span class="st">"bmanecfit_more_all_chains"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_chains</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div id="fig-checkchains-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-checkchains-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-1.png" id="fig-checkchains-1" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div id="fig-checkchains-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-checkchains-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-2.png" id="fig-checkchains-2" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div id="fig-checkchains-3" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-checkchains-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-checkchains-3.png" id="fig-checkchains-3" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-checkchains-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="screening-the-set" class="level2">
-<h2 class="anchored" data-anchor-id="screening-the-set">Screening the set</h2>
-<p>Reading plots for a set of twenty-three is not a workable check. Module 2 named <code>check_sampling()</code> on a single fit; on a set it returns one row per model:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      model max_rhat  min_ess min_ess_ratio n_divergent failed
-1    ecxll3 1.000964 3600.500     0.4500625           0  FALSE
-2 nec3param 1.001131 3506.580     0.4383225           0  FALSE
-3    ecxexp 1.001767 3143.243     0.3929054           0  FALSE</code></pre>
-</div>
-</div>
-<p><code>failed</code> is <code>TRUE</code> where any of the three diagnostics misses its cutoff. All three cutoffs are arguments to <code>check_sampling()</code>. Module 7 sets out what each of the three measures, why the number of draws retained changes what two of them demand, and what to do about a model that misses one.</p>
-<p><code>rhat()</code> reports the first of them on its own, keyed by model name:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rhat</span>(bmanecfit_more) <span class="sc">|&gt;</span> <span class="fu">sapply</span>(<span class="st">"[["</span>, <span class="st">"failed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   ecxll3 nec3param    ecxexp 
-    FALSE     FALSE     FALSE </code></pre>
-</div>
-</div>
-<p>Note the shape of that object. <code>rhat()</code> on a <code>bayesmanecfit</code> returns a list with one element per model, each holding the R-hat values and a logical <code>failed</code>. Reaching for <code>rhat(fit)$failed</code> returns <code>NULL</code> and silently finds nothing, which is a quiet way to conclude that every model converged.</p>
-<p><code>screen_models()</code> applies all three diagnostics and drops what failed:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>screened <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>All 3 candidate models passed the sampler screen (Rhat &lt;= 1.01, ESS &gt;= 400, divergences &lt;= 10).</code></pre>
-</div>
-</div>
-<p>It reports what it removed and why, one line per model, naming every threshold a model missed rather than only the first. That message is the record of the exclusion, and an exclusion with no record is not reproducible, which is why <code>quiet = TRUE</code> should not be used in an analysis that will be written up. Where every candidate fails it stops with an error listing the reasons, rather than returning an average of nothing. Where none fails, as here, it says so and returns the set unchanged.</p>
-<p><code>screen_models()</code> does its work through <code>amend()</code>, which is the only route by which a model leaves a <code>bayesmanecfit</code>. <code>amend()</code> recomputes the weights across the models that remain rather than rescaling those retained, so the weights of a screened set are read from the screened object rather than adjusted by hand, and the reported no-effect estimate changes with them.</p>
-<p>An equation can also fail earlier, by producing no draws at all, and <code>failed_models()</code> names those. <code>bnec_record()</code>, from module 2, completes the account by naming any equation excluded before fitting and the reason for it. A set requested as <code>"decline"</code> or <code>"all"</code> commonly excludes several.</p>
-<p>What to do about a model the screen removed depends on which cutoff it missed, and an equation that produced no draws is a different case again. Module 7 works through both against two datasets that ship with the package, which between them produce every outcome. It sits there rather than here because reading a divergent transition means knowing how the sampler explores a posterior, which module 6 covers.</p>
+<p>Telling the two apart needs the sampler diagnostics, which module 7 runs across a fitted set and reads against real data. <code>check_sampling()</code>, <code>check_chains()</code> and <code>screen_models()</code> are the three functions involved, and <code>screen_models()</code> is what removes a model that did not converge and recomputes the weights over those that remain. They sit in module 7 rather than here because reading a divergent transition means knowing how the sampler explores a posterior, which module 6 covers.</p>
 </section>
 <section id="fitting-a-set-in-parallel" class="level2">
 <h2 class="anchored" data-anchor-id="fitting-a-set-in-parallel">Fitting a set in parallel</h2>
 <p>Module 2 covered the chains of a single model running at the same time on different cores. A set of models is a second opportunity, and usually a larger one, because the models do not depend on one another and there are more of them than there are chains.</p>
 <p><code>bnec()</code> and <code>amend()</code> fit their models under whatever <a href="https://cran.r-project.org/package=future"><code>future</code></a> plan is set when they are called. Setting one before the call is the whole of it:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">8</span>)</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>fit_par <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">322</span>)</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">8</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>fit_par <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">322</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>There is no argument to <code>bnec()</code> that turns this on. The plan already records how much of the machine you are willing to use, and a second way of saying it would disagree with the first the moment both were set. <code>future</code> and <code>future.apply</code> are suggested rather than required packages, so a session without them, or without a plan, fits the models one after another exactly as earlier versions did.</p>
 <p>The two levels nest rather than compete. Under a plan of more than one worker, <code>bnec()</code> passes <code>cores = 1</code> to <code>brm()</code>, because otherwise <code>workers</code> multiplied by <code>chains</code> processes would be requested, which is sixteen for four workers and the default four chains. Passing <code>cores</code> yourself is left alone, and is how the two levels are divided deliberately:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>fit_nested <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">322</span>)</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>fit_nested <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">seed =</span> <span class="dv">322</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>That fits five models at a time with four chains each, so twenty chains sample at once. It is the arrangement that suits a cluster allocation, where the number of cores is known in advance and is larger than any one model can use.</p>
 <section id="choosing-a-plan" class="level3">
@@ -932,115 +792,18 @@ Figure&nbsp;12
 <p>Each worker holds a complete fit while it is working, and fits are large. A plan of eight workers holds eight fitted models at once, and under <code>multisession</code> eight copies of the data as well. The same set fitted with <code>cores = 8</code> and no plan holds one model at a time, so it is the number of workers that sets the memory a run needs, rather than the number of cores it keeps busy. A worker killed by the operating system ends the whole call rather than the one model it was fitting. Where a run dies without an R error, reduce the worker count before looking anywhere else.</p>
 </section>
 </section>
-<section id="checking-the-fit-against-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="checking-the-fit-against-the-data">Checking the fit against the data</h2>
-<p>Everything above asks whether the sampler explored the posterior. None of it asks whether the fitted model reproduces the data, and those are different questions: a model can converge perfectly onto a description of the data that is wrong. <code>check_fit()</code>, named in module 2, answers the second, and on a set it returns one block per equation.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(bmanecfit_more)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Each row compares a statistic computed from the observations in a group of the predictor against the same statistic computed from data simulated by the fitted model.</p>
-<ul>
-<li><code>mean_ratio</code> and <code>sd_ratio</code> are the observed values divided by the simulated ones.</li>
-<li><code>ppp_mean</code> and <code>ppp_sd</code> are posterior predictive p-values, each the proportion of simulated datasets in which the simulated statistic was at least as large as the observed one. A value near 0.5 says the observed statistic sits in the middle of what the model produces, and a value near 0 or 1 says it sits in a tail.</li>
-<li><code>control</code> flags the lowest value of the predictor, which is the group both <code>nsec()</code> and <code>ecx()</code> read their reference from. That row is the one to look at first.</li>
-<li><code>wi</code> is the stacking weight of the equation the row belongs to, so a failure can be read against how much the averaged estimate depends on it.</li>
-</ul>
-<p>Read the p-values rather than the ratios, because a ratio says nothing about how well determined it is.</p>
-<p>The control rows of the three equations state the case for checking each equation separately rather than the average:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(<span class="fu">as.data.frame</span>(cf), control,</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">select =</span> <span class="fu">c</span>(model, wi, group, mean_ratio, ppp_mean, sd_ratio, ppp_sd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       model           wi          group mean_ratio ppp_mean  sd_ratio ppp_sd
-1     ecxll3 1.854376e-01 [0.0323,0.235]  1.0033418    0.433 0.9476755  0.576
-11 nec3param 8.145624e-01 [0.0323,0.235]  1.0118253    0.222 0.9942330  0.510
-21    ecxexp 3.802658e-39 [0.0323,0.235]  0.9964246    0.538 0.3722245  0.971</code></pre>
-</div>
-</div>
-<p><code>nec3param</code> and <code>ecxll3</code> reproduce the control almost exactly, with <code>sd_ratio</code> at 0.99 and 0.95. <code>ecxexp</code> simulates nearly three times the spread the data show, at <code>sd_ratio</code> 0.37 and <code>ppp_sd</code> 0.97, and it does so across every group rather than only at the control. This is the warning the summary raised earlier in the module, now located. <code>ecxexp</code> holds a stacking weight of 4e-39, so it reaches the averaged estimate not at all; the same result against <code>nec3param</code>, which holds 0.81, would stop the analysis.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div id="fig-check-fit-set" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-check-fit-set-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="4Model_averaging_and_multimodel_inference_files/figure-html/fig-check-fit-set-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-check-fit-set-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;13: Observed mean and standard deviation in each group against the 95% span of what each equation simulates.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>Each panel shows the observed statistic against the 95% span of what the model simulates, and a point outside its bar is a group the model does not reproduce. Location and scale are drawn separately because they fail independently. Every group of <code>ecxexp</code> falls outside its bar on scale, and its highest bin falls outside on location as well. <code>ecxll3</code> and <code>nec3param</code> reproduce both statistics in every group.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Why one number for the whole fit will not do">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Why one number for the whole fit will not do
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>The distinction matters most for the <em>NSEC</em>, which module 3 introduces. <code>nsec()</code> sets its reference at a quantile of the posterior of the control mean, and the width of that posterior is the variability the fit estimated at the control. A model simulating more variability at the control than the data show places that reference lower, so the curve crosses it further along and the reported concentration is higher and less protective. A model simulating less variability returns a lower one. The direction is not known in advance, and no convergence diagnostic reveals it.</p>
-<p>A single summary statistic for the whole fit will not detect this. Every family with a free dispersion parameter estimates that parameter from the same residuals such a number would summarise, so the parameter absorbs the discrepancy: the fit reports close agreement overall while simulating the wrong spread at the concentrations that determine the estimate. The check is therefore made within groups of the predictor.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Bins and design points">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Bins and design points
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>The predictor in <code>nec_data</code> is continuous, with a different value for every observation, so there are no repeated concentrations to group by. <code>check_fit()</code> cuts the range into ten bins and says so in a warning. A bin is not a design point, and a single row of a binned table is indicative rather than conclusive. On a real dilution series the groups are the tested concentrations and no binning happens; pass <code>group</code> explicitly where the binning is not what you want.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="The message and the bars use different criteria">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>The message and the bars use different criteria
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>The message flags a posterior predictive p-value outside 0.05 to 0.95, and the bars in the plot are the 95% span, which is 0.025 to 0.975. A group can fall beyond the first and inside the second, so the two can disagree. Read the message as a prompt to look at that group rather than as a verdict on the fit.</p>
-</div>
-</div>
-</div>
-<p>Module 7 shows what both checks contribute to a written analysis, on real data.</p>
-</section>
 <section id="evidence-from-the-simulation-study" class="level2">
 <h2 class="anchored" data-anchor-id="evidence-from-the-simulation-study">Evidence from the simulation study</h2>
 <p><span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> simulated concentration-response data from four known curves, two threshold and two smooth, across designs varying in the number of test concentrations, the number of replicates within each, and the number of individuals per replicate. Because the generating curve was known, both the weights and the true effect size behind each estimate could be measured.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
 <div id="fig-ieam" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/ieam_head.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14: <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <a href="https://github.com/open-AIMS/NSEC_IEAM" class="uri">https://github.com/open-AIMS/NSEC_IEAM</a>.
+Figure&nbsp;5: <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <a href="https://github.com/open-AIMS/NSEC_IEAM" class="uri">https://github.com/open-AIMS/NSEC_IEAM</a>.
 </figcaption>
 </figure>
-</div>
-</div>
 </div>
 <section id="replication-across-treatments" class="level3">
 <h3 class="anchored" data-anchor-id="replication-across-treatments">Replication across treatments</h3>
@@ -1055,19 +818,15 @@ Figure&nbsp;14: <span class="citation" data-cites="fisheretal2023">Fisher et al.
 <section id="a-case-study" class="level3">
 <h3 class="anchored" data-anchor-id="a-case-study">A case study</h3>
 <p>The same comparison was made on real data. For <em>Stylophora variolaris</em>, the weight was divided between two smooth equations and the <em>NEC</em> returned by the set was definitively higher than the EC10.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
 <div id="fig-svariolis" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-svariolis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/svariolis.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-svariolis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;15: The <em>S. variolaris</em> case study of <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L<sup>-1</sup>, the dotted line the EC10 at 530 µg L<sup>-1</sup>, and the dashed line the <em>NEC</em> at 800 µg L<sup>-1</sup>.
+Figure&nbsp;6: The <em>S. variolaris</em> case study of <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span>. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L<sup>-1</sup>, the dotted line the EC10 at 530 µg L<sup>-1</sup>, and the dashed line the <em>NEC</em> at 800 µg L<sup>-1</sup>.
 </figcaption>
 </figure>
-</div>
-</div>
 </div>
 <p>The N(S)EC of 140 µg L<sup>-1</sup> was the most conservative of the three and represented a measured effect of about 1.5%. The <em>NEC</em> of 800 µg L<sup>-1</sup> was the least conservative, which is what fitting a threshold to smooth data produces. Across the case studies examined, the measured effect at the N(S)EC ran from 1.5% to 6.6%, and in every case the N(S)EC was higher than the <em>NOEC</em> calculated from the same data.</p>
 </section>

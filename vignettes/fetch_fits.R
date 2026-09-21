@@ -43,9 +43,12 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # Count this against vignettes/fits/ when the archive is rebuilt rather than
 # trusting the number below. Modules are being revised in parallel and each
 # revision that changes a fitted model adds or replaces objects here; the value
-# was 18, then 20, and was 25 on 2026-09-17. An under-set value does not break
-# the fetch, it only guards less.
-N_FITS <- 26L
+# was 18, then 20, 25 on 2026-09-17 and 26 on 2026-09-19. On 2026-09-21 four
+# objects were dropped, because module 2's `ecxll3` fit moved to module 6 under
+# a new name and module 6's prior sections for a model set were cut, and two
+# were added, `m5_exp_6` for the hurdle example and `m6_ecxll3_fit`. An
+# under-set value does not break the fetch, it only guards less.
+N_FITS <- 24L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")

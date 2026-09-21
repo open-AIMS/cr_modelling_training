@@ -376,34 +376,8 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="pseudo-replication-and-hierarchical-effects">Pseudo-replication and hierarchical effects</h2>
 <p>Most ecotoxicological experiments contain grouping elements, such as tanks, vials or batches, that hold multiple measurements that cannot be treated as strictly independent. These are pseudo-replicates. They are handled in ecological statistics with mixed, hierarchical or random effects.</p>
 <p>In concentration-response modelling they arise in two settings, and the difference is fundamental to how each is handled.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-pr1" class="quarto-float quarto-figure quarto-figure-center anchored" width="75%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-pr1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/psuedoreps1.JPG" id="fig-pr1" class="img-fluid figure-img" style="width:75.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pr1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-pr2" class="quarto-float quarto-figure quarto-figure-center anchored" width="100%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-pr2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/psuedoreps2.JPG" id="fig-pr2" class="img-fluid figure-img" style="width:100.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pr2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<p><img src="images/psuedoreps1.JPG" class="img-fluid" style="width:75.0%"></p>
+<p><img src="images/psuedoreps2.JPG" class="img-fluid" style="width:100.0%"></p>
 <section id="within-concentration-groupings" class="level3">
 <h3 class="anchored" data-anchor-id="within-concentration-groupings">Within-concentration groupings</h3>
 <p>Tank and vial effects. Several individual organisms are housed together, and the container has a single concentration. The non-independence occurs <em>within</em> a concentration and does not extend across the concentration range, because a tank cannot hold two concentrations at once.</p>
@@ -458,37 +432,11 @@ Figure&nbsp;2
 <section id="deviation-on-the-intercept" class="level2">
 <h2 class="anchored" data-anchor-id="deviation-on-the-intercept">Deviation on the intercept</h2>
 <p>The common case in ecotoxicology is replicate tanks or vials holding several organisms each, which is the within-concentration grouping above.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-tanks" class="quarto-float quarto-figure quarto-figure-center anchored" width="90%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tanks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/tank_offset.JPG" id="fig-tanks" class="img-fluid figure-img" style="width:90.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-tanks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-experiment" class="quarto-float quarto-figure quarto-figure-center anchored" width="50%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-experiment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/experimental_setup.JPG" id="fig-experiment" class="img-fluid figure-img" style="width:50.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-experiment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<p><img src="images/tank_offset.JPG" class="img-fluid" style="width:90.0%"></p>
+<p><img src="images/experimental_setup.JPG" class="img-fluid" style="width:50.0%"></p>
 <p>The example is an exposure of small <em>Acropora millepora</em> colonies, about 11 mm fragments, to 1-methylnaphthalene in replicated flow-through exposures. Partial colony mortality was measured daily for seven days and again after a further seven days in clean seawater. Colour score is used here.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>colour <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_ogl.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>colour <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/example_ogl.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> Perc_change <span class="sc">/</span> <span class="dv">100</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">groupvar =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(Replicate, Treatment, <span class="at">sep =</span> <span class="st">"_"</span>)),</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="fu">as.numeric</span>(Treatment)) <span class="sc">|&gt;</span></span>
@@ -513,7 +461,7 @@ Figure&nbsp;4
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-ogl-raw-1.png" id="fig-ogl-raw" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ogl-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5
+Figure&nbsp;1
 </figcaption>
 </figure>
 </div>
@@ -528,7 +476,7 @@ Figure&nbsp;5
 <p><code>ecxlin</code> is used rather than a full model set, to keep the example to two fits. It is a linear decline, so this is a simple linear regression with a group-level offset.</p>
 <p><code>ogl(groupvar)</code> is preferred here to <code>(top | groupvar)</code>. Both displace the curve, and the first states that intention directly and is applied on a scale the mean cannot leave.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_ogl_compare.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_ogl_compare.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-ogl-compare" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ogl-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -571,7 +519,7 @@ Table&nbsp;1: The intercept-only deviation compared against the same equation fi
 <p>The comparison is by leave-one-out cross-validation, as module 4 describes, and it reports two things that do not say the same. The pseudo-BMA weight favours the grouped fit at 0.811 against 0.189. The difference in expected log predictive density is 2.4 with a standard error of 2.2, which is about one standard error, so these data support the container term weakly rather than decisively. Twenty containers over five concentrations, holding 97 observations between them, is a small amount of information about between-container variation, and the weight on its own would have read as stronger evidence than that.</p>
 <p>Each fit is drawn with the mean of each container marked, since that mean is the quantity <code>ogl(groupvar)</code> gives a deviation to.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ogl_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_ogl_curves.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ogl_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_ogl_curves.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">factor</span>(fit, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"no group term"</span>, <span class="st">"ogl(groupvar)"</span>)))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ggbnec_data() returns three things in one frame and each layer takes the rows</span></span>
@@ -609,7 +557,7 @@ Table&nbsp;1: The intercept-only deviation compared against the same equation fi
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-ogl-curves-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ogl-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: The linear decline fitted with and without a container offset. Points are the observations, diamonds the container means, the line the fitted curve and the band its 95% credible interval.
+Figure&nbsp;2: The linear decline fitted with and without a container offset. Points are the observations, diamonds the container means, the line the fitted curve and the band its 95% credible interval.
 </figcaption>
 </figure>
 </div>
@@ -620,20 +568,7 @@ Figure&nbsp;6: The linear decline fitted with and without a container offset. Po
 <section id="deviation-on-every-parameter" class="level2">
 <h2 class="anchored" data-anchor-id="deviation-on-every-parameter">Deviation on every parameter</h2>
 <p>Where a grouping spans the whole concentration range, the curve can differ between levels in more than its height. <code>pgl()</code> places a deviation on every parameter of the equation at once, which is what allows that. Which term a design needs follows from what differs between its levels, and on the assay below that can be measured before anything is fitted.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-microtox" class="quarto-float quarto-figure quarto-figure-center anchored" width="75%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-microtox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/microtox.JPG" id="fig-microtox" class="img-fluid figure-img" style="width:75.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-microtox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<p><img src="images/microtox.JPG" class="img-fluid" style="width:75.0%"></p>
 <section id="the-assay" class="level3">
 <h3 class="anchored" data-anchor-id="the-assay">The assay</h3>
 <p>The example is the bioluminescent bacterial assay developed at AIMS for tropical marine conditions <span class="citation" data-cites="luter2025">(<a href="#ref-luter2025" role="doc-biblioref">Luter et al. 2025</a>)</span>. <em>Vibrio azureus</em> strain Lum-31 emits light as a by-product of metabolism, so anything that interferes with electron transport reduces the light emitted. Twenty microlitres of cell suspension goes into 180 µL of sample in a white 96-well plate, and the reading itself is the endpoint, in relative light units. One plate holds a complete concentration series of eleven concentrations by four wells, so a plate spans the whole predictor range, and the assay is run repeatedly on the same reference toxicant.</p>
@@ -709,7 +644,7 @@ Figure&nbsp;7
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-pgl-raw-1.png" id="fig-pgl-raw" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-pgl-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8
+Figure&nbsp;3
 </figcaption>
 </figure>
 </div>
@@ -1011,7 +946,7 @@ Table&nbsp;5: Response and within-cell coefficient of variation at each of the e
 <p>Two group-level terms on two different groupings go into one formula, and <code>make_brmsformula()</code> shows what they become: <code>ogl ~ 1 + (1 | plate)</code> and <code>ec50 ~ 1 + (1 | batch)</code>.</p>
 <p><code>ecxll4</code> is the equation the whole model set gives most weight to on these readings. That set is the copper level of the <code>bnec_group()</code> fit under <em>Factor covariates</em> below, which is the same 704 readings with the same plate term and the same dispersion sub-model, and its weights are reported there. Three equations sit within 0.02 of each other in it, so the selection is weak and <code>ecxll4</code> stands here for a group of equations the data support about equally. Holding it fixed is what makes the comparison below a comparison of terms.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_compare.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_compare.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-plate-compare" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-plate-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1078,10 +1013,10 @@ Table&nbsp;6: The plate terms compared against the same equation fitted without 
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>plate_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"no group term"</span>, <span class="st">"ogl(plate)"</span>, <span class="st">"pgl(plate)"</span>,</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"ogl(plate) + (ec50 | batch)"</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plate_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_curves.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plate_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_curves.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">factor</span>(fit, <span class="at">levels =</span> plate_levels))</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>plate_obs <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_obs.csv"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>plate_nsec <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>plate_obs <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_obs.csv"</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>plate_nsec <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(estimate <span class="sc">==</span> <span class="st">"NSEC"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">factor</span>(fit, <span class="at">levels =</span> plate_levels))</span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
@@ -1103,7 +1038,7 @@ Table&nbsp;6: The plate terms compared against the same equation fitted without 
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-plate-curves-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plate-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: The same equation fitted with no grouping term and with three. Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC.
+Figure&nbsp;4: The same equation fitted with no grouping term and with three. Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC.
 </figcaption>
 </figure>
 </div>
@@ -1113,7 +1048,7 @@ Figure&nbsp;9: The same equation fitted with no grouping term and with three. Po
 <p>That is the mechanism behind the threshold estimates. The N(S)EC is read where the fitted curve leaves the lower bound of the control, so a narrow control band is crossed early and a wide one late. The rule sits well to the left of the shoulder in the ungrouped panel and at the shoulder in the other two.</p>
 <p>The standard deviations say what differs. <code>ecxll4</code> is <code>bot + (top - bot) / (1 + exp(exp(beta) * (x - ec50)))</code>, so <code>pgl()</code> estimates four of them.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_sd.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_sd.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-plate-sd" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-plate-sd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1217,7 +1152,7 @@ Table&nbsp;7: Group-level standard deviations, on the scale each deviation is ap
 <p>Under <code>pgl(plate)</code> the same deviations appear on one grouping. The largest are on the asymptotes, <code>botgl</code> at 0.648 and <code>topgl</code> at 0.465, and <code>ec50</code> takes 0.356 against the batch fit’s 0.509. A per-plate deviation can encode a per-batch shift, because the sixteen plates sit within five batches, so <code>pgl(plate)</code> reaches the positional difference without being told where it lives. <code>beta</code>, the slope, is the most nearly common at 0.116.</p>
 <p>What <code>pgl(plate)</code> has and the batch fit does not is a deviation on <code>bot</code>, and it is the largest of the four. Copper falls to near zero and 106 of its 704 readings are at the instrument floor, so the level the curve settles to is the part of it the plates are least likely to share. That, rather than the positional shift, is what the remaining 72.6 of predictive density is bought with.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_plate_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_plate_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-plate-estimates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-plate-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1349,7 +1284,7 @@ Table&nbsp;8: Toxicity estimates from each fit, back-transformed to mg/L.
 <p>The second reason is that this is the call the <a href="https://open-aims.github.io/bayesnec/articles/example8.html">grouping and factor covariates vignette</a> in <code>bayesnec</code> makes, so the estimates below can be read against the ones published with it.</p>
 <p>This is the one call in the module that names its sampler settings, and it names them for the same reason. That vignette’s fits are run as cluster jobs and stored, and this module reads the stored fit rather than sampling. The closing section says how. Every other fit in this module samples at <code>bnec()</code>’s defaults.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_weights.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_weights.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> toxicant, <span class="at">values_from =</span> wi) <span class="sc">|&gt;</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="sc">-</span>model, <span class="sc">~</span> .x <span class="sc">&gt;=</span> <span class="fl">0.01</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1403,11 +1338,11 @@ Table&nbsp;9: Model weights at each level. Equations below 0.01 at both levels a
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># column of the plot data, so that the line and the table are the same number.</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Both are posterior summaries of the same quantity, computed from different</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># draws, and they differ in the third significant figure.</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>tox_nsec <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>tox_nsec <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_estimates.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(estimate <span class="sc">==</span> <span class="st">"NSEC"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">fit =</span> toxicant)</span>
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>tox_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_curves.csv"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>tox_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_curves.csv"</span>)</span>
 <span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">filter</span>(tox_curves, <span class="sc">!</span><span class="fu">is.na</span>(x_e)), <span class="fu">aes</span>(<span class="at">x =</span> x_e, <span class="at">colour =</span> fit, <span class="at">fill =</span> fit)) <span class="sc">+</span></span>
 <span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(<span class="fu">aes</span>(<span class="at">y =</span> y_ci), <span class="at">colour =</span> <span class="cn">NA</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
@@ -1429,7 +1364,7 @@ Table&nbsp;9: Model weights at each level. Equations below 0.01 at both levels a
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-tox-curves-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tox-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10: Copper and zinc fitted separately, with the observed readings. The dashed vertical line is the N(S)EC of the table above. Each panel has its own axes, because the two metals differ in potency by an order of magnitude and the two arms were read at different gains.
+Figure&nbsp;5: Copper and zinc fitted separately, with the observed readings. The dashed vertical line is the N(S)EC of the table above. Each panel has its own axes, because the two metals differ in potency by an order of magnitude and the two arms were read at different gains.
 </figcaption>
 </figure>
 </div>
@@ -1437,7 +1372,7 @@ Figure&nbsp;10: Copper and zinc fitted separately, with the observed readings. T
 </div>
 <p>The fitted band follows the observations down in both panels, and the readings scatter widely at every concentration while the band stays narrow, which is the plate term holding the between-plate spread out of the population curve. The two panels put the metals an order of magnitude apart on the concentration axis.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tox-estimates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tox-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1514,7 +1449,7 @@ Table&nbsp;10: Toxicity estimates for each metal, back-transformed to mg/L.
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>cmp_tox<span class="sc">$</span>prob_diff</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">group =</span> model, <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">transform =</span> <span class="st">"log10"</span>, <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">signif</span>(x, <span class="dv">2</span>)) <span class="sc">+</span></span>
@@ -1528,14 +1463,14 @@ Table&nbsp;10: Toxicity estimates for each metal, back-transformed to mg/L.
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-tox-posterior-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tox-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: Posterior N(S)EC for each metal, back-transformed to mg/L.
+Figure&nbsp;6: Posterior N(S)EC for each metal, back-transformed to mg/L.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_tox_prob_diff.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_tox_prob_diff.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tox-prob" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tox-prob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1574,7 +1509,7 @@ Table&nbsp;11: Probability that the copper N(S)EC exceeds the zinc one.
 <p>The alternative estimates the parameters of a <em>single</em> equation separately for each level, which is fewer parameters than a deviation on each and does not need five levels to work. <code>bayesnec</code> is used to choose the equation and to build the priors, and <code>brms</code> fits the interaction directly.</p>
 <p>The case study is a subset of the data behind <a href="https://doi.org/10.1039/D2EM00063F">doi:10.1039/D2EM00063F</a>, describing zinc toxicity to a freshwater micro-alga at three water hardnesses, at a fixed pH of 8.3. The response is population growth rate as a percentage of the control growth rate for each experiment. The data were supplied by Gwil Price.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>zinc <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"example_fi.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>zinc <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/example_fi.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">|&gt;</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> (Pcon <span class="sc">/</span> <span class="fu">max</span>(Pcon) <span class="sc">+</span> <span class="fl">0.01</span>) <span class="sc">*</span> <span class="fl">0.99</span>,</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="fu">log</span>(Mean.Zn),</span>
@@ -1593,7 +1528,7 @@ Table&nbsp;11: Probability that the copper N(S)EC exceeds the zinc one.
 </div>
 </div>
 <p>Two preparation decisions are worth naming, because earlier modules argue against one of them.</p>
-<p>The concentrations span five orders of magnitude and are logged, which is the decision module 2 covers under the scale of the predictor.</p>
+<p>The concentrations span five orders of magnitude and are logged, which is the decision module 7 covers under the scale of the predictor.</p>
 <p>The response is divided by the maximum observed value and then shifted off 0 and 1. This is exactly the practice module 5 recommends against, and it is done here because these are the data as supplied: the response is already a percentage of each experiment’s own control, so the sampling variability of that control has already been discarded before the analysis began. Where you have the underlying growth rates, model those instead and read the decline from the fitted control. The shift off the boundaries is needed because <code>brms</code> is called directly below and does not make the adjustment <code>bnec()</code> makes.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(zinc, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">colour =</span> hardness)) <span class="sc">+</span></span>
@@ -1607,7 +1542,7 @@ Table&nbsp;11: Probability that the copper N(S)EC exceeds the zinc one.
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-fi-raw-1.png" id="fig-fi-raw" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-fi-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12
+Figure&nbsp;7
 </figcaption>
 </figure>
 </div>
@@ -1620,7 +1555,7 @@ Figure&nbsp;12
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>best <span class="ot">&lt;-</span> <span class="fu">pull_best</span>(fit_all)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_weights.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_weights.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wi =</span> <span class="fu">round</span>(wi, <span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-fi-weights" class="cell quarto-float quarto-figure quarto-figure-center anchored">
@@ -1745,7 +1680,7 @@ adapt_delta: 0.99</code></pre>
 <p>All four chains finish and the largest rhat is 1.0017, but the fit reports 323 divergent transitions in 10000 draws, well above the threshold of ten that <code>check_sampling()</code> applies in module 7. Raising <code>adapt_delta</code> further does not remove them, and the estimates are the same with and without the ones that remain. <code>bot</code> is estimated at 0.025, close to the boundary the identity link imposes, and that is where the divergences arise. Fitting the levels separately, below, does not meet the problem at all.</p>
 <p>Whether the interaction is supported at all is the first thing to read, and leave-one-out weights answer it on the same footing module 4 used:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_model_weights.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_model_weights.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-fi-interaction" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-fi-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1781,7 +1716,7 @@ Table&nbsp;13: The interaction model against the same equation fitted without it
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read.csv() returns hardness as an integer, because the levels are numbers.</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The observations carry it as a factor, and ggplot cannot put a continuous and</span></span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a discrete scale on one aesthetic, so it is made a factor here to match.</span></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_preds.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_preds.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hardness =</span> <span class="fu">factor</span>(hardness, <span class="at">levels =</span> <span class="fu">levels</span>(zinc<span class="sc">$</span>hardness)))</span>
 <span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds) <span class="sc">+</span></span>
@@ -1800,7 +1735,7 @@ Table&nbsp;13: The interaction model against the same equation fitted without it
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-fi-curves-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fi-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;13: The interaction model, one curve per hardness level, with the observations.
+Figure&nbsp;8: The interaction model, one curve per hardness level, with the observations.
 </figcaption>
 </figure>
 </div>
@@ -1817,7 +1752,7 @@ Figure&nbsp;13: The interaction model, one curve per hardness level, with the ob
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">group_var =</span> <span class="st">"hardness"</span>, <span class="at">seed =</span> <span class="dv">70</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_group_weights.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_group_weights.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hardness =</span> <span class="fu">paste0</span>(<span class="st">"H"</span>, hardness)) <span class="sc">|&gt;</span></span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> hardness, <span class="at">values_from =</span> wi) <span class="sc">|&gt;</span></span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="sc">-</span>model, <span class="sc">~</span> .x <span class="sc">&gt;=</span> <span class="fl">0.01</span>)) <span class="sc">|&gt;</span></span>
@@ -1897,7 +1832,7 @@ Table&nbsp;14: Model weights at each hardness. Equations below 0.01 at every lev
 <p>The weights are what the interaction model cannot report, and on these data they qualify it. The three levels do not settle on the same equation. Hardness 406 puts the whole of its weight on <code>ecxwb1</code>. Hardness 30 splits 0.535 to <code>ecxwb1p3</code> and 0.434 to <code>ecxwb1</code>. Hardness 5 spreads its weight over nine equations, the largest being <code>ecxll3</code> at 0.403, and gives <code>ecxwb1</code> 0.146.</p>
 <p><code>ecxwb1</code> is the only equation with weight at every level, and it is the equation the pooled fit selected and the interaction was fitted on, so the interaction is a defensible description rather than an arbitrary one. It is not a description the three levels agree on. An interaction holds one equation and lets its parameters differ, so it has no way to report a disagreement of this kind. The fit above reports it without being asked.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_group_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_group_estimates.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-zinc-group-estimates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-zinc-group-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1971,7 +1906,7 @@ Table&nbsp;15: Toxicity estimates at each hardness, back-transformed to zinc con
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co"># maps them to a continuous colour scale. As a factor they take the same</span></span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co"># discrete scale the interaction figure uses, and `geom_polygon()` gets one</span></span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># closed band per level rather than one polygon over all three.</span></span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>zinc_group_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_group_curves.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>zinc_group_curves <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_group_curves.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">factor</span>(fit, <span class="at">levels =</span> <span class="fu">levels</span>(zinc<span class="sc">$</span>hardness)))</span>
 <span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">filter</span>(zinc_group_curves, <span class="sc">!</span><span class="fu">is.na</span>(x_e)),</span>
@@ -1990,7 +1925,7 @@ Table&nbsp;15: Toxicity estimates at each hardness, back-transformed to zinc con
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-zinc-group-curves-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-zinc-group-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14: Each hardness fitted separately. The axis is the same as the interaction figure above, so the two routes can be read against each other.
+Figure&nbsp;9: Each hardness fitted separately. The axis is the same as the interaction figure above, so the two routes can be read against each other.
 </figcaption>
 </figure>
 </div>
@@ -2011,7 +1946,7 @@ Figure&nbsp;14: Each hardness fitted separately. The axis is the same as the int
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compare_posterior() returns the level names as data frame column names, which</span></span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># R prefixes with "X" where they begin with a digit. Stripped here so the legend</span></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reads as the hardness values the experiment used.</span></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_ne_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_ne_posterior.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">sub</span>(<span class="st">"^X"</span>, <span class="st">""</span>, model)) <span class="sc">|&gt;</span></span>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">group =</span> model, <span class="at">colour =</span> model, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
 <span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
@@ -2025,7 +1960,7 @@ Figure&nbsp;14: Each hardness fitted separately. The axis is the same as the int
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-compare-nec-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-compare-nec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;15: Posterior densities of the no-effect estimate at each hardness.
+Figure&nbsp;10: Posterior densities of the no-effect estimate at each hardness.
 </figcaption>
 </figure>
 </div>
@@ -2033,7 +1968,7 @@ Figure&nbsp;15: Posterior densities of the no-effect estimate at each hardness.
 </div>
 <p>The densities are on the scale the model was fitted on, which is the logged concentration, so these are the same estimates the table above reports in zinc concentration. The three sit in two groups. Hardness 5 and 30 overlap over almost their whole length, with medians of -0.901 and -0.688 and intervals of -1.918 to -0.219 and -1.508 to -0.082. Hardness 406 sits apart at 1.461 (0.221 to 1.971), which is 2.1 to 2.4 units of natural logarithm above the other two, or a factor of 9 to 11 in concentration.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_prob_diff.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> comparison, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"hardness"</span>, <span class="st">"against"</span>), <span class="at">sep =</span> <span class="st">"-"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> against, <span class="at">values_from =</span> prob) <span class="sc">|&gt;</span></span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2072,7 +2007,7 @@ Table&nbsp;16: Probability that the no-effect estimate at one hardness is lower 
 </div>
 <p>The probabilities say the same. Hardness 5 against 30 is 0.332, which is not far from the 0.5 that would mean no separation at all; both against 406 are 0.012 and 0.013. Hardness protects against zinc toxicity, and on these three levels the effect is visible between 30 and 406 and not between 5 and 30.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/grouping_zinc_diff.csv"</span>) <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"vignettes/data/grouping_zinc_diff.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
 <span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">ymin =</span> diff.Q2<span class="fl">.5</span>, <span class="at">ymax =</span> diff.Q97<span class="fl">.5</span>,</span>
@@ -2087,7 +2022,7 @@ Table&nbsp;16: Probability that the no-effect estimate at one hardness is lower 
 <img src="8Factor_covariates_and_groupings_files/figure-html/fig-compare-fitted-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-compare-fitted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;16: Difference between the fitted curves across the concentration range, with the 95% credible interval of each difference.
+Figure&nbsp;11: Difference between the fitted curves across the concentration range, with the 95% credible interval of each difference.
 </figcaption>
 </figure>
 </div>

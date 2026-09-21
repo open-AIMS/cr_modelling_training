@@ -26,9 +26,13 @@ vignettes/*.html
 vignettes/*.pdf
 
 # written by running a live script: module 2 teaches saveRDS()/readRDS() and
-# module 4 writes a chain plot to a file, so both leave an artefact behind in
-# vignettes/ every time the script is run.
+# module 4 writes a chain plot to a file, so both leave an artefact behind
+# every time the script is run. Since 2026-09-21 the scripts run from the
+# project root rather than from vignettes/, so the artefacts land in both
+# places depending on when the script was last generated.
 vignettes/*.rds
+/*.rds
+/*.pdf
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth

@@ -57,13 +57,7 @@ above: several plausible models and no basis for preferring one.
 This is the basis of model averaging [@Burnham2002], which is long established
 in ecology [see @Dormann2018 for a review].
 
-```{r}
-#| label: fig-modav
-#| out-width: "90%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/modelave_ecol.jpg")
-```
+![](images/modelave_ecol.jpg){width=90% fig-align="center"}
 
 ## Model averaging
 
@@ -84,13 +78,7 @@ model averaging in
 R](https://training.ecotox.science/courses/an-introduction-to-model-averaging-using-ssdtools-in-r/)
 covers that application.
 
-```{r}
-#| label: fig-ssd
-#| out-width: "60%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/ssd.jpg")
-```
+![](images/ssd.jpg){width=60% fig-align="center"}
 
 ## The N(S)EC
 
@@ -105,14 +93,7 @@ contributes its *NSEC*, and each is weighted by how well that equation fits the
 data. The averaged quantity is written **N(S)EC**, to record that it mixes the
 two [@fisheretal2023].
 
-```{r}
-#| label: fig-nsecieam
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023 under CC BY 4.0."
-knitr::include_graphics("images/NSEC_ieam.jpg")
-```
+![The N(S)EC. *NEC* values from threshold equations and *NSEC* values from smooth equations are combined by weight into one estimate, shown on the right against the *NEC* and *NSEC* it sits between. Reproduced from @fisheretal2023 under CC BY 4.0.](images/NSEC_ieam.jpg){#fig-nsecieam width=100% fig-align="center"}
 
 ## Model averaging in `bayesnec`
 
@@ -128,54 +109,13 @@ sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is
 large. Module 2 measured a single `nec3param` fit of these data at a little over
 two minutes; a set of twenty-three is not twenty-three times more convenient.
 
-## Fitting a named set
-
-`bnec()` takes the name of a set in the same `model` argument that names a
-single equation, and fits every equation the set contains:
-
-```{r}
-#| label: fit-named-set
-#| eval: false
-fit_set <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 333)
-```
-
-`models()` lists the sets and their members:
-
-```{r}
-#| label: model-sets
-models()
-```
-
-`nec` and `ecx` are the threshold and smooth equations respectively.
-
-`decline` excludes the hormesis equations and is the most generally useful set
-where there is no evidence of hormesis.
-
-`hormesis` are the equations allowing an initial increase.
-
-`bot_free` are the equations with no lower asymptote, which are useful when the
-response curve is incomplete and estimates are needed beyond the observed range.
-
-`zero_bounded` are those for which negative response values are invalid.
-
-`all` is every available equation. It currently includes `necsigm`, which should
-not be used; remove it with `amend()` if fitting the whole set.
-
-The sets are not mutually exclusive, and `bayesnec` discards any model in the set
-that is unsuitable for the statistical distribution of the response, which module
-5 covers. `bnec_record()`, from module 2, names anything excluded that way.
-
-The worked example below uses three equations rather than a named set, so that
-this page renders in reasonable time. Everything shown of a three-equation
-`bayesmanecfit` holds for one of eleven. *Fitting a set in parallel* covers what
-to do once a set is large enough for the wait to matter.
-
 ## Combining single fits
 
-A set can also be assembled from fits made separately. Any model fitted by
-`bnec` inherits class `bnecfit`, which has two methods of its own, `+` and `c`.
-Either will append fits to one another, so two or more `bayesnecfit` objects can
-be combined into a model-averaged `bayesmanecfit`.
+A set is assembled from fits made separately, which is the route that starts
+from what module 2 produced. Any model fitted by `bnec` inherits class
+`bnecfit`, which has two methods of its own, `+` and `c`. Either will append
+fits to one another, so two or more `bayesnecfit` objects can be combined into a
+model-averaged `bayesmanecfit`.
 
 Starting from the `nec3param` fit of module 2:
 
@@ -186,12 +126,12 @@ set.seed(333)
 data(nec_data)
 bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
 
-save(bnec_fit, file = "fits/m4_bnec_fit.RData")
+save(bnec_fit, file = "vignettes/fits/m4_bnec_fit.RData")
 ```
 
 ```{r}
 #| label: load-fit-nec3param
-load("fits/m4_bnec_fit.RData")
+load("vignettes/fits/m4_bnec_fit.RData")
 ```
 
 and adding a second equation of a different shape — `ecxll3`, a three-parameter
@@ -203,12 +143,12 @@ log-logistic curve with no threshold:
 set.seed(333)
 bnec_fit_new <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
 
-save(bnec_fit_new, file = "fits/m4_bnec_fit_new.RData")
+save(bnec_fit_new, file = "vignettes/fits/m4_bnec_fit_new.RData")
 ```
 
 ```{r}
 #| label: load-fit-ecxll3
-load("fits/m4_bnec_fit_new.RData")
+load("vignettes/fits/m4_bnec_fit_new.RData")
 ```
 
 ```{r}
@@ -242,13 +182,57 @@ third equation:
 #| eval: false
 bmanecfit_more <- amend(bmanecfit, add = "ecxexp")
 
-save(bmanecfit_more, file = "fits/m4_bmanecfit_more.RData")
+save(bmanecfit_more, file = "vignettes/fits/m4_bmanecfit_more.RData")
 ```
 
 ```{r}
 #| label: load-amend
-load("fits/m4_bmanecfit_more.RData")
+load("vignettes/fits/m4_bmanecfit_more.RData")
 ```
+
+## Fitting a named set
+
+Assembling a set one fit at a time is not how a real candidate set is built.
+`bnec()` takes the name of a set in the same `model` argument that names a
+single equation, and fits every equation the set contains in one call:
+
+```{r}
+#| label: fit-named-set
+#| eval: false
+fit_set <- bnec(y ~ crf(x, model = "decline"), data = nec_data, seed = 333)
+```
+
+`models()` lists the sets and their members:
+
+```{r}
+#| label: model-sets
+models()
+```
+
+`nec` and `ecx` are the threshold and smooth equations respectively.
+
+`decline` excludes the hormesis equations and is the most generally useful set
+where there is no evidence of hormesis.
+
+`hormesis` are the equations allowing an initial increase.
+
+`bot_free` are the equations with no lower asymptote, which are useful when the
+response curve is incomplete and estimates are needed beyond the observed range.
+
+`zero_bounded` are those for which negative response values are invalid.
+
+`all` is every available equation. It currently includes `necsigm`, which should
+not be used; remove it with `amend()` if fitting the whole set.
+
+The sets are not mutually exclusive, and `bayesnec` discards any model in the set
+that is unsuitable for the statistical distribution of the response, which module
+5 covers. `bnec_record()`, from module 2, names anything excluded that way.
+
+Everything shown of the three-equation `bayesmanecfit` assembled above holds
+for a set of eleven fitted this way, and the rest of this module stays with the
+three so that the page renders in reasonable time. *Fitting a set in parallel*
+covers what to do once a set is large enough for the wait to matter, and module
+7 fits the whole `decline` set to real data.
 
 ## Plotting an averaged fit
 
@@ -287,13 +271,13 @@ data were simulated from that equation. The Bayesian R² values show how little 
 the variation the smooth exponential decline accounts for.
 
 The summary also warns that `ecxexp` reproduces the observed variability at the
-control poorly. That is `check_fit()`, named in module 2 and set out below,
-applied here to every equation in the set and reported where it fails. It is a
-statement
-about how well that equation describes the data rather than a fault in the
-fitting, and `ecxexp` holds almost none of the weight, so it does not reach the
-averaged estimate. The same warning against a heavily weighted equation would
-need acting on.
+control poorly. That is `check_fit()`, named in module 2, applied here to every
+equation in the set and reported where it fails. It is a statement about how
+well that equation describes the data rather than a fault in the fitting, and
+`ecxexp` holds almost none of the weight, so it does not reach the averaged
+estimate. The same warning against a heavily weighted equation would need acting
+on. Module 5 uses that check to choose a statistical family and module 7 reads
+it across a fitted set.
 
 ## The weighting method
 
@@ -302,25 +286,13 @@ what the averaged estimate is. How they are calculated is therefore worth
 knowing before reading any further output.
 
 
-```{r}
-#| label: fig-dumbbell
-#| out-width: "50%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/dumbbell.jpg")
-```
+![](images/dumbbell.jpg){width=50% fig-align="center"}
 
 In the frequentist setting AICc weights are standard and relate to the
 likelihood of the data given each model. The SSD course linked above treats them
 in detail.
 
-```{r}
-#| label: fig-weights
-#| out-width: "50%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/weights.jpg")
-```
+![](images/weights.jpg){width=50% fig-align="center"}
 
 Bayesian weighting is less settled and there are many candidate methods. A full
 treatment is outside the scope of this course; what follows is what `bayesnec`
@@ -406,8 +378,8 @@ It reports the weight alongside the number of candidates it chose from, because
 the two together say whether the selection means anything. The largest weight in
 a flat set of twenty is barely more than the equal share of 0.05, and a model
 holding it describes the averaged prediction hardly at all. That model is the one
-worth putting through the fit checks below, since it contributes most to the
-reported estimate.
+worth putting through the fit checks of module 7, since it contributes most to
+the reported estimate.
 
 `summary()` gives the weights, the dispersion, the no-effect estimate and the
 Bayesian R², and no parameter estimates at all. `curve_params()` returns those:
@@ -445,99 +417,11 @@ weight was computed from that same unexplored posterior, so a low weight is no
 evidence that keeping it is safe. A model that has not converged is removed; a
 converged model of the wrong shape can stay.
 
-Telling the two apart is the subject of the next section.
-
-## Diagnostics across a set
-
-`pull_out()` gives back a single fit, so any of the `brms` diagnostics apply.
-Taking the worst model in the set:
-
-```{r}
-#| label: fig-worstchains
-#| fig-height: 5
-#| fig-cap: "Chains for `ecxexp`, the worst-fitting equation in the set."
-plot(pull_brmsfit(bmanecfit_more, "ecxexp"))
-```
-
-The chains are well mixed. The model is a bad description of these data and a
-perfectly converged fit, which are different things.
-
-Checking every model this way does not scale. `check_chains()` handles a whole
-set, and given a `filename` it writes the plots to a PDF in the working
-directory rather than to the screen:
-
-```{r}
-#| label: checkchains-file
-#| eval: false
-check_chains(bmanecfit_more, filename = "bmanecfit_more_all_chains")
-```
-
-```{r}
-#| label: fig-checkchains
-#| fig-height: 5
-#| warning: false
-#| message: false
-check_chains(bmanecfit_more)
-```
-
-## Screening the set
-
-Reading plots for a set of twenty-three is not a workable check. Module 2 named
-`check_sampling()` on a single fit; on a set it returns one row per model:
-
-```{r}
-#| label: check-sampling-set
-check_sampling(bmanecfit_more)
-```
-
-`failed` is `TRUE` where any of the three diagnostics misses its cutoff. All
-three cutoffs are arguments to `check_sampling()`. Module 7 sets out what each of
-the three measures, why the number of draws retained changes what two of them
-demand, and what to do about a model that misses one.
-
-`rhat()` reports the first of them on its own, keyed by model name:
-
-```{r}
-#| label: rhat-set
-rhat(bmanecfit_more) |> sapply("[[", "failed")
-```
-
-Note the shape of that object. `rhat()` on a `bayesmanecfit` returns a list with
-one element per model, each holding the R-hat values and a logical `failed`.
-Reaching for `rhat(fit)$failed` returns `NULL` and silently finds nothing, which
-is a quiet way to conclude that every model converged.
-
-`screen_models()` applies all three diagnostics and drops what failed:
-
-```{r}
-#| label: screen
-#| message: true
-screened <- screen_models(bmanecfit_more)
-```
-
-It reports what it removed and why, one line per model, naming every threshold a
-model missed rather than only the first. That message is the record of the
-exclusion, and an exclusion with no record is not reproducible, which is why
-`quiet = TRUE` should not be used in an analysis that will be written up. Where
-every candidate fails it stops with an error listing the reasons, rather than
-returning an average of nothing. Where none fails, as here, it says so and
-returns the set unchanged.
-
-`screen_models()` does its work through `amend()`, which is the only route by
-which a model leaves a `bayesmanecfit`. `amend()` recomputes the weights across
-the models that remain rather than rescaling those retained, so the weights of a
-screened set are read from the screened object rather than adjusted by hand, and
-the reported no-effect estimate changes with them.
-
-An equation can also fail earlier, by producing no draws at all, and
-`failed_models()` names those. `bnec_record()`, from module 2, completes the
-account by naming any equation excluded before fitting and the reason for it. A
-set requested as `"decline"` or `"all"` commonly excludes several.
-
-What to do about a model the screen removed depends on which cutoff it missed,
-and an equation that produced no draws is a different case again. Module 7 works
-through both against two datasets that ship with the package, which between them
-produce every outcome. It sits there rather than here because reading a divergent
+Telling the two apart needs the sampler diagnostics, which module 7 runs across
+a fitted set and reads against real data. `check_sampling()`, `check_chains()`
+and `screen_models()` are the three functions involved, and `screen_models()` is
+what removes a model that did not converge and recomputes the weights over those
+that remain. They sit in module 7 rather than here because reading a divergent
 transition means knowing how the sampler explores a posterior, which module 6
 covers.
 
@@ -655,110 +539,6 @@ killed by the operating system ends the whole call rather than the one model it
 was fitting. Where a run dies without an R error, reduce the worker count before
 looking anywhere else.
 
-## Checking the fit against the data
-
-Everything above asks whether the sampler explored the posterior. None of it
-asks whether the fitted model reproduces the data, and those are different
-questions: a model can converge perfectly onto a description of the data that is
-wrong. `check_fit()`, named in module 2, answers the second, and on a set it
-returns one block per equation.
-
-```{r}
-#| label: check-fit-set
-#| warning: false
-cf <- check_fit(bmanecfit_more)
-```
-
-Each row compares a statistic computed from the observations in a group of the
-predictor against the same statistic computed from data simulated by the fitted
-model.
-
-- `mean_ratio` and `sd_ratio` are the observed values divided by the simulated
-  ones.
-- `ppp_mean` and `ppp_sd` are posterior predictive p-values, each the proportion
-  of simulated datasets in which the simulated statistic was at least as large
-  as the observed one. A value near 0.5 says the observed statistic sits in the
-  middle of what the model produces, and a value near 0 or 1 says it sits in a
-  tail.
-- `control` flags the lowest value of the predictor, which is the group both
-  `nsec()` and `ecx()` read their reference from. That row is the one to look at
-  first.
-- `wi` is the stacking weight of the equation the row belongs to, so a failure
-  can be read against how much the averaged estimate depends on it.
-
-Read the p-values rather than the ratios, because a ratio says nothing about how
-well determined it is.
-
-The control rows of the three equations state the case for checking each
-equation separately rather than the average:
-
-```{r}
-#| label: check-fit-control
-subset(as.data.frame(cf), control,
-       select = c(model, wi, group, mean_ratio, ppp_mean, sd_ratio, ppp_sd))
-```
-
-`nec3param` and `ecxll3` reproduce the control almost exactly, with `sd_ratio`
-at 0.99 and 0.95. `ecxexp` simulates nearly three times the spread the data
-show, at `sd_ratio` 0.37 and `ppp_sd` 0.97, and it does so across every group
-rather than only at the control. This is the warning the summary raised earlier
-in the module, now located. `ecxexp` holds a stacking weight of 4e-39, so it
-reaches the averaged estimate not at all; the same result against `nec3param`,
-which holds 0.81, would stop the analysis.
-
-```{r}
-#| label: fig-check-fit-set
-#| fig-height: 6
-#| fig-cap: "Observed mean and standard deviation in each group against the 95% span of what each equation simulates."
-plot(cf)
-```
-
-Each panel shows the observed statistic against the 95% span of what the model
-simulates, and a point outside its bar is a group the model does not reproduce.
-Location and scale are drawn separately because they fail independently. Every
-group of `ecxexp` falls outside its bar on scale, and its highest bin falls
-outside on location as well. `ecxll3` and `nec3param` reproduce both statistics
-in every group.
-
-::: {.callout-note collapse="true" title="Why one number for the whole fit will not do"}
-
-The distinction matters most for the *NSEC*, which module 3 introduces.
-`nsec()` sets its reference at a quantile of the posterior of the control mean,
-and the width of that posterior is the variability the fit estimated at the
-control. A model simulating more variability at the control than the data show
-places that reference lower, so the curve crosses it further along and the
-reported concentration is higher and less protective. A model simulating less
-variability returns a lower one. The direction is not known in advance, and no
-convergence diagnostic reveals it.
-
-A single summary statistic for the whole fit will not detect this. Every family
-with a free dispersion parameter estimates that parameter from the same
-residuals such a number would summarise, so the parameter absorbs the
-discrepancy: the fit reports close agreement overall while simulating the wrong
-spread at the concentrations that determine the estimate. The check is therefore
-made within groups of the predictor.
-:::
-
-::: {.callout-note collapse="true" title="Bins and design points"}
-
-The predictor in `nec_data` is continuous, with a different value for every
-observation, so there are no repeated concentrations to group by. `check_fit()`
-cuts the range into ten bins and says so in a warning. A bin is not a design
-point, and a single row of a binned table is indicative rather than conclusive.
-On a real dilution series the groups are the tested concentrations and no
-binning happens; pass `group` explicitly where the binning is not what you want.
-:::
-
-::: {.callout-note collapse="true" title="The message and the bars use different criteria"}
-
-The message flags a posterior predictive p-value outside 0.05 to 0.95, and the
-bars in the plot are the 95% span, which is 0.025 to 0.975. A group can fall
-beyond the first and inside the second, so the two can disagree. Read the
-message as a prompt to look at that group rather than as a verdict on the fit.
-:::
-
-Module 7 shows what both checks contribute to a written analysis, on real data.
-
 ## Evidence from the simulation study
 
 @fisheretal2023 simulated concentration-response data from four known curves, two
@@ -767,14 +547,7 @@ concentrations, the number of replicates within each, and the number of
 individuals per replicate. Because the generating curve was known, both the
 weights and the true effect size behind each estimate could be measured.
 
-```{r}
-#| label: fig-ieam
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>."
-knitr::include_graphics("images/ieam_head.jpg")
-```
+![@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>.](images/ieam_head.jpg){#fig-ieam width=100% fig-align="center"}
 
 ### Replication across treatments
 
@@ -809,14 +582,7 @@ The same comparison was made on real data. For *Stylophora variolaris*, the
 weight was divided between two smooth equations and the *NEC* returned by the set
 was definitively higher than the EC10.
 
-```{r}
-#| label: fig-svariolis
-#| out-width: "70%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The *S. variolaris* case study of @fisheretal2023. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L^-1^, the dotted line the EC10 at 530 µg L^-1^, and the dashed line the *NEC* at 800 µg L^-1^."
-knitr::include_graphics("images/svariolis.jpg")
-```
+![The *S. variolaris* case study of @fisheretal2023. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L^-1^, the dotted line the EC10 at 530 µg L^-1^, and the dashed line the *NEC* at 800 µg L^-1^.](images/svariolis.jpg){#fig-svariolis width=70% fig-align="center"}
 
 The N(S)EC of 140 µg L^-1^ was the most conservative of the three and represented
 a measured effect of about 1.5%. The *NEC* of 800 µg L^-1^ was the least

@@ -128,7 +128,10 @@ section <- function(text, level) {
 # show the shape of a term and its names are placeholders.
 #
 # Everything else is emitted live.
-SAMPLING <- "\\b(bnec|bnec_group|brm|amend)\\s*\\("
+# bnec_hurdle and bnec_joint are named in full and before `bnec`, because
+# `\\bbnec\\s*\\(` does not match `bnec_hurdle(` and module 5's hurdle fit was
+# emitted live on 2026-09-21 as a result, at three and a half minutes.
+SAMPLING <- "\\b(bnec_hurdle|bnec_joint|bnec_group|bnec|brm|amend)\\s*\\("
 
 # Formulas are removed before the free variables are counted. A formula is not
 # evaluated when the call around it is, so the names inside it are not
@@ -264,7 +267,7 @@ resolve_missing <- function(missing, mod_num, restores) {
   files <- character()
   for (nm in missing) {
     cand <- names(restores)[vapply(restores, function(v) nm %in% v, logical(1))]
-    n <- suppressWarnings(as.integer(sub("^fits/m(\\d+).*$", "\\1", cand)))
+    n <- suppressWarnings(as.integer(sub("^vignettes/fits/m(\\d+).*$", "\\1", cand)))
     keep <- !is.na(n) & n <= mod_num
     if (!any(keep)) return(character())
     files <- c(files, cand[keep][which.max(n[keep])])
@@ -301,7 +304,7 @@ strip_render_only <- function(code) {
 restores <- list()
 for (stem in names(MODULES)) {
   for (ch in qmd_chunks(file.path(vig_dir, paste0(stem, ".qmd")))) {
-    for (ln in grep('save\\s*\\(.*file\\s*=\\s*"fits/', ch$code, value = TRUE)) {
+    for (ln in grep('save\\s*\\(.*file\\s*=\\s*"vignettes/fits/', ch$code, value = TRUE)) {
       f <- sub('.*file\\s*=\\s*"([^"]+)".*', "\\1", ln)
       nm <- trimws(strsplit(sub('^\\s*save\\s*\\(', "", ln), ",")[[1]][1])
       if (grepl("^[A-Za-z._][A-Za-z0-9._]*$", nm)) {
@@ -437,7 +440,7 @@ for (i in seq_along(MODULES)) {
       # longer match. The fit still happens and the object is still in the
       # session; only the overwrite is prevented.
       if (!is.na(est)) {
-        is_save <- grepl('save\\s*\\(.*file\\s*=\\s*"fits/', code)
+        is_save <- grepl('save\\s*\\(.*file\\s*=\\s*"vignettes/fits/', code)
         if (any(is_save)) {
           code[is_save] <- paste0("# ", code[is_save],
                                   "   # not run: it would overwrite the distributed fit")
@@ -461,7 +464,7 @@ for (i in seq_along(MODULES)) {
         fitted_live <- c(fitted_live, ch$saves)
       }
       defined <- unique(c(defined, if (!is.null(exprs)) assigned_names(exprs)))
-      for (ln in grep('load\\s*\\(\\s*"fits/', code, value = TRUE)) {
+      for (ln in grep('load\\s*\\(\\s*"vignettes/fits/', code, value = TRUE)) {
         loads_fits <- TRUE
         f <- sub('.*load\\s*\\(\\s*"([^"]+)".*', "\\1", ln)
         defined <- unique(c(defined, restores[[f]]))
@@ -469,19 +472,18 @@ for (i in seq_along(MODULES)) {
     }
   }
 
-  # Every path in a module resolves from vignettes/, which is where the module
-  # is rendered from and where fits/ and the CSV files sit. The working
-  # directory is set rather than the paths rewritten, so that a line in this
-  # script is the same text as the line on the page. A participant comparing
-  # the two should find no difference to explain.
+  # Every path in a module is written from the project root, as
+  # `vignettes/example_binomial.csv`, and a render uses the same working
+  # directory (`execute-dir: project` in _quarto.yml). Nothing is rewritten
+  # here and no working directory is set: a line in this script is the same
+  # text as the line on the page, and both resolve for a participant who has
+  # opened cr_modelling_training.Rproj. Until 2026-09-21 the scripts called
+  # setwd("vignettes") instead, which left the page and the console needing
+  # different paths for the same file.
   preamble <- c(
-    'if (basename(getwd()) != "vignettes") {',
-    '  if (dir.exists("vignettes")) {',
-    '    setwd("vignettes")',
-    '  } else {',
-    '    stop("Open the cr_modelling_training project first: every path below is ",',
-    '         "relative to its vignettes/ folder.")',
-    '  }',
+    'if (!dir.exists("vignettes")) {',
+    '  stop("Open cr_modelling_training.Rproj first: every path below is ",',
+    '       "written from the project root, as vignettes/...")',
     '}',
     ''
   )
@@ -496,9 +498,10 @@ for (i in seq_along(MODULES)) {
     preamble <- c(preamble,
       '# The saved model objects. Sampling is what takes the minutes, so the fits',
       '# are made once and loaded here. If this stops the script, fetch them:',
-      '#   source("fetch_fits.R")',
-      'if (!length(list.files("fits", pattern = "\\\\.RData$"))) {',
-      '  stop("No fitted objects in vignettes/fits/. Run source(\\"fetch_fits.R\\") first.")',
+      '#   source("vignettes/fetch_fits.R")',
+      'if (!length(list.files("vignettes/fits", pattern = "\\\\.RData$"))) {',
+      '  stop("No fitted objects in vignettes/fits/. Run ",',
+      '       "source(\\"vignettes/fetch_fits.R\\") first.")',
       '}',
       ''
     )
@@ -562,10 +565,10 @@ readme <- c(
   "",
   "## Running them",
   "",
-  "Open `cr_modelling_training.Rproj` first. Each script sets the working",
-  "directory to `vignettes/`, because that is where the data files and the",
-  "saved model objects sit, and every path in the module is written relative",
-  "to it.",
+  "Open `cr_modelling_training.Rproj` first. Every path in these scripts is",
+  "written from the project root, as `vignettes/example_binomial.csv`, which",
+  "is the same text the module page shows. Nothing sets the working",
+  "directory, so a line copied from the page into the console resolves.",
   "",
   "The model fits are loaded rather than sampled. Fetch them once with",
   "`source(\"vignettes/fetch_fits.R\")`, which takes about half a minute; a",

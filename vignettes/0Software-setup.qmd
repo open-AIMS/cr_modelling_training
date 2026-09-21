@@ -392,17 +392,17 @@ cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 ...
 ```
 
-The path matters, because each module runs with `vignettes` as its working
-directory and reads `fits/` relative to that. A `fits` folder placed at the top
-level of `cr_modelling_training` is not found. Extract the archive at the top
-level of that folder and the path comes out right; extracting it inside
-`vignettes` gives `vignettes/vignettes/fits`, which is not found either.
+The path matters. Every module reads its fits as `vignettes/fits/...`, counted
+from the `cr_modelling_training` folder, so extract the archive at the top level
+of that folder and the path comes out right. Extracting it inside `vignettes`
+gives `vignettes/vignettes/fits`, which is not found.
 :::
 
 The download is optional. Without it the material is complete and the modules
 are slower. Run the `bnec()` chunk each module shows, which is the one marked as
-not evaluated, followed by its `save()` line. That writes the same file into `fits/`, and the
-`load()` below it then works exactly as it does for everyone else.
+not evaluated, followed by its `save()` line. That writes the same file into
+`vignettes/fits/`, and the `load()` below it then works exactly as it does for
+everyone else.
 
 The verification check below reports whether the fitted models are present, so
 you do not have to work it out yourself.
@@ -412,6 +412,14 @@ you do not have to work it out yourself.
 Use "File > Open Folder" and select the `cr_modelling_training` folder. R then
 starts in that folder, so a relative path such as
 `source("vignettes/check_setup.R")` resolves without you typing a full path.
+
+Every path in every module is written from that folder, as
+`read.csv("vignettes/example_binomial.csv")` rather than
+`read.csv("example_binomial.csv")`. A line copied off a module page into the
+console therefore finds its file, and so does the same line in the live script
+for that module. Check where R is with `getwd()`, which should end in
+`cr_modelling_training`, and set it with Session > Set Working Directory if it
+does not.
 
 ---
 
@@ -427,28 +435,27 @@ Positron's "Source" button, or by selecting all the code and running it.
 Positron then runs it from the folder the file is saved in, which avoids the
 error below.
 
-If you instead want to run it from the R console with `source()`, R needs to
-be told where the file is. Pasting
+If you instead want to run it from the R console with `source()`, give the path
+from the `cr_modelling_training` folder:
 
 ```r
-source("check_setup.R", echo = FALSE)
+source("vignettes/check_setup.R", echo = FALSE)
 ```
 
-only works if your R console's *working directory* is already the
-`vignettes/` folder — otherwise you will see:
+That works when the folder is open in Positron, which the previous section
+covers. Otherwise you will see:
 
 ```
 Warning message:
 In file(filename, "r", encoding = encoding) :
-  cannot open file 'check_setup.R': No such file or directory
+  cannot open file 'vignettes/check_setup.R': No such file or directory
 Error in `file()`:
 ! cannot open the connection
 ```
 
 This is not a sign of a broken installation; it means R was looking in the
-wrong folder. Either open `check_setup.R` in Positron and run it from there
-(the first option above), or give `source()` the full path to the file, for
-example:
+wrong folder. Run `getwd()` to see where it is looking. Either open the
+`cr_modelling_training` folder in Positron, or give `source()` the full path:
 
 ```r
 source("C:/path/to/cr_modelling_training/vignettes/check_setup.R", echo = FALSE)

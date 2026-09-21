@@ -37,6 +37,28 @@ prohibition on R Markdown applies here without an exception. Do not author a new
 in this repo. Two 2023 `.Rmd` files remain tracked and are not course content,
 `0Overview.Rmd` and `Scratch.Rmd`.
 
+**Every path in a module is written from the project root.** The Quarto project
+sets `execute-dir: project`, so a chunk runs with `cr_modelling_training` as its
+working directory rather than `vignettes/`, and a module reads
+`vignettes/example_binomial.csv` and `vignettes/fits/m5_exp_2.RData`. This is so
+that a line copied off a page into the console resolves for a participant who
+has the project open, which is what they actually do; before 2026-09-21 the
+paths were relative to `vignettes/` and neither a copied line nor a live script
+worked without a `setwd()`. The live scripts set no working directory for the
+same reason.
+
+**Figures are plain markdown, not `knitr::include_graphics()`.** Under
+`execute-dir: project` the two disagree: `include_graphics()` looks for the file
+relative to the working directory, which is now the project root, while Quarto
+resolves the markdown link it writes relative to the document, which is
+`vignettes/`. Either the chunk fails or the published `src` is wrong. Write
+`![caption](images/x.jpg){#fig-id width=70% fig-align="center"}` instead.
+Measured 2026-09-21: `include_graphics("vignettes/images/a.png")` publishes
+`src="vignettes/images/a.png"` into `docs/vignettes/`, which resolves to
+`docs/vignettes/vignettes/images/`. A figure with no caption takes no `#fig-`
+label, because a labelled figure with an empty caption renders a bare
+"Figure N" line that the chunk form did not.
+
 **Every module stays in `vignettes/`.** The course is a series of vignettes and that is how
 collaborators expect to find it. A converted module replaces its `.Rmd` in place, keeping
 the same file stem, so the numbering and any existing reference still resolve. Do not move
@@ -173,7 +195,7 @@ from under a running script.
 ## 5. Data files and their availability
 
 **The fitted objects live in `vignettes/fits/`, which is git-ignored, and are
-distributed as a release asset.** 26 objects, 43.1 MB zipped, built by
+distributed as a release asset.** 24 objects, 40.3 MB zipped, built by
 `scripts/bundle_fits.R` into `dist/` and published under the fixed tag `fits`:
 
 ```bash
@@ -331,6 +353,25 @@ Both items recorded here on 2026-09-11 are done: module 4 covers parallel fittin
 What is outstanding, as of 2026-09-19:
 
 **`bayesnec` is installed from a moving branch** (§4). Pin it.
+
+**The fits archive has not been re-uploaded since the 2026-09-21 revision.**
+`scripts/bundle_fits.R` was run and `vignettes/fits.sha256` rewritten, and the
+release asset still holds the previous set. Four objects went
+(`m2_ecxll3_fit`, and `m6_exmp_c`, `m6_exmp_d`, `m6_exmp_e`, whose sections were
+cut), two arrived (`m5_exp_6`, the `nassarius` hurdle fit, and `m6_ecxll3_fit`),
+and `m7_am_fit` and `m7_am_disp` were refitted. Upload before anyone fetches:
+
+```bash
+gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training
+```
+
+**Module 6's two videos have not been trimmed.** They are StataCorp's
+*Introduction to Bayesian statistics* parts 1 and 2, and each runs into
+Stata-specific demonstration after the theory. RF asked on 2026-09-21 for
+replacement options to choose from; the candidates are in that session's log.
+Whichever is chosen, a trimmed embed is `{{< video URL start="N" >}}` for a
+start point, and an `end` needs the raw YouTube embed URL with `&end=N`, since
+the Quarto shortcode takes `start` alone.
 
 **The runs-here callout is not written.** `notes/delivery-format-human.md` step 5 asks each
 taught module to open with a note naming the code a participant runs and the code they

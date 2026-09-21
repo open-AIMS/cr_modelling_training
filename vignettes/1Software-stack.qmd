@@ -260,6 +260,35 @@ preferring over any transcription of it, including the ones in this course.
 development: estimator behaviour and default priors have both changed between
 recent versions.
 
+### The development site
+
+That address documents the released version. This course teaches the
+development version, and the two sites are separate:
+
+| Version | Site |
+|---|---|
+| released, on CRAN | <https://open-aims.github.io/bayesnec/> |
+| development, the `dev` branch | <https://open-aims.github.io/bayesnec/dev/> |
+
+Use the second. `bnec_group()`, `check_fit()`, `screen_models()`,
+`failed_models()` and `bnec_record()` are all used in this course and none of
+them is on the released site, so looking a course function up at the first
+address returns nothing and reads as though the function does not exist.
+
+The two are one `pkgdown` site with the development build published into a
+`/dev/` subdirectory, which is why the address is the released one with `dev/`
+appended. Any page transposes the same way: the priors article is at
+`.../bayesnec/articles/example3.html` for the release and
+`.../bayesnec/dev/articles/example3.html` for the development version. The
+development site carries an orange "In-development version" badge beside the
+version number in its header, so which of the two is open can be read off the
+page.
+
+Check that the version in that badge matches what `packageVersion("bayesnec")`
+reports in your session. The `dev` branch moves during the weeks a course is
+being prepared, so a site ahead of an installed package documents behaviour the
+installed package does not have.
+
 The package is developed as open source software. We want to grow `bayesnec` and make it more useful to people.
 Please provide feedback and report software bugs.
 

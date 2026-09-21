@@ -48,35 +48,14 @@ models()$all
 The names divide into two prefixes. Those beginning `nec` are threshold models;
 those beginning `ecx` are smooth models with no threshold.
 
-```{r}
-#| label: fig-necmods
-#| out-width: "75%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the *NEC*. They differ in the decline after it and in whether the response rises first."
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_nec_curves.jpg")
-```
+![The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the *NEC*. They differ in the decline after it and in whether the response rises first.](images/vignette-fig-exmp2b-theoretical_nec_curves.jpg){#fig-necmods width=75% fig-align="center"}
 
-```{r}
-#| label: fig-ecxmods
-#| out-width: "75%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an **EC~x~** or an *NSEC* rather than an *NEC*."
-knitr::include_graphics("images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg")
-```
+![The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an **EC~x~** or an *NSEC* rather than an *NEC*.](images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg){#fig-ecxmods width=75% fig-align="center"}
 
 Fitted to the same response range the two shapes cross twice, so neither is
 uniformly the more conservative.
 
-```{r}
-#| label: fig-etnc1
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from @fisherfox2023 under CC BY-NC 4.0."
-knitr::include_graphics("images/etnc_fig1.jpg")
-```
+![A threshold curve and a smooth curve fitted to the same response range. The threshold curve is flat until the break and then falls steeply; the smooth curve is already declining at the lowest concentrations. Reproduced from @fisherfox2023 under CC BY-NC 4.0.](images/etnc_fig1.jpg){#fig-etnc1 width=100% fig-align="center"}
 
 Named subsets of the full set are also available, and are how a group of
 equations is requested rather than a single one:
@@ -127,14 +106,7 @@ For models prefixed `nec`, the no-effect concentration is a parameter of the
 model itself, $\eta$, and is estimated directly, following the approach of
 @Fox2010.
 
-```{r}
-#| label: fig-necmod
-#| out-width: "90%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Panel A of @fig-etnc2. The *NEC* ($\\eta$) is the breakpoint itself. The EC10 is read from the curve and sits above it."
-knitr::include_graphics("images/necmod_fox2010.jpg")
-```
+![Panel A of @fig-etnc2. The *NEC* ($\eta$) is the breakpoint itself. The EC10 is read from the curve and sits above it.](images/necmod_fox2010.jpg){#fig-necmod width=90% fig-align="center"}
 
 These models assume the response remains at a stable level, near the control
 mean, across the lower concentrations, until a threshold is reached. That
@@ -169,14 +141,7 @@ Models prefixed with `ecx` are continuous or smooth curves. They have an
 intercept, the mean control response, but no threshold: the response begins to
 decline at any concentration above zero, at a rate set by the equation.
 
-```{r}
-#| label: fig-ecxmod
-#| out-width: "90%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Panel B of @fig-etnc2. There is no breakpoint, so the only estimate the curve supports directly is an **EC~x~**."
-knitr::include_graphics("images/ecxmod.jpg")
-```
+![Panel B of @fig-etnc2. There is no breakpoint, so the only estimate the curve supports directly is an **EC~x~**.](images/ecxmod.jpg){#fig-ecxmod width=90% fig-align="center"}
 
 They are appropriate where the data show no threshold, and are used to extract
 **EC~x~** values such as the EC10 or EC50, which are widely used in species
@@ -192,14 +157,7 @@ A smooth model has no threshold parameter, so the *NEC* cannot be read from it.
 The *NSEC* is a way of obtaining a no-effect estimate from such a model
 [@fisherfox2023].
 
-```{r}
-#| label: fig-nsec
-#| out-width: "90%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Panel D of @fig-etnc2. The *NSEC* is where the fitted curve crosses a lower quantile of the control posterior. The EC10 for the same curve sits above it."
-knitr::include_graphics("images/nsec.jpg")
-```
+![Panel D of @fig-etnc2. The *NSEC* is where the fitted curve crosses a lower quantile of the control posterior. The EC10 for the same curve sits above it.](images/nsec.jpg){#fig-nsec width=90% fig-align="center"}
 
 The construction starts from the fitted intercept, the mean response at the
 control. From the posterior of that parameter a lower bound on the control
@@ -250,14 +208,7 @@ how that condition is checked.
 The *NSEC* is analogous to the *NOEC*: both identify the concentration at which
 the response becomes significantly different from the control.
 
-```{r}
-#| label: fig-noec
-#| out-width: "90%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Panel C of @fig-etnc2. The *NOEC* is one of the tested concentrations, chosen by a test on the treatment means with no curve fitted."
-knitr::include_graphics("images/noec.jpg")
-```
+![Panel C of @fig-etnc2. The *NOEC* is one of the tested concentrations, chosen by a test on the treatment means with no curve fitted.](images/noec.jpg){#fig-noec width=90% fig-align="center"}
 
 The difference is that the *NSEC* interpolates from a fitted curve, so it is not
 restricted to the concentrations that happen to have been tested. This removes
@@ -274,7 +225,7 @@ A valid *NSEC* therefore depends on the control variability being a good
 representation of natural variability in an unimpacted population. That in turn
 depends on modelling the response with an appropriate statistical distribution,
 which module 5 covers, and on the fitted model reproducing the variability the
-data show, which `check_fit()` measures and module 4 covers.
+data show, which `check_fit()` measures and module 5 covers.
 
 The same exposure applies to an **EC~x~**. @mebane2015 states the limit directly:
 where the control mean has a standard error of 20%, an EC10 is not a meaningful
@@ -337,14 +288,7 @@ These assume a linear increase up to the threshold and allow various decay
 functions after it. Hormesis raises no difficulty for the *NEC*, which remains
 the concentration at which the response begins to decline.
 
-```{r}
-#| label: fig-hormenec
-#| out-width: "85%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Two threshold hormesis equations. The response rises linearly to the threshold and declines after it, so the *NEC* is still the breakpoint."
-knitr::include_graphics("images/horme_nec.JPG")
-```
+![Two threshold hormesis equations. The response rises linearly to the threshold and declines after it, so the *NEC* is still the breakpoint.](images/horme_nec.JPG){#fig-hormenec width=85% fig-align="center"}
 
 The smooth hormesis models are:
 
@@ -353,14 +297,7 @@ The smooth hormesis models are:
 intersect(models()$hormesis, models()$ecx)
 ```
 
-```{r}
-#| label: fig-hormeecx
-#| out-width: "85%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Two smooth hormesis equations. The curve peaks above the control response, so an effect measured from the control and one measured from the peak differ."
-knitr::include_graphics("images/horme_ecx.JPG")
-```
+![Two smooth hormesis equations. The curve peaks above the control response, so an effect measured from the control and one measured from the peak differ.](images/horme_ecx.JPG){#fig-hormeecx width=85% fig-align="center"}
 
 These do raise a difficulty for **EC~x~**, because an effect has to be measured
 against something, and a hormetic curve offers two candidates: the control, and
@@ -596,20 +533,6 @@ and the comparison functions. It selected between the control and the peak as
 the reference, and with the control always the reference it selected nothing. A
 call still passing it is refused by name rather than ignored.
 
-### Targets the curve never reaches
-
-A target the fitted curve does not reach within the range of the predictor
-returns `NA` for the affected draws, together with a warning naming how many.
-Earlier versions returned the grid point nearest the target, which for such a
-curve is the highest concentration tested, reported as an estimate with nothing
-said about it.
-
-An estimate summarised over the remaining draws is a **censored** estimate and has
-to be reported as one, naming how many draws were excluded and stating that the
-value is bounded below by the highest concentration tested. Reported without that
-label it reads as an ordinary estimate and understates the true value. This is a
-result about the experiment: the design did not reach the effect size asked for.
-
 ### `nsec()`
 
 ```{r}
@@ -643,14 +566,7 @@ decline in the response may begin at the lowest concentration applied.
 
 @fig-etnc2 sets the four estimates against one another.
 
-```{r}
-#| label: fig-etnc2
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "The four toxicity estimates. (A) A threshold model, giving the *NEC* directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The *NOEC*, read from the treatment means. (D) The *NSEC*, read from a smooth model against a lower quantile of the control posterior. Reproduced from @fisherfox2023 under CC BY-NC 4.0."
-knitr::include_graphics("images/etnc_fig2.jpg")
-```
+![The four toxicity estimates. (A) A threshold model, giving the *NEC* directly as a parameter and an EC10 by interpolation. (B) A smooth model, giving an EC10 only. (C) The *NOEC*, read from the treatment means. (D) The *NSEC*, read from a smooth model against a lower quantile of the control posterior. Reproduced from @fisherfox2023 under CC BY-NC 4.0.](images/etnc_fig2.jpg){#fig-etnc2 width=100% fig-align="center"}
 
 Panel A is a threshold equation, where the *NEC* is the breakpoint parameter and
 the EC10 lies above it. Panel B is a smooth equation, which has no breakpoint, so
@@ -665,14 +581,7 @@ and therefore the less conservative estimate.
 form to quote in a methods section, together with the statistical method that
 produces it.
 
-```{r}
-#| label: tbl-definitions
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-#| fig-cap: "Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from @fisheretal2023 under CC BY 4.0."
-knitr::include_graphics("images/Fisher_IEAM_Table1.png")
-```
+![Toxicity estimates used for no and low effects in species sensitivity distribution modelling. Reproduced from @fisheretal2023 under CC BY 4.0.](images/Fisher_IEAM_Table1.png){#tbl-definitions width=100% fig-align="center"}
 
 ## References
 

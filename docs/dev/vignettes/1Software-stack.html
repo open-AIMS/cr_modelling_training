@@ -338,7 +338,10 @@ window.Quarto = {
   <li><a href="#the-dependency-chain" id="toc-the-dependency-chain" class="nav-link" data-scroll-target="#the-dependency-chain">The dependency chain</a></li>
   <li><a href="#package-history" id="toc-package-history" class="nav-link" data-scroll-target="#package-history">Package history</a></li>
   <li><a href="#versions" id="toc-versions" class="nav-link" data-scroll-target="#versions">Versions</a></li>
-  <li><a href="#documentation-and-support" id="toc-documentation-and-support" class="nav-link" data-scroll-target="#documentation-and-support">Documentation and support</a></li>
+  <li><a href="#documentation-and-support" id="toc-documentation-and-support" class="nav-link" data-scroll-target="#documentation-and-support">Documentation and support</a>
+  <ul class="collapse">
+  <li><a href="#the-development-site" id="toc-the-development-site" class="nav-link" data-scroll-target="#the-development-site">The development site</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/open-AIMS/cr_modelling_training/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -557,6 +560,30 @@ Figure&nbsp;7: The <code>bayesnec</code> reference site. <em>Reference</em> docu
 </figure>
 </div>
 <p><em>Reference</em> is the authoritative description of every argument, and is worth preferring over any transcription of it, including the ones in this course. <em>Changelog</em> matters more than it usually does for a package under active development: estimator behaviour and default priors have both changed between recent versions.</p>
+<section id="the-development-site" class="level3">
+<h3 class="anchored" data-anchor-id="the-development-site">The development site</h3>
+<p>That address documents the released version. This course teaches the development version, and the two sites are separate:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Version</th>
+<th>Site</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>released, on CRAN</td>
+<td><a href="https://open-aims.github.io/bayesnec/" class="uri">https://open-aims.github.io/bayesnec/</a></td>
+</tr>
+<tr class="even">
+<td>development, the <code>dev</code> branch</td>
+<td><a href="https://open-aims.github.io/bayesnec/dev/" class="uri">https://open-aims.github.io/bayesnec/dev/</a></td>
+</tr>
+</tbody>
+</table>
+<p>Use the second. <code>bnec_group()</code>, <code>check_fit()</code>, <code>screen_models()</code>, <code>failed_models()</code> and <code>bnec_record()</code> are all used in this course and none of them is on the released site, so looking a course function up at the first address returns nothing and reads as though the function does not exist.</p>
+<p>The two are one <code>pkgdown</code> site with the development build published into a <code>/dev/</code> subdirectory, which is why the address is the released one with <code>dev/</code> appended. Any page transposes the same way: the priors article is at <code>.../bayesnec/articles/example3.html</code> for the release and <code>.../bayesnec/dev/articles/example3.html</code> for the development version. The development site carries an orange “In-development version” badge beside the version number in its header, so which of the two is open can be read off the page.</p>
+<p>Check that the version in that badge matches what <code>packageVersion("bayesnec")</code> reports in your session. The <code>dev</code> branch moves during the weeks a course is being prepared, so a site ahead of an installed package documents behaviour the installed package does not have.</p>
 <p>The package is developed as open source software. We want to grow <code>bayesnec</code> and make it more useful to people. Please provide feedback and report software bugs.</p>
 <p>Please use the <a href="https://github.com/open-aims/bayesnec/issues">issues</a> page to report any problems.</p>
 <p>We can only fix bugs or help with issues if we can reproduce them.</p>
@@ -565,6 +592,7 @@ Figure&nbsp;7: The <code>bayesnec</code> reference site. <em>Reference</em> docu
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">

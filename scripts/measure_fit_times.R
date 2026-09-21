@@ -44,15 +44,26 @@ for (f in sort(list.files(fit_dir, pattern = "\\.RData$"))) {
   e <- new.env()
   for (nm in load(file.path(fit_dir, f), envir = e)) {
     x <- get(nm, envir = e)
-    per <- if (inherits(x, "bayesmanecfit")) {
-      vapply(x$mod_fits, model_seconds, numeric(1))
-    } else if (inherits(x, "bayesnecfit")) {
-      model_seconds(x)
-    } else {
-      next
+    # A hurdle fit is two model sets, a response block and a survival block,
+    # and both are sampled. Counting only one of them halves the estimate the
+    # live-script generator judges the call against.
+    seconds_of <- function(z) {
+      if (inherits(z, "bayesmanecfit")) {
+        vapply(z$mod_fits, model_seconds, numeric(1))
+      } else if (inherits(z, "bayesnecfit")) {
+        model_seconds(z)
+      } else {
+        numeric(0)
+      }
     }
+    per <- if (inherits(x, c("bayesnechurdlefit", "bayesnecjointfit"))) {
+      c(seconds_of(x$growth), seconds_of(x$survival))
+    } else {
+      seconds_of(x)
+    }
+    if (!length(per)) next
     rows[[length(rows) + 1L]] <- data.frame(
-      file = paste0("fits/", f),
+      file = paste0("vignettes/fits/", f),
       object = nm,
       n_models = length(per),
       sample_seconds = round(sum(per, na.rm = TRUE), 1)

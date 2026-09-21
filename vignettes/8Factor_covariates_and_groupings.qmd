@@ -50,19 +50,9 @@ statistics with mixed, hierarchical or random effects.
 In concentration-response modelling they arise in two settings, and the
 difference is fundamental to how each is handled.
 
-```{r}
-#| label: fig-pr1
-#| out-width: "75%"
-#| echo: false
-knitr::include_graphics("images/psuedoreps1.JPG")
-```
+![](images/psuedoreps1.JPG){width=75%}
 
-```{r}
-#| label: fig-pr2
-#| out-width: "100%"
-#| echo: false
-knitr::include_graphics("images/psuedoreps2.JPG")
-```
+![](images/psuedoreps2.JPG){width=100%}
 
 ### Within-concentration groupings
 
@@ -219,19 +209,9 @@ level.
 The common case in ecotoxicology is replicate tanks or vials holding several
 organisms each, which is the within-concentration grouping above.
 
-```{r}
-#| label: fig-tanks
-#| out-width: "90%"
-#| echo: false
-knitr::include_graphics("images/tank_offset.JPG")
-```
+![](images/tank_offset.JPG){width=90%}
 
-```{r}
-#| label: fig-experiment
-#| out-width: "50%"
-#| echo: false
-knitr::include_graphics("images/experimental_setup.JPG")
-```
+![](images/experimental_setup.JPG){width=50%}
 
 The example is an exposure of small *Acropora millepora* colonies, about 11 mm
 fragments, to 1-methylnaphthalene in replicated flow-through exposures. Partial
@@ -240,7 +220,7 @@ seven days in clean seawater. Colour score is used here.
 
 ```{r}
 #| label: ogl-data
-colour <- read.csv("example_ogl.csv") |>
+colour <- read.csv("vignettes/example_ogl.csv") |>
   mutate(y = Perc_change / 100,
          groupvar = factor(paste(Replicate, Treatment, sep = "_")),
          x = as.numeric(Treatment)) |>
@@ -285,7 +265,7 @@ cannot leave.
 ```{r}
 #| label: tbl-ogl-compare
 #| tbl-cap: "The intercept-only deviation compared against the same equation fitted without it."
-read.csv("data/grouping_ogl_compare.csv") |> kable()
+read.csv("vignettes/data/grouping_ogl_compare.csv") |> kable()
 ```
 
 The comparison is by leave-one-out cross-validation, as module 4 describes, and
@@ -305,7 +285,7 @@ the quantity `ogl(groupvar)` gives a deviation to.
 #| label: fig-ogl-curves
 #| fig-height: 4
 #| fig-cap: "The linear decline fitted with and without a container offset. Points are the observations, diamonds the container means, the line the fitted curve and the band its 95% credible interval."
-ogl_curves <- read.csv("data/grouping_ogl_curves.csv") |>
+ogl_curves <- read.csv("vignettes/data/grouping_ogl_curves.csv") |>
   mutate(fit = factor(fit, levels = c("no group term", "ogl(groupvar)")))
 
 # ggbnec_data() returns three things in one frame and each layer takes the rows
@@ -354,12 +334,7 @@ parameter of the equation at once, which is what allows that. Which term a
 design needs follows from what differs between its levels, and on the assay
 below that can be measured before anything is fitted.
 
-```{r}
-#| label: fig-microtox
-#| out-width: "75%"
-#| echo: false
-knitr::include_graphics("images/microtox.JPG")
-```
+![](images/microtox.JPG){width=75%}
 
 ### The assay
 
@@ -608,7 +583,7 @@ Holding it fixed is what makes the comparison below a comparison of terms.
 ```{r}
 #| label: tbl-plate-compare
 #| tbl-cap: "The plate terms compared against the same equation fitted without one."
-read.csv("data/grouping_plate_compare.csv") |> kable()
+read.csv("vignettes/data/grouping_plate_compare.csv") |> kable()
 ```
 
 The expected log predictive density of `ogl(plate)` exceeds the ungrouped fit's
@@ -633,10 +608,10 @@ will not reverse a difference of this size.
 #| fig-cap: "The same equation fitted with no grouping term and with three. Points are the observed readings, the line the fitted curve, the band its 95% credible interval and the dashed line the N(S)EC."
 plate_levels <- c("no group term", "ogl(plate)", "pgl(plate)",
                   "ogl(plate) + (ec50 | batch)")
-plate_curves <- read.csv("data/grouping_plate_curves.csv") |>
+plate_curves <- read.csv("vignettes/data/grouping_plate_curves.csv") |>
   mutate(fit = factor(fit, levels = plate_levels))
-plate_obs <- read.csv("data/grouping_plate_obs.csv")
-plate_nsec <- read.csv("data/grouping_plate_estimates.csv") |>
+plate_obs <- read.csv("vignettes/data/grouping_plate_obs.csv")
+plate_nsec <- read.csv("vignettes/data/grouping_plate_estimates.csv") |>
   filter(estimate == "NSEC") |>
   mutate(fit = factor(fit, levels = plate_levels))
 
@@ -673,7 +648,7 @@ four of them.
 ```{r}
 #| label: tbl-plate-sd
 #| tbl-cap: "Group-level standard deviations, on the scale each deviation is applied on. ogl() estimates one; pgl() estimates one for every parameter of the equation; the batch fit estimates one on each of its two groupings."
-read.csv("data/grouping_plate_sd.csv") |> kable()
+read.csv("vignettes/data/grouping_plate_sd.csv") |> kable()
 ```
 
 `ogl(plate)` puts the between-plate difference at 0.424 on the log scale the
@@ -700,7 +675,7 @@ with.
 ```{r}
 #| label: tbl-plate-estimates
 #| tbl-cap: "Toxicity estimates from each fit, back-transformed to mg/L."
-read.csv("data/grouping_plate_estimates.csv") |> kable()
+read.csv("vignettes/data/grouping_plate_estimates.csv") |> kable()
 ```
 
 The N(S)EC more than doubles across the four fits, from 0.041 mg/L ungrouped to
@@ -835,7 +810,7 @@ defaults.
 ```{r}
 #| label: tbl-tox-weights
 #| tbl-cap: "Model weights at each level. Equations below 0.01 at both levels are omitted."
-read.csv("data/grouping_tox_weights.csv") |>
+read.csv("vignettes/data/grouping_tox_weights.csv") |>
   pivot_wider(names_from = toxicant, values_from = wi) |>
   filter(if_any(-model, ~ .x >= 0.01)) |>
   kable()
@@ -860,11 +835,11 @@ mixture of NEC and NSEC estimates.
 # column of the plot data, so that the line and the table are the same number.
 # Both are posterior summaries of the same quantity, computed from different
 # draws, and they differ in the third significant figure.
-tox_nsec <- read.csv("data/grouping_tox_estimates.csv") |>
+tox_nsec <- read.csv("vignettes/data/grouping_tox_estimates.csv") |>
   filter(estimate == "NSEC") |>
   rename(fit = toxicant)
 
-tox_curves <- read.csv("data/grouping_tox_curves.csv")
+tox_curves <- read.csv("vignettes/data/grouping_tox_curves.csv")
 
 ggplot(filter(tox_curves, !is.na(x_e)), aes(x = x_e, colour = fit, fill = fit)) +
   geom_polygon(aes(y = y_ci), colour = NA, alpha = 0.3) +
@@ -889,7 +864,7 @@ panels put the metals an order of magnitude apart on the concentration axis.
 ```{r}
 #| label: tbl-tox-estimates
 #| tbl-cap: "Toxicity estimates for each metal, back-transformed to mg/L."
-read.csv("data/grouping_tox_estimates.csv") |> kable()
+read.csv("vignettes/data/grouping_tox_estimates.csv") |> kable()
 ```
 
 Copper is the more potent of the two on every estimate, by a factor of 6.5 on
@@ -926,7 +901,7 @@ cmp_tox$prob_diff
 #| label: fig-tox-posterior
 #| fig-height: 3.5
 #| fig-cap: "Posterior N(S)EC for each metal, back-transformed to mg/L."
-read.csv("data/grouping_tox_posterior.csv") |>
+read.csv("vignettes/data/grouping_tox_posterior.csv") |>
   ggplot(aes(x = value, group = model, colour = model, fill = model)) +
   geom_density(alpha = 0.3) +
   scale_x_continuous(transform = "log10", labels = function(x) signif(x, 2)) +
@@ -938,7 +913,7 @@ read.csv("data/grouping_tox_posterior.csv") |>
 ```{r}
 #| label: tbl-tox-prob
 #| tbl-cap: "Probability that the copper N(S)EC exceeds the zinc one."
-read.csv("data/grouping_tox_prob_diff.csv") |> kable()
+read.csv("vignettes/data/grouping_tox_prob_diff.csv") |> kable()
 ```
 
 The two posteriors barely overlap, and they differ in width as well as in
@@ -986,7 +961,7 @@ rate for each experiment. The data were supplied by Gwil Price.
 
 ```{r}
 #| label: fi-data
-zinc <- read.csv("example_fi.csv") |>
+zinc <- read.csv("vignettes/example_fi.csv") |>
   na.omit() |>
   mutate(y = (Pcon / max(Pcon) + 0.01) * 0.99,
          x = log(Mean.Zn),
@@ -1001,7 +976,7 @@ Two preparation decisions are worth naming, because earlier modules argue agains
 one of them.
 
 The concentrations span five orders of magnitude and are logged, which is the
-decision module 2 covers under the scale of the predictor.
+decision module 7 covers under the scale of the predictor.
 
 The response is divided by the maximum observed value and then shifted off 0 and
 1. This is exactly the practice module 5 recommends against, and it is done here
@@ -1036,7 +1011,7 @@ best <- pull_best(fit_all)
 ```{r}
 #| label: tbl-fi-weights
 #| tbl-cap: "Model weights for the pooled zinc data."
-read.csv("data/grouping_zinc_weights.csv") |>
+read.csv("vignettes/data/grouping_zinc_weights.csv") |>
   mutate(wi = round(wi, 3)) |>
   kable()
 ```
@@ -1149,7 +1124,7 @@ posterior::nchains(brms::as_draws_array(fit_inter))
 #| label: fi-sampling
 #| echo: false
 #| comment: ""
-cat(readLines("data/grouping_zinc_inter_sampling.txt"), sep = "\n")
+cat(readLines("vignettes/data/grouping_zinc_inter_sampling.txt"), sep = "\n")
 ```
 
 All four chains finish and the largest rhat is 1.0017, but the fit reports 323
@@ -1166,7 +1141,7 @@ leave-one-out weights answer it on the same footing module 4 used:
 ```{r}
 #| label: tbl-fi-interaction
 #| tbl-cap: "The interaction model against the same equation fitted without it."
-read.csv("data/grouping_zinc_model_weights.csv") |> kable()
+read.csv("vignettes/data/grouping_zinc_model_weights.csv") |> kable()
 ```
 
 Weight on the interaction says the levels differ by more than one shared curve
@@ -1181,7 +1156,7 @@ than a single curve accounts for.
 # read.csv() returns hardness as an integer, because the levels are numbers.
 # The observations carry it as a factor, and ggplot cannot put a continuous and
 # a discrete scale on one aesthetic, so it is made a factor here to match.
-preds <- read.csv("data/grouping_zinc_preds.csv") |>
+preds <- read.csv("vignettes/data/grouping_zinc_preds.csv") |>
   mutate(hardness = factor(hardness, levels = levels(zinc$hardness)))
 
 ggplot(preds) +
@@ -1221,7 +1196,7 @@ zinc_group <- bnec_group(y ~ crf(x, model = "decline"), data = zinc,
 ```{r}
 #| label: tbl-zinc-group-weights
 #| tbl-cap: "Model weights at each hardness. Equations below 0.01 at every level are omitted."
-read.csv("data/grouping_zinc_group_weights.csv") |>
+read.csv("vignettes/data/grouping_zinc_group_weights.csv") |>
   mutate(hardness = paste0("H", hardness)) |>
   pivot_wider(names_from = hardness, values_from = wi) |>
   filter(if_any(-model, ~ .x >= 0.01)) |>
@@ -1244,7 +1219,7 @@ fit above reports it without being asked.
 ```{r}
 #| label: tbl-zinc-group-estimates
 #| tbl-cap: "Toxicity estimates at each hardness, back-transformed to zinc concentration."
-read.csv("data/grouping_zinc_group_estimates.csv") |> kable()
+read.csv("vignettes/data/grouping_zinc_group_estimates.csv") |> kable()
 ```
 
 The estimates follow the ordering the interaction model gave. The N(S)EC runs
@@ -1260,7 +1235,7 @@ magnitude above both.
 # maps them to a continuous colour scale. As a factor they take the same
 # discrete scale the interaction figure uses, and `geom_polygon()` gets one
 # closed band per level rather than one polygon over all three.
-zinc_group_curves <- read.csv("data/grouping_zinc_group_curves.csv") |>
+zinc_group_curves <- read.csv("vignettes/data/grouping_zinc_group_curves.csv") |>
   mutate(fit = factor(fit, levels = levels(zinc$hardness)))
 
 ggplot(filter(zinc_group_curves, !is.na(x_e)),
@@ -1306,7 +1281,7 @@ post_fitted <- compare_posterior(zinc_group, comparison = "fitted")
 # compare_posterior() returns the level names as data frame column names, which
 # R prefixes with "X" where they begin with a digit. Stripped here so the legend
 # reads as the hardness values the experiment used.
-read.csv("data/grouping_zinc_ne_posterior.csv") |>
+read.csv("vignettes/data/grouping_zinc_ne_posterior.csv") |>
   mutate(model = sub("^X", "", model)) |>
   ggplot(aes(x = value, group = model, colour = model, fill = model)) +
   geom_density(alpha = 0.3) +
@@ -1326,7 +1301,7 @@ or a factor of 9 to 11 in concentration.
 ```{r}
 #| label: tbl-compare-prob
 #| tbl-cap: "Probability that the no-effect estimate at one hardness is lower than at another."
-read.csv("data/grouping_zinc_prob_diff.csv") |>
+read.csv("vignettes/data/grouping_zinc_prob_diff.csv") |>
   separate(col = comparison, into = c("hardness", "against"), sep = "-") |>
   pivot_wider(names_from = against, values_from = prob) |>
   kable()
@@ -1341,7 +1316,7 @@ the effect is visible between 30 and 406 and not between 5 and 30.
 #| label: fig-compare-fitted
 #| fig-height: 4
 #| fig-cap: "Difference between the fitted curves across the concentration range, with the 95% credible interval of each difference."
-read.csv("data/grouping_zinc_diff.csv") |>
+read.csv("vignettes/data/grouping_zinc_diff.csv") |>
   ggplot() +
   geom_hline(yintercept = 0, linetype = 2, colour = "grey50") +
   geom_ribbon(aes(x = x, ymin = diff.Q2.5, ymax = diff.Q97.5,
@@ -1408,7 +1383,7 @@ it.
 #| label: provenance
 #| echo: false
 #| comment: ""
-cat(readLines("data/grouping_provenance.txt"), sep = "\n")
+cat(readLines("vignettes/data/grouping_provenance.txt"), sep = "\n")
 ```
 
 ## References

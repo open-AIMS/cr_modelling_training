@@ -27,7 +27,7 @@
 #   hidden      the chunk runs on the page but its code is not shown
 #   setup       `include: false`: neither the code nor its output appears
 #   image_only  the body is nothing but knitr::include_graphics()
-#   saves       the fits/ paths the chunk writes, if any
+#   saves       the vignettes/fits/ paths the chunk writes, if any
 qmd_chunks <- function(qmd) {
   lines <- readLines(qmd, warn = FALSE)
   starts <- grep("^```\\{r[ ,}]", lines)
@@ -59,7 +59,7 @@ qmd_chunks <- function(qmd) {
       image_only = length(body_code) > 0 &&
         all(grepl("include_graphics", body_code)),
       saves = sub('.*file\\s*=\\s*"([^"]+)".*', "\\1",
-                  grep('save\\s*\\(.*file\\s*=\\s*"fits/', code, value = TRUE))
+                  grep('save\\s*\\(.*file\\s*=\\s*"vignettes/fits/', code, value = TRUE))
     )
     prev <- e
   }
@@ -70,9 +70,9 @@ qmd_chunks <- function(qmd) {
 #
 # An executed chunk is included, because later chunks depend on the data it
 # reads and the objects it builds. A chunk marked `eval: false` is skipped,
-# except where it saves into `fits/`: those are the fit chunks, and they are
-# the whole point of that script. Skipping every `eval: false` chunk, which an
-# earlier version did, left it unable to fit anything at all.
+# except where it saves into `vignettes/fits/`: those are the fit chunks, and
+# they are the whole point of that script. Skipping every `eval: false` chunk,
+# which an earlier version did, left it unable to fit anything at all.
 runnable_chunks <- function(qmd) {
   chunks <- qmd_chunks(qmd)
   out <- character()

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-19">
+<meta name="dcterms.date" content="2026-09-22">
 
 <title>Software setup – Concentration-response modelling</title>
 <style>
@@ -327,7 +327,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 19, 2026</p>
+      <p class="date">September 22, 2026</p>
     </div>
   </div>
   
@@ -577,15 +577,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
 cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 ...</code></pre>
-<p>The path matters, because each module runs with <code>vignettes</code> as its working directory and reads <code>fits/</code> relative to that. A <code>fits</code> folder placed at the top level of <code>cr_modelling_training</code> is not found. Extract the archive at the top level of that folder and the path comes out right; extracting it inside <code>vignettes</code> gives <code>vignettes/vignettes/fits</code>, which is not found either.</p>
+<p>The path matters. Every module reads its fits as <code>vignettes/fits/...</code>, counted from the <code>cr_modelling_training</code> folder, so extract the archive at the top level of that folder and the path comes out right. Extracting it inside <code>vignettes</code> gives <code>vignettes/vignettes/fits</code>, which is not found.</p>
 </div>
 </div>
-<p>The download is optional. Without it the material is complete and the modules are slower. Run the <code>bnec()</code> chunk each module shows, which is the one marked as not evaluated, followed by its <code>save()</code> line. That writes the same file into <code>fits/</code>, and the <code>load()</code> below it then works exactly as it does for everyone else.</p>
+<p>The download is optional. Without it the material is complete and the modules are slower. Run the <code>bnec()</code> chunk each module shows, which is the one marked as not evaluated, followed by its <code>save()</code> line. That writes the same file into <code>vignettes/fits/</code>, and the <code>load()</code> below it then works exactly as it does for everyone else.</p>
 <p>The verification check below reports whether the fitted models are present, so you do not have to work it out yourself.</p>
 </section>
 <section id="opening-the-materials-in-positron" class="level2">
 <h2 class="anchored" data-anchor-id="opening-the-materials-in-positron">Opening the materials in Positron</h2>
 <p>Use “File &gt; Open Folder” and select the <code>cr_modelling_training</code> folder. R then starts in that folder, so a relative path such as <code>source("vignettes/check_setup.R")</code> resolves without you typing a full path.</p>
+<p>Every path in every module is written from that folder, as <code>read.csv("vignettes/example_binomial.csv")</code> rather than <code>read.csv("example_binomial.csv")</code>. A line copied off a module page into the console therefore finds its file, and so does the same line in the live script for that module. Check where R is with <code>getwd()</code>, which should end in <code>cr_modelling_training</code>, and set it with Session &gt; Set Working Directory if it does not.</p>
 <hr>
 </section>
 </section>
@@ -593,15 +594,15 @@ cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 <h1>The verification check</h1>
 <p><code>check_setup.R</code> is supplied alongside this document, in the <code>vignettes/</code> folder of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
 <p>The most reliable way to run it is to open <code>check_setup.R</code> itself in Positron (not just this document) and run the whole file from there — for example with Positron’s “Source” button, or by selecting all the code and running it. Positron then runs it from the folder the file is saved in, which avoids the error below.</p>
-<p>If you instead want to run it from the R console with <code>source()</code>, R needs to be told where the file is. Pasting</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>only works if your R console’s <em>working directory</em> is already the <code>vignettes/</code> folder — otherwise you will see:</p>
+<p>If you instead want to run it from the R console with <code>source()</code>, give the path from the <code>cr_modelling_training</code> folder:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That works when the folder is open in Positron, which the previous section covers. Otherwise you will see:</p>
 <pre><code>Warning message:
 In file(filename, "r", encoding = encoding) :
-  cannot open file 'check_setup.R': No such file or directory
+  cannot open file 'vignettes/check_setup.R': No such file or directory
 Error in `file()`:
 ! cannot open the connection</code></pre>
-<p>This is not a sign of a broken installation; it means R was looking in the wrong folder. Either open <code>check_setup.R</code> in Positron and run it from there (the first option above), or give <code>source()</code> the full path to the file, for example:</p>
+<p>This is not a sign of a broken installation; it means R was looking in the wrong folder. Run <code>getwd()</code> to see where it is looking. Either open the <code>cr_modelling_training</code> folder in Positron, or give <code>source()</code> the full path:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/path/to/cr_modelling_training/vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>replacing the path with wherever you saved the workshop materials.</p>
 <p>Every run takes a few minutes, because it compiles a model each time rather than reusing an earlier build. That is deliberate: reusing a build would let the check pass without ever invoking the compiler, which is the thing being tested.</p>

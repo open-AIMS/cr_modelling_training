@@ -11,25 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(bayesnec)
 library(brms)
 library(ggplot2)
-library(dplyr)
-library(tidyr)
 options(brms.backend = "cmdstanr")
 options(mc.cores = 4)
 set.seed(333)
 data(nec_data)
-
-# The prior figures below draw the densities `get_priors()` returns, rather than
-# idealised curves, so that what is plotted is what a fit would actually use.
-# sample_priors() returns a named list of draws with a `b_` prefix per parameter.
-prior_draws <- function(priors, set) {
-  sample_priors(priors, n_samples = 4000, plot = NA) |>
-    data.frame() |>
-    tidyr::pivot_longer(dplyr::everything(),
-                        names_to = "parameter", values_to = "value") |>
-    dplyr::mutate(parameter = sub("^b_", "", parameter), set = set)
-}
-
-prior_cols <- c("uninformative" = "#1b6ca8", "regularizing" = "#c1440e")
 ```
 
 ## Background
@@ -44,13 +29,7 @@ Three things justify the overhead: a stable and flexible fitting platform,
 estimates of uncertainty that mean what people assume they mean, and the
 posterior sample itself, which every estimate in this course is read from.
 
-```{r}
-#| label: fig-bayes
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/bayesian_stats.JPG")
-```
+![](images/bayesian_stats.JPG){width=100% fig-align="center"}
 
 ## Estimating uncertainty
 
@@ -91,10 +70,11 @@ interval at all for that reason.
 
 A question about two estimates becomes a proportion of draws.
 `compare_posterior()` pairs the draws of two fits and reports the probability
-that one estimate exceeds the other. Module 2 shows it on two equations fitted
-to `nec_data`, and module 8 uses it to compare the toxicity of copper and zinc.
-The same count answers whether a threshold falls below a guideline value, which
-is the form a risk assessment usually needs [@fisher2018c].
+that one estimate exceeds the other. *Using posterior distributions*, at the end
+of this module, works that through on two equations fitted to `nec_data`, and
+module 8 uses it to compare the toxicity of copper and zinc. The same count
+answers whether a threshold falls below a guideline value, which is the form a
+risk assessment usually needs [@fisher2018c].
 
 Model averaging is done on the draws as well. `bnec()` weights the candidate
 equations by their leave-one-out predictive performance and draws from each in
@@ -106,13 +86,14 @@ The draws also travel into work downstream of the fit. A species sensitivity
 distribution fitted to point estimates treats each species value as known
 exactly, and fitting it to the draws instead propagates the uncertainty in each
 species into the hazard concentration that comes out
-[@Charles2020a; @Gottschalk2013]. Module 7 lists other uses the draws have been
-put to.
+[@Charles2020a; @Gottschalk2013].
 
 None of this removes the overhead. A fit takes minutes rather than seconds and
 needs a working toolchain. The priors are a further assumption that a maximum
 likelihood fit does not make, and stating them, checking them and knowing how
-much they matter is what the rest of this module covers.
+much they matter is the subject of the middle of this module. *Using posterior
+distributions* returns to the draws at the end, once the machinery that produced
+them has been set out.
 
 ## Sampling
 
@@ -132,13 +113,7 @@ Many packages implement MCMC — `WinBUGS` [@Lunn2000], `JAGS` [@Plummer2003] an
 `Stan` [@Carpenter2017], reached from R through `R2WinBUGS`, `R2jags` [@Su2015]
 and `rstan` [@rstan2021].
 
-```{r}
-#| label: fig-mctools
-#| out-width: "100%"
-#| fig-align: center
-#| echo: false
-knitr::include_graphics("images/mctools.JPG")
-```
+![](images/mctools.JPG){width=100% fig-align="center"}
 
 These require the model to be specified in a separate language, which is a real
 barrier. `brms` [@Burkner2017] removes it for a wide range of models by
@@ -200,7 +175,7 @@ treatment concentrations. Where data are sparse the defaults can be influential;
 but sparse data usually need informative priors to fit at all, and then the
 influence of prior knowledge should be acknowledged rather than avoided.
 
-### The available prior sets
+Two sets are supplied, and `prior_type` selects between them:
 
 ```{r}
 #| label: prior-types
@@ -208,216 +183,35 @@ influence of prior knowledge should be acknowledged rather than avoided.
 formals(bnec)$prior_type
 ```
 
-`"uninformative"` is the default and is described below. `"regularizing"` is a
-deliberately narrower set, and it is the option to reach for where a default fit
-is unstable.
-
-The narrower set is recent, and it is not the default for a reason that has
-nothing to do with which set performs better. `"uninformative"` reproduces the
-priors described in the paper that documents the package [@fisheretal2024], so
-it is what a published `bayesnec` analysis was run under, and changing the
-default would silently change the result of re-running one. The narrower set is
-offered alongside it instead.
+`"uninformative"` is the default. `"regularizing"` is a deliberately narrower
+set, and it is the one to reach for where a default fit is unstable. The
+narrower set is not the default for a reason that has nothing to do with which
+performs better: `"uninformative"` reproduces the priors described in the paper
+documenting the package [@fisheretal2024], so it is what a published `bayesnec`
+analysis was run under, and changing the default would silently change the
+result of re-running one.
 
 On the evidence so far the narrower set is the better choice for a new analysis.
-It was measured on the two designs that cause the most trouble, complete effect
-at the highest concentration and a hurdle or zero-inflated fit whose survival
-declines with concentration: over 420 `top` and `bot` entries built from
-simulated responses across ten seeds, three designs and five families, the true
-value fell outside the central 95% of its own prior in 12 entries under the
-narrower set and in 127 under `"uninformative"`. Expect it to become the default
-in a later version, and state which set was used either way.
+Measured over 420 `top` and `bot` entries built from simulated responses across
+ten seeds, three designs and five families, the true value fell outside the
+central 95% of its own prior in 12 entries under the narrower set and in 127
+under `"uninformative"`. Expect it to become the default in a later version, and
+state which set was used either way. One assumption is worth checking before
+selecting it: the rule assumes the lowest concentration tested sits at the level
+`top` describes and the highest sits at the level `bot` describes, so on a
+design whose decline is incomplete, use `"uninformative"`.
 
-```{r}
-#| label: fig-prior-sets
-#| fig-height: 2.8
-#| echo: false
-#| fig-cap: "The two prior sets for `nec4param` fitted to `nec_data` with a Gaussian response. The shaded band on each panel is the observed range of the quantity that parameter describes. `top` and `bot` are narrower under the regularizing set by a factor of 0.4 and `bot` is also relocated, from the 10th quantile of the response to the mean at the highest concentration. The prior on `nec` is almost unchanged, because it is set by the concentration series rather than by the response."
-f_gauss <- bayesnecformula(y ~ crf(x, model = "nec4param"))
-p_unin <- get_priors(f_gauss, data = nec_data, family = gaussian())
-p_regl <- get_priors(f_gauss, data = nec_data, family = gaussian(),
-                     prior_type = "regularizing")
-
-sets <- bind_rows(prior_draws(p_unin, "uninformative"),
-                  prior_draws(p_regl, "regularizing")) |>
-  filter(parameter %in% c("top", "bot", "nec")) |>
-  mutate(parameter = factor(parameter, c("top", "bot", "nec")))
-
-observed <- data.frame(
-  parameter = factor(c("top", "bot", "nec"), c("top", "bot", "nec")),
-  lo = c(min(nec_data$y), min(nec_data$y), min(nec_data$x)),
-  hi = c(max(nec_data$y), max(nec_data$y), max(nec_data$x)))
-
-ggplot(sets, aes(value, colour = set, fill = set)) +
-  geom_rect(data = observed, aes(xmin = lo, xmax = hi, ymin = -Inf, ymax = Inf),
-            inherit.aes = FALSE, fill = "grey90", colour = NA) +
-  geom_density(alpha = 0.25, linewidth = 0.6) +
-  facet_wrap(~parameter, scales = "free", nrow = 1) +
-  scale_colour_manual(values = prior_cols) +
-  scale_fill_manual(values = prior_cols) +
-  labs(x = NULL, y = "prior density", colour = NULL, fill = NULL) +
-  theme_classic() +
-  theme(legend.position = "top")
-```
-
-The narrower set is stated once, as a location and a spread, and each family's
-entry is derived from that statement using whichever distribution matches the
-parameter's support. The location is the mean response at the end of the
-concentration series where the parameter describes the level of the curve: the
-lowest concentrations for `top`, which for a design with an unexposed control is
-the control group, and the highest for `bot`. The spread is 0.4 of the standard
-deviation of the corresponding `"uninformative"` prior, subject to two limits. It
-is never smaller than the standard error of the location, because a prior
-narrower than the noise in its own anchor states a precision the data do not
-supply. And it is never wider than the `"uninformative"` prior, so that asking
-for the narrower set cannot widen anything.
-
-Over 420 `top` and `bot` entries built from simulated responses across five
-designs, three predictor transforms, seven families and two links, the ratio is
-0.4 exactly in 385 of them, the standard-error floor binds in 35, and the
-resulting prior is wider than the `"uninformative"` one in none.
-
-One assumption is worth checking before selecting it. The rule assumes the lowest
-concentration tested sits at the level `top` describes and the highest sits at
-the level `bot` describes. Where the highest concentration has not reached the
-lower asymptote, the location for `bot` sits above the true value, and no choice
-of spread corrects a bias in a location. On a design with an incomplete decline,
-use the `"uninformative"` set.
-
-`prior_type` is ignored whenever you supply a `prior` of your own.
-
-The descriptions that follow are of the default set. Rather than relying on
-them, read the priors off a fitted model with `pull_prior()`, as below: the
-construction has changed between versions and will change again.
-
-### Response-scaled parameters
-
-Only $\tau = \text{top}$ and $\delta = \text{bot}$ relate directly to the
-response, so their priors depend on the family.
-
-For a Gaussian response, or any response whose link admits values from
-$-\infty$ to $\infty$, the priors are Gaussian with means at the 90th and 10th
-quantiles of the response for `top` and `bot`, and a standard deviation of 2.5
-times that of the response. That scales with the data, puts the density near the
-plausible region, and is broad enough to have little influence on the posterior.
-
-For Poisson, negative binomial and gamma responses, negative values are
-impossible and a Gaussian is unsuitable. Gamma priors are used instead, with
-means at the 75th and 25th quantiles of the response. The mean relates to the
-shape $s$ and rate $r$ by $\mu = s(1/r)$ [@Becker1988], with the shape set to 2 —
-a value chosen by testing, as broad while still centred on feasible values.
-
-For binomial, beta and beta-binomial families, `top` and `bot` are necessarily
-between 0 and 1 on the identity link, so no scaling to the response is needed.
-`beta(5, 2)` and `beta(2, 5)` give broad densities over the upper and lower parts
-of that range respectively.
-
-```{r}
-#| label: fig-family-priors
-#| fig-height: 2.8
-#| echo: false
-#| fig-cap: "The `top` and `bot` priors under three families, read off `get_priors()` for `nec4param`. A Gaussian response gives normal priors, which admit negative values. A count gives gamma priors, bounded at zero and right skewed, on the scale of the counts themselves. A count out of a total gives beta priors on the identity link, bounded at 0 and 1, with `top` over the upper part of the range and `bot` over the lower."
-count_data <- nec_data |>
-  mutate(y = abs(round(y * 100 + rnorm(nrow(nec_data), 0, 15))) |> as.integer())
-binom_data <- read.csv("example_binomial.csv")
-
-f_binom <- bayesnecformula(suc | trials(tot) ~ crf(raw_x, model = "nec4param"))
-
-by_family <- bind_rows(
-  prior_draws(get_priors(f_gauss, data = nec_data,   family = gaussian()), "gaussian"),
-  prior_draws(get_priors(f_gauss, data = count_data, family = poisson()),  "poisson"),
-  prior_draws(get_priors(f_binom, data = binom_data, family = binomial()), "binomial")) |>
-  filter(parameter %in% c("top", "bot")) |>
-  mutate(family = factor(set, c("gaussian", "poisson", "binomial")),
-         parameter = factor(parameter, c("top", "bot")))
-
-ggplot(by_family, aes(value, colour = parameter, fill = parameter)) +
-  geom_density(alpha = 0.3, linewidth = 0.6) +
-  facet_wrap(~family, scales = "free", nrow = 1) +
-  scale_colour_manual(values = c(top = "#1b6ca8", bot = "#c1440e")) +
-  scale_fill_manual(values = c(top = "#1b6ca8", bot = "#c1440e")) +
-  labs(x = NULL, y = "prior density", colour = NULL, fill = NULL) +
-  theme_classic() +
-  theme(legend.position = "top")
-```
-
-### Predictor-scaled parameters
-
-$\eta = \text{nec}$ and $\omega = \text{ec50}$ are estimated in units of the
-predictor. Both are truncated to the observed range of the predictor, on the
-assumption that the concentrations tested covered the full range of the response.
-That assumption fails for a badly designed experiment, so an estimate sitting at
-the edge of the tested range should be treated with suspicion rather than
-reported.
-
-The prior itself is built on the log of the predictor where the predictor is
-non-negative, giving a **lognormal** located at the median of the logged
-predictor, with a spread taken from the observed range. Where the predictor spans
-negative values it is used directly, giving a **normal** located at the median
-with a standard deviation ten times that of the predictor.
-
-The location is the median of the *distinct* positive concentrations rather than
-of the observations, so that the prior describes the series of concentrations
-tested rather than how many replicates each of them received.
-
-The width is stated rather than chosen: the central 95% interval of the
-untruncated prior reaches every concentration tested. A prior on a threshold
-should not exclude a concentration the experiment applied, at either end, and
-that criterion is the whole of the rule.
-
-```{r}
-#| label: fig-nec-prior
-#| fig-height: 2.6
-#| echo: false
-#| fig-cap: "The `nec` prior for the binomial example of module 5, on a logarithmic concentration axis. Red ticks are the eight concentrations tested, dashed lines the truncation bounds, and the shaded region the prior the fit actually uses. The central 95% of the untruncated lognormal runs from 0.1 to 12,500, so it reaches the lowest concentration exactly and extends well past the highest before truncation removes the upper tail."
-nec_prior <- get_priors(f_binom, data = binom_data, family = binomial())
-pars <- as.numeric(strsplit(
-  gsub("lognormal\\(|\\)", "", nec_prior$prior[nec_prior$nlpar == "nec"]),
-  ", ")[[1]])
-concs <- sort(unique(binom_data$raw_x))
-
-# The axis is logarithmic, so the density is taken with respect to log(x);
-# plotting dlnorm() against a log axis would distort the shape into a decay.
-grid <- data.frame(x = exp(seq(log(min(concs)) - 2, log(max(concs)) + 4,
-                               length.out = 600)))
-grid$d <- dnorm(log(grid$x), pars[1], pars[2])
-
-ggplot(grid, aes(x, d)) +
-  geom_area(data = subset(grid, x >= min(concs) & x <= max(concs)),
-            fill = "#1b6ca8", alpha = 0.25) +
-  geom_line(colour = "#1b6ca8", linewidth = 0.7) +
-  geom_vline(xintercept = range(concs), linetype = 2, colour = "grey40") +
-  geom_rug(data = data.frame(x = concs), aes(x = x), inherit.aes = FALSE,
-           length = unit(0.09, "npc"), linewidth = 0.8, colour = "#c1440e") +
-  scale_x_log10() +
-  labs(x = "concentration", y = "prior density") +
-  theme_classic()
-```
-
-One consequence reaches how you record your data. Because the width is set by the
-two extreme concentrations rather than by the spread of the series between them,
-it responds to what is entered for the control. On one dilution series the
-standard deviation of the prior is 2.30 with the control recorded as `0`, 2.59
-with it recorded as `0.001`, and 6.11 with it recorded as `1e-6`, because each of
-those states that a smaller concentration was applied and the prior widens to
-cover it. Record a control as `0`.
-
-This replaced an earlier scheme that selected among a gamma, a `beta(2, 2)` and a
-normal according to the predictor's support. A gamma cannot describe a
-logarithmically spaced concentration series, because its spread is tied to its
-shape: `gamma(5, 4/m)` places its central 95% interval between `0.41m` and
-`2.56m` whatever the data are. Concentration series are usually logarithmic, so
-this matters in practice rather than in principle.
-
-### Other parameters
-
-For $\beta = \text{beta}$, $\alpha = \text{slope}$ and $\epsilon = \text{d}$ the
-model formula is written so that values from $-\infty$ to $\infty$ are
-admissible, and `normal(0, 5)` is used.
-
-In `nec3param`, for example, `beta` is an exponential decay rate and must lie
-between 0 and $\infty$. The formula calls `exp(beta)`, which enforces that, and a
-`normal(0, 5)` on the exponent is broad in practice.
+How each prior is constructed, parameter by parameter and family by family, is
+in the [`bayesnec` priors
+article](https://open-aims.github.io/bayesnec/dev/articles/example3.html). Two
+consequences of the construction reach how an analysis is run. The prior on
+`nec` is truncated to the observed range of the predictor, so an estimate
+sitting at the edge of the tested range should be treated with suspicion rather
+than reported. And its width is set by the two extreme concentrations, so it
+responds to what is entered for the control: on one dilution series the standard
+deviation is 2.30 with the control recorded as `0` and 6.11 with it recorded as
+`1e-6`, because each smaller value states that a smaller concentration was
+applied. Record a control as `0`.
 
 ## Limits of the default priors
 
@@ -432,12 +226,10 @@ bounds, which happens mainly with few data or few unique predictor values. They
 may be too vague, giving poor convergence. Or they may be of the wrong family, if
 the data did not contain enough information for `bayesnec` to infer the right one.
 
-## Priors before a fit
+## Inspecting the priors
 
-`pull_prior()` reports the priors of a model that has already been fitted, which
-is the wrong way round when a fit takes minutes and you want to see what it will
-be given. `get_priors()` builds the same priors from a formula and a dataset
-without fitting anything:
+`get_priors()` builds the priors from a formula and a dataset without fitting
+anything, which is the order they are wanted in when a fit takes minutes:
 
 ```{r}
 #| label: get-priors
@@ -447,9 +239,8 @@ get_priors(y ~ crf(x, model = "nec3param"), data = nec_data,
 ```
 
 That is the set `bnec()` would use, and it can be edited and passed back through
-the `prior` argument, which is what the sections below do.
-
-## Inspecting the priors
+the `prior` argument, which the next section does. `pull_prior()` reports the
+same thing for a model already fitted.
 
 A fitted model to work from:
 
@@ -460,12 +251,12 @@ set.seed(333)
 data(nec_data)
 bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data)
 
-save(bnec_fit, file = "fits/m6_bnec_fit.RData")
+save(bnec_fit, file = "vignettes/fits/m6_bnec_fit.RData")
 ```
 
 ```{r}
 #| label: load-fit-base
-load("fits/m6_bnec_fit.RData")
+load("vignettes/fits/m6_bnec_fit.RData")
 ```
 
 `sample_priors()` draws from the priors held in the `brms` fit, which shows their
@@ -478,15 +269,54 @@ sample_priors(pull_brmsfit(bnec_fit)$prior)
 ```
 
 `check_priors()`, which builds on the `hypothesis()` function of `brms`, plots
-the prior against the posterior for each parameter. That comparison is the point:
-a posterior lying well away from its prior is being determined by the
-data, and one that follows the prior closely is not.
+the prior against the posterior for each parameter. That comparison is the
+check the whole module turns on.
 
 ```{r}
 #| label: fig-check-priors
 #| fig-height: 4.5
 check_priors(bnec_fit)
 ```
+
+Read each panel as a pair of densities. A posterior concentrated well inside its
+prior was determined by the data; one that follows the shape of its prior was
+not. All three parameters here are determined by the data. Each posterior is a
+narrow spike, and each prior is broad beneath it: `nec` is located at about 1.5
+under a prior spread across the whole tested range, and `top` at about 0.9 under
+a `beta(5, 2)` spanning most of the interval from 0.25 to 1. The `beta` panel is
+the one to read carefully, because its spike sits at about 0, which is also
+where its `normal(0, 5)` prior is centred. Agreement between a posterior and the
+centre of its prior is not evidence that the prior determined it; what settles
+that is the width, and this posterior is narrower than its prior by more than an
+order of magnitude.
+
+`check_priors()` works on a `bayesmanecfit` as well, and takes a `filename` to
+write the plots for a whole set to a PDF rather than to the screen.
+
+Two things the plot does not settle. A narrow interval is not evidence of a
+well-determined parameter: a parameter the likelihood is flat in will report a
+narrow posterior if its prior was narrow. **Prior-to-posterior contraction**, one
+minus the ratio of the posterior variance to the prior variance, distinguishes
+the two, and runs from 0 where the data added nothing to 1 where the posterior is
+far narrower than the prior. It is computed from `pull_prior()` and the
+posterior draws. And whether a *different* reasonable prior would have given a
+different answer is a question the plot cannot ask. `prior_type` makes that
+sensitivity analysis one argument:
+
+```{r}
+#| label: sensitivity
+#| eval: false
+set.seed(333)
+exmp_reg <- bnec(y ~ crf(x, model = "nec4param"), data = nec_data,
+                 family = Beta(link = "identity"),
+                 prior_type = "regularizing")
+```
+
+`nec4param` is used rather than `nec3param` because the two sets differ most in
+`bot`, which `nec3param` does not have. Posteriors that agree between the two
+sets are being determined by the data. Posteriors that differ are being
+determined by the priors, and the influence of the prior then belongs in the
+reporting rather than being left implicit.
 
 ## Specifying priors
 
@@ -502,12 +332,12 @@ exmp_a <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
                family = Beta(link = "identity"),
                iter = 1e4, control = list(adapt_delta = 0.99))
 
-save(exmp_a, file = "fits/m6_exmp_a.RData")
+save(exmp_a, file = "vignettes/fits/m6_exmp_a.RData")
 ```
 
 ```{r}
 #| label: load-fit-a
-load("fits/m6_exmp_a.RData")
+load("vignettes/fits/m6_exmp_a.RData")
 ```
 
 `pull_prior()` reports what it chose:
@@ -533,23 +363,29 @@ exmp_b <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data,
                family = Beta(link = "identity"), prior = my_prior,
                iter = 1e4, control = list(adapt_delta = 0.99))
 
-save(exmp_b, file = "fits/m6_exmp_b.RData")
+save(exmp_b, file = "vignettes/fits/m6_exmp_b.RData")
 ```
 
 ```{r}
 #| label: load-fit-b
-load("fits/m6_exmp_b.RData")
+load("vignettes/fits/m6_exmp_b.RData")
 ```
 
 Two things follow from that. Priors must be given for **every** parameter of the
-model, not only the ones being changed. And `pull_prior()` reports the priors of
-a model that has already been fitted, so to find the parameters beforehand use
-`show_params()`:
+model, not only the ones being changed. And to find out what those parameters
+are before anything is fitted, use `show_params()`:
 
 ```{r}
 #| label: show-params
 show_params(model = "nec3param")
 ```
+
+Where several equations are fitted together, `prior` takes a named list with one
+entry per equation, and equations left out of it get the defaults. `amend()`
+takes priors for the equation being added to a set. Both are set out in the
+[`bayesnec` priors
+article](https://open-aims.github.io/bayesnec/dev/articles/example3.html), with
+worked examples of each.
 
 ### Comparison of the fits
 
@@ -564,96 +400,6 @@ hist(exmp_b$ne_posterior, main = "User priors", xlab = "NEC")
 The posteriors are similar, which is what should happen when the data are
 informative enough that the priors are not driving the result. A large difference
 would be the signal to look harder.
-
-## Priors for a model set
-
-A named list supplies priors per model when several are fitted together.
-
-```{r}
-#| results: hide
-#| label: fit-c
-#| eval: false
-set.seed(333)
-my_priors <- list(
-  nec3param = c(prior_string("beta(5, 1)", nlpar = "top"),
-                prior_string("normal(1.3, 2.7)", nlpar = "nec"),
-                prior_string("gamma(0.5, 2)", nlpar = "beta")),
-  nec4param = c(prior_string("beta(5, 1)", nlpar = "top"),
-                prior_string("normal(1.3, 2.7)", nlpar = "nec"),
-                prior_string("gamma(0.5, 2)", nlpar = "beta"),
-                prior_string("beta(1, 5)", nlpar = "bot")))
-exmp_c <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
-               family = Beta(link = "identity"), prior = my_priors,
-               iter = 1e4, control = list(adapt_delta = 0.99))
-
-save(exmp_c, file = "fits/m6_exmp_c.RData")
-```
-
-```{r}
-#| label: load-fit-c
-load("fits/m6_exmp_c.RData")
-```
-
-`pull_prior()` works on a `bayesmanecfit`, and so does `check_priors()`, which
-takes a `filename` to write the prior and posterior plots to a PDF rather than
-the screen.
-
-```{r}
-#| label: pull-prior-c
-pull_prior(exmp_c)
-```
-
-### Priors for part of a set
-
-Priors can be given for some models and left to `bayesnec` for the rest. Where
-they are missing, or ill-formed, it reports that it is finding its own.
-
-```{r}
-#| results: hide
-#| label: fit-d
-#| eval: false
-set.seed(333)
-exmp_d <- bnec(y ~ crf(x, model = c("nec3param", "nec4param")), data = nec_data,
-               family = Beta(link = "identity"), prior = my_priors[1],
-               iter = 1e4, control = list(adapt_delta = 0.99))
-
-save(exmp_d, file = "fits/m6_exmp_d.RData")
-```
-
-```{r}
-#| label: load-fit-d
-load("fits/m6_exmp_d.RData")
-```
-
-`my_priors[[1]]` would also work: the `prior` argument takes either a `brmsprior`
-object directly or a named list of them.
-
-### Priors when extending a set
-
-`amend()` adds a model to an existing `bayesmanecfit`, with priors supplied for
-the model being added.
-
-```{r}
-#| results: hide
-#| label: fit-e
-#| eval: false
-set.seed(333)
-necsigm_priors <- c(prior_string("beta(5, 1)", nlpar = "top"),
-                    prior_string("gamma(2, 6.5)", nlpar = "beta"),
-                    prior_string("normal(1.3, 2.7)", nlpar = "nec"),
-                    prior_string("normal(0, 2)", nlpar = "d"))
-exmp_e <- amend(exmp_d, add = "necsigm", priors = necsigm_priors)
-
-save(exmp_e, file = "fits/m6_exmp_e.RData")
-```
-
-```{r}
-#| label: load-fit-e
-load("fits/m6_exmp_e.RData")
-```
-
-`necsigm` is used here to demonstrate the mechanism. As module 4 notes, it is not
-recommended for inference and should be dropped from the `all` set.
 
 ## Fixing a parameter
 
@@ -727,45 +473,185 @@ of the divisor, as module 5 sets out, and fixing the asymptote afterwards makes
 that loss invisible rather than merely present, because the intervals it narrows
 were already too narrow.
 
-## Checking how much the priors matter
+## Using posterior distributions
 
-The defaults are weakly informative by design, and whether they behaved that way
-on your data is a question rather than an assumption. Two checks answer it.
+The posterior draws a Bayesian fit produces are useful well beyond a point
+estimate. They support the study of synergistic and antagonistic effects
+[@Fisher2019d; @flores2021], the propagation of endpoint uncertainty
+[@Charles2020a; @Gottschalk2013], and tests of hypotheses of no effect
+[@Thomas2006].
 
-The first is the prior against the posterior, which `check_priors()` plots above.
-A posterior concentrated well inside its prior was determined by the data; one
-that follows the shape of its prior was not.
+This section works through one of those uses on the fit above. A comparison
+between two estimates is a count of draws rather than a test statistic, because
+both estimates arrive as whole distributions. `compare_posterior()` does this
+for a named list of fits, and returns both the posteriors it used and the
+probability that one estimate exceeds the other.
 
-The second puts a number on the same comparison. **Prior-to-posterior
-contraction** is one minus the ratio of the posterior variance to the prior
-variance, so it runs from 0, where the data added nothing, to 1, where the
-posterior is far narrower than the prior. It is computed from `pull_prior()` and
-the posterior draws. The reason to prefer it to the plot is that a narrow
-interval is not evidence of a well-determined parameter: a parameter the
-likelihood is flat in will report a narrow posterior if its prior was narrow, and
-only the contraction distinguishes the two. Module 5 gives a worked case, where a
-censored lower asymptote returned a contraction of 0.379 against 0.996 for the
-same parameter under a different declaration.
-
-The third check is a sensitivity analysis: refit under a different prior set and
-compare. `prior_type` makes that one argument rather than a set of priors written
-by hand.
+There is one fit so far, so the comparison needs a second. `ecxll3` is a smooth
+equation with the same three free parameters as `nec3param` and the same lower
+asymptote fixed at zero, so the two fits differ in the shape of the curve rather
+than in what each is free to estimate.
 
 ```{r}
-#| label: sensitivity
+#| label: fit-ecxll3
 #| eval: false
 set.seed(333)
-exmp_reg <- bnec(y ~ crf(x, model = "nec4param"), data = nec_data,
-                 family = Beta(link = "identity"),
-                 prior_type = "regularizing",
-                 iter = 1e4, control = list(adapt_delta = 0.99))
+ecxll3_fit <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data)
+
+save(ecxll3_fit, file = "vignettes/fits/m6_ecxll3_fit.RData")
 ```
 
-`nec4param` is used rather than `nec3param` because the two sets differ most in
-`bot`, which `nec3param` does not have. Posteriors that agree between the two
-sets are being determined by the data. Posteriors that differ are being
-determined by the priors, and where that happens the influence of the prior
-belongs in the reporting rather than being left implicit.
+```{r}
+#| label: load-ecxll3
+load("vignettes/fits/m6_ecxll3_fit.RData")
+```
+
+Both equations support an **EC~x~**, which is the estimate compared here. Their
+no-effect estimates are not the same quantity as each other, and module 3 covers
+that difference.
+
+```{r}
+#| label: compare
+post_comp <- compare_posterior(
+  list("nec3param" = bnec_fit, "ecxll3" = ecxll3_fit),
+  comparison = "ecx", ecx_val = 10)
+
+names(post_comp)
+```
+
+`posterior_data` holds the draws of both estimates in long form, which is what a
+figure is drawn from:
+
+```{r}
+#| label: fig-compare-post
+#| fig-height: 4.5
+#| fig-cap: "Posterior EC10 from two equations fitted to the same data. Each curve is the whole distribution of the estimate rather than a point and a standard error."
+ggplot(post_comp$posterior_data, aes(x = value)) +
+  geom_density(aes(group = model, colour = model, fill = model), alpha = 0.3) +
+  labs(x = "Concentration", y = "Density") +
+  theme_classic()
+```
+
+The two densities overlap over a narrow region and neither is contained in the
+other, which is a statement a pair of point estimates could not make.
+
+```{r}
+#| label: compare-quantiles
+sapply(post_comp$posterior_list, quantile, c(0.025, 0.5, 0.975))
+```
+
+The EC10 is `r sprintf("%.2f", median(post_comp$posterior_list[["nec3param"]]))`
+from the `nec3param` fit and
+`r sprintf("%.2f", median(post_comp$posterior_list[["ecxll3"]]))` from the
+`ecxll3` fit, with the intervals above.
+
+`prob_diff` is the proportion of paired draws in which the first estimate
+exceeds the second, and `diff_list` holds the differences those proportions are
+taken from:
+
+```{r}
+#| label: prob-diff
+post_comp$prob_diff
+
+quantile(post_comp$diff_list[["nec3param-ecxll3"]], c(0.025, 0.5, 0.975))
+```
+
+The probability is
+`r sprintf("%.3f", post_comp$prob_diff$prob[1])`, so the `nec3param` EC10 is the
+higher of the two in almost every paired draw. The difference is
+`r sprintf("%.2f", median(post_comp$diff_list[["nec3param-ecxll3"]]))`, with a
+95% interval from
+`r sprintf("%.2f", quantile(post_comp$diff_list[["nec3param-ecxll3"]], 0.025))`
+to
+`r sprintf("%.2f", quantile(post_comp$diff_list[["nec3param-ecxll3"]], 0.975))`,
+which is the size of the disagreement rather than the confidence in it. Read
+both: a probability near 1 on a difference of no practical consequence is a
+result a large sample can produce on its own.
+
+### Comparing whole curves
+
+`comparison = "fitted"` compares the curves themselves at a grid of
+concentrations across the range of the predictor, rather than one estimate read
+off each.
+
+```{r}
+#| label: compare-fitted
+post_fitted <- compare_posterior(
+  list("nec3param" = bnec_fit, "ecxll3" = ecxll3_fit),
+  comparison = "fitted")
+```
+
+```{r}
+#| label: fig-fitted-curves
+#| fig-height: 4.5
+#| fig-cap: "The two fitted curves over the observed data, each with its 95% credible interval, on the 50-point grid the comparison uses."
+ggplot(post_fitted$posterior_data, aes(x = x)) +
+  geom_point(data = nec_data, aes(x = x, y = y), colour = "grey60", size = 1) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "steelblue", alpha = 0.3) +
+  geom_line(aes(y = Estimate), colour = "steelblue") +
+  facet_wrap(~ model) +
+  labs(x = "Concentration", y = "Response") +
+  theme_classic()
+```
+
+Both curves pass through the data. `nec3param` holds the control level flat to
+its threshold a little below 1.5 and turns sharply there; `ecxll3` has begun to
+decline before 1.5 and turns gradually, so it sits below `nec3param` just before
+the threshold and above it just after. Reading a separation off two panels stops
+at that description, and the difference below puts a number and an interval on
+it at every concentration.
+
+```{r}
+#| label: diff-data
+head(post_fitted$diff_data)
+```
+
+```{r}
+#| label: fig-compare-fitted
+#| fig-height: 4.5
+#| fig-cap: "Difference between the two fitted curves across the concentration range, with its 95% credible interval. The difference is taken as `nec3param` minus `ecxll3`, so a positive value is a higher predicted response from the threshold equation."
+ggplot(post_fitted$diff_data) +
+  geom_hline(yintercept = 0, linetype = 2, colour = "grey50") +
+  geom_ribbon(aes(x = x, ymin = diff.Q2.5, ymax = diff.Q97.5),
+              fill = "steelblue", alpha = 0.3) +
+  geom_line(aes(x = x, y = diff.Estimate), colour = "steelblue") +
+  labs(x = "Concentration", y = "Difference in fitted response") +
+  theme_classic()
+```
+
+Where the band excludes zero the two curves differ at that concentration. These
+two agree from 0.03 to 1.14 and differ over 25 of the 50 grid points. The
+`nec3param` curve is the higher of the two from 1.20 to 1.53, the lower from
+1.72 to 2.05, and the higher again from 2.44 to 3.22. The largest difference is
+0.089 at a concentration of 1.85, on a response spanning about 0.95. That is
+what the comparison achieved: it located the disagreement between the two
+equations on the concentration axis and bounded its size, where the EC10
+comparison above gave only that one of them was larger.
+
+`nec_data` was simulated from a four-parameter threshold equation with its
+threshold set at 1.5, which `data-raw/nec_data.R` in the `bayesnec` sources
+records, and the pattern follows from that. The threshold equation holds the
+control level up to 1.5, where the log-logistic has already begun to decline,
+and then falls more steeply than the log-logistic immediately above it. Above
+2.44 the log-logistic approaches zero the faster of the two.
+
+Two readings of the same pair of fits therefore disagree on how far apart they
+are: the EC10 posteriors separate at a probability of
+`r sprintf("%.3f", post_comp$prob_diff$prob[1])`, and the curves are
+indistinguishable over the lower third of the concentration range. A single
+estimate is one point on a curve, and which of the two answers the question
+depends on what is being reported.
+
+The draws are paired at random, which approximates the difference of two
+independent posteriors. Both fits here are to the same 100 observations, so this
+comparison measures the difference between two equations rather than between two
+experiments. Module 4 covers averaging over the equations rather than choosing
+between them.
+
+The comparison a real analysis makes is between fits to different data, such as
+two exposure durations or two levels of a factor. Module 8 does that with
+`bnec_group()`, through this same function. `comparison` also takes `"nec"`,
+`"nsec"` and `"n(s)ec"`, which compare the no-effect estimates module 3 covers.
 
 ## References
 

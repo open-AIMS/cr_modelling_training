@@ -3,6 +3,14 @@ project:
   output-dir: docs
   resources:
     - .nojekyll
+  # Chunks run with the project root as the working directory, rather than the
+  # folder the module sits in. Every path in a module is therefore written as
+  # `vignettes/...`, which is what a participant with the project open types,
+  # so a line copied off the page into the console resolves. Figures are plain
+  # markdown rather than knitr::include_graphics(), because that function looks
+  # for the file relative to the working directory while Quarto resolves the
+  # link it writes relative to the document, and the two no longer agree.
+  execute-dir: project
   # Modules are listed explicitly rather than discovered, so that the 2023 .Rmd
   # files still in vignettes/ are not picked up by the render. Add each new
   # module here, and to the sidebar below and the table in index.qmd; missing

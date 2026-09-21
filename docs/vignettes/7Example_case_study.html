@@ -333,7 +333,7 @@ window.Quarto = {
   <ul>
   <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a>
   <ul class="collapse">
-  <li><a href="#the-assumptions-the-diagnostics-test" id="toc-the-assumptions-the-diagnostics-test" class="nav-link" data-scroll-target="#the-assumptions-the-diagnostics-test">The assumptions the diagnostics test</a></li>
+  <li><a href="#convergence-and-fit" id="toc-convergence-and-fit" class="nav-link" data-scroll-target="#convergence-and-fit">Convergence and fit</a></li>
   </ul></li>
   <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
   <li><a href="#data-preparation-and-family-choice" id="toc-data-preparation-and-family-choice" class="nav-link" data-scroll-target="#data-preparation-and-family-choice">1. Data preparation and family choice</a>
@@ -349,6 +349,7 @@ window.Quarto = {
   <li><a href="#sampler-diagnostics-and-screening" id="toc-sampler-diagnostics-and-screening" class="nav-link" data-scroll-target="#sampler-diagnostics-and-screening">3. Sampler diagnostics and screening</a>
   <ul class="collapse">
   <li><a href="#kinds-of-failure" id="toc-kinds-of-failure" class="nav-link" data-scroll-target="#kinds-of-failure">Kinds of failure</a></li>
+  <li><a href="#reading-the-chains" id="toc-reading-the-chains" class="nav-link" data-scroll-target="#reading-the-chains">Reading the chains</a></li>
   <li><a href="#screening-the-model-set" id="toc-screening-the-model-set" class="nav-link" data-scroll-target="#screening-the-model-set">Screening the model set</a></li>
   <li><a href="#raising-the-settings" id="toc-raising-the-settings" class="nav-link" data-scroll-target="#raising-the-settings">Raising the settings</a></li>
   </ul></li>
@@ -403,70 +404,32 @@ window.Quarto = {
 <li>Report.</li>
 </ol>
 <p>A prior check belongs between steps 2 and 3, and module 6 covers <code>check_priors()</code> and the construction of the defaults.</p>
-<p>The posterior draws a Bayesian fit produces are useful well beyond a point estimate. They support the study of synergistic and antagonistic effects <span class="citation" data-cites="Fisher2019d flores2021">(<a href="#ref-Fisher2019d" role="doc-biblioref">Fisher et al. 2019</a>; <a href="#ref-flores2021" role="doc-biblioref">Flores et al. 2021</a>)</span>, the propagation of endpoint uncertainty <span class="citation" data-cites="Charles2020a Gottschalk2013">(<a href="#ref-Charles2020a" role="doc-biblioref">Charles et al. 2020</a>; <a href="#ref-Gottschalk2013" role="doc-biblioref">Gottschalk and Nowack 2013</a>)</span>, and tests of hypotheses of no effect <span class="citation" data-cites="Thomas2006">(<a href="#ref-Thomas2006" role="doc-biblioref">Neal 2006</a>)</span>. Every check and estimate below is read from those draws.</p>
-<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-context-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-context-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/dredging_effects.JPG" id="fig-context-1" class="img-fluid figure-img" style="width:48.0%">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="images/dredging_effects.JPG" class="img-fluid"></p>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-context-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-context-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-context-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/herbicides_climate.JPG" id="fig-context-2" class="img-fluid figure-img" style="width:48.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-context-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
-</figcaption>
-</figure>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="images/herbicides_climate.JPG" class="img-fluid"></p>
 </div>
 </div>
 </div>
-</div>
-<section id="the-assumptions-the-diagnostics-test" class="level3">
-<h3 class="anchored" data-anchor-id="the-assumptions-the-diagnostics-test">The assumptions the diagnostics test</h3>
-<p>Convergence is what a Bayesian fit is usually judged on, and it is not the only thing that can be wrong. <code>rhat()</code>, <code>check_chains()</code> and <code>check_sampling()</code> ask whether the sampler explored the posterior. <code>loo</code> and <code>waic</code> rank the candidate equations against one another. None of them asks whether the variability the fitted model implies matches the variability in the data, and a threshold estimate depends on that assumption more than on any other.</p>
-<p>The <em>NSEC</em> depends on it most directly. <code>nsec()</code> sets its reference at a quantile of the posterior of the control mean, and the width of that posterior is set by the dispersion the fit estimated at the control. A model simulating more variability at the control than the data show places the reference lower, so the curve crosses it further along and the reported concentration is higher and less protective. A model simulating less variability places the reference higher and returns a lower concentration. The direction is not known in advance, and no convergence diagnostic reveals it. An <strong>EC<sub>x</sub></strong> depends on it less: it is measured from the same control mean, but at a fixed fraction of that mean rather than at a quantile of its posterior, so an error in the variance widens or narrows its interval rather than relocating the reference.</p>
-<p>One ratio statistic for the whole fit does not detect this. Every family with a free dispersion parameter, which is <code>gaussian</code>, <code>Gamma</code>, <code>negbinomial</code>, <code>Beta</code> and <code>beta_binomial</code>, estimates that parameter from the same residuals such a statistic summarises. The parameter absorbs the discrepancy, so the fit reports a ratio near 1 while simulating the wrong spread at the concentrations that determine the estimate. The check is therefore made within concentration groups, which is what <code>check_fit()</code> does, and step 4 runs it.</p>
+<section id="convergence-and-fit" class="level3">
+<h3 class="anchored" data-anchor-id="convergence-and-fit">Convergence and fit</h3>
+<p>Convergence is what a Bayesian fit is usually judged on, and it is not the only thing that can be wrong. <code>rhat()</code>, <code>check_chains()</code> and <code>check_sampling()</code> ask whether the sampler explored the posterior, and step 3 runs them. <code>check_fit()</code> asks whether the fitted model reproduces the data, and step 4 runs that. A model can converge perfectly onto a description of the data that is wrong, so both are needed and neither substitutes for the other.</p>
+<p>Module 5 sets out what <code>check_fit()</code> compares and why the comparison is made within concentration groups rather than once for the whole fit. The consequence that matters here is its direction. A model simulating more variability at the control than the data show gives the control posterior too much width, which places the <em>NSEC</em> reference lower, so the curve crosses it further along and the reported concentration is <strong>higher and less protective</strong>. A model simulating less variability returns a lower one. The direction is not known in advance and no convergence diagnostic reveals it, which is why step 4 exists and why what it finds has to be reported.</p>
 </section>
 </section>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data">The data</h2>
 <p>The data are from <span class="citation" data-cites="jones2003meps">Jones and Kerswell (<a href="#ref-jones2003meps" role="doc-biblioref">2003</a>)</span> and ship with <code>bayesnec</code>, so nothing has to be read from a file.</p>
-<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-source-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-source-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/jonesnkerswell.jpg" id="fig-source-1" class="img-fluid figure-img" style="width:48.0%">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="images/jonesnkerswell.jpg" class="img-fluid"></p>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-source-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-source-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="48%">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-source-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/s_hystrix.jpg" id="fig-source-2" class="img-fluid figure-img" style="width:48.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-source-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4
-</figcaption>
-</figure>
-</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="images/s_hystrix.jpg" class="img-fluid"></p>
 </div>
 </div>
 </div>
@@ -522,7 +485,7 @@ Figure&nbsp;4
 <img src="7Example_case_study_files/figure-html/fig-ametryn-raw-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ametryn-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
+Figure&nbsp;1: The ametryn series, on a logarithmic concentration axis.
 </figcaption>
 </figure>
 </div>
@@ -559,7 +522,32 @@ Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
 <section id="the-scale-of-the-predictor" class="level3">
 <h3 class="anchored" data-anchor-id="the-scale-of-the-predictor">The scale of the predictor</h3>
 <p>The concentrations run from 0.1 to 300, a factor of 3000, in roughly even steps on a logarithmic scale. The predictor is logged in the formula.</p>
-<p>The predictor enters the equations directly, so a transform changes the shape being fitted and not merely the axis: the same equation describes a different curve in <code>concentration</code> and in <code>log(concentration)</code>. The default priors are also scaled from the predictor, so a transform rescales them. Neither consideration settles the question in general, and which scale samples better on a given dataset is an empirical matter. Here the series was designed as a logarithmic dilution, and a logarithm is what makes its steps even.</p>
+<p>Settle this before fitting anything. The predictor enters the equations directly, so a transform changes the shape being fitted and not merely the axis: the same equation describes a different curve in <code>concentration</code> and in <code>log(concentration)</code>. The default priors are also scaled from the predictor, so a transform rescales them. <code>bnec()</code> takes the concentration exactly as it is supplied and does not make the decision for you. Neither consideration settles the question in general, and which scale samples better on a given dataset is an empirical matter. Here the series was designed as a logarithmic dilution, and a logarithm is what makes its steps even.</p>
+<p>The mechanics are four:</p>
+<ul>
+<li>Write the transform inside <code>crf()</code>, as <code>crf(log(concentration), ...)</code>, or apply it to the data before the call.</li>
+<li>Add any offset to the data yourself first. For <code>log(x)</code>, a control recorded as <code>0</code> arrives at the data check as <code>log(0)</code> and the fit stops.</li>
+<li>Back-transform the estimates through <code>xform</code>, which <code>nec()</code>, <code>ecx()</code>, <code>nsec()</code>, <code>curve_params()</code> and <code>autoplot()</code> all take. Step 5 does this.</li>
+<li>Report the scale alongside any value reported.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Zero on the predictor axis">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Zero on the predictor axis
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The transform is evaluated before <code>bayesnec</code> inspects the predictor, which is why the fit stops with a report that the predictor is not finite rather than with anything naming the transform.</p>
+<p><code>bayesnec</code> does not correct a zero on the predictor axis. A concentration of zero is an ordinary control, and no response distribution constrains the values a predictor may take. Choose the offset yourself and add it to the data first, as <code>log(x + 1)</code> or a smaller constant suited to the series. Module 8 places the control one decade below the lowest tested concentration for exactly this reason.</p>
+</div>
+</div>
+</div>
+<p>Read the spacing of the <strong>design</strong>. A dilution series makes each concentration a fixed multiple of the one below it, so its steps are even on a logarithmic scale and uneven on a linear one. On a linear axis such a design crushes the low concentrations together and spreads the high ones out, so the equation spends its flexibility at the top of the range, where the response is often already flat.</p>
 <p>The coefficient of variation of the gaps between consecutive concentrations measures how even the steps are on each axis. It is a ratio of a standard deviation to a mean, so it does not change with the units the concentrations are recorded in:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>spacing_cv <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sd</span>(<span class="fu">diff</span>(<span class="fu">sort</span>(x))) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">diff</span>(<span class="fu">sort</span>(x)))</span>
@@ -572,7 +560,7 @@ Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
 </div>
 <p>On the raw axis the gaps vary by more than their own average size, because each gap is roughly three times the one below it. On the log axis they are nearly equal. A coefficient of variation near zero is the signature of a series designed on the log scale, and the consequence of fitting such a series on a raw axis is that six of its eight concentrations fall in the lowest tenth of the predictor range. The equation then spends its flexibility over the upper range, where two points sit and the response is already flat.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="The size of the difference between scales">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -581,7 +569,7 @@ Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Fitting these data on each axis in turn measures what the scale is worth here. Three equations are fitted on <code>log(concentration)</code> and <code>nec4param</code> alone on the raw concentration axis. All four use the same response and the same 96 observations, so <code>elpd_loo</code> is comparable between them. These fits are made for this comparison alone and are not the candidate set of step 2.</p>
 <div class="cell">
@@ -589,16 +577,16 @@ Figure&nbsp;5: The ametryn series, on a logarithmic concentration axis.
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>m7_scale_log <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration),</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"nec4param"</span>, <span class="st">"ecx4param"</span>, <span class="st">"ecxll4"</span>)),</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data =</span> ametryn, <span class="at">seed =</span> <span class="dv">333</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_scale_log, <span class="at">file =</span> <span class="st">"fits/m7_scale_log.RData"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_scale_log, <span class="at">file =</span> <span class="st">"vignettes/fits/m7_scale_log.RData"</span>)</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>m7_scale_raw <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(concentration, <span class="at">model =</span> <span class="st">"nec4param"</span>),</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data =</span> ametryn, <span class="at">seed =</span> <span class="dv">333</span>)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_scale_raw, <span class="at">file =</span> <span class="st">"fits/m7_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_scale_raw, <span class="at">file =</span> <span class="st">"vignettes/fits/m7_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_scale_log.RData"</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m7_scale_log.RData"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m7_scale_raw.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>elpd <span class="ot">&lt;-</span> <span class="cf">function</span>(fit) {</span>
@@ -638,6 +626,7 @@ ecxll4_log       232.6         0.022</code></pre>
 </div>
 </div>
 <p>A logged predictor spanning -2.3 to 5.7 takes negative values, which excludes the equations that raise the predictor to a fractional power. Every estimate is returned on the logged scale unless <code>xform</code> is supplied, and step 5 returns them.</p>
+<p><code>nec_data</code>, the simulated example modules 2 to 4 use, is left on the linear scale throughout this course. It is 100 random draws rather than a designed series, and its true curve is defined as a function of linear <code>x</code>, so logging it would distort the generating scale rather than reveal it. The difference between that example and the dilution series here is the design rather than the package.</p>
 </section>
 </section>
 <section id="fitting-the-candidate-set" class="level2">
@@ -649,13 +638,13 @@ ecxll4_log       232.6         0.022</code></pre>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> ametryn, <span class="at">family =</span> fam,</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">17</span>)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_reduced, <span class="at">file =</span> <span class="st">"fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_reduced, <span class="at">file =</span> <span class="st">"vignettes/fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m7_am_reduced.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Compare the retained draws and not <code>iter</code>. <code>iter</code> counts warmup as well as sampling, and the fraction discarded is a choice each package makes for itself. <code>bayesnec</code> takes <code>chains = 4</code> and <code>iter = 1e4</code>, and sets <code>warmup</code> to <code>floor(iter / 5) * 4</code>, discarding four fifths and retaining 8000 draws. The call above sets <code>iter</code> to 4000 with two chains, and the same warmup rule leaves 1600. For comparison, <code>brms</code> discards half rather than four fifths, so its own defaults of <code>iter = 2000</code> over four chains retain 4000, which is more than this call from a quarter of the iterations. A number of iterations means nothing until the warmup rule and the chain count are stated beside it.</p>
-<p>Where a fit is genuinely marginal, two arguments are the ones to reach for. <code>iter</code> and <code>warmup</code> come first when Rhat is marginal or the effective sample size is low, because a model with a poorly identified parameter may need more draws. <code>control = list(adapt_delta = 0.99, max_treedepth = 12)</code> comes next: raise <code>adapt_delta</code> when there are divergent transitions and <code>max_treedepth</code> when the sampler reports hitting it. Both increase runtime and neither corrects a misspecified model.</p>
+<p>Compare the retained draws and not <code>iter</code>, for the reason module 2 sets out: <code>iter</code> counts warmup as well as sampling and the fraction discarded is a choice each package makes. <code>bayesnec</code>’s defaults retain 8000 draws. The call above sets <code>iter</code> to 4000 with two chains, and the same warmup rule leaves 1600. That number is what the diagnostic cutoffs below are read against, so it matters here rather than only as arithmetic.</p>
+<p>Where a fit is genuinely marginal, two arguments are the ones to reach for. <code>iter</code> and <code>warmup</code> come first when Rhat is marginal or the effective sample size is low, because a model with a poorly identified parameter may need more draws. <code>control = list(adapt_delta = 0.99, max_treedepth = 12)</code> comes next: raise <code>adapt_delta</code> when there are divergent transitions and <code>max_treedepth</code> when the sampler reports hitting it. Both increase runtime and neither corrects a misspecified model. Step 3 refits with all of them set and says what each one does.</p>
 <section id="the-set-as-fitted" class="level3">
 <h3 class="anchored" data-anchor-id="the-set-as-fitted">The set as fitted</h3>
 <p>Two mechanisms reduce the requested set. Some equations are excluded before fitting, because they are invalid for the family or the predictor. Others are attempted and fail to fit, which happens with complex non-linear models and particularly with those that have many parameters. <code>bnec_record()</code> reports both, so neither has to be reconstructed from the fitted object.</p>
@@ -833,11 +822,44 @@ This is a modelling result rather than a fault; inspect with check_fit().</code>
 <p>The series has 8 distinct concentrations, and an equation with more curve parameters than the design can determine has a posterior that is flat in some direction. Sampling a flat direction for longer does not locate a maximum that is not there. Adjusting the settings to retain an equation in that position does not address the problem: the fit is not failing because it was run badly, but because the experiment does not contain the information the equation needs. Report it as excluded, and say why.</p>
 <p>Where an equation’s Rhat or effective sample size sits at the threshold, which side of it the equation falls on is sensitive to the seed, and another run may place it on the other side. Any threshold applied to an estimated quantity behaves this way. It is why the thresholds have to be reported with the result, and why the screen names every threshold an equation missed rather than only the first.</p>
 </section>
+<section id="reading-the-chains" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-chains">Reading the chains</h3>
+<p>The table is the screen. The plot behind it shows what each diagnostic summarises, which is why it is read at least once before the table is trusted. <code>pull_out()</code> gives back a single fit, so any <code>brms</code> method applies to it, and <code>pull_brmsfit()</code> gives the <code>brms</code> model inside:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">pull_brmsfit</span>(m7_am_reduced, <span class="st">"ecxwb1"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-onechains" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-onechains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="7Example_case_study_files/figure-html/fig-onechains-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-onechains-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Chains for <code>ecxwb1</code>, one of the equations the screen removed at these settings.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Each parameter has its marginal posterior on the left and its trace on the right. Chains that overlap, with no drift and no sustained excursion, have converged on the same distribution; chains that separate into bands, or wander, have not. These traces are well mixed, which is consistent with the diagnosis above: the equation was not sampled for long enough rather than sampled from a posterior the sampler could not traverse.</p>
+<p>Reading plots for a set of ten does not scale, and for a set of twenty-three still less. <code>check_chains()</code> draws the whole set, and given a <code>filename</code> writes them to a PDF in the working directory rather than to the screen, which is the form to use when a set is large:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_chains</span>(m7_am_reduced, <span class="at">filename =</span> <span class="st">"am_reduced_all_chains"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>rhat()</code> reports the first of the three diagnostics on its own, and the shape of what it returns catches people out. On a <code>bayesmanecfit</code> it is a list with one element per model, each holding the R-hat values and a logical <code>failed</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rhat</span>(m7_am_reduced) <span class="sc">|&gt;</span> <span class="fu">sapply</span>(<span class="st">"[["</span>, <span class="st">"failed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>nec3param nec4param    ecxexp ecx4param    ecxwb1    ecxwb2  ecxwb1p3  ecxwb2p3    ecxll4    ecxll3 
+    FALSE     FALSE     FALSE     FALSE     FALSE     FALSE     FALSE     FALSE     FALSE     FALSE </code></pre>
+</div>
+</div>
+<p>Reaching for <code>rhat(fit)$failed</code> on a set returns <code>NULL</code> and silently finds nothing, which is a quiet way to conclude that every model converged.</p>
+</section>
 <section id="screening-the-model-set" class="level3">
 <h3 class="anchored" data-anchor-id="screening-the-model-set">Screening the model set</h3>
 <p>Only models that pass the sampler diagnostics are retained. The screen reads the sampler and nothing else: whether an equation reproduces the data is a separate question, and removing an equation for that silently would hide the discrepancies the fit checks exist to show.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>screened_reduced <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_reduced)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>screened_reduced <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_reduced)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Dropping 2 of 10 candidate models that failed the sampler screen:
   -  nec4param: ESS 368.7
@@ -875,43 +897,46 @@ Warning:
 <h3 class="anchored" data-anchor-id="raising-the-settings">Raising the settings</h3>
 <p>The screen has identified the equations that did not sample adequately. For those that reported no divergent transitions, the remedy is the one step 2 deferred: fit again at <code>bnec()</code>’s defaults.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>m7_am_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"decline"</span>),</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> ametryn, <span class="at">family =</span> fam, <span class="at">seed =</span> <span class="dv">17</span>)</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_fit, <span class="at">file =</span> <span class="st">"fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>m7_am_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"decline"</span>),</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> ametryn, <span class="at">family =</span> fam, <span class="at">seed =</span> <span class="dv">17</span>,</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>, <span class="at">max_treedepth =</span> <span class="dv">12</span>))</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_fit, <span class="at">file =</span> <span class="st">"vignettes/fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Three things changed from the call in step 2, and they are the three arguments worth reaching for in this order. <code>iter</code> and <code>chains</code> return to <code>bnec()</code>’s defaults of 10,000 and 4, which is the remedy for a missed effective sample size. <code>adapt_delta</code> rises from the Stan default of 0.8 to 0.99, which makes the sampler adapt a smaller step size during warmup and is the remedy for divergent transitions. <code>max_treedepth</code> rises from 10 to 12, which raises the ceiling on how far the sampler may travel in one iteration and is the remedy for a warning that the tree depth was hit. Both <code>control</code> arguments are passed through to <code>brms::brm()</code> by <code>...</code>.</p>
+<p>Neither <code>control</code> argument was needed here: no equation in either run recorded a divergent transition. They are set because a candidate set of this size on real data commonly produces a few on at least one equation, and because a run whose settings are stated is reproducible while one relying on defaults that change between versions is not. Both increase runtime, <code>adapt_delta</code> substantially, and neither corrects a misspecified model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_am_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_sampling</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       model max_rhat  min_ess min_ess_ratio n_divergent failed
-1  nec3param 1.001291 3050.015     0.3812519           0  FALSE
-2  nec4param 1.001129 3409.846     0.4262307           0  FALSE
-3     ecxexp 1.000652 3303.686     0.4129608           0  FALSE
-4  ecx4param 1.002316 3121.923     0.3902404           0  FALSE
-5     ecxwb1 1.002164 2217.522     0.2771902           0  FALSE
-6     ecxwb2 1.001493 3521.173     0.4401466           0  FALSE
-7   ecxwb1p3 1.001576 3320.889     0.4151112           0  FALSE
-8   ecxwb2p3 1.001623 3330.871     0.4163589           0  FALSE
-9     ecxll4 1.000870 3320.101     0.4150126           0  FALSE
-10    ecxll3 1.001059 2532.767     0.3165959           0  FALSE</code></pre>
+1  nec3param 1.001179 3168.735     0.3960919           0  FALSE
+2  nec4param 1.000991 3046.177     0.3807721           0  FALSE
+3     ecxexp 1.001342 3106.962     0.3883703           0  FALSE
+4  ecx4param 1.000963 2747.978     0.3434972           0  FALSE
+5     ecxwb1 1.001377 2478.396     0.3097995           0  FALSE
+6     ecxwb2 1.001966 2927.301     0.3659126           0  FALSE
+7   ecxwb1p3 1.001852 2900.683     0.3625854           0  FALSE
+8   ecxwb2p3 1.001893 2795.179     0.3493974           0  FALSE
+9     ecxll4 1.001997 2773.472     0.3466839           0  FALSE
+10    ecxll3 1.001233 2334.781     0.2918476           0  FALSE</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">failed_models</span>(m7_am_fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">failed_models</span>(m7_am_fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "ecxll5"</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>fit_screened <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>fit_screened <span class="ot">&lt;-</span> <span class="fu">screen_models</span>(m7_am_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>All 10 candidate models passed the sampler screen (Rhat &lt;= 1.01, ESS &gt;= 400, divergences &lt;= 10).</code></pre>
 </div>
 </div>
-<p>The comparison between the two runs is the point of having made both. Every equation the screen removed at the reduced settings (nec4param, ecxwb1) passes here, on the same data and the same priors, because it was given more draws. Both had missed the effective sample size threshold with no divergent transitions, which is the first kind of failure, and more draws corrected them as that diagnosis predicted. <code>ecxwb1</code> rose from an effective sample size of 344 to 2218.</p>
+<p>The comparison between the two runs is the point of having made both. Every equation the screen removed at the reduced settings (nec4param, ecxwb1) passes here, on the same data and the same priors, because it was given more draws. Both had missed the effective sample size threshold with no divergent transitions, which is the first kind of failure, and more draws corrected them as that diagnosis predicted. <code>ecxwb1</code> rose from an effective sample size of 344 to 2478.</p>
 <p>No equation in either run recorded a divergent transition, so the second kind of failure does not arise on these data. Where it does, more sampling does not change the curvature the sampler could not traverse, and because the divergence cutoff is an absolute count, a longer run reports proportionally more divergences at an unchanged rate. Raising the settings makes that failure easier to see, not harder.</p>
 <p>ecxll5 still fails to fit at all, which is the third kind and the one the parameter count anticipated. More sampling did not make it fit and would not be expected to.</p>
 <p>The priors and initial values a failed equation was given are retained on the failed fit and are the starting point for an adjustment if one is wanted, as <code>?failed_models</code> sets out.</p>
@@ -922,18 +947,18 @@ Warning:
 <p>The sampler diagnostics indicate whether the sampler explored the posterior adequately. They say nothing about whether the model fits. Two checks answer different questions: <code>pp_check()</code> overall, and <code>check_fit()</code> within concentration groups.</p>
 <p>Both are applied to the highest-weighted model of the screened set, which contributes most to the reported estimate and is therefore the one whose fit matters most. <code>pull_best()</code> returns it as a <code>bayesnecfit</code>, and returns a <code>bayesnecfit</code> unchanged, so a set the screen reduced to a single equation needs no separate handling.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>best_fit <span class="ot">&lt;-</span> <span class="fu">pull_best</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>best_fit <span class="ot">&lt;-</span> <span class="fu">pull_best</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Highest-weighted model is ecxll4, holding 0.417 of the weight of 10 candidate models.</code></pre>
+<pre><code>Highest-weighted model is ecx4param, holding 0.405 of the weight of 10 candidate models.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Pulling out model(s): ecxll4</code></pre>
+<pre><code>Pulling out model(s): ecx4param</code></pre>
 </div>
 </div>
 <p>The weight is reported with the number of candidates it was selected from, because the two together are what say whether the selection means anything. The highest weight of a flat set of ten is little more than the equal share of 0.1, and one such equation describes the model-averaged estimate hardly at all. Read it against the weights <code>summary()</code> reported in step 2.</p>
 <p><code>pp_check()</code> asks whether data simulated from the fitted model resemble the data observed. Pooled over the whole dataset the comparison is weak for concentration-response data, because a model can match the pooled distribution while being wrong at every concentration, so it is grouped by the predictor here.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(best_fit, <span class="at">type =</span> <span class="st">"dens_overlay_grouped"</span>, <span class="at">group =</span> <span class="st">"concentration"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(best_fit, <span class="at">type =</span> <span class="st">"dens_overlay_grouped"</span>, <span class="at">group =</span> <span class="st">"concentration"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Using 10 posterior draws for ppc type 'dens_overlay_grouped' by default.</code></pre>
 </div>
@@ -944,7 +969,7 @@ Warning:
 <img src="7Example_case_study_files/figure-html/fig-ppcheck-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppcheck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Observed and simulated response densities within each concentration.
+Figure&nbsp;3: Observed and simulated response densities within each concentration.
 </figcaption>
 </figure>
 </div>
@@ -958,20 +983,20 @@ Figure&nbsp;6: Observed and simulated response densities within each concentrati
 <p>Identifying the control by position rather than by value keeps the convention intact under a common preparation. Analysis is often done on a log scale, and a small constant is added to the concentrations so that a zero control can be plotted and fitted. Whether the control is entered as 0, or as 0.001, or as one tenth of the lowest exposure, it remains the lowest value in the series and is therefore still the control. These data have no zero concentration, so the question does not arise and the lowest tested concentration is the reference.</p>
 <p>For a <code>bayesmanecfit</code> it returns every group of every candidate model, which is more than can be read at once. Two views are useful. The first is the control row of each model, which is the row both estimators read their reference from.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(fit_screened)</span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>cf[cf<span class="sc">$</span>control, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>cf <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(fit_screened)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>cf[cf<span class="sc">$</span>control, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       model    wi group  n obs_mean sim_mean mean_ratio ppp_mean obs_sd sim_sd sd_ratio ppp_sd
-1  nec3param 0.033   0.1 12    0.678    0.647      1.049    0.035  0.014  0.046    0.305  1.000
-9  nec4param 0.035   0.1 12    0.678    0.647      1.048    0.039  0.014  0.047    0.300  1.000
-17    ecxexp 0.000   0.1 12    0.678    0.758      0.895    0.969  0.014  0.098    0.143  1.000
-25 ecx4param 0.379   0.1 12    0.678    0.681      0.996    0.562  0.014  0.043    0.323  0.999
-33    ecxwb1 0.012   0.1 12    0.678    0.695      0.975    0.826  0.014  0.049    0.289  1.000
-41    ecxwb2 0.106   0.1 12    0.678    0.659      1.030    0.131  0.014  0.045    0.311  1.000
-49  ecxwb1p3 0.000   0.1 12    0.678    0.636      1.067    0.066  0.014  0.080    0.175  1.000
-57  ecxwb2p3 0.018   0.1 12    0.678    0.672      1.009    0.394  0.014  0.044    0.317  1.000
-65    ecxll4 0.417   0.1 12    0.678    0.680      0.998    0.535  0.014  0.044    0.322  1.000
-73    ecxll3 0.000   0.1 12    0.678    0.694      0.977    0.814  0.014  0.045    0.315  1.000
+1  nec3param 0.031   0.1 12    0.678    0.647      1.049    0.029  0.014  0.046    0.306      1
+9  nec4param 0.033   0.1 12    0.678    0.647      1.048    0.037  0.014  0.048    0.294      1
+17    ecxexp 0.000   0.1 12    0.678    0.758      0.895    0.965  0.014  0.095    0.147      1
+25 ecx4param 0.405   0.1 12    0.678    0.681      0.997    0.552  0.014  0.043    0.323      1
+33    ecxwb1 0.011   0.1 12    0.678    0.696      0.975    0.824  0.014  0.048    0.291      1
+41    ecxwb2 0.111   0.1 12    0.678    0.659      1.030    0.126  0.014  0.045    0.312      1
+49  ecxwb1p3 0.000   0.1 12    0.678    0.636      1.066    0.064  0.014  0.082    0.172      1
+57  ecxwb2p3 0.018   0.1 12    0.678    0.672      1.009    0.368  0.014  0.044    0.317      1
+65    ecxll4 0.390   0.1 12    0.678    0.680      0.998    0.531  0.014  0.044    0.322      1
+73    ecxll3 0.000   0.1 12    0.678    0.694      0.978    0.821  0.014  0.045    0.312      1
    control
 1     TRUE
 9     TRUE
@@ -993,65 +1018,66 @@ no-effect concentration. See ?check_fit.</code></pre>
 <p>Read <code>ppp_mean</code> and <code>ppp_sd</code> rather than the ratios. The posterior predictive p-value is <code>mean(sim &gt;= obs)</code>, so a value near 0.5 says the observed statistic sits in the middle of what the model simulates and a value near 0 or 1 says it sits in a tail. <code>?check_fit</code> records the case in which a model holds high weight because it fits the bulk of the curve while fitting the control badly, which is what this view is for, and it is the case these data present.</p>
 <p>The second view is the full table for a single model, read when one candidate is in question.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>cf_best <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(best_fit)</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>cf_best</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>cf_best <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(best_fit)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>cf_best</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  group  n obs_mean sim_mean mean_ratio ppp_mean obs_sd sim_sd sd_ratio ppp_sd control
-1   0.1 12    0.678    0.680      0.998    0.535  0.014  0.044    0.322  1.000    TRUE
-2   0.3 12    0.616    0.615      1.001    0.486  0.019  0.046    0.409  0.998   FALSE
-3     1 12    0.434    0.421      1.032    0.206  0.037  0.047    0.787  0.827   FALSE
-4     3 12    0.167    0.188      0.887    0.947  0.013  0.037    0.355  1.000   FALSE
-5    10 12    0.068    0.056      1.210    0.083  0.014  0.021    0.663  0.929   FALSE
-6    30 12    0.020    0.021      0.980    0.555  0.013  0.013    0.969  0.531   FALSE
-7   100 12    0.016    0.011      1.412    0.092  0.015  0.009    1.585  0.094   FALSE
-8   300 12    0.013    0.009      1.442    0.136  0.017  0.008    1.982  0.020   FALSE
+1   0.1 12    0.678    0.681      0.997    0.552  0.014  0.043    0.323  1.000    TRUE
+2   0.3 12    0.616    0.615      1.001    0.480  0.019  0.046    0.406  0.999   FALSE
+3     1 12    0.434    0.420      1.034    0.217  0.037  0.047    0.789  0.828   FALSE
+4     3 12    0.167    0.188      0.886    0.958  0.013  0.036    0.358  1.000   FALSE
+5    10 12    0.068    0.056      1.197    0.083  0.014  0.022    0.659  0.920   FALSE
+6    30 12    0.020    0.021      0.974    0.556  0.013  0.013    0.975  0.530   FALSE
+7   100 12    0.016    0.011      1.424    0.106  0.015  0.009    1.575  0.112   FALSE
+8   300 12    0.013    0.009      1.423    0.150  0.017  0.008    2.012  0.036   FALSE
 
 The control group is flagged. nsec() reads its reference from the 
 control, so this is the row most likely to move a reported 
 no-effect concentration. See ?check_fit.</code></pre>
 </div>
 </div>
-<p>Location is reproduced at every concentration: <code>mean_ratio</code> runs from 0.887 to 1.442 and no <code>ppp_mean</code> is near either bound. The departure is entirely in scale, and it is systematic rather than confined to one group. <code>obs_sd</code> is close to constant across the series, from 0.013 to 0.037, while <code>sim_sd</code> falls steadily from 0.044 at the control to 0.008 at the highest concentration.</p>
+<p>Location is reproduced at every concentration. <code>mean_ratio</code> runs from 0.886 to 1.424, which looks like a large departure at the top of the series, and <code>ppp_mean</code> runs from 0.083 to 0.958, entirely inside the 95% span the plot below draws. The two disagree because the fitted mean at the highest concentrations is 0.009, so a ratio of 1.4 is a difference of about 0.004 on a response spanning 0.7. This is why the p-value is read rather than the ratio: a ratio of two small numbers is large before it is meaningful.</p>
+<p>The departure is in scale, and it is systematic rather than confined to one group. <code>obs_sd</code> runs from 0.013 to 0.037 with no trend across the series, while <code>sim_sd</code> falls steadily from 0.043 at the control to 0.008 at the highest concentration, a fivefold decline over a series whose observed spread does not decline at all.</p>
 <p>That pattern is a property of the family, and it can be checked rather than asserted. A <code>Beta</code> variance is <span class="math inline">\(\mu(1-\mu)/(1+\phi)\)</span>, with a single <code>phi</code> estimated for the whole fit, so the spread the model simulates is fixed once its fitted mean is known.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">pull_brmsfit</span>(best_fit))<span class="sc">$</span>spec_pars[<span class="st">"phi"</span>, <span class="st">"Estimate"</span>]</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">group =</span> cf_best<span class="sc">$</span>group,</span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">sim_mean =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>sim_mean, <span class="dv">3</span>),</span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">obs_sd =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>obs_sd, <span class="dv">4</span>),</span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">sim_sd =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>sim_sd, <span class="dv">4</span>),</span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">beta_implied =</span> <span class="fu">round</span>(<span class="fu">sqrt</span>(cf_best<span class="sc">$</span>sim_mean <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> cf_best<span class="sc">$</span>sim_mean) <span class="sc">/</span></span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>                                       (<span class="dv">1</span> <span class="sc">+</span> phi)), <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">pull_brmsfit</span>(best_fit))<span class="sc">$</span>spec_pars[<span class="st">"phi"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">group =</span> cf_best<span class="sc">$</span>group,</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">sim_mean =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>sim_mean, <span class="dv">3</span>),</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">obs_sd =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>obs_sd, <span class="dv">4</span>),</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">sim_sd =</span> <span class="fu">round</span>(cf_best<span class="sc">$</span>sim_sd, <span class="dv">4</span>),</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">beta_implied =</span> <span class="fu">round</span>(<span class="fu">sqrt</span>(cf_best<span class="sc">$</span>sim_mean <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> cf_best<span class="sc">$</span>sim_mean) <span class="sc">/</span></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>                                       (<span class="dv">1</span> <span class="sc">+</span> phi)), <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  group sim_mean obs_sd sim_sd beta_implied
-1   0.1    0.680 0.0140 0.0436       0.0451
-2   0.3    0.615 0.0188 0.0460       0.0471
-3     1    0.421 0.0368 0.0468       0.0477
-4     3    0.188 0.0130 0.0367       0.0378
-5    10    0.056 0.0142 0.0214       0.0222
-6    30    0.021 0.0125 0.0129       0.0137
-7   100    0.011 0.0148 0.0093       0.0103
-8   300    0.009 0.0167 0.0084       0.0092</code></pre>
+1   0.1    0.681 0.0140 0.0435       0.0452
+2   0.3    0.615 0.0188 0.0463       0.0472
+3     1    0.420 0.0368 0.0466       0.0479
+4     3    0.188 0.0130 0.0363       0.0379
+5    10    0.056 0.0142 0.0216       0.0224
+6    30    0.021 0.0125 0.0128       0.0138
+7   100    0.011 0.0148 0.0094       0.0102
+8   300    0.009 0.0167 0.0083       0.0093</code></pre>
 </div>
 </div>
-<p><code>sim_sd</code> follows <span class="math inline">\(\sqrt{\mu(1-\mu)/(1+\phi)}\)</span> almost exactly, at a correlation of 0.9999, so the simulated spread is not a free quantity: it is whatever the fitted mean and the one <code>phi</code> imply.</p>
-<p>That single <code>phi</code> has to serve the whole series, and here it is a compromise the two ends pull in opposite directions. At the highest concentrations the fitted mean is about 0.009, where a <code>Beta</code> can produce very little spread, while the observed standard deviation there is 0.0167. Accommodating that requires a small <code>phi</code>, and the fit settles at 106. A small <code>phi</code> raises the simulated spread at <em>every</em> concentration, including the control, where these data are among their tightest at 0.0140. The control is not fitted badly in its own right; its variability is oversimulated as a side effect of describing the far end of the curve.</p>
+<p><code>sim_sd</code> follows <span class="math inline">\(\sqrt{\mu(1-\mu)/(1+\phi)}\)</span> almost exactly, at a correlation of 0.9998, so the simulated spread is not a free quantity: it is whatever the fitted mean and the one <code>phi</code> imply.</p>
+<p>That single <code>phi</code> has to serve the whole series, and here it is a compromise the two ends pull in opposite directions. At the highest concentrations the fitted mean is about 0.009, where a <code>Beta</code> can produce very little spread, while the observed standard deviation there is 0.0167. Accommodating that requires a small <code>phi</code>, and the fit settles at 105. A small <code>phi</code> raises the simulated spread at <em>every</em> concentration, including the control, where these data are among their tightest at 0.0140. The control is not fitted badly in its own right; its variability is oversimulated as a side effect of describing the far end of the curve.</p>
 <p>Whether this arises depends on how far the response falls. A series whose mean stays well away from zero has little variation in <span class="math inline">\(\mu(1-\mu)\)</span>, so one <code>phi</code> suffices and the control agrees. Ametryn declines to a fitted mean of 0.009, which is where the mismatch comes from.</p>
 <p>The zeros of step 1 are the same story seen from the other end. At the top concentrations the response is not a small number with a little scatter around it; it is a mixture of readings at exactly zero and readings still some way above it.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>top <span class="ot">&lt;-</span> ametryn[ametryn<span class="sc">$</span>concentration <span class="sc">==</span> <span class="fu">max</span>(ametryn<span class="sc">$</span>concentration), ]</span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">zero =</span> <span class="fu">sum</span>(top<span class="sc">$</span>fvfm <span class="sc">==</span> <span class="dv">0</span>), <span class="at">above_zero =</span> <span class="fu">sum</span>(top<span class="sc">$</span>fvfm <span class="sc">&gt;</span> <span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>top <span class="ot">&lt;-</span> ametryn[ametryn<span class="sc">$</span>concentration <span class="sc">==</span> <span class="fu">max</span>(ametryn<span class="sc">$</span>concentration), ]</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">zero =</span> <span class="fu">sum</span>(top<span class="sc">$</span>fvfm <span class="sc">==</span> <span class="dv">0</span>), <span class="at">above_zero =</span> <span class="fu">sum</span>(top<span class="sc">$</span>fvfm <span class="sc">&gt;</span> <span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      zero above_zero 
          7          5 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">round</span>(top<span class="sc">$</span>fvfm, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">round</span>(top<span class="sc">$</span>fvfm, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.02 0.02 0.03 0.03 0.05</code></pre>
 </div>
 </div>
 <p>A single <code>Beta</code> mean with a single dispersion cannot describe a response of that shape, and the spread it has to account for there is what pulls <code>phi</code> down. The substitution of step 1 keeps those readings inside the family’s support without changing what they are. Modelling them as what they are, with <code>zero_inflated_beta()</code> or a hurdle family, addresses the cause rather than the symptom; the dispersion sub-model addresses the symptom directly by letting the spread vary. Module 5 covers the dispersion sub-model, written as a term in the formula, which is what lets the spread vary with the predictor instead of being fixed by the mean.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf_best)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf_best)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-checkfit" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1059,76 +1085,92 @@ no-effect concentration. See ?check_fit.</code></pre>
 <img src="7Example_case_study_files/figure-html/fig-checkfit-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-checkfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: Observed statistics against the 95% span of what the fitted model simulates, by concentration.
+Figure&nbsp;4: Observed statistics against the 95% span of what the fitted model simulates, by concentration.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <p>The plot shows what the table does not: the magnitude and direction of the discrepancy. Each panel gives the observed statistic against the 95% span of what the model simulates, and a point outside its bar is a group the model does not reproduce. Location and scale are separate panels because they fail independently, and that is what has happened here: every point in the mean panel sits inside its bar while several in the standard deviation panel do not.</p>
-<p>The control row is the one the Overview singled out, and on these data it is the worst of the series rather than the best. The model simulates a standard deviation of 0.044 against an observed 0.014, a <code>sd_ratio</code> of 0.322, and a <code>ppp_sd</code> of 1.000, meaning that essentially every simulated draw was more variable than the data.</p>
-<p>That has a direction, and it is the one the Overview set out. <code>nsec()</code> reads its reference from the posterior of the control mean, and a fit simulating more variability there than the data show gives that posterior too much width. The reference is placed lower, the curve crosses it further along, and the reported no-effect concentration is <strong>higher than the data warrant, and so less protective</strong>. An analysis reporting the <em>N(S)EC</em> for these data should state this check and its result. The section below fits the dispersion as a sub-model and reports what changes.</p>
+<p>The control row is the one <em>Convergence and fit</em> singled out, and on these data it is the worst of the series rather than the best. The model simulates a standard deviation of 0.043 against an observed 0.014, a <code>sd_ratio</code> of 0.323, and a <code>ppp_sd</code> of 1.000, meaning that essentially every simulated draw was more variable than the data.</p>
+<p>That has a direction, and it is the one <em>Convergence and fit</em> set out. <code>nsec()</code> reads its reference from the posterior of the control mean, and a fit simulating more variability there than the data show gives that posterior too much width. The reference is placed lower, the curve crosses it further along, and the reported no-effect concentration is <strong>higher than the data warrant, and so less protective</strong>. An analysis reporting the <em>N(S)EC</em> for these data should state this check and its result. The section below fits the dispersion as a sub-model and reports what changes.</p>
 <p>A group can fall beyond the message’s criterion and inside the plot’s bar, because the two differ: the message flags a posterior predictive p-value outside [0.05, 0.95] and the bars are the 95% span, which is [0.025, 0.975]. Read the message as a prompt to look at the group rather than as a verdict.</p>
 <section id="repairing-the-dispersion" class="level3">
 <h3 class="anchored" data-anchor-id="repairing-the-dispersion">Repairing the dispersion</h3>
 <p>The check has identified a specific fault, so it can be tested rather than left as advice. <code>disp()</code> writes the dispersion as a sub-model in the formula, and <code>~ log(concentration)</code> lets it vary along the predictor instead of taking one value for the whole series.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>m7_am_disp <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"ecxll4"</span>) <span class="sc">+</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">disp</span>(<span class="sc">~</span> <span class="fu">log</span>(concentration)),</span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> ametryn, <span class="at">family =</span> fam, <span class="at">seed =</span> <span class="dv">17</span>)</span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_disp, <span class="at">file =</span> <span class="st">"fits/m7_am_disp.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>m7_am_disp <span class="ot">&lt;-</span> <span class="fu">bnec</span>(fvfm <span class="sc">~</span> <span class="fu">crf</span>(<span class="fu">log</span>(concentration), <span class="at">model =</span> <span class="st">"ecx4param"</span>) <span class="sc">+</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">disp</span>(<span class="sc">~</span> <span class="fu">log</span>(concentration)),</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> ametryn, <span class="at">family =</span> fam, <span class="at">seed =</span> <span class="dv">17</span>)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(m7_am_disp, <span class="at">file =</span> <span class="st">"vignettes/fits/m7_am_disp.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/m7_am_disp.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m7_am_disp.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><code>ecxll4</code> is named directly because it is the equation <code>pull_best()</code> selected, so this is the same equation on the same data with the same priors, differing only in how the spread is modelled.</p>
+<p><code>ecx4param</code> is named directly because it is the equation <code>pull_best()</code> returned above, so this is the same equation on the same data with the same priors, differing only in how the spread is modelled. Read the weight before copying the name: <code>ecx4param</code> and <code>ecxll4</code> are separated by 0.015 of the weight on these data, so the selection could change with the seed or the settings, and the equation to refit is whichever <code>pull_best()</code> returns in your own run.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>cf_disp <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(m7_am_disp)</span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>cf_disp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>cf_disp <span class="ot">&lt;-</span> <span class="fu">check_fit</span>(m7_am_disp)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>cf_disp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  group  n obs_mean sim_mean mean_ratio ppp_mean obs_sd sim_sd sd_ratio ppp_sd control
-1   0.1 12    0.678    0.677      1.002    0.411  0.014  0.015    0.924  0.614    TRUE
-2   0.3 12    0.616    0.620      0.993    0.717  0.019  0.021    0.906  0.649   FALSE
-3     1 12    0.434    0.423      1.026    0.158  0.037  0.027    1.366  0.075   FALSE
-4     3 12    0.167    0.181      0.919    0.936  0.013  0.026    0.492  0.996   FALSE
-5    10 12    0.068    0.055      1.235    0.046  0.014  0.020    0.700  0.891   FALSE
-6    30 12    0.020    0.025      0.823    0.796  0.013  0.017    0.740  0.819   FALSE
-7   100 12    0.016    0.017      0.939    0.565  0.015  0.018    0.844  0.651   FALSE
-8   300 12    0.013    0.015      0.851    0.632  0.017  0.019    0.868  0.607   FALSE
+1   0.1 12    0.678    0.677      1.002    0.430  0.014  0.015    0.920  0.643    TRUE
+2   0.3 12    0.616    0.620      0.993    0.713  0.019  0.020    0.921  0.627   FALSE
+3     1 12    0.434    0.424      1.024    0.169  0.037  0.027    1.373  0.074   FALSE
+4     3 12    0.167    0.182      0.915    0.919  0.013  0.026    0.493  0.998   FALSE
+5    10 12    0.068    0.055      1.228    0.048  0.014  0.020    0.708  0.906   FALSE
+6    30 12    0.020    0.025      0.810    0.804  0.013  0.017    0.750  0.812   FALSE
+7   100 12    0.016    0.017      0.930    0.586  0.015  0.017    0.852  0.643   FALSE
+8   300 12    0.013    0.016      0.800    0.647  0.017  0.020    0.828  0.627   FALSE
 
 One or more groups show a posterior predictive p-value beyond 
 [0.05, 0.95]. See ?check_fit.</code></pre>
 </div>
 </div>
-<p>The control row is repaired. <code>sd_ratio</code> rises from 0.322 to 0.924, where 1 is exact agreement, and <code>ppp_sd</code> falls from 1.000 to 0.614, and the number of groups whose spread falls outside [0.05, 0.95] drops from 4 of 8 to 1. <code>sim_sd</code> no longer falls away with the mean: it now runs from 0.0152 to 0.0269, against an observed 0.0125 to 0.0368.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cf_disp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-checkfit-disp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkfit-disp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="7Example_case_study_files/figure-html/fig-checkfit-disp-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-checkfit-disp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: <code>check_fit()</code> on the dispersion sub-model fit, drawn on the same axes as the constant-dispersion fit above. The scale panel is the one to compare.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The comparison to make is between this plot and the one above it, panel for panel. The mean panel was already passing and still passes. On the scale panel the number of groups falling outside their bar drops from 3 to 1 of 8, the control moves inside, and the simulated spread no longer falls away across a series whose observed spread does not. One group is still flagged, at a concentration where the fit simulates about twice the spread the data show, so the term has improved this series rather than resolved it. That is the more common outcome than a clean repair, and the diagnostic is what distinguishes the two.</p>
+<p>The control row is repaired. <code>sd_ratio</code> rises from 0.323 to 0.920, where 1 is exact agreement, and <code>ppp_sd</code> falls from 1.000 to 0.643, and the number of groups whose spread falls outside [0.05, 0.95] drops from 4 of 8 to 1. <code>sim_sd</code> no longer falls away with the mean: it now runs from 0.0153 to 0.0268, against an observed 0.0125 to 0.0368.</p>
 <p>The same difference is visible in the fitted curves, where it is the width of the prediction rather than its position that changes.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">concentration =</span> <span class="fu">exp</span>(<span class="fu">seq</span>(<span class="fu">log</span>(<span class="fu">min</span>(ametryn<span class="sc">$</span>concentration)),</span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">log</span>(<span class="fu">max</span>(ametryn<span class="sc">$</span>concentration)), <span class="at">length.out =</span> <span class="dv">100</span>)))</span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The formula term is log(concentration), which brms holds as its own column, so</span></span>
-<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="co"># newdata has to supply it rather than leaving it to be derived.</span></span>
-<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>grid[[<span class="st">"log(concentration)"</span>]] <span class="ot">&lt;-</span> <span class="fu">log</span>(grid<span class="sc">$</span>concentration)</span>
-<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>pp_band <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, label) {</span>
-<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="fu">pull_brmsfit</span>(fit), <span class="at">newdata =</span> grid)</span>
-<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">concentration =</span> grid<span class="sc">$</span>concentration, <span class="at">fit =</span> label,</span>
-<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">Estimate =</span> p[, <span class="st">"Estimate"</span>], <span class="at">Q2.5 =</span> p[, <span class="st">"Q2.5"</span>], <span class="at">Q97.5 =</span> p[, <span class="st">"Q97.5"</span>])</span>
-<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>bands <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">pp_band</span>(best_fit, <span class="st">"constant dispersion"</span>),</span>
-<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>               <span class="fu">pp_band</span>(m7_am_disp, <span class="st">"disp(~ log(concentration))"</span>))</span>
-<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bands, <span class="fu">aes</span>(<span class="at">x =</span> concentration)) <span class="sc">+</span></span>
-<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
-<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate)) <span class="sc">+</span></span>
-<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> ametryn, <span class="fu">aes</span>(<span class="at">y =</span> fvfm), <span class="at">size =</span> <span class="fl">1.2</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> fit) <span class="sc">+</span></span>
-<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">transform =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> conc_breaks) <span class="sc">+</span></span>
-<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Concentration ("</span>, mu, <span class="st">"g "</span>, L<span class="sc">^-</span><span class="dv">1</span>, <span class="st">")"</span>)),</span>
-<span id="cb73-24"><a href="#cb73-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Maximum effective quantum yield"</span>) <span class="sc">+</span></span>
-<span id="cb73-25"><a href="#cb73-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">concentration =</span> <span class="fu">exp</span>(<span class="fu">seq</span>(<span class="fu">log</span>(<span class="fu">min</span>(ametryn<span class="sc">$</span>concentration)),</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">log</span>(<span class="fu">max</span>(ametryn<span class="sc">$</span>concentration)), <span class="at">length.out =</span> <span class="dv">100</span>)))</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The formula term is log(concentration), which brms holds as its own column, so</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a><span class="co"># newdata has to supply it rather than leaving it to be derived.</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>grid[[<span class="st">"log(concentration)"</span>]] <span class="ot">&lt;-</span> <span class="fu">log</span>(grid<span class="sc">$</span>concentration)</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>pp_band <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, label) {</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="fu">pull_brmsfit</span>(fit), <span class="at">newdata =</span> grid)</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">concentration =</span> grid<span class="sc">$</span>concentration, <span class="at">fit =</span> label,</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">Estimate =</span> p[, <span class="st">"Estimate"</span>], <span class="at">Q2.5 =</span> p[, <span class="st">"Q2.5"</span>], <span class="at">Q97.5 =</span> p[, <span class="st">"Q97.5"</span>])</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>bands <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">pp_band</span>(best_fit, <span class="st">"constant dispersion"</span>),</span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>               <span class="fu">pp_band</span>(m7_am_disp, <span class="st">"disp(~ log(concentration))"</span>))</span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bands, <span class="fu">aes</span>(<span class="at">x =</span> concentration)) <span class="sc">+</span></span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> Q2<span class="fl">.5</span>, <span class="at">ymax =</span> Q97<span class="fl">.5</span>), <span class="at">fill =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estimate)) <span class="sc">+</span></span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> ametryn, <span class="fu">aes</span>(<span class="at">y =</span> fvfm), <span class="at">size =</span> <span class="fl">1.2</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> fit) <span class="sc">+</span></span>
+<span id="cb78-22"><a href="#cb78-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">transform =</span> <span class="st">"log"</span>, <span class="at">breaks =</span> conc_breaks) <span class="sc">+</span></span>
+<span id="cb78-23"><a href="#cb78-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Concentration ("</span>, mu, <span class="st">"g "</span>, L<span class="sc">^-</span><span class="dv">1</span>, <span class="st">")"</span>)),</span>
+<span id="cb78-24"><a href="#cb78-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Maximum effective quantum yield"</span>) <span class="sc">+</span></span>
+<span id="cb78-25"><a href="#cb78-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-disp-compare" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1136,24 +1178,24 @@ One or more groups show a posterior predictive p-value beyond
 <img src="7Example_case_study_files/figure-html/fig-disp-compare-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-disp-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: The 95% posterior predictive interval for ametryn under constant dispersion and under a dispersion sub-model, with the observations.
+Figure&nbsp;6: The 95% posterior predictive interval for ametryn under constant dispersion and under a dispersion sub-model, with the observations.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The interval shown is the posterior predictive one, which is where a single observation is expected to fall, rather than the interval on the fitted mean. The two curves sit almost on top of one another, because the dispersion sub-model changes what the fit expects the scatter to be and not where the response goes. What changes is the band. Under constant dispersion it spans 0.180 at the control, where the observations are tightly grouped, and narrows to 0.036 at the highest concentration, where they are not. With the sub-model the two are 0.068 and 0.092, which is the order the data call for.</p>
+<p>The interval shown is the posterior predictive one, which is where a single observation is expected to fall, rather than the interval on the fitted mean. The two curves sit almost on top of one another, because the dispersion sub-model changes what the fit expects the scatter to be and not where the response goes. What changes is the band. Under constant dispersion it spans 0.185 at the control, where the observations are tightly grouped, and narrows to 0.034 at the highest concentration, where they are not. With the sub-model the two are 0.067 and 0.098, which is the order the data call for.</p>
 <p>The reason this matters is the estimate, not the diagnostic.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="st">`</span><span class="at">constant dispersion</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">nsec</span>(best_fit, <span class="at">xform =</span> exp),</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">disp(~ log(concentration))</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">nsec</span>(m7_am_disp, <span class="at">xform =</span> exp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="st">`</span><span class="at">constant dispersion</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">nsec</span>(best_fit, <span class="at">xform =</span> exp),</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">disp(~ log(concentration))</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">nsec</span>(m7_am_disp, <span class="at">xform =</span> exp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                 Q50      Q2.5     Q97.5
-constant dispersion        0.2100795 0.1191751 0.2865741
-disp(~ log(concentration)) 0.1423095 0.1066277 0.1776033</code></pre>
+constant dispersion        0.2092389 0.1190050 0.2916343
+disp(~ log(concentration)) 0.1439077 0.1077136 0.1766550</code></pre>
 </div>
 </div>
-<p>The <em>NSEC</em> falls by about a third once the control variability is described correctly, and its credible interval narrows to less than half its width. This is the direction the Overview predicted: a fit simulating too much variability at the control places the significance reference lower, the curve crosses it further along, and the estimate returned is higher than the data warrant. Correcting the dispersion returns a lower and more protective concentration.</p>
+<p>The <em>NSEC</em> falls by about a third once the control variability is described correctly, and its credible interval narrows to less than half its width. This is the direction <em>Convergence and fit</em> predicted: a fit simulating too much variability at the control places the significance reference lower, the curve crosses it further along, and the estimate returned is higher than the data warrant. Correcting the dispersion returns a lower and more protective concentration.</p>
 <p>Two cautions. The comparison above is one equation, not the model-averaged set this module reports elsewhere, and a set refitted with a dispersion sub-model would have to be screened and weighted again before its average could be quoted. And the sub-model treats the symptom: the zeros of step 1 are still being modelled through a substitution, and <code>zero_inflated_beta()</code> addresses that directly. Which to reach for depends on whether the zeros are a response saturating at total effect or a measurement floor, and that is a question about the assay rather than about the fit.</p>
 </section>
 </section>
@@ -1161,7 +1203,7 @@ disp(~ log(concentration)) 0.1423095 0.1066277 0.1776033</code></pre>
 <h2 class="anchored" data-anchor-id="the-reported-estimates">5. The reported estimates</h2>
 <p><code>summary()</code> returns the retained equations with their weights and the model-averaged estimate.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_screened)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Object of class bayesmanecfit
 
@@ -1172,15 +1214,15 @@ Number of posterior draws per model:  8000
 
 Model weights (Method: pseudobma_bb_weights):
              waic   wi
-nec3param -451.06 0.03
-nec4param -456.69 0.04
-ecxexp    -320.44 0.00
-ecx4param -465.13 0.38
-ecxwb1    -443.63 0.01
-ecxwb2    -461.34 0.11
-ecxwb1p3  -323.16 0.00
-ecxwb2p3  -447.00 0.02
-ecxll4    -465.27 0.42
+nec3param -450.73 0.03
+nec4param -456.53 0.03
+ecxexp    -320.67 0.00
+ecx4param -465.17 0.40
+ecxwb1    -443.64 0.01
+ecxwb2    -461.28 0.11
+ecxwb1p3  -323.34 0.00
+ecxwb2p3  -446.93 0.02
+ecxll4    -465.08 0.39
 ecxll3    -432.21 0.00
 
 
@@ -1189,7 +1231,7 @@ NB: Model set contains a combination of ECx and NEC
     models, and is therefore a model averaged
     combination of NEC and NSEC estimates.
        Estimate  Q2.5 Q97.5
-N(S)EC    -1.66 -2.14 -0.45
+N(S)EC    -1.66 -2.15 -0.45
 
 
 Bayesian R2 estimates:
@@ -1229,16 +1271,16 @@ This is a modelling result rather than a fault; inspect with check_fit().</code>
 <h3 class="anchored" data-anchor-id="the-scale-an-estimate-is-on">The scale an estimate is on</h3>
 <p>The predictor was logged in the formula, so the threshold is returned on that scale. <code>nec()</code>, <code>nsec()</code> and <code>ecx()</code> all take an <code>xform</code> argument to put it back on the measured one.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">log_scale =</span> <span class="fu">nec</span>(fit_screened),</span>
-<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">measured  =</span> <span class="fu">nec</span>(fit_screened, <span class="at">xform =</span> exp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">log_scale =</span> <span class="fu">nec</span>(fit_screened),</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">measured  =</span> <span class="fu">nec</span>(fit_screened, <span class="at">xform =</span> exp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>This bayesmanecfit contains smooth (ecx) models, which have no threshold parameter, so the returned estimate is a weighted mixture of NEC and NSEC draws -- the model-averaged N(S)EC rather than a NEC. See ?nec and summary(), which labels it.
 This bayesmanecfit contains smooth (ecx) models, which have no threshold parameter, so the returned estimate is a weighted mixture of NEC and NSEC draws -- the model-averaged N(S)EC rather than a NEC. See ?nec and summary(), which labels it.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                Q50      Q2.5      Q97.5
-log_scale -1.663466 -2.136800 -0.4513908
-measured   0.189481  0.118032  0.6367419</code></pre>
+<pre><code>                 Q50       Q2.5      Q97.5
+log_scale -1.6595068 -2.1514432 -0.4538602
+measured   0.1902328  0.1163162  0.6351715</code></pre>
 </div>
 </div>
 <p>Only the second row is on the measured scale. The first is its natural logarithm, and the two are easy to confuse, because a logged value can land in the same numeric range as a concentration: the median of the first row would pass unremarked in a series running from 0.1 to 300. Reporting a logged value as a concentration understates the threshold by a factor of 2.7 for every unit on the logged scale. Where the logarithm is negative the value is not a concentration at all, which is the one case in which the error announces itself. A reported value has to state the scale it is on.</p>
@@ -1252,58 +1294,57 @@ measured   0.189481  0.118032  0.6367419</code></pre>
 Table&nbsp;1: Fitted curve parameters for ametryn, with the weight of the equation each came from.
 </figcaption>
 <div aria-describedby="tbl-curveparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(fit_screened, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(fit_screened, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       model           wi dpar     link parameter     Estimate         Q2.5        Q97.5
-1     ecxll4 4.171951e-01   mu identity       top  0.702409905  0.673394325  0.734096045
-2     ecxll4 4.171951e-01   mu identity       bot  0.008783056  0.005583625  0.012614853
-3     ecxll4 4.171951e-01   mu identity      beta  0.261975790  0.158569725  0.369138372
-4     ecxll4 4.171951e-01   mu identity      ec50  1.339670878  1.163794144  1.514585592
-5  ecx4param 3.789986e-01   mu identity       top  0.702825640  0.674081856  0.735037377
-6  ecx4param 3.789986e-01   mu identity       bot  0.008722921  0.005553338  0.012550562
-7  ecx4param 3.789986e-01   mu identity      beta  0.259280400  0.157464315  0.363335727
-8  ecx4param 3.789986e-01   mu identity      ec50  1.336456743  1.165854729  1.509917935
-9     ecxwb2 1.063291e-01   mu identity       top  0.657772365  0.635584658  0.681120591
-10    ecxwb2 1.063291e-01   mu identity       bot  0.007184491  0.003900357  0.011204553
-11    ecxwb2 1.063291e-01   mu identity      beta  0.073426013 -0.028279881  0.183671755
-12    ecxwb2 1.063291e-01   mu identity      ec50  1.006751328  0.872931746  1.140887354
-13 nec4param 3.505118e-02   mu identity       top  0.646677760  0.626747534  0.666520058
-14 nec4param 3.505118e-02   mu identity       bot  0.006002212  0.002421994  0.010312821
-15 nec4param 3.505118e-02   mu identity      beta -0.101976870 -0.195718516 -0.004062701
-16 nec4param 3.505118e-02   mu identity       nec  0.645714912  0.580452402  0.710416713
-17 nec3param 3.289193e-02   mu identity       top  0.646568460  0.626932821  0.665982123
-18 nec3param 3.289193e-02   mu identity      beta -0.215918675 -0.284870326 -0.149748667
-19 nec3param 3.289193e-02   mu identity       nec  0.599591188  0.532975125  0.659955924
-20  ecxwb2p3 1.777026e-02   mu identity       top  0.672578515  0.649397042  0.697433147
-21  ecxwb2p3 1.777026e-02   mu identity      beta -0.088891064 -0.162322028 -0.020640148
-22  ecxwb2p3 1.777026e-02   mu identity      ec50  0.904889374  0.786859125  1.028684621
-23    ecxwb1 1.170612e-02   mu identity       top  0.837314370  0.765456546  0.923267105
-24    ecxwb1 1.170612e-02   mu identity       bot  0.012660553  0.009054751  0.017073639
-25    ecxwb1 1.170612e-02   mu identity      beta -0.520960155 -0.670037248 -0.356916938
-26    ecxwb1 1.170612e-02   mu identity      ec50  1.662894071  1.302567708  2.064801398
-27    ecxll3 5.773357e-05   mu identity       top  0.753593625  0.717594232  0.797983157
-28    ecxll3 5.773357e-05   mu identity      beta  0.018692647 -0.068720950  0.095071287
-29    ecxll3 5.773357e-05   mu identity      ec50  1.122455622  0.928137965  1.316125299
-30    ecxexp 2.780574e-26   mu identity       top  0.284262570  0.263211954  0.307728245
-31    ecxexp 2.780574e-26   mu identity      beta -0.857620450 -0.945975046 -0.779282778
-32  ecxwb1p3 1.200741e-27   mu identity       top  0.975830205  0.924418251  0.996332442
-33  ecxwb1p3 1.200741e-27   mu identity      beta -1.083427950 -1.178969405 -1.003794850
-34  ecxwb1p3 1.200741e-27   mu identity      ec50  1.245739968  1.023567903  1.579278091</code></pre>
+1  ecx4param 4.045286e-01   mu identity       top  0.702418710  0.674138442  0.736174536
+2  ecx4param 4.045286e-01   mu identity       bot  0.008761723  0.005553341  0.012568311
+3  ecx4param 4.045286e-01   mu identity      beta  0.261366565  0.153316838  0.365460922
+4  ecx4param 4.045286e-01   mu identity      ec50  1.337311266  1.163220699  1.513116220
+5     ecxll4 3.899852e-01   mu identity       top  0.702000230  0.672554967  0.735327113
+6     ecxll4 3.899852e-01   mu identity       bot  0.008790868  0.005697632  0.012679248
+7     ecxll4 3.899852e-01   mu identity      beta  0.262090585  0.154275866  0.372810012
+8     ecxll4 3.899852e-01   mu identity      ec50  1.339230259  1.159611470  1.526763544
+9     ecxwb2 1.112820e-01   mu identity       top  0.657854360  0.636478659  0.682560536
+10    ecxwb2 1.112820e-01   mu identity       bot  0.007191189  0.003905152  0.011235785
+11    ecxwb2 1.112820e-01   mu identity      beta  0.074362329 -0.030719253  0.182865130
+12    ecxwb2 1.112820e-01   mu identity      ec50  1.005852015  0.871755416  1.138519642
+13 nec4param 3.332410e-02   mu identity       top  0.646805085  0.626884500  0.665868476
+14 nec4param 3.332410e-02   mu identity       bot  0.005907978  0.002376920  0.010263067
+15 nec4param 3.332410e-02   mu identity      beta -0.101325465 -0.198758267 -0.006275442
+16 nec4param 3.332410e-02   mu identity       nec  0.645606628  0.575975660  0.710283022
+17 nec3param 3.092929e-02   mu identity       top  0.646451145  0.626844068  0.665894646
+18 nec3param 3.092929e-02   mu identity      beta -0.214945630 -0.287047823 -0.148540038
+19 nec3param 3.092929e-02   mu identity       nec  0.600078995  0.536351670  0.661889998
+20  ecxwb2p3 1.841562e-02   mu identity       top  0.672540325  0.648385353  0.697473525
+21  ecxwb2p3 1.841562e-02   mu identity      beta -0.089243647 -0.163442483 -0.018039647
+22  ecxwb2p3 1.841562e-02   mu identity      ec50  0.905087120  0.783060508  1.030881627
+23    ecxwb1 1.147356e-02   mu identity       top  0.836236715  0.765885206  0.918666823
+24    ecxwb1 1.147356e-02   mu identity       bot  0.012595990  0.009147499  0.017023623
+25    ecxwb1 1.147356e-02   mu identity      beta -0.518431380 -0.666192662 -0.359220474
+26    ecxwb1 1.147356e-02   mu identity      ec50  1.672126183  1.312413478  2.063670595
+27    ecxll3 6.163059e-05   mu identity       top  0.753612910  0.717487398  0.795905340
+28    ecxll3 6.163059e-05   mu identity      beta  0.017861558 -0.068006685  0.096338734
+29    ecxll3 6.163059e-05   mu identity      ec50  1.123521220  0.930449888  1.324621561
+30    ecxexp 3.008072e-26   mu identity       top  0.283994665  0.262861015  0.306705757
+31    ecxexp 3.008072e-26   mu identity      beta -0.855636670 -0.943490664 -0.781078996
+32  ecxwb1p3 1.402122e-27   mu identity       top  0.977138305  0.928268566  0.996302904
+33  ecxwb1p3 1.402122e-27   mu identity      beta -1.082326000 -1.178475355 -1.003559278
+34  ecxwb1p3 1.402122e-27   mu identity      ec50  1.244570232  1.024789114  1.568024090</code></pre>
 </div>
 </div>
 </figure>
 </div>
-<p>The equations of a set do not share a parameter list, which is why nothing is averaged across them: only the threshold equations estimate <code>nec</code>, and the three-parameter equations have no <code>bot</code>. Averaging a parameter over whichever equations happen to estimate it would average over a different subset for each parameter. The weight beside each row is what makes the table readable, since a row holding a thousandth of the weight describes the averaged curve hardly at all.</p>
-<p><code>xform</code> reaches <code>nec</code> and <code>ec50</code> and no other parameter, because those two are on the scale of the predictor while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters.</p>
+<p>Nothing is averaged across the rows, for the reason module 4 gives: the equations of a set do not share a parameter list, so an average would be taken over a different subset of the set for each parameter. Read each row against the weight beside it. <code>xform</code> reaches <code>nec</code> and <code>ec50</code> and no other parameter, because those two are on the scale of the predictor while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters.</p>
 </section>
 <section id="effect-concentrations-and-censoring" class="level3">
 <h3 class="anchored" data-anchor-id="effect-concentrations-and-censoring">Effect concentrations and censoring</h3>
 <p>The other commonly required endpoint is an <strong>EC<sub>x</sub></strong>, read from the same screened set.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">10</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">10</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      Q50      Q2.5     Q97.5 
-0.3797423 0.3627844 0.4000171 
+0.3798042 0.3625947 0.4004318 
 attr(,"resolution")
 [1] 200
 attr(,"ecx_val")
@@ -1311,10 +1352,10 @@ attr(,"ecx_val")
 attr(,"toxicity_estimate")
 [1] "ecx"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ecx</span>(fit_screened, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">xform =</span> exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Q50     Q2.5    Q97.5 
-1.498711 1.413922 1.600085 
+1.499021 1.412973 1.602159 
 attr(,"resolution")
 [1] 200
 attr(,"ecx_val")
@@ -1330,20 +1371,6 @@ attr(,"toxicity_estimate")
 <h3 class="anchored" data-anchor-id="the-estimate-in-a-guideline-derivation">The estimate in a guideline derivation</h3>
 <p>This is the kind of estimate that enters a guideline derivation. In Australia that is the Australian and New Zealand Water Quality Guidelines <span class="citation" data-cites="anzg">(<a href="#ref-anzg" role="doc-biblioref">ANZG 2018</a>)</span>. The <em>NEC</em> has been the established preference for some time <span class="citation" data-cites="Warne2015 warne2018">(<a href="#ref-Warne2015" role="doc-biblioref">Warne et al. 2015</a>; <a href="#ref-warne2018" role="doc-biblioref">Warne et al. 2018</a>)</span>, and the 2025 revision of the derivation method <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span> places the <em>NSEC</em> alongside it: the two are now the most preferred statistical estimates, with an <strong>EC<sub>x</sub></strong> at <em>x</em> of 10 or less in the tier below them.</p>
 <p>Because the <em>NSEC</em> sits in the preferred tier, the condition attached to it applies, and an <em>NSEC</em> whose measured effect size exceeds 20% should probably not be used to derive a guideline value. Module 3 covers the ECNSEC, which is the quantity that measures it, and an analysis reporting an N(S)EC for guideline use should report that alongside.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-nsecieam" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/NSEC_ieam.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsecieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: The N(S)EC, combined by weight from the <em>NEC</em> of the threshold equations and the <em>NSEC</em> of the smooth ones. Reproduced from <span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> under CC BY 4.0.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
 </section>
 </section>
 <section id="reporting-the-analysis" class="level2">
@@ -1352,7 +1379,7 @@ Figure&nbsp;9: The N(S)EC, combined by weight from the <em>NEC</em> of the thres
 <p>State <strong>the data as analysed</strong>: the response, the bounds of its distribution, and any value altered to bring it inside the family’s support. <code>bnec_record()</code> reports the last of these in its <code>substitutions</code> element.</p>
 <p>State <strong>the family and how it was chosen</strong>. Here a continuous response bounded by 0 and 1 gives the <code>Beta</code> family, with the boundary check of step 1 as the evidence. For a count out of a total, report the dispersion screen of module 5 and the probability it returned.</p>
 <p>State <strong>the candidate set as fitted</strong>: the set requested, the equations excluded before fitting and why, and any equation that failed to fit at all. <code>bnec_record()</code> returns the first three and <code>failed_models()</code> the last.</p>
-<p>State <strong>the sampler settings</strong>, including the number of retained draws rather than <code>iter</code> alone, because two of the three diagnostic cutoffs are absolute counts read against them.</p>
+<p>State <strong>the sampler settings</strong>: the number of retained draws rather than <code>iter</code> alone, because two of the three diagnostic cutoffs are absolute counts read against them, and any <code>control</code> values used, <code>adapt_delta</code> and <code>max_treedepth</code> among them. Both are Stan defaults unless set, and a fit that needed them raised is a different fit from one that did not.</p>
 <p>State <strong>the diagnostic thresholds</strong>, all three of them. They are choices, they determine what was excluded, and <code>check_sampling()</code> allows each to be changed.</p>
 <p>State <strong>which equations were excluded and why</strong>, naming the threshold each failed, and distinguishing an equation that would pass with more draws from one the design cannot support. Step 3 separated the three kinds.</p>
 <p>State <strong>the fit checks and what they showed</strong>, not only the sampler diagnostics. <code>check_fit()</code> reports whether the model reproduces the observed variability within each concentration, and the control row is the one both <code>nsec()</code> and <code>ecx()</code> read their reference from. Where the check shows a discrepancy, state its direction, because that determines whether the reported estimate is conservative or not. On the ametryn series above the fit oversimulates variability at the control, which makes the <em>N(S)EC</em> less protective rather than more.</p>
@@ -1365,29 +1392,11 @@ Figure&nbsp;9: The N(S)EC, combined by weight from the <em>NEC</em> of the thres
 <div id="ref-anzg" class="csl-entry" role="listitem">
 ANZG. 2018. <em>Australian and New Zealand Guidelines for Fresh and Marine Water Quality.</em> Australian; New Zealand Governments; Australian State; Territory Governments. <a href="https://www.waterquality.gov.au/guidelines/anz-fresh-marine">https://www.waterquality.gov.au/guidelines/anz-fresh-marine</a>.
 </div>
-<div id="ref-Charles2020a" class="csl-entry" role="listitem">
-Charles, Sandrine, Dan Wu, and Virginie Ducrot. 2020. <span>“How to Account for the Uncertainty from Standard Toxicity Tests in Species Sensitivity Distributions: An Example in Non-Target Plants.”</span> <em>bioRxiv</em>, ahead of print. <a href="https://doi.org/10.1101/2020.07.02.183863">https://doi.org/10.1101/2020.07.02.183863</a>.
-</div>
-<div id="ref-Fisher2019d" class="csl-entry" role="listitem">
-Fisher, Rebecca, Pia Bessell-Browne, and Ross Jones. 2019. <span>“Synergistic and Antagonistic Impacts of Suspended Sediments and Thermal Stress on Corals.”</span> <em>Nature Communications</em>. <a href="https://doi.org/10.1038/s41467-019-10288-9">https://doi.org/10.1038/s41467-019-10288-9</a>.
-</div>
-<div id="ref-fisheretal2023" class="csl-entry" role="listitem">
-Fisher, Rebecca, David R. Fox, Andrew P. Negri, Joost van Dam, Florita Flores, and Darren Koppel. 2023. <span>“Methods for Estimating No-Effect Toxicity Concentrations in Ecotoxicology.”</span> <em>Integrated Environmental Assessment and Management</em>, ahead of print. https://doi.org/<a href="https://doi.org/10.1002/ieam.4809">https://doi.org/10.1002/ieam.4809</a>.
-</div>
-<div id="ref-flores2021" class="csl-entry" role="listitem">
-Flores, F., J. A. Marques, S. Uthicke, et al. 2021. <span>“Combined Effects of Climate Change and the Herbicide Diuron on the Coral <em>Acropora Millepora</em>.”</span> <em>Marine Pollution Bulletin</em> 169: 112582. <a href="https://doi.org/10.1016/j.marpolbul.2021.112582">https://doi.org/10.1016/j.marpolbul.2021.112582</a>.
-</div>
-<div id="ref-Gottschalk2013" class="csl-entry" role="listitem">
-Gottschalk, Fadri, and Bernd Nowack. 2013. <span>“A Probabilistic Method for Species Sensitivity Distributions Taking into Account the Inherent Uncertainty and Variability of Effects to Estimate Environmental Risk.”</span> <em>Integrated Environmental Assessment and Management</em> 9 (1): 79–86.
-</div>
 <div id="ref-jones2003meps" class="csl-entry" role="listitem">
 Jones, R J, and A P Kerswell. 2003. <span>“Phytotoxicity of <span>Photosystem II (PSII)</span> Herbicides to Coral.”</span> <em>Marine Ecology Progress Series</em> 261: 149–59. <a href="https://doi.org/10.3354/meps261149">https://doi.org/10.3354/meps261149</a>.
 </div>
 <div id="ref-jones2003effects" class="csl-entry" role="listitem">
 Jones, Ross J, Jochen Muller, David Haynes, and Ulrich Schreiber. 2003. <span>“Effects of Herbicides Diuron and Atrazine on Corals of the Great Barrier Reef, Australia.”</span> <em>Marine Ecology Progress Series</em> 251: 153–67.
-</div>
-<div id="ref-Thomas2006" class="csl-entry" role="listitem">
-Neal, Thomas. 2006. <span>“Hypothesis Testing and Bayesian Estimation Using a Sigmoid Emax Model Applied to Sparse Dose-Response Designs.”</span> <em>Journal of Biopharmaceutical Statistics</em> 16 (5): 657–77. <a href="https://doi.org/10.1080/10543400600860469">https://doi.org/10.1080/10543400600860469</a>.
 </div>
 <div id="ref-Vehtari2021" class="csl-entry" role="listitem">
 Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved <span><span class="math inline">\(\widehat{R}\)</span></span> for Assessing Convergence of <span>MCMC</span> (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2): 667–718. <a href="https://doi.org/10.1214/20-BA1221">https://doi.org/10.1214/20-BA1221</a>.

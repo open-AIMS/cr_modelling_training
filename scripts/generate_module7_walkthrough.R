@@ -8,7 +8,7 @@
 # demonstration and not an assertion:
 #
 #   m7_am_reduced   iter = 4000 over 2 chains, below bnec()'s defaults
-#   m7_am_fit       bnec()'s defaults
+#   m7_am_fit       bnec()'s defaults, with adapt_delta and max_treedepth set
 #
 # These data are well behaved at the defaults, so a fit made there produces no
 # screen failure to examine. Running short guarantees that some equations miss a
@@ -37,6 +37,10 @@ out_dir <- "vignettes/fits"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 SEED <- 17
+
+# The equation pull_best() returns from the screened set; see the dispersion
+# section below for why it is named here rather than derived.
+BEST_MODEL <- "ecx4param"
 
 # The formula environment is reset before saving, for the reason recorded in
 # scripts/generate_taught_fits.R: a saved formula keeps a reference to the
@@ -82,19 +86,32 @@ if (!FORCE && all(file.exists(targets))) {
                         iter = 4000, chains = 2, seed = SEED)
   save_fit(m7_am_reduced, "m7_am_reduced")
 
-  message("  ametryn: bnec() defaults")
+  # bnec()'s defaults for iter and chains, with both control arguments set.
+  # Neither is needed on these data -- no equation records a divergent
+  # transition at either settings -- and the module fits with them anyway, so
+  # that the worked example shows the two arguments a marginal fit needs rather
+  # than only naming them. Step 3 of the module says which failure each one
+  # answers.
+  message("  ametryn: bnec() defaults, adapt_delta = 0.99, max_treedepth = 12")
   m7_am_fit <- bnec(fvfm ~ crf(log(concentration), model = "decline"),
                     data = ametryn, family = Beta(link = "identity"),
-                    seed = SEED)
+                    seed = SEED,
+                    control = list(adapt_delta = 0.99, max_treedepth = 12))
   save_fit(m7_am_fit, "m7_am_fit")
 }
 
 # --- the dispersion sub-model ------------------------------------------------
 # One equation refitted with the dispersion free to vary along the predictor, so
 # module 7 can show what repairing the control does rather than only naming the
-# remedy. ecxll4 is the equation the screen and the weights select, so this is a
-# like-for-like comparison against pull_best() of the set above; the baseline
+# remedy. The equation has to be the one pull_best() returns from the screened
+# set, so that this is a like-for-like comparison against it and the baseline
 # needs no separate fit.
+#
+# That is ecx4param as of 2026-09-21, at a weight of 0.405 against 0.390 for
+# ecxll4, which it was until the default fit gained adapt_delta = 0.99. The two
+# are close enough that the selection can change with the settings or the seed,
+# so read pull_best() rather than assuming, and change BEST_MODEL below and the
+# name in the module together if it moves again.
 #
 # disp(~ log(concentration)) is used rather than disp("power") because it fits
 # these data better. Measured 2026-09-17, the control sd_ratio is 0.924 against
@@ -102,8 +119,8 @@ if (!FORCE && all(file.exists(targets))) {
 # against two.
 disp_target <- file.path(out_dir, "m7_am_disp.RData")
 if (FORCE || !file.exists(disp_target)) {
-  message("  ametryn: ecxll4 with a dispersion sub-model")
-  m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = "ecxll4") +
+  message("  ametryn: ", BEST_MODEL, " with a dispersion sub-model")
+  m7_am_disp <- bnec(fvfm ~ crf(log(concentration), model = BEST_MODEL) +
                        disp(~ log(concentration)),
                      data = ametryn, family = Beta(link = "identity"),
                      seed = SEED)
@@ -124,8 +141,10 @@ writeLines(c(
   paste("bayesnec:", as.character(packageVersion("bayesnec"))),
   paste("brms:", as.character(packageVersion("brms"))),
   "reduced fit: iter = 4000, chains = 2 (1600 retained draws)",
-  "default fit: bnec() defaults (8000 retained draws)",
-  "dispersion fit: ecxll4 + disp(~ log(concentration)), bnec() defaults"
+  "default fit: bnec() defaults (8000 retained draws),",
+  "              control = list(adapt_delta = 0.99, max_treedepth = 12)",
+  paste0("dispersion fit: ", BEST_MODEL,
+         " + disp(~ log(concentration)), bnec() defaults")
 ), "vignettes/data/module7_provenance.txt")
 
 message("done: ", format(Sys.time()))

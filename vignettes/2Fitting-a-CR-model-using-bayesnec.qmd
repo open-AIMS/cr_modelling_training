@@ -175,68 +175,6 @@ names(models())
 Module 3 describes what each model is and which toxicity estimates can be derived from
 it. Module 4 covers fitting a set of models rather than a single model.
 
-## The scale of the predictor
-
-Settle the scale of the predictor before fitting anything. The predictor enters
-the equations directly, so a transformation changes the curve being fitted and
-not only the axis it is drawn against. `bnec()` takes the concentration exactly
-as it is supplied and does not make the decision for you.
-
-Read the spacing of the **design**. A dilution series makes each concentration a
-fixed multiple of the one below it, so its steps are even on a logarithmic scale
-and uneven on a linear one. On a linear axis such a design crushes the low
-concentrations together and spreads the high ones out, so the equation spends
-its flexibility at the top of the range, where the response is often already
-flat. Fitting on `log(concentration)` makes the steps even and commonly samples
-more stably. Module 7, in *The scale of the predictor*, measures what the choice
-is worth on a designed series.
-
-The mechanics are:
-
-- Write the transformation inside `crf()`, as
-  `crf(log(x), model = "nec4param")`, or apply it to the data before the call.
-- Add any offset to the data yourself first. For `log(x)`, a control recorded as
-  `0` arrives at the data check as `log(0)` and the fit stops.
-- Back-transform the estimates through the `xform` argument, which `nec()`,
-  `ecx()`, `nsec()` and `autoplot()` all take.
-- Report the scale alongside any value you report.
-
-Where the predictor is transformed, `xform` takes the inverse and returns the
-estimates as concentrations:
-
-```{r}
-#| label: xform-demo
-#| eval: false
-ecx(fit, xform = function(x) exp(x) - 1)
-autoplot(fit, xform = function(x) exp(x) - 1)
-```
-
-::: {.callout-note collapse="true" title="Zero on the predictor axis"}
-
-The transformation is evaluated before `bayesnec` inspects the predictor, which
-is why the fit stops with a report that the predictor is not finite rather than
-with anything naming the transformation.
-
-`bayesnec` does not correct a zero on the predictor axis. A concentration of
-zero is an ordinary control, and no response distribution constrains the values
-a predictor may take. Choose the offset yourself and add it to the data first,
-as `log(x + 1)` or a smaller constant suited to the series.
-:::
-
-::: {.callout-note collapse="true" title="Reporting a value on the fitted scale"}
-
-A value reported on the fitted scale reads as a concentration and is not one.
-Reporting a logged value as a concentration understates the threshold by a
-factor of e for every unit on the logged scale, and only a negative logarithm
-announces the error.
-:::
-
-`nec_data` is left on the linear scale throughout this course, and deliberately
-so. It is simulated as 100 random draws rather than as a designed series, and
-the true curve is defined as a function of linear `x`, so logging it would
-distort the generating scale rather than reveal it. The difference between this
-example and a real dilution series is the design rather than the package.
-
 ## Calling `bnec`
 
 A formula and a data frame are the minimum required to fit a `bayesnec` model,
@@ -249,12 +187,12 @@ whether they suit your data; for this example they do.
 set.seed(333)
 bnec_fit <- bnec(y ~ crf(x, model = "nec3param"), data = nec_data, seed = 333)
 
-save(bnec_fit, file = "fits/m2_bnec_fit.RData")
+save(bnec_fit, file = "vignettes/fits/m2_bnec_fit.RData")
 ```
 
 ```{r}
 #| label: load-fit
-load("fits/m2_bnec_fit.RData")
+load("vignettes/fits/m2_bnec_fit.RData")
 ```
 
 Three things happen when that call runs.
@@ -463,24 +401,17 @@ plot(cf)
 ```
 
 `check_fit()` returns a table of one row per group of the predictor and plots
-the same comparison. Each panel shows the observed statistic against the 95%
-span of what the model simulates, with location and scale drawn separately
-because they fail independently: a model can reproduce every group's mean while
-simulating far too much spread. A point outside its bar is a group the model
-does not reproduce, and no point falls outside its bar here.
+the same comparison. A point outside its bar is a group the model does not
+reproduce, and no point falls outside its bar here.
 
-The message `check_fit()` prints flags one group on a stricter criterion than
-the bars use, so the two can disagree. Read it as a prompt to look at that
-group rather than as a verdict on the fit.
+Read `failed` and the plot, and leave the rest until the modules that need it.
+Module 5 uses `check_fit()` to decide whether a statistical family reproduces
+the observed spread, which is the choice it exists to inform. Module 7 sets out
+what each sampler diagnostic measures, what to do when one is missed, and what
+both checks contribute to a written analysis.
 
-Module 4 sets out the table `check_fit()` returns, what the control row
-contributes to an *NSEC*, and how both checks behave across a set of
-twenty-three equations. Module 7 shows what they contribute to a written
-analysis, on real data. Leave the detail until then; for a first fit, run both
-and read `failed`.
-
-The visual form of the sampling check is worth seeing once. Extract the
-underlying `brms` model and plot it, which gives the marginal posterior of each
+`pull_brmsfit()` returns the `brms` model inside the fit, which is how any
+`brms` method is reached. Plotting it gives the marginal posterior of each
 parameter beside its trace:
 
 ```{r}
@@ -490,11 +421,10 @@ brm_fit <- pull_brmsfit(bnec_fit)
 plot(brm_fit)
 ```
 
-Read the traces from left to right. Four chains that overlap, with no drift and
-no sustained excursion, indicate the chains have converged on the same
-distribution. Chains that separate into bands, or wander, indicate they have
-not, and the estimates should not be used. Reading plots does not scale beyond a
-handful of parameters, which is why `check_sampling()` exists.
+Four chains that overlap, with no drift and no sustained excursion, indicate
+the chains have converged on the same distribution. Reading plots does not
+scale beyond a handful of parameters, which is why `check_sampling()` exists,
+and module 7 reads these plots against a set of equations.
 
 ## Inside the fitted object
 
@@ -587,178 +517,16 @@ a methods section beside them. `top` is the control level the curve is reference
 to, `beta` is the decay rate, and `nec` is the threshold. A four-parameter
 equation would add `bot`, the lower asymptote.
 
-`xform` applies to `nec` and `ec50` and to no other parameter, because those two
-are measured on the predictor axis while `top`, `bot` and `beta` are levels of
-the response or shape parameters, on which a transformation of the predictor has
-no meaning.
+Everything above is one fit of one equation. Module 3 sets out the equations
+available and what each estimate measures, module 4 fits a set of them at once,
+and module 6 covers what the posterior draws behind every one of these numbers
+can be used for.
 
-## Comparing posteriors
-
-A fit holds the whole posterior, so a comparison between two estimates is a
-count of draws rather than a test statistic. `compare_posterior()` does this for
-a named list of fits, and returns both the posteriors it used and the
-probability that one estimate exceeds the other.
-
-There is one fit so far, so the comparison needs a second. `ecxll3` is a smooth
-equation with the same three free parameters as `nec3param` and the same lower
-asymptote fixed at zero, so the two fits differ in the shape of the curve rather
-than in what each is free to estimate.
-
-```{r}
-#| label: fit-ecxll3
-#| eval: false
-set.seed(333)
-ecxll3_fit <- bnec(y ~ crf(x, model = "ecxll3"), data = nec_data, seed = 333)
-
-save(ecxll3_fit, file = "fits/m2_ecxll3_fit.RData")
-```
-
-```{r}
-#| label: load-ecxll3
-load("fits/m2_ecxll3_fit.RData")
-```
-
-Both equations support an **EC~x~**, which is the estimate compared here. Their
-no-effect estimates are not the same quantity as each other, and module 3 covers
-that difference before it is put to use.
-
-```{r}
-#| label: compare
-post_comp <- compare_posterior(
-  list("nec3param" = bnec_fit, "ecxll3" = ecxll3_fit),
-  comparison = "ecx", ecx_val = 10)
-
-names(post_comp)
-```
-
-`posterior_data` holds the draws of both estimates in long form, which is what a
-figure is drawn from:
-
-```{r}
-#| label: fig-compare-post
-#| fig-height: 3.5
-#| fig-cap: "Posterior EC10 from two equations fitted to the same data."
-library(ggplot2)
-
-ggplot(post_comp$posterior_data, aes(x = value)) +
-  geom_density(aes(group = model, colour = model, fill = model), alpha = 0.3) +
-  labs(x = "Concentration", y = "Density") +
-  theme_classic()
-```
-
-```{r}
-#| label: compare-quantiles
-sapply(post_comp$posterior_list, quantile, c(0.025, 0.5, 0.975))
-```
-
-The EC10 is 1.60 from the `nec3param` fit, with a 95% credible interval from
-1.56 to 1.63, and 1.50 from the `ecxll3` fit, from 1.43 to 1.56. The two
-intervals overlap over a narrow region.
-
-`prob_diff` is the proportion of paired draws in which the first estimate
-exceeds the second, and `diff_list` holds the differences those proportions are
-taken from:
-
-```{r}
-#| label: prob-diff
-post_comp$prob_diff
-
-quantile(post_comp$diff_list[["nec3param-ecxll3"]], c(0.025, 0.5, 0.975))
-```
-
-The probability is 0.996, so the `nec3param` EC10 is the higher of the two in
-almost every paired draw. The difference is 0.10, with a 95% interval from 0.03
-to 0.17, which is the size of the disagreement rather than the confidence in it.
-Read both: a probability near 1 on a difference of no practical consequence is a
-result a large sample can produce on its own.
-
-### The fitted curves
-
-`comparison = "fitted"` compares the curves themselves at a grid of
-concentrations across the range of the predictor, rather than one estimate read
-off each.
-
-```{r}
-#| label: compare-fitted
-post_fitted <- compare_posterior(
-  list("nec3param" = bnec_fit, "ecxll3" = ecxll3_fit),
-  comparison = "fitted")
-```
-
-`posterior_data` holds the two fitted curves on that grid, each with a credible
-interval at every point, which is what the difference below is taken between:
-
-```{r}
-#| label: fig-fitted-curves
-#| fig-height: 3.5
-#| fig-cap: "The two fitted curves over the observed data, each with its 95% credible interval, on the 50-point grid the comparison uses."
-ggplot(post_fitted$posterior_data, aes(x = x)) +
-  geom_point(data = nec_data, aes(x = x, y = y), colour = "grey60", size = 1) +
-  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "steelblue", alpha = 0.3) +
-  geom_line(aes(y = Estimate), colour = "steelblue") +
-  facet_wrap(~ model) +
-  labs(x = "Concentration", y = "Response") +
-  theme_classic()
-```
-
-Both curves pass through the data, and the shape of each is visible in its
-panel. `nec3param` holds the control level flat to its threshold a little below
-1.5 and turns sharply there. `ecxll3` has begun to decline before 1.5 and turns
-gradually, so it sits below `nec3param` just before the threshold and above it
-just after. Reading a separation off two panels stops at that description, and
-the difference below puts a number and an interval on it at every
-concentration.
-
-`diff_data` holds that difference at each of the 50 grid points, with its 95%
-credible interval:
-
-```{r}
-#| label: diff-data
-head(post_fitted$diff_data)
-```
-
-```{r}
-#| label: fig-compare-fitted
-#| fig-height: 3.5
-#| fig-cap: "Difference between the two fitted curves across the concentration range, with its 95% credible interval. The difference is taken as `nec3param` minus `ecxll3`, so a positive value is a higher predicted response from the threshold equation."
-ggplot(post_fitted$diff_data) +
-  geom_hline(yintercept = 0, linetype = 2, colour = "grey50") +
-  geom_ribbon(aes(x = x, ymin = diff.Q2.5, ymax = diff.Q97.5),
-              fill = "steelblue", alpha = 0.3) +
-  geom_line(aes(x = x, y = diff.Estimate), colour = "steelblue") +
-  labs(x = "Concentration", y = "Difference in fitted response") +
-  theme_classic()
-```
-
-Where the band excludes zero the two curves differ at that concentration. These
-two agree from 0.03 to 1.14 and differ over 25 of the 50 grid points. The
-`nec3param` curve is the higher of the two from 1.20 to 1.53, the lower from
-1.72 to 2.05, and the higher again from 2.44 to 3.22. The largest difference is
-0.089 at a concentration of 1.85, on a response spanning about 0.95.
-
-`nec_data` was simulated from a four-parameter threshold equation with its
-threshold set at 1.5, which `data-raw/nec_data.R` in the `bayesnec` sources
-records, and the pattern follows from that. The threshold equation holds the
-control level up to 1.5, where the log-logistic has already begun to decline,
-and then falls more steeply than the log-logistic immediately above it. Above
-2.44 the log-logistic approaches zero the faster of the two.
-
-Two readings of the same pair of fits therefore disagree on how far apart they
-are: the EC10 posteriors separate at a probability of 0.996, and the curves are
-indistinguishable over the lower third of the concentration range. A single
-estimate is one point on a curve, and which of the two answers the question
-depends on what is being reported.
-
-The draws are paired at random, which approximates the difference of two
-independent posteriors. Both fits here are to the same 100 observations, so this
-comparison measures the difference between two equations rather than between two
-experiments. Module 4 covers averaging over the equations rather than choosing
-between them.
-
-The comparison a real analysis makes is between fits to different data, such as
-two exposure durations or two levels of a factor. Module 8 does that with
-`bnec_group()`, through this same function. `comparison` also takes `"nec"`,
-`"nsec"` and `"n(s)ec"`, which compare the no-effect estimates module 3 covers.
+Where the predictor was transformed in the formula, the `xform` argument
+returns an estimate to the measured scale, and it reaches `nec` and `ec50` and
+no other parameter, because those two are measured on the predictor axis while
+`top`, `bot` and `beta` are levels of the response or shape parameters. Module 7
+decides the scale of the predictor and works through what the choice is worth.
 
 ## References
 
