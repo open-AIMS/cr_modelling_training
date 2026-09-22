@@ -223,6 +223,20 @@ Rscript scripts/bundle_fits.R
 gh release upload fits dist/cr_modelling_fits.zip --clobber -R open-AIMS/cr_modelling_training
 ```
 
+`vignettes/fits/PROVENANCE.txt` is written by `scripts/write_provenance.R`
+from the objects on disk, and that script runs before `bundle_fits.R`. It was
+kept by hand until 2026-09-22 and had drifted to listing 26 objects, naming
+four that no longer existed and omitting seven that did, because three scripts
+write into `vignettes/fits/` and every revision changes the set. It is the only
+version record a participant receives, so do not edit it by hand.
+
+Each module's fits have exactly one generator: `generate_module5_fits.R` for
+`m5_*`, `generate_module7_walkthrough.R` for `m7_*`, and
+`generate_taught_fits.R` for the rest. Removing a module from the last one's
+`MODULES` list without giving its fits a home leaves them reproducible by
+nothing, which happened to module 5's binomial and hurdle objects for part of
+2026-09-22.
+
 The tag does not change, so `FITS_URL` in `vignettes/fetch_fits.R` stays valid.
 `scripts/bundle_fits.R` also rewrites `vignettes/fits.sha256`, which is tracked and is
 what a participant's download is verified against, so commit it with the upload. `N_FITS`

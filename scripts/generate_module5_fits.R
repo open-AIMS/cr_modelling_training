@@ -26,6 +26,11 @@
 # The dispersion example follows the gamma on the same plate, so the module
 # fails a check and repairs it on one dataset rather than three.
 #
+# The binomial pair and the hurdle example are here too, so that this script
+# owns every fit module 5 loads. They were made by generate_taught_fits.R until
+# 2026-09-22, which stopped being true when module 5 was removed from its
+# MODULES list, leaving four objects with no generator at all.
+#
 # Run with:
 #   Rscript scripts/generate_module5_fits.R [--force]
 # ---------------------------------------------------------------------------
@@ -68,7 +73,7 @@ needed <- function(name) {
   FORCE || !file.exists(file.path(out_dir, paste0("m5_", name, ".RData")))
 }
 
-data(coral_pam); data(alga); data(lum31)
+data(coral_pam); data(alga); data(lum31); data(nassarius)
 
 # --- the data each example uses, prepared exactly as the module shows --------
 
@@ -87,8 +92,46 @@ alga_data$log.x <- log(alga_data$dose + min(alga_data$dose[alga_data$dose > 0]) 
 lum_data <- subset(lum31, plate == "Zn 28Mar24 Rep1B")
 lum_data$log.x <- log(lum_data$conc)
 
+# The binomial example is a tracked CSV rather than a packaged dataset, because
+# it predates the others and is already real: counts of survivors out of a
+# total, from Gerard Ricardo's repository.
+binom_data <- read.csv("vignettes/example_binomial.csv")
+binom_data$log.x <- log(binom_data$raw_x)
+
+# The hurdle example. Growth is referenced to a baseline mean rather than to
+# each snail's own starting size, so a few survivors are recorded at or below
+# zero; those are measurement noise around a true value near zero rather than
+# deaths, and are nudged off the boundary. The control is placed one decade
+# below the lowest tested dose so that a log predictor is defined.
+snail <- subset(nassarius, contaminant == "A")
+snail_pos_min <- min(snail$growth[snail$growth > 0])
+snail$growth <- ifelse(snail$alive == 1 & snail$growth <= 0,
+                       snail_pos_min / 2, snail$growth)
+snail$log_dose <- log(snail$dose + min(snail$dose[snail$dose > 0]) / 10)
+
 message("fitting: ", format(Sys.time()))
 t0 <- Sys.time()
+
+if (needed("exp_1nec")) {
+  message("  binomial: threshold equation")
+  exp_1nec <- bnec(suc | trials(tot) ~ crf(log.x, model = "nec3param"),
+                   data = binom_data, seed = 333)
+  save_fit(exp_1nec, "exp_1nec")
+}
+
+if (needed("exp_1ecx")) {
+  message("  binomial: smooth equation")
+  exp_1ecx <- bnec(suc | trials(tot) ~ crf(log.x, model = "ecxll3"),
+                   data = binom_data, seed = 333)
+  save_fit(exp_1ecx, "exp_1ecx")
+}
+
+if (needed("exp_1b")) {
+  message("  beta-binomial: the same counts")
+  exp_1b <- bnec(suc | trials(tot) ~ crf(log.x, model = c("ecxll3", "nec3param")),
+                 data = binom_data, family = "beta_binomial", seed = 333)
+  save_fit(exp_1b, "exp_1b")
+}
 
 if (needed("exp_2")) {
   message("  beta: coral_pam yield")
@@ -134,6 +177,16 @@ if (needed("exp_4_disp")) {
   exp_4_disp <- bnec(rlu ~ crf(log.x, model = "nec3param") + disp("power"),
                      data = lum_data, family = "Gamma", seed = 333)
   save_fit(exp_4_disp, "exp_4_disp")
+}
+
+# adapt_delta is raised because the survival curve is determined by the top two
+# doses and samples awkwardly at the default.
+if (needed("exp_6")) {
+  message("  hurdle gamma: nassarius contaminant A")
+  exp_6 <- bnec_hurdle(growth ~ crf(log_dose, model = c("nec3param", "ecxll3")),
+                       data = snail, seed = 333,
+                       control = list(adapt_delta = 0.99))
+  save_fit(exp_6, "exp_6")
 }
 
 message("done in ", format(round(difftime(Sys.time(), t0), 1)))

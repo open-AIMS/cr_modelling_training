@@ -80,10 +80,20 @@ fetch_fits <- function(dest = "vignettes/fits", quiet = FALSE) {
   # archive this size on anything but a fast connection. Measured 2026-09-21 on
   # a domestic connection: the default stopped at 9.7 MB of 42.2 MB with
   # "Timeout of 60 seconds was reached", and the script then reported the
-  # download as failed. The timeout is raised for this call and restored
-  # afterwards, so a participant's own session setting is left as they had it.
+  # download as failed.
+  #
+  # The value is an hour rather than something tidier because the timeout is a
+  # total transfer limit, not an idle limit, so it has to cover the whole
+  # download at whatever rate the connection gives. Measured 2026-09-22 on the
+  # same machine, the link ran at 15 KB/s for a sustained period, which puts a
+  # 39 MB archive at about 45 minutes; a 30 minute limit set the day before
+  # would have failed on a download that was progressing normally. Conference
+  # wifi on the morning is the case this exists for.
+  #
+  # The timeout is raised for this call and restored afterwards, so a
+  # participant's own session setting is left as they had it.
   old_timeout <- getOption("timeout")
-  options(timeout = max(old_timeout, 1800))
+  options(timeout = max(old_timeout, 3600))
   on.exit(options(timeout = old_timeout), add = TRUE)
 
   ok <- tryCatch({
