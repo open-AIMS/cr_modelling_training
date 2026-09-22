@@ -118,7 +118,7 @@ them, with a `d` suffix, were consolidated into one reference page in `13d386d`.
 | 2 | `2Fitting-a-CR-model-using-bayesnec` | Fitting a single model | |
 | 3 | `3Toxicity_estimation_and_available_models` | Toxicity estimation and the model set | |
 | 4 | `4Model_averaging_and_multimodel_inference` | Model averaging and multimodel inference | |
-| 5 | `5Response_data_and_statistical_distributions` | Response data and statistical distributions | |
+| 5 | `5Response_data_and_statistical_distributions` | Response data and statistical distributions | fits made by `scripts/generate_module5_fits.R` |
 | 6 | `6Priors_and_Bayesian_inference` | Priors and Bayesian inference | |
 | 7 | `7Example_case_study` | A worked case study | reads results written by `scripts/generate_herbicide_fits.R` |
 | 8 | `8Factor_covariates_and_groupings` | Factor covariates and groupings | reads results written by `scripts/generate_grouping_fits.R` |
@@ -133,6 +133,26 @@ render executes, so a render samples nothing and needs `vignettes/fits/` (§5).
 and `test_4dModel_averaging_and_multimodel_inference.Rmd` were deleted in `13d386d` and
 their material is in `drc-reference.qmd`. `7dExample_case_study.Rmd` was deleted in 2023
 (`8d55cd2`) and is recoverable with `git show 47abfcd:vignettes/7dExample_case_study.Rmd`.
+
+**Module 5's worked examples are published datasets, not constructed ones.** Until
+2026-09-22 four of them were built from `nec_data`: the Poisson and negative
+binomial counts were `abs(round(y * 100 + rnorm(0, 15)))`, the gamma was
+`exp(y)` and the Gaussian was a logit of the proportion data. All four failed
+their own family's `check_fit()` for reasons of the construction, which RF
+noticed while delivering the course. The replacements are
+
+| Family | Dataset | Subset |
+|---|---|---|
+| binomial, beta-binomial | `example_binomial.csv` | whole file |
+| beta | `coral_pam` | `climate == "2018"` |
+| Poisson, negative binomial | `alga` | `c_proliferum`, contaminant A, `density` |
+| gamma, dispersion | `lum31` | plate `Zn 28Mar24 Rep1B`, `rlu` |
+| Gaussian | `alga` | same subset, `sgr` |
+| hurdle gamma | `nassarius` | contaminant A |
+
+Do not replace any of these with a transform of another dataset. The module
+teaches matching a family to a response, and a constructed response tests the
+construction rather than the choice.
 
 `0Overview.Rmd` is the retired 2023 course outline, still tracked, still carrying module
 1's old title. `index.qmd` has replaced it.
@@ -195,7 +215,7 @@ from under a running script.
 ## 5. Data files and their availability
 
 **The fitted objects live in `vignettes/fits/`, which is git-ignored, and are
-distributed as a release asset.** 24 objects, 40.3 MB zipped, built by
+distributed as a release asset.** 23 objects, 38.9 MB zipped, built by
 `scripts/bundle_fits.R` into `dist/` and published under the fixed tag `fits`:
 
 ```bash
@@ -225,7 +245,11 @@ They are git-ignored and local to the presenter's machine. Do not commit them; t
 repository is public and 640 MB of `.RData` is not a reasonable clone.
 
 Five CSV files are tracked and small. Module 8 reads `example_ogl.csv` and
-`example_fi.csv`; modules 5 and 6 read `example_binomial.csv` and `example_proportion.csv`.
+`example_fi.csv`; modules 5 and 6 read `example_binomial.csv`.
+`example_proportion.csv` is no longer read by anything as of 2026-09-22: module
+5's beta, Gaussian and dispersion examples moved onto `coral_pam`, `alga` and
+`lum31`, which ship with `bayesnec` and are published. It is kept rather than
+deleted for the same reason as `example_pgl.csv`.
 `vignettes/data/` holds the results that modules 7 and 8 read back from
 `scripts/generate_herbicide_fits.R` and `scripts/generate_grouping_fits.R`. `example_pgl.csv` is no longer
 read by anything as of 2026-09-17: it held the Lum-31 bioluminescence data after the
@@ -354,12 +378,14 @@ What is outstanding, as of 2026-09-19:
 
 **`bayesnec` is installed from a moving branch** (§4). Pin it.
 
-**The fits archive was rebuilt and re-uploaded on 2026-09-21.** Four objects
-went (`m2_ecxll3_fit`, and `m6_exmp_c`, `m6_exmp_d`, `m6_exmp_e`, whose sections
-were cut), two arrived (`m5_exp_6`, the `nassarius` hurdle fit, and
-`m6_ecxll3_fit`), and `m7_am_fit` and `m7_am_disp` were refitted, leaving 24
-objects at 40.3 MB. The upload was verified by running `fetch_fits.R` against
-the published asset from an empty directory.
+**The fits archive was rebuilt and re-uploaded on 2026-09-21 and again on
+2026-09-22.** The first rebuild dropped four objects (`m2_ecxll3_fit`, and
+`m6_exmp_c`, `m6_exmp_d`, `m6_exmp_e`, whose sections were cut), added
+`m5_exp_6` and `m6_ecxll3_fit`, and refitted `m7_am_fit` and `m7_am_disp`. The
+second replaced module 5's five constructed fits with fits to published
+datasets and merged its two dispersion fits into one, leaving 23 objects at
+38.9 MB. Each upload was verified by running `fetch_fits.R` against the
+published asset from an empty directory.
 
 **Module 6's two videos have not been trimmed.** They are StataCorp's
 *Introduction to Bayesian statistics* parts 1 and 2, and each runs into
@@ -468,6 +494,20 @@ site), put the output HTML there rather than in a system temp directory, since t
 cannot easily open temp paths. Created 2026-09-15 with a render of
 `vignettes/0Software-setup.qmd`. Keep this separate from `ignore/render_artefacts_2023/`,
 which holds the retired learnr build artefacts, not review drafts.
+
+**A heading with no blank line before it is silently swallowed.** Pandoc's
+markdown requires a blank line above an ATX heading, so `## Poisson` written
+directly under the last line of a paragraph renders as literal text inside that
+paragraph: the section disappears from the page and from the sidebar, every
+chunk inside it still runs, and the render reports success. Measured 2026-09-22,
+when a scripted replacement of module 5's Poisson section dropped the blank line
+and the whole section vanished from `docs/`.
+
+Nothing in a normal render catches this. After any edit that moves or replaces a
+section, check that every heading is still a heading, with
+`scripts/check_headings.py`. It reports the callout titles in
+`0Software-setup.qmd`, which sit directly under a `::: {.callout-*}` opener and
+are the documented Quarto idiom; anything else it reports is a lost section.
 
 **Freeze does not notice a package upgrade.** `execute: freeze: auto` keys on the source
 document, not on the environment that rendered it. Upgrading `bayesnec`, `brms` or Stan

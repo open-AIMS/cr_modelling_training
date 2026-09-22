@@ -34,10 +34,13 @@ vig_dir <- "vignettes"
 out_dir <- file.path(vig_dir, "fits")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
+# Module 5 is not here. Its fits use datasets shipping with `bayesnec` and are
+# made by scripts/generate_module5_fits.R, which prepares each dataset the way
+# the module shows rather than re-evaluating the module's chunks. Module 7's
+# are made by scripts/generate_module7_walkthrough.R for the same reason.
 MODULES <- c(
   "2Fitting-a-CR-model-using-bayesnec",
   "4Model_averaging_and_multimodel_inference",
-  "5Response_data_and_statistical_distributions",
   "6Priors_and_Bayesian_inference"
 )
 

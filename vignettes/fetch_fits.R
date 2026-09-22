@@ -46,9 +46,11 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # was 18, then 20, 25 on 2026-09-17 and 26 on 2026-09-19. On 2026-09-21 four
 # objects were dropped, because module 2's `ecxll3` fit moved to module 6 under
 # a new name and module 6's prior sections for a model set were cut, and two
-# were added, `m5_exp_6` for the hurdle example and `m6_ecxll3_fit`. An
-# under-set value does not break the fetch, it only guards less.
-N_FITS <- 24L
+# were added, `m5_exp_6` for the hurdle example and `m6_ecxll3_fit`. On
+# 2026-09-22 module 5's constructed examples were replaced with published
+# datasets, which merged its two dispersion fits into one. An under-set value
+# does not break the fetch, it only guards less.
+N_FITS <- 23L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")
