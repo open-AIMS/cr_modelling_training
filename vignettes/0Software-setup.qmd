@@ -13,8 +13,8 @@ This setup takes most people between thirty minutes and two hours, and some of
 it cannot be hurried: package installation and the CmdStan build both take time
 that depends on your machine and your network.
 
-**There is no time set aside during the workshop to install or repair
-software.** If you arrive without a working installation you will be able to
+There is no time set aside during the workshop to install or repair
+software. If you arrive without a working installation you will be able to
 watch, but you will not be able to fit models alongside the demonstrations, and
 most of the day is spent fitting models.
 
@@ -39,20 +39,21 @@ Line Tools, and on Linux the standard build tools.
 
 Bayesian model fitting works differently from most R modelling. Each model is
 translated into C++, compiled into a program, and run. That is why a compiler is
-needed at all, and why the first fit of a session takes longer than later ones.
+needed at all, and why the first fit of a model in a session takes longer than
+a repeat of the same model.
 
 ## Route by operating system
 
-**Windows is the tested and recommended route**, and it is the one described in
+Windows is the tested and recommended route, and it is the one described in
 most detail below. The difficulties Stan had on Windows historically came from
 an older interface, `rstan`, which required matched versions of several
 compiled packages. The current interface, `cmdstanr`, avoids most of that.
 
-**Linux is also tested.** macOS is not, because the workshop organisers have no
+Linux is also tested. macOS is not, because the workshop organisers have no
 Mac available. Mac users should follow the outline in the macOS section, which
 points to the authoritative upstream instructions, and then run the same
-verification check as everyone else. The check is what determines whether you
-are ready, not which instructions you followed.
+verification check as everyone else. Passing the check is what determines
+whether you are ready.
 
 The Windows Subsystem for Linux is a fallback for one situation only, where
 compilation on Windows is blocked by security policy on a machine you cannot
@@ -69,30 +70,28 @@ there.
 Install R first, then Rtools.
 
 Download R from [CRAN](https://cran.r-project.org/bin/windows/base/) and
-install whichever version CRAN currently offers — do not go looking for an
-older one. This document was written against R 4.5.x, and has since been
+install whichever version CRAN currently offers rather than an older one. This document was written against R 4.5.x, and has since been
 re-verified against R 4.6.1 (see the Linux section below); either is fine.
 What matters is that Rtools matches the R you install, not which minor version
 that is.
 
-Then install the matching **Rtools**, from
+Then install the matching Rtools, from
 [CRAN's Rtools page](https://cran.r-project.org/bin/windows/Rtools/). CRAN's
-own page names it inconsistently — you may see "Rtools45", "RTools 4.5" or
-"Rtools for R 4.5.x" — these all mean the same installer. Rtools version
-numbers do not track R's one-for-one: **Rtools 4.5 is current for every R
-version from 4.5.0 onward**, including R 4.6.x, so do not go looking for a
-separate "Rtools 4.6" — there is not one as of this writing. Check CRAN's
+own page names it inconsistently: "Rtools45", "RTools 4.5" and "Rtools for R
+4.5.x" all mean the same installer. Rtools version numbers do not track R's
+one-for-one. Rtools 4.5 is current for every R version from 4.5.0 onward,
+including R 4.6.x, and there is no separate "Rtools 4.6" as of this writing. Check CRAN's
 Rtools page for the current mapping, since this changes as new R and Rtools
 versions are released. Accept the default installation location.
 
 ::: {.callout-warning}
-## Rtools must match your version of R
+## Matching Rtools to the R version
 
 An Rtools built for an earlier R than the one you installed is the most common
 single cause of setup failure, and the error it produces does not mention
 version numbers. Check CRAN's Rtools page for which Rtools release currently
-covers your R version — do not assume the two version numbers must match
-exactly, since one Rtools release can cover several R releases.
+covers your R version. The two version numbers need not be the same, since one
+Rtools release can cover several R releases.
 :::
 
 ## Positron
@@ -127,17 +126,16 @@ install.packages(c("brms", "posterior", "bayesplot",
 ```
 
 ::: {.callout-note}
-## rstan is a dependency, not a step
+## rstan as a dependency
 
 `brms` installs `rstan` as a dependency. That is expected: `rstan` must be
 installed, but the workshop does not use it as the sampler, so it does not
-matter if you never call it directly. No further action is needed here — the
-next step is `bayesnec`, below.
+matter if you never call it directly. It needs no further action.
 :::
 
 `bayesnec` is installed from the development branch, which contains changes not
 yet released to CRAN and is what the course material is built against. This
-needs the `remotes` package first — install it if you have not already:
+needs the `remotes` package first, so install it if you have not already:
 
 ```r
 install.packages("remotes")
@@ -182,13 +180,14 @@ options(timeout = 1800)            # the default of 60 seconds is far too short
 cmdstanr::install_cmdstan(dir = "C:/cmdstan")
 ```
 
-**The directory must exist first.** `install_cmdstan()` does not create it, and
+The directory must exist first. `install_cmdstan()` does not create it, and
 stops with `Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.`
 
-**The download needs a longer timeout.** The CmdStan archive is about 49 MB, and
-R's default `options(timeout)` is 60 seconds, which is not enough on any ordinary
-connection. The `timeout` argument of `install_cmdstan()` does not govern the
-download — the option does. Measured on a connection delivering about 500 KB/s:
+The download needs a longer timeout. The CmdStan archive is about 49 MB, and
+R's default `options(timeout)` is 60 seconds, so the download fails on any
+connection slower than about 0.8 MB/s. The `timeout` argument of
+`install_cmdstan()` applies to the build, not to the download, which is governed
+by the option. Measured on a connection delivering about 500 KB/s:
 the download failed with `Download of CmdStan failed with error` at the default,
 and completed in 4.9 minutes at `timeout = 1800` with nothing else changed.
 Conference and hotel networks are commonly slower than that, so set it.
@@ -197,8 +196,8 @@ The default location is inside your home directory. On many Windows machines,
 particularly work-managed ones, that directory is synchronised by OneDrive, and
 the CmdStan build fails there. The same failure occurs when the path contains a
 space or a character outside the standard English alphabet, which happens when a
-Windows username does. Installing to `C:/cmdstan` avoids all three, and costs
-nothing if none of them applies to you.
+Windows username does. Installing to `C:/cmdstan` avoids all three, and makes no
+difference if none of them applies to you.
 
 Because that is not the default location, tell R where to find it in every
 future session. Run `usethis::edit_r_profile()`, or open `.Rprofile` in your home
@@ -213,7 +212,9 @@ Without this, every new session reports that CmdStan is not installed.
 
 ### Recurring problems on Windows
 
-**`install_cmdstan()` fails.** Run it again with these arguments:
+#### Failure of `install_cmdstan()`
+
+Run `install_cmdstan()` again with these arguments:
 
 ```r
 cmdstanr::install_cmdstan(overwrite = TRUE, quiet = FALSE, dir = "C:/cmdstan")
@@ -227,8 +228,10 @@ produces an error resembling the original one. `quiet = FALSE` only prints more
 of the build output, which is worth having because the default output is
 truncated and does not identify which stage failed.
 
-**A model compiles but no chains run.** `cmdstanr` reports "No chains finished
-successfully", which names neither a cause nor a file. The usual reason is that
+#### Chains that do not run after compilation
+
+A model compiles and then `cmdstanr` reports "No chains finished successfully",
+which names neither a cause nor a file. The usual reason is that
 Rtools changed after CmdStan was installed. CmdStan builds its own `tbb.dll`,
 linked against the toolchain that built it, so a CmdStan built under Rtools44
 requires libraries that Rtools45 does not provide; the model still compiles and
@@ -241,26 +244,30 @@ cmdstanr::install_cmdstan(overwrite = TRUE, dir = "C:/cmdstan")
 Anyone who upgrades R and Rtools between installing CmdStan and the workshop will
 meet this.
 
-**Rtools is installed but `cmdstanr` cannot find it.** `cmdstanr` chooses which
-Rtools to look for from your R version, and the mapping changed between
-releases. Version 0.9.0 sends R 4.5.x to Rtools45; 0.8.0 sent every R from 4.4
-onward to Rtools44. With an older `cmdstanr` and the Rtools45 this document
+#### Rtools not found by `cmdstanr`
+
+`cmdstanr` chooses which Rtools to look for from your R version, and the mapping
+changed between releases. Version 0.9.0 sends R 4.5 and later to Rtools45;
+0.8.0 sent every R from 4.4 onward to Rtools44. With an older `cmdstanr` and the Rtools45 this document
 specifies, it searches for a toolchain you were never asked to install and
 reports it missing. Install `cmdstanr` 0.9.0 or later, which is what the
 r-universe repository above supplies. `check_setup.R` reports the version.
 
-**Compiling is very slow.** Windows Defender inspects each newly compiled
-program. A compile that should take under a minute can take several. Excluding
+#### Slow compilation
+
+Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding
 the `C:/cmdstan` directory from real-time scanning resolves it, where your
 organisation's policy allows.
 
-**Compiling is blocked entirely.** Some managed machines prevent newly compiled
-programs from running at all. This is a policy decision rather than a
-configuration problem and cannot be worked around from within R. Contact the
+#### Compilation blocked by policy
+
+Some managed machines prevent newly compiled programs from running at all. The
+block is set by the machine's administrators and cannot be worked around from
+within R. Contact the
 organisers before the workshop rather than attempting a fix on the day.
 
 ::: {.callout-tip}
-## Time box the native route
+## Time limit for the native route
 
 Give the steps above about thirty minutes. If the verification check passes,
 stop. If compilation fails for reasons of security policy rather than something
@@ -277,8 +284,7 @@ organisers.
 
 The organisers have no Mac available and have not tested these steps. They point
 to the upstream instructions, which are maintained by the projects themselves.
-Run the verification check when you have finished; passing it is what matters,
-not the route taken.
+Run the verification check when you have finished.
 :::
 
 1. Install R from [CRAN](https://cran.r-project.org/bin/macosx/), choosing the
@@ -299,7 +305,7 @@ not the route taken.
 # Linux
 
 Install R through your distribution's package manager or from CRAN, and the
-standard build tools --- `build-essential` on Debian and Ubuntu, or the
+standard build tools: `build-essential` on Debian and Ubuntu, or the
 equivalent development group on other distributions. Install Positron and Git.
 Then install the R packages as in the Windows section, and run
 `check_cmdstan_toolchain()` followed by `install_cmdstan()`. The default path is
@@ -321,8 +327,8 @@ Dropbox, because a synchronising folder can lock files while R is reading them.
 
 ## Retrieval with Git
 
-This is the route the Git installation above is for. Open a terminal --- the
-Terminal pane in Positron, or Git Bash on Windows --- change to the folder you
+This is the route the Git installation above is for. Open a terminal (the
+Terminal pane in Positron, or Git Bash on Windows), change to the folder you
 want the materials in, and run:
 
 ```bash
@@ -352,10 +358,10 @@ folder. To take a later revision you download the ZIP again rather than running
 
 ## The fitted models
 
-The modules fit Bayesian models, and some of them take a while: on a four-core
-machine module 5 takes about thirteen minutes and module 6 about sixteen. You do
-not have to wait for that during the workshop. Every fit used in the material is
-available as a single download of about 42 MB, and with those objects in place
+The modules fit Bayesian models, and fitting all of them takes long enough that
+you should not wait for it during the workshop; how long depends on your
+machine. Every fit the modules load is
+available as a single download of about 40 MB, and with those objects in place
 each module loads its fits in seconds instead of sampling them.
 
 Each module shows you the `bnec()` call that produced a fit, then the `save()`
@@ -384,7 +390,7 @@ days before the workshop. Re-running it replaces the saved fits in place.
 The same archive, `cr_modelling_fits.zip`, is on a USB stick on the day, and
 you can put the objects in place yourself without running anything. Copy it into
 your `cr_modelling_training` folder and extract it there. It holds the folders
-as well as the files, so the twenty-five `.RData` objects end up at:
+as well as the files, so the twenty-four `.RData` objects end up at:
 
 ```
 cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
@@ -399,8 +405,9 @@ gives `vignettes/vignettes/fits`, which is not found.
 :::
 
 The download is optional. Without it the material is complete and the modules
-are slower. Run the `bnec()` chunk each module shows, which is the one marked as
-not evaluated, followed by its `save()` line. That writes the same file into
+are slower. Create the folder once with `dir.create("vignettes/fits")`, since
+`save()` does not create it. Then run the fitting call shown above each `load()`,
+together with the `save()` line that follows it. That writes the same file into
 `vignettes/fits/`, and the `load()` below it then works exactly as it does for
 everyone else.
 
@@ -426,14 +433,15 @@ does not.
 # The verification check
 
 `check_setup.R` is supplied alongside this document, in the `vignettes/` folder
-of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits a
-small model, and finishes with either READY or NOT READY.
+of the materials you retrieved in the previous section. It installs nothing. It
+reports what you have, compiles and fits two small models, and finishes with
+either READY or NOT READY.
 
 The most reliable way to run it is to open `check_setup.R` itself in Positron
-(not just this document) and run the whole file from there — for example with
-Positron's "Source" button, or by selecting all the code and running it.
-Positron then runs it from the folder the file is saved in, which avoids the
-error below.
+(not this document) and run the whole file from there, for example with
+Positron's "Source" button, or by selecting all the code and running it. Either
+way R does not have to locate the file from its working directory, which avoids
+the error below.
 
 If you instead want to run it from the R console with `source()`, give the path
 from the `cr_modelling_training` folder:
@@ -476,7 +484,8 @@ READY. Every check passed.
 ```
 
 A warning rather than a failure means you can follow the workshop but something
-is not as expected --- a home directory the CmdStan build cannot use, or a
-`cmdstanr` too old for the Rtools these instructions specify. Read the warning
+is not as expected: a home directory the CmdStan build cannot use, a
+`cmdstanr` too old for the Rtools these instructions specify, or no saved fits
+in `vignettes/fits/`. Read the warning
 and act on it if you can.
 

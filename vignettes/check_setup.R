@@ -226,8 +226,7 @@ rule("Stage 7: fitted models")
 
 # Optional by design, so it is recorded as a warning rather than a failure. A
 # participant without these fits the models instead and the material behaves
-# identically; it is only slower, by about thirteen minutes on module 5 and
-# sixteen on module 6.
+# identically; it is only slower, by an amount that depends on the machine.
 fits_dir <- if (dir.exists("fits")) "fits" else file.path("vignettes", "fits")
 n_fits <- if (dir.exists(fits_dir)) {
   length(list.files(fits_dir, pattern = "\\.RData$"))

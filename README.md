@@ -4,8 +4,8 @@ Code and worked examples for estimating no-effect toxicity values from
 concentration-response data in R, using Bayesian methods via
 [`bayesnec`](https://open-aims.github.io/bayesnec/).
 
-**The material is published as a website:
-<https://open-aims.github.io/cr_modelling_training/>**
+The material is published as a website at
+<https://open-aims.github.io/cr_modelling_training/>.
 
 Start there. This repository holds the source; the site is what the material is
 written to be read as, and the modules are ordered and cross-linked on it.
@@ -26,28 +26,35 @@ the workshop for installing or repairing software.
 | Path | Contents |
 |---|---|
 | `index.qmd` | the site landing page |
-| `vignettes/` | the course modules, and `check_setup.R` |
+| `vignettes/` | the course modules, `check_setup.R` and `fetch_fits.R` |
+| `scripts/` | the scripts that produce the saved fits, and the live script for each module in `scripts/live/` |
+| `slides/` | the workshop opening deck |
 | `_quarto.yml` | the website definition, including the list of modules to render |
 | `docs/` | the built site, served by GitHub Pages |
 | `notes/` | decisions and the evidence behind them |
 | `ignore/` | local working material, not part of the course |
 
-Modules 2 to 8 are being converted from an earlier version of this course and
-are added to `_quarto.yml` as they are completed. A frequentist treatment of the
-same material using [`drc`](https://cran.r-project.org/package=drc) is supplied
+The taught sequence is modules 1 to 8. A frequentist treatment of the same
+material using [`drc`](https://cran.r-project.org/package=drc) is supplied
 as reference rather than as part of the taught sequence.
 
 ## Building the site
 
 ```bash
-quarto render
+quarto render                 # -> docs/
+quarto render --profile dev   # -> docs/dev/
 ```
 
+Render the approved site first, because it clears `docs/` and would remove the
+development site with it.
+
 The site is rendered locally and the built output in `docs/` is committed.
-It is not built by continuous integration, because fitting the Bayesian models
-requires a Stan toolchain and takes longer than any runner allows. Computed
-chunk output is stored in `_freeze/` and committed for the same reason, so the
-site rebuilds without re-fitting.
+It is not built by continuous integration. The modules load saved fits rather
+than sampling, and those fits are not in the repository: they are a release
+asset, fetched with `source("vignettes/fetch_fits.R")`, and refitting them needs
+a Stan toolchain and hours of sampling. Computed chunk output is stored in
+`_freeze/` and committed for the same reason, so an unchanged module rebuilds
+without the fits present.
 
 Render deliberately rather than habitually. Each render rewrites every page, so
 a render commit is large; keeping it separate from source changes keeps those

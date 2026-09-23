@@ -1,0 +1,3 @@
+"example","model","waic","wi_all","max_rhat","min_ess","min_ess_ratio","n_divergent","failed","n_groups","location_outside","scale_outside","max_abs_log_sd_ratio","wi_screened","minutes"
+"beta_disp","ecxwb1",-580.805902849059,0.99982420175991,1.00089556243581,3452.9064959642,0.431613311995525,0,FALSE,6,0,2,0.369754401650375,0.99982420175991,3
+"beta_disp","ecxll3",-536.630105600436,0.000175798240089855,1.00092068138435,3203.97088048344,0.40049636006043,0,FALSE,6,0,1,0.438783662048516,0.000175798240089855,3

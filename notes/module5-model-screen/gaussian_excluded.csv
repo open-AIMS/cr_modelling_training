@@ -1,0 +1,5 @@
+"model","reason"
+"necsigm","raises the predictor to a fractional power, which is undefined for negative predictor values"
+"nechormepwr","raises the predictor to a fractional power, which is undefined for negative predictor values"
+"nechorme4pwr","raises the predictor to a fractional power, which is undefined for negative predictor values"
+"ecxsigm","raises the predictor to a fractional power, which is undefined for negative predictor values"

@@ -70,22 +70,24 @@ and a number that are specific to it:
 ## Link functions
 
 Every statistical family has a link function. A generalised linear model relates
-the linear predictor to the response through it — a logit link, for example,
+the linear predictor to the response through it: a logit link, for example,
 maps the probabilities of a binary response onto an unbounded continuous scale.
 Generalised linear models were formulated by Nelder and Wedderburn as a
 unification of linear regression, logistic regression and Poisson regression,
 with maximum likelihood estimation of the parameters. Logistic regression is the
 familiar case.
 
-The native link for a family — logit for the binomial, log for the Poisson —
+The native link for a family (logit for the binomial, log for the Poisson)
 imposes a non-linear transformation. Concentration-response models are already
 non-linear and do not use linear predictors, so any further non-linearity from a
 link changes the model being fitted.
 
-`bayesnec` therefore uses the identity link for every family. The Bayesian
+`bayesnec` therefore assigns the identity link to every family. The Bayesian
 machinery makes this possible, because the parameters can be estimated without
 mapping the response onto an unbounded scale. It keeps `top`, `bot` and `nec` on
-the scale of the response, where they are directly interpretable.
+the scale of the response, where they are directly interpretable. A log or logit
+link is used only where it is supplied in a family object passed to `bnec()`,
+which is why three links are listed below.
 
 ```{r}
 #| label: links
@@ -107,10 +109,10 @@ expected.
 names(bayesnec:::mod_fams)
 ```
 
-The first eight are the ordinary cases covered below. `hurdle_gamma`,
-`zero_inflated_beta`, `zero_inflated_poisson` and `zero_inflated_negbinomial`
-handle responses with an excess of zeros — a separate topic, treated in the
-`bayesnec` article on hurdle families.
+The first eight are the ordinary families, and all of them except `bernoulli`
+are covered below. The last six (`hurdle_gamma`, `hurdle_poisson`,
+`hurdle_negbinomial` and the three zero-inflated families) handle responses with
+an excess of zeros, which *Hurdle and zero-inflated models* below introduces.
 
 Adding a family is not trivial, because `bayesnec` generates priors and initial
 values by algorithms specific to each one. Requests go to the
@@ -141,12 +143,11 @@ matters for what the checks show: a constructed response passes or fails its
 own family for reasons of the construction, and tells a participant nothing
 about the data they will bring.
 
-One result runs through all of them, and it is stated here before the first
-fit. Choosing the family from the kind of quantity the response is gets the
-*mean* of the curve right, and that is what the family is for. It does not
+One result runs through all of them. Choosing the family from the kind of
+quantity the response is gets the *mean* of the curve right, and that is what the family is for. It does not
 follow that the family describes the *spread*, because every one of these
-families ties the spread it simulates to a single parameter held constant
-across the series, and a real concentration series is rarely that tidy.
+families ties the spread it simulates to the mean through at most one parameter,
+held constant across the series, and a real concentration series is rarely that tidy.
 *Modelling dispersion*, at the end of the module, is the general repair, and
 most of the sections below hand to it.
 
@@ -185,8 +186,8 @@ exactly as in `brms`:
 suc | trials(tot) ~ crf(log.x, model = "your_model")
 ```
 
-The column to the left of the `|` holds the successes — survivors, fertilised
-eggs — and the one inside `trials()` the total associated with each. The names
+The column to the left of the `|` holds the successes (survivors, fertilised
+eggs) and the one inside `trials()` the total associated with each. The names
 are whatever they are in your data frame.
 
 ```{r}
@@ -282,7 +283,7 @@ autoplot(exp_1ecx)
 The bounds above are implausibly narrow for data of this kind. A binomial
 distribution has a single parameter, so its variance is fixed by its mean. Real
 counts out of a total are usually more variable than that, because the
-individuals within a replicate are not independent — a batch of eggs shares a
+individuals within a replicate are not independent: a batch of eggs shares a
 parent, a container shares its conditions. This is over-dispersion.
 
 The beta-binomial adds a second parameter and estimates the extra variation
@@ -322,7 +323,7 @@ about the family.
 because `brms` did not provide one natively. It does now, and the family is
 named `beta_binomial`; code written against `beta_binomial2` will no longer run.
 
-## Checking the family reproduces the data
+## Checking the fit against the data
 
 The two sections above chose between two families by eye and then by a
 dispersion ratio. Neither generalises: the eye is unreliable, and `dispersion()`
@@ -334,9 +335,9 @@ model that is right on average and wrong where it matters. `check_fit()`, named
 in module 2, makes the same comparison within concentration groups, and on a
 model set it reports every equation separately.
 
-What it compares is the observed mean and the observed standard deviation within
-each group of the predictor against the same two statistics computed from
-datasets simulated by the fitted model. A family that cannot reproduce those two
+What it compares is the observed mean within each group of the predictor, and
+the standard deviation of the residuals about the fitted curve, against the same
+two statistics computed from datasets simulated by the fitted model. A family that cannot reproduce those two
 numbers across the concentration range is the wrong family for the response,
 whatever it says about the kind of quantity the response is. The control group
 matters most, because both `nsec()` and `ecx()` read their reference from the
@@ -351,7 +352,7 @@ cf_1nec <- check_fit(exp_1nec)
 cf_1nec
 ```
 
-`obs_sd` and `sim_sd` are the observed and simulated spread within a group, and
+`obs_sd` and `sim_sd` are the observed and simulated residual spread within a group, and
 `ppp_sd` is the proportion of simulated datasets in which the simulated spread
 was at least as large as the observed one. Read the p-values rather than the
 ratios, and read the `control` row first, because both `nsec()` and `ecx()` take
@@ -389,8 +390,8 @@ plot(cf_1b)
 
 No group is flagged on the mean for either equation. On spread, only the highest
 concentration is flagged, where the fit simulates three to four times the
-observed variability. Six replicates at a response near complete mortality supply
-very little information about spread, so this is what the top of a series usually
+observed variability. Six replicates at a success proportion below one in ten
+supply very little information about spread, so this is what the top of a series usually
 looks like rather than a fault in the family.
 
 `brms::pp_check()` shows the same comparison as distributions rather than as
@@ -420,7 +421,8 @@ table(pam_data$diuron)
 range(pam_data$yield)
 ```
 
-Six concentrations with about twenty-four fragments each. The control is
+Six concentrations, each with three chambers of four fragments read twice, so
+twenty-four readings at each concentration and eighteen at the highest. The control is
 recorded as `0`, which is correct and which `log()` cannot take, so an offset is
 added to the data before fitting, as *The scale of the predictor* in module 7
 sets out. One decade below the lowest exposure is the convention used
@@ -436,7 +438,7 @@ pam_data$log.x <- log(pam_data$diuron +
 #| label: fit-beta
 #| eval: false
 set.seed(333)
-exp_2 <- bnec(yield ~ crf(log.x, model = c("ecxll3", "nec3param")),
+exp_2 <- bnec(yield ~ crf(log.x, model = c("ecxwb1", "nec3param")),
               data = pam_data, seed = 333)
 
 save(exp_2, file = "vignettes/fits/m5_exp_2.RData")
@@ -460,8 +462,8 @@ exp_2$mod_stats[, c("model", "waic", "wi")]
 
 The smooth equation takes almost all of the weight, which is what a yield series
 declining from the lowest exposure looks like: there is no flat region for a
-threshold to sit at the end of. Note that the dispersion columns are absent.
-`dispersion()` is defined for the binomial and Poisson alone, because those are
+threshold to sit at the end of. The dispersion columns of `mod_stats`, left out
+above, hold `NA` for this fit. `dispersion()` is defined for the binomial and Poisson alone, because those are
 the families whose variance is fixed by their mean; a beta estimates a precision
 parameter of its own, so over-dispersion is not a question about the family
 here.
@@ -479,20 +481,22 @@ cf_2[, c("model", "wi", "group", "mean_ratio", "ppp_mean",
 ```{r}
 #| label: fig-checkfit-beta
 #| fig-height: 5
-#| fig-cap: "`check_fit()` on the beta fit of PAM yield. The six concentrations are design points with about twenty-four fragments each, so no binning is needed."
+#| fig-cap: "`check_fit()` on the beta fit of PAM yield. The six concentrations are design points with twenty-four readings at most, so no binning is needed."
 plot(cf_2)
 ```
 
-Read `ecxll3`, which holds
-`r sprintf("%.2f", cf_2$wi[cf_2$model == "ecxll3"][1])` of the weight. The
-location panel is almost entirely inside its bars: the curve goes where the
-data go. The scale panel is not, and the miss is in both directions.
+Read `ecxwb1`, which holds
+`r sprintf("%.2f", cf_2$wi[cf_2$model == "ecxwb1"][1])` of the weight. The
+location panel is inside its bars at every concentration except the second
+highest, where the observed mean is about one and a half times the fitted one.
+The scale panel misses at every concentration, and in both directions.
 `sd_ratio` runs from
-`r sprintf("%.2f", min(cf_2$sd_ratio[cf_2$model == "ecxll3"]))` to
-`r sprintf("%.2f", max(cf_2$sd_ratio[cf_2$model == "ecxll3"]))` across the
+`r sprintf("%.2f", min(cf_2$sd_ratio[cf_2$model == "ecxwb1"]))` to
+`r sprintf("%.2f", max(cf_2$sd_ratio[cf_2$model == "ecxwb1"]))` across the
 series, and at the control it is
-`r sprintf("%.2f", cf_2$sd_ratio[cf_2$model == "ecxll3" & cf_2$control])`, so
-the fit simulates about twice the variability the control fragments show.
+`r sprintf("%.2f", cf_2$sd_ratio[cf_2$model == "ecxwb1" & cf_2$control])`, so
+the fit simulates about twice the variability the control fragments show and
+about half the variability at the two highest concentrations.
 
 The cause is structural rather than a fault in the fitting. A beta holds one
 precision parameter for the whole series, and a beta's variance is
@@ -502,8 +506,49 @@ either bound. These yields fall from
 to
 `r sprintf("%.3f", mean(pam_data$yield[pam_data$diuron == max(pam_data$diuron)]))`
 at the highest concentration, so the spread the fit is obliged to simulate
-changes across the series whether or not the data's does. *Modelling dispersion*
-below is the repair. Do not report an *NSEC* from this fit without reading it.
+changes across the series whether or not the data's does. Near zero, where some
+fragments had stopped photosynthesising and others had not, the observed spread
+is larger than a beta with the precision the rest of the series needs can
+produce.
+
+No choice of equation repairs this. `ecxwb1` was chosen by fitting every
+equation `bnec()` admits for these data (`model = "all"`), and every one of them
+missed on scale at four or more of the six concentrations
+(`scripts/screen_module5_models.R`). The repair is to let the precision vary,
+which `disp()` does and *Modelling dispersion* below describes. Here the
+precision is modelled as a function of the fitted mean:
+
+```{r}
+#| label: fit-beta-disp
+#| eval: false
+set.seed(333)
+exp_2_disp <- bnec(yield ~ crf(log.x, model = "ecxwb1") + disp("power"),
+                   data = pam_data, seed = 333)
+
+save(exp_2_disp, file = "vignettes/fits/m5_exp_2_disp.RData")
+```
+
+```{r}
+#| label: load-fit-beta-disp
+load("vignettes/fits/m5_exp_2_disp.RData")
+```
+
+```{r}
+#| label: fig-checkfit-beta-disp
+#| fig-height: 4.5
+#| fig-cap: "`check_fit()` on the beta fit of PAM yield with `disp(\"power\")`."
+cf_2d <- check_fit(exp_2_disp)
+plot(cf_2d)
+```
+
+With the precision free to change along the series, the location panel is
+inside its bars at every concentration, and
+`r sum(cf_2d$ppp_sd < 0.025 | cf_2d$ppp_sd > 0.975)` of the six fall outside on
+scale, against six without it. `sd_ratio` now runs from
+`r sprintf("%.2f", min(cf_2d$sd_ratio))` to
+`r sprintf("%.2f", max(cf_2d$sd_ratio))`. The remaining misses are at the
+control and at the fourth concentration, and both lie close to the edge of their
+bar. This is the fit to report an *NSEC* from, rather than `exp_2`.
 
 The predictor was logged in the formula, as in the binomial example above.
 Estimates returned by `nec()`, `nsec()` and `ecx()` are then on the log scale,
@@ -543,27 +588,28 @@ on zeros below covers the choice.
 
 ## Poisson
 
-Counts of whole things — individuals, cells — are theoretically Poisson
+Counts of whole things (individuals, cells) are theoretically Poisson
 distributed: integers from zero upwards. The Poisson has one parameter, so its
 variance equals its mean, and whether real counts obey that is a question rather
 than an assumption.
 
 `alga` ships with `bayesnec` and holds final cell density and growth rate for
 two marine microalgae against two contaminants, from growth inhibition tests
-with five replicate cultures per exposure level and twice that at the control.
-The symbiotic dinoflagellate *Cladocopium proliferum* against contaminant A is
-used here and in the Gaussian example below.
+with five replicate cultures per exposure level. The test used here has ten at
+the control. The symbiotic dinoflagellate *Cladocopium proliferum* against
+contaminant B is used here and in the Gaussian example below.
 
 ```{r}
 #| label: count-data
 data(alga)
-alga_data <- subset(alga, species == "c_proliferum" & contaminant == "A")
+alga_data <- subset(alga, species == "c_proliferum" & contaminant == "B")
 alga_data$log.x <- log(alga_data$dose +
                          min(alga_data$dose[alga_data$dose > 0]) / 10)
 str(alga_data[, c("dose", "density", "sgr", "days")])
 ```
 
-Fourteen doses over seven days, with cell densities in the tens of thousands.
+Thirteen dose levels, the control included, over seven days, with cell
+densities in the tens of thousands.
 The arithmetic that makes this a Poisson problem can be done before any model is
 fitted:
 
@@ -575,7 +621,7 @@ c(mean = mean(ctrl), observed_sd = sd(ctrl), poisson_sd = sqrt(mean(ctrl)))
 
 A Poisson with that mean would produce a standard deviation of about
 `r sprintf("%.0f", sqrt(mean(alga_data$density[alga_data$dose == 0])))`. The
-twenty control cultures show
+ten control cultures show
 `r sprintf("%.0f", sd(alga_data$density[alga_data$dose == 0]))`, about
 `r sprintf("%.0f", sd(alga_data$density[alga_data$dose == 0]) / sqrt(mean(alga_data$density[alga_data$dose == 0])))`
 times as much. Culture-to-culture variation in an inoculum is not counting
@@ -586,7 +632,7 @@ what that looks like rather than because it is expected to hold.
 #| label: fit-pois
 #| eval: false
 set.seed(333)
-exp_3 <- bnec(density ~ crf(log.x, model = c("ecxll3", "nec3param")),
+exp_3 <- bnec(density ~ crf(log.x, model = "ecxwb1"),
               data = alga_data, family = "poisson", seed = 333)
 
 save(exp_3, file = "vignettes/fits/m5_exp_3.RData")
@@ -600,41 +646,39 @@ load("vignettes/fits/m5_exp_3.RData")
 ```{r}
 #| label: fig-pois
 #| fig-height: 5
-autoplot(exp_3, all_models = TRUE)
+autoplot(exp_3)
 ```
 
 The credible bounds are so narrow that they are hard to see against the curve,
 which is the visual signature of the arithmetic above.
 
 The dispersion screen applies here for the reason it applied to the binomial: a
-Poisson has one parameter, so its variance is fixed by its mean. `dispersion()`
-takes a single fit and stops on a model set, so for a set the figures are read
-from the summary, which reports them for every equation alongside its weight:
+Poisson has one parameter, so its variance is fixed by its mean.
 
 ```{r}
 #| label: dispersion-pois
-summary(exp_3)$mod_weights
+dispersion(exp_3, summary = TRUE)
 ```
 
-The dispersion estimate for the weighted equation is about
-`r sprintf("%.0f", summary(exp_3)$mod_weights[summary(exp_3)$mod_weights[, "wi"] == max(summary(exp_3)$mod_weights[, "wi"]), "dispersion_Estimate"][1])`,
-with `P(>1)` of 1. These counts are two orders of magnitude more variable than a
-Poisson allows, not the modest factor the binomial example showed.
+The dispersion estimate is about
+`r sprintf("%.0f", dispersion(exp_3, summary = TRUE)[1])`, with `P(>1)` of 1.
+These counts are two orders of magnitude more variable than a Poisson allows,
+not the modest factor the binomial example showed.
 
-Read the dispersion against the weight rather than on its own. A ratio computed
-for an equation that fits badly counts the variation its curve cannot describe as
-dispersion, so it fails the screen whatever the data are doing. A failure matters
-where it belongs to an equation that contributes to the averaged estimate, which
-is the case here: both equations return a dispersion in the hundreds.
+The equation, `ecxwb1`, is the best supported of those `bnec()` admits for these
+counts; every equation fitted under a Poisson returns the same failure
+(`scripts/screen_module5_models.R`). A dispersion computed for an equation that
+fits badly counts the variation its curve cannot describe as dispersion, so
+where a model set is fitted, read each equation's dispersion against its weight.
 
 `check_fit()` shows where that extra variation sits. The doses are design points
-with five replicates each, so no binning is needed.
+with five replicates each and ten at the control, so no binning is needed.
 
 ```{r}
 #| label: fig-checkfit-pois
 #| fig-height: 5
 #| warning: false
-#| fig-cap: "`check_fit()` on the Poisson fit of the algal cell counts. Almost every point falls outside its bar on both panels."
+#| fig-cap: "`check_fit()` on the Poisson fit of the algal cell counts. Every point falls outside its bar on the scale panel, and most on the location panel."
 cf_3 <- check_fit(exp_3)
 plot(cf_3)
 ```
@@ -642,11 +686,11 @@ plot(cf_3)
 Both panels fail, and the location panel fails *because* the scale panel does. A
 variance held at a hundredth of the truth leaves the simulated mean far too
 tightly determined, so the observed mean lands outside an interval that should
-have contained it easily. `sd_ratio` for the weighted equation runs from
-`r sprintf("%.1f", min(cf_3$sd_ratio[cf_3$wi == max(cf_3$wi)]))` to
-`r sprintf("%.1f", max(cf_3$sd_ratio[cf_3$wi == max(cf_3$wi)]))`: the data are
-between five and twenty-four times more variable than the fit simulates, in
-every group.
+have contained it easily. `sd_ratio` runs from
+`r sprintf("%.1f", min(cf_3$sd_ratio))` to
+`r sprintf("%.1f", max(cf_3$sd_ratio))`: the data are between
+`r round(min(cf_3$sd_ratio))` and `r round(max(cf_3$sd_ratio))` times more
+variable than the fit simulates, in every group.
 
 This is what a wrong family looks like. It is a different failure from the ones
 the other sections show, where the family is defensible and only the spread is
@@ -695,7 +739,7 @@ count analogue of the beta-binomial above.
 #| label: fit-negbin
 #| eval: false
 set.seed(333)
-exp_3b <- bnec(density ~ crf(log.x, model = c("ecxll3", "nec3param")),
+exp_3b <- bnec(density ~ crf(log.x, model = "ecxwb1"),
                data = alga_data, family = "negbinomial", seed = 333)
 
 save(exp_3b, file = "vignettes/fits/m5_exp_3b.RData")
@@ -709,7 +753,7 @@ load("vignettes/fits/m5_exp_3b.RData")
 ```{r}
 #| label: fig-negbin
 #| fig-height: 5
-autoplot(exp_3b, all_models = TRUE)
+autoplot(exp_3b)
 ```
 
 The bounds widen to something a reader can see, as they did for the
@@ -724,38 +768,34 @@ cf_3b <- check_fit(exp_3b)
 plot(cf_3b)
 ```
 
-The location panel is repaired. For the weighted equation, groups falling
-outside their bar on the mean drop from
-`r sum((cf_3$ppp_mean > 0.975 | cf_3$ppp_mean < 0.025)[cf_3$wi == max(cf_3$wi)])`
-of
-`r sum(cf_3$wi == max(cf_3$wi))` under the Poisson to
-`r sum((cf_3b$ppp_mean > 0.975 | cf_3b$ppp_mean < 0.025)[cf_3b$wi == max(cf_3b$wi)])`
-of
-`r sum(cf_3b$wi == max(cf_3b$wi))` here, which is the whole point of the family:
-with the variance free to be estimated, the fit stops being forced into a
-certainty the data do not support.
+Both panels are repaired, with the same equation and the same data; only the
+family has changed. Groups falling outside their bar on the mean drop from
+`r sum(cf_3$ppp_mean > 0.975 | cf_3$ppp_mean < 0.025)` of `r nrow(cf_3)` under
+the Poisson to
+`r sum(cf_3b$ppp_mean > 0.975 | cf_3b$ppp_mean < 0.025)` here, and on spread from
+`r sum(cf_3$ppp_sd > 0.975 | cf_3$ppp_sd < 0.025)` to
+`r sum(cf_3b$ppp_sd > 0.975 | cf_3b$ppp_sd < 0.025)`. `sd_ratio` runs from
+`r sprintf("%.2f", min(cf_3b$sd_ratio))` to
+`r sprintf("%.2f", max(cf_3b$sd_ratio))`, and at the control it is
+`r sprintf("%.2f", cf_3b$sd_ratio[cf_3b$control])`. With five cultures at most
+concentrations a ratio between about a third and one and a half is within what
+sampling alone produces, which is what the bars show.
 
-The scale panel is better and is not fixed, and the direction has reversed.
-Under the Poisson every `sd_ratio` was above 1, meaning the data were more
-variable than the fit simulated. Under the negative binomial `sd_ratio` runs
-from
-`r sprintf("%.2f", min(cf_3b$sd_ratio[cf_3b$wi == max(cf_3b$wi)]))` to
-`r sprintf("%.2f", max(cf_3b$sd_ratio[cf_3b$wi == max(cf_3b$wi)]))`, and at the
-control it is
-`r sprintf("%.2f", cf_3b$sd_ratio[cf_3b$wi == max(cf_3b$wi) & cf_3b$control])`,
-so the fit now simulates several times the spread the control cultures show
-while simulating too little at the top of the series.
+This is what the family is for. With the variance free to be estimated, the fit
+stops being forced into a certainty the data do not support, and one additional
+parameter is enough on these counts because their coefficient of variation stays
+between about 0.02 and 0.09 across the series.
 
-That is the general result this module keeps arriving at. The negative binomial
-adds one free dispersion parameter, and that one parameter has to serve
-concentrations whose variability differs by an order of magnitude. Changing the
-family was the right step and it was not sufficient.
-*Modelling dispersion* below lets that parameter vary.
+The equation matters as well as the family. Fitted to the same counts under the
+same family, `nec3param` falls outside its bar on spread at seven of the
+thirteen concentrations, because a threshold followed by an exponential decline
+does not follow the shape of this curve and the dispersion parameter absorbs the
+difference (`scripts/screen_module5_models.R`).
 
 ## Gamma
 
-A continuous response that cannot be negative — a length, a mass, a light
-reading, a rate where shrinkage is impossible — is modelled by the gamma. Like
+A continuous response that cannot be negative (a length, a mass, a light
+reading, a rate where shrinkage is impossible) is modelled by the gamma. Like
 the beta and the negative binomial it estimates a spread parameter of its own,
 so it is not the fixed-variance case the Poisson and binomial are. What it does
 fix is the *relative* spread: a gamma holds the coefficient of variation
@@ -763,22 +803,26 @@ constant, so the standard deviation it simulates is a fixed fraction of the
 fitted mean. That assumption is the one to check.
 
 `lum31` ships with `bayesnec` and holds luminescence readings from the
-bioluminescent bacterium *Aliivibrio fischeri* exposed to copper and zinc across
-thirty-three plates. Module 8 models the plate-to-plate structure; one plate is
+bioluminescent bacterium *Vibrio azureus* strain Lum-31 exposed to copper and
+zinc across thirty-three plates [@luter2025]. Module 8 models the plate-to-plate structure; one plate is
 enough here, and a zinc plate is used because every reading on it is positive,
 which a gamma requires.
 
 ```{r}
 #| label: gamma-data
 data(lum31)
-lum_data <- subset(lum31, plate == "Zn 28Mar24 Rep1B")
+lum_data <- subset(lum31, plate == "Zn 28Mar24 Rep1B" & minutes == 15)
 lum_data$log.x <- log(lum_data$conc)
 c(wells = nrow(lum_data), concentrations = length(unique(lum_data$conc)),
   min_rlu = min(lum_data$rlu), max_rlu = max(lum_data$rlu))
 ```
 
-Eleven concentrations with eight wells each, and no zero concentration, so the
-predictor is logged without an offset. The coefficient of variation within each
+Eleven concentrations with four wells each. Every well was read at 15 and at 30
+minutes, and only the 15-minute reading is used: the two readings of one well are
+not independent replicates, and pooling them would mix the effect of exposure
+time into the spread at each concentration. The control is recorded at
+its measured dissolved zinc concentration rather than at zero, so the predictor
+is logged without an offset. The coefficient of variation within each
 concentration is a property of the data alone, with no model involved:
 
 ```{r}
@@ -790,15 +834,17 @@ lum_data |>
   as.data.frame()
 ```
 
-It runs from about 0.10 at the low concentrations to about 1.05 at the top, an
-elevenfold change. A gamma asserts that it is constant. The fit can be made
-anyway, and the check reports what the assumption does to the fit.
+It stays between about 0.02 and 0.07 over the first eight concentrations and
+rises to between 0.17 and 0.21 over the top three, where the luminescence has
+fallen to a fifth of the control or less. A gamma asserts that it is constant.
+The fit can be made anyway, and the check reports what the assumption does to
+the fit.
 
 ```{r}
 #| label: fit-gamma
 #| eval: false
 set.seed(333)
-exp_4 <- bnec(rlu ~ crf(log.x, model = c("ecxll3", "nec3param")),
+exp_4 <- bnec(rlu ~ crf(log.x, model = "ecxll3"),
               data = lum_data, family = "Gamma", seed = 333)
 
 save(exp_4, file = "vignettes/fits/m5_exp_4.RData")
@@ -812,35 +858,38 @@ load("vignettes/fits/m5_exp_4.RData")
 ```{r}
 #| label: fig-gamma
 #| fig-height: 5
-autoplot(exp_4, all_models = TRUE)
+autoplot(exp_4)
 ```
 
 ```{r}
 #| label: fig-checkfit-gamma
 #| fig-height: 5
 #| warning: false
-#| fig-cap: "`check_fit()` on the gamma fit of one zinc plate. The location panel passes and the scale panel does not."
+#| fig-cap: "`check_fit()` on the gamma fit of one zinc plate."
 cf_4 <- check_fit(exp_4)
 plot(cf_4)
 ```
 
-The two equations divide the weight almost evenly, and both say the same thing,
-so the counts below are per equation rather than over the whole figure.
-Location is reproduced at every one of the
-`r sum(cf_4$model == cf_4$model[1])` concentrations:
-`r sum((cf_4$ppp_mean > 0.975 | cf_4$ppp_mean < 0.025)[cf_4$model == cf_4$model[1]])`
-points fall outside their bar on the mean. The curve is right.
+`ecxll3` is the best supported of the equations `bnec()` admits for these data
+(`scripts/screen_module5_models.R`). Location is reproduced: the number of
+concentrations outside their bar on the mean is
+`r sum(cf_4$ppp_mean > 0.975 | cf_4$ppp_mean < 0.025)` of `r nrow(cf_4)`. The
+curve is right.
 
-Scale is not.
-`r sum((cf_4$ppp_sd > 0.975 | cf_4$ppp_sd < 0.025)[cf_4$model == cf_4$model[1]])`
-of `r sum(cf_4$model == cf_4$model[1])` fall outside on spread, and the pattern
-follows the coefficients of variation above: at the control the fit simulates
-about seven times the observed spread, at `sd_ratio`
-`r sprintf("%.2f", min(cf_4$sd_ratio[cf_4$control]))`, while at the top of the
-series it simulates too little. The fit estimates one coefficient of variation
-and settles near the middle of a series whose own runs from 0.10 to 1.05.
+Scale is not, although fewer points fall outside their bars than the ratios
+suggest, because four wells give a wide bar. On spread the number outside is
+`r sum(cf_4$ppp_sd > 0.975 | cf_4$ppp_sd < 0.025)` of `r nrow(cf_4)`, and the
+pattern of `sd_ratio` follows the coefficients of
+variation above. Over the first eight concentrations it lies between
+`r sprintf("%.2f", min(cf_4$sd_ratio[1:8]))` and
+`r sprintf("%.2f", max(cf_4$sd_ratio[1:8]))`, so the fit simulates between one
+and a half and five times the observed spread; over the top three it lies
+between `r sprintf("%.2f", min(cf_4$sd_ratio[9:11]))` and
+`r sprintf("%.2f", max(cf_4$sd_ratio[9:11]))`, so it simulates too little. The
+fit estimates one coefficient of variation and settles between the two parts of
+the series.
 
-This is the cleanest case in the module of a family that is right about the
+This is the clearest case in the module of a family that is right about the
 response and wrong about the spread. The response is a positive continuous
 measurement, a gamma is the family for that, and nothing about the choice is
 mistaken. *Modelling dispersion* below takes this fit and repairs it.
@@ -869,15 +918,17 @@ of `r names(which.min(tapply(alga_data$sgr, alga_data$dose, mean)))`, and
 `r sum(alga_data$sgr < 0)` of the `r nrow(alga_data)` cultures are negative: those populations shrank over the
 seven days rather than growing slowly. A gamma or a lognormal cannot represent
 those observations at all, and neither can an equation whose lower asymptote is
-fixed at zero, which is why the four-parameter equations are named here rather
-than the three-parameter ones used above.
+fixed at zero. `ecxwb1` estimates its lower asymptote, `bot`, and is the best
+supported of the equations `bnec()` admits for these data
+(`scripts/screen_module5_models.R`).
 
 ```{r}
 #| label: fit-gauss
 #| eval: false
 set.seed(333)
-exp_5 <- bnec(sgr ~ crf(log.x, model = c("ecxll4", "nec4param")),
-              data = alga_data, seed = 333)
+exp_5 <- bnec(sgr ~ crf(log.x, model = "ecxwb1"),
+              data = alga_data, seed = 333,
+              control = list(adapt_delta = 0.99))
 
 save(exp_5, file = "vignettes/fits/m5_exp_5.RData")
 ```
@@ -887,16 +938,21 @@ save(exp_5, file = "vignettes/fits/m5_exp_5.RData")
 load("vignettes/fits/m5_exp_5.RData")
 ```
 
+`adapt_delta` is raised from its default of 0.8 because at the default this
+equation returns divergent transitions on these data, and at 0.99 it returns
+none. Module 7 describes what a divergent transition is and why a smaller step
+size removes it.
+
 ```{r}
 #| label: fig-gauss
 #| fig-height: 5
-autoplot(exp_5, all_models = TRUE)
+autoplot(exp_5)
 ```
 
 ```{r}
 #| label: check-fit-gauss
 cf_5 <- check_fit(exp_5)
-cf_5[, c("model", "wi", "group", "sd_ratio", "ppp_sd", "control")]
+cf_5[, c("group", "mean_ratio", "ppp_mean", "sd_ratio", "ppp_sd", "control")]
 ```
 
 ```{r}
@@ -906,22 +962,23 @@ cf_5[, c("model", "wi", "group", "sd_ratio", "ppp_sd", "control")]
 plot(cf_5)
 ```
 
-The family is the right one and the check still fails on spread, which by now is
-the expected result. A Gaussian assumes the residual standard deviation is the
-same at every concentration. Here it is not: the control cultures agree with one
-another to
-`r sprintf("%.3f", sd(alga_data$sgr[alga_data$dose == 0]))`, while at the two
-highest doses, where some cultures crashed and others merely declined, the
-standard deviation is several times that. `sd_ratio` runs from
-`r sprintf("%.2f", min(cf_5$sd_ratio[cf_5$wi == max(cf_5$wi)]))` to
-`r sprintf("%.2f", max(cf_5$sd_ratio[cf_5$wi == max(cf_5$wi)]))`, missing in
-both directions, and at the control it is
-`r sprintf("%.2f", cf_5$sd_ratio[cf_5$wi == max(cf_5$wi) & cf_5$control])`.
+The fit reproduces these data.
+`r sum(cf_5$ppp_mean > 0.975 | cf_5$ppp_mean < 0.025)` of the `r nrow(cf_5)`
+concentrations fall outside their bar on the mean and
+`r sum(cf_5$ppp_sd > 0.975 | cf_5$ppp_sd < 0.025)` on spread, and `sd_ratio`
+runs from `r sprintf("%.2f", min(cf_5$sd_ratio))` to
+`r sprintf("%.2f", max(cf_5$sd_ratio))`, the range sampling alone produces from
+five cultures. A Gaussian assumes the residual standard deviation is the same at
+every concentration, and on these growth rates it is: the control cultures agree
+with one another to
+`r sprintf("%.3f", sd(alga_data$sgr[alga_data$dose == 0]))`, and the cultures at
+the highest dose, which all shrank, to
+`r sprintf("%.3f", sd(alga_data$sgr[alga_data$dose == max(alga_data$dose)]))`.
 
 A Gaussian is the one family whose constant-variance assumption is usually
 stated out loud, because it is the assumption analysis of variance rests on.
-`disp()` relaxes it, and *Modelling dispersion* below does that on the gamma
-fit.
+Where it fails, `disp()` relaxes it, as *Modelling dispersion* below shows on
+the gamma fit.
 
 Transforming a bounded response onto an unbounded scale and modelling it as
 Gaussian is the other way this family gets used: it was standard practice for
@@ -945,7 +1002,8 @@ concentration is written **EyC~x~**.
 
 The guideline states that an ErC~x~ will generally be higher than the
 corresponding EyC~x~, and that growth rate is the scientifically preferred
-basis; yield is retained to satisfy current regulatory requirements. An estimate
+basis; yield is retained to satisfy current regulatory requirements in some
+countries. An estimate
 reported without one of those prefixes has not said which quantity it describes,
 and the two sections above show why that matters beyond nomenclature: the same
 cultures gave a count response needing a negative binomial and a rate response
@@ -966,9 +1024,10 @@ the `zero_bounded` set exists.
 
 Three rules account for most of the exclusions.
 
-Equations with an exponential decay and no `bot` parameter approach zero and
-cannot go below it, so they cannot describe a Gaussian response, or any response
-fitted through a log or logit link.
+Equations with no `bot` parameter, the `zero_bounded` set, approach zero and
+cannot go below it. `bnec()` excludes them under a log or logit link. They also
+cannot describe a Gaussian response that falls below zero, although `bnec()`
+does not exclude them for the Gaussian, so that choice is yours.
 
 Equations with a linear decay, whose names contain `lin`, decline without limit,
 so they cannot describe a response bounded below at zero under an identity link.
@@ -1083,7 +1142,8 @@ support, and the second block should not be read as a concentration-response
 curve.
 
 `bayesnec` supplies `hurdle_gamma` for a positive continuous response with
-structural zeros, and the zero-inflated beta, Poisson and negative binomial:
+structural zeros, `hurdle_poisson` and `hurdle_negbinomial` for counts, and the
+zero-inflated beta, Poisson and negative binomial:
 
 ```{r}
 #| label: hurdle-fams
@@ -1102,7 +1162,7 @@ of a count response by dropping the zeros and using an ordinary Poisson is not
 the same model: with the zeros removed the remaining counts follow a
 *zero-truncated* Poisson, so an untruncated fit estimates the wrong quantity. The
 error grows as the mean falls towards zero, which is the high-concentration end
-that an *NEC* or an **EC~x~** is read from. The equivalent construction for
+that an *NEC* or an EC~x~ is read from. The equivalent construction for
 `hurdle_gamma` is exact, because a gamma distribution has no mass at zero to
 begin with, which is why the problem appears only for counts.
 
@@ -1130,7 +1190,8 @@ than inferred and a hurdle is available.
 tapply(snail$alive, snail$dose, function(z) sprintf("%d of %d", sum(z), length(z)))
 ```
 
-Mortality is confined to the top two doses and is complete at the highest.
+Mortality is concentrated in the top two doses, which hold 33 of the 38 deaths,
+and is complete at the highest.
 That is what makes the endpoint worth fitting as two blocks rather than one.
 A survivors-only analysis of these data would contain
 `r sum(snail$alive == 1)` snails of the `r nrow(snail)` exposed, and the dose of
@@ -1162,7 +1223,7 @@ back <- function(z) exp(z) - offset
 
 `bnec_hurdle()` takes the formula for the growth block and fits a survival block
 alongside it. The same model set is used for both here, and `adapt_delta` is
-raised because the survival curve is determined by two doses and samples
+raised because the survival curve is determined mostly by two doses and samples
 awkwardly at the default.
 
 ```{r}
@@ -1207,8 +1268,17 @@ autoplot(exp_6, which = "all")
 ```
 
 The right-hand panel is the one a survivors-only analysis cannot produce at any
-level of effort. Its shape comes entirely from the two doses where snails died,
+level of effort. Its shape comes almost entirely from the two doses where most snails died,
 and the highest of those contributes no rows to a dataset of survivors.
+
+The growth block reproduces the mean at every dose and not the spread. Run
+`check_fit()` on `exp_6$growth` and the observed standard deviation is between
+about 0.4 and 0.65 of the simulated one at the lower doses, and about twice it at
+the two highest, which is the pattern *Modelling dispersion* below repairs on a
+gamma fit. That repair is not yet available here, because `bnec_hurdle()` copies
+a `disp()` term into the survival block as well, where a Bernoulli response has
+no dispersion parameter for it to model
+([`bayesnec` #410](https://github.com/open-AIMS/bayesnec/issues/410)).
 
 ## Preparing the response
 
@@ -1247,8 +1317,9 @@ a bleached-area fraction, and these are modelled as they stand.
 From the simulation of an ED10 with six control replicates in @Ritz2026:
 normalising gave a bias of 6.8% and a coefficient of variation of 26.4%, against
 2.1% and 12.7% for the same quantity estimated from the raw response, and
-nominal 95% intervals covered at 90% rather than 95%. With a single control
-replicate the coverage of the normalised analysis fell to 57%.
+nominal 95% intervals covered at 90% rather than 95%. In their simulation of the
+other experimental design, with a single control replicate, the coverage of the
+normalised analysis fell to 57%.
 
 `ecx()` returns a decline relative to the *fitted* control rather than to an
 observed control mean, and because it is evaluated separately within every
@@ -1281,12 +1352,12 @@ A response above 1 that has to be modelled with a beta distribution needs a
 divisor. It must be a constant settled before the analysis: a physiological or
 design ceiling, or a value from accumulated historical controls. @Ritz2026 are
 explicit that the problem is dividing by something *random* rather than dividing
-as such. An **EC~x~** is unaffected by the choice of a constant divisor, because
-it is a relative decline from the fitted `top`, and the same holds for any
+as such. An EC~x~ is unaffected by the choice of a constant divisor, because
+it is a relative decline from the fitted control, and the same holds for any
 linear rescaling of the response [@Weimer2012].
 :::
 
-### The reason a divisor gets reached for
+### The motive for a divisor
 
 Dividing by the observed maximum is often done for a reason that has nothing to
 do with normalisation. A response on an arbitrary scale, such as a luminescence
@@ -1311,13 +1382,16 @@ beta's support, which division by a maximum does by construction.
 ## Modelling dispersion
 
 Everything above chooses a family from what kind of quantity the response is.
-That is the right way to choose one, and on every real dataset in this module it
-got the *mean* of the curve right. On four of them it did not get the spread
-right: the beta fit of the PAM yields, the negative binomial fit of the algal
-counts, the gamma fit of the luminescence plate and the Gaussian fit of the
-algal growth rate all reproduce the group means and fail `check_fit()` on
-`sd_ratio`. This section is what to do about that, and it is the last step in
-choosing how a response is modelled rather than an optional refinement.
+That is the right way to choose one, and on every dataset in this module the
+family chosen that way, with its variance free to be estimated, reproduced the
+*mean* of the curve at all or nearly all concentrations. On two of them it did
+not reproduce the spread: the beta fit of the PAM yields and the gamma fit of
+the luminescence plate fail `check_fit()` on `sd_ratio`, and so does the growth
+block of the hurdle fit. In none of the three does a different equation repair
+it: every equation `bnec()` admits for each of them was fitted and checked
+(`scripts/screen_module5_models.R`). Modelling the dispersion is the remedy, and
+it is the last step in choosing how a response is modelled rather than an
+optional refinement.
 
 The reason a correct family can still fail is an assumption made by default and
 rarely stated. A fit holds the dispersion parameter of the chosen family
@@ -1331,8 +1405,7 @@ untreated control.
 Where that is wrong the consequences fall on the credible intervals of the
 toxicity estimates, and they fall unevenly, because the assumed variability is
 too large at one end of the series and too small at the other. The *NSEC* is
-affected most, for the reason the binomial section gave: its reference is a
-quantile of the control posterior, and the width of that posterior is the
+affected most, because its reference is a quantile of the control posterior, and the width of that posterior is the
 variability the fit estimated at the control.
 
 The `disp` term relaxes the assumption, letting the spread vary rather than
@@ -1358,26 +1431,22 @@ fit.
 
 ### A worked case
 
-The gamma fit of the luminescence plate is the clearest of the four, because its
-location panel passes completely and only its scale panel fails, so whatever
-`disp()` changes cannot be confused with a change in the curve. The comparison
-is made on `nec3param` alone: one equation, one difference, and no reweighting
-to confound the two fits.
+The gamma fit of the luminescence plate is the clearer of the two, because its
+curve is reproduced and only its spread is not, so whatever `disp()` changes
+cannot be confused with a change in the curve. The baseline is `exp_4` from the
+gamma section, which fits one equation, `ecxll3`, so the two fits below differ
+in the dispersion sub-model and in nothing else.
 
 ```{r}
 #| label: disp-baseline
-exp_4_const <- pull_out(exp_4, "nec3param")
+exp_4_const <- exp_4
 ```
-
-No refit is needed for the baseline. `pull_out()` returns the equation as it was
-fitted inside the set above, so the two fits below differ in the dispersion
-sub-model and in nothing else.
 
 ```{r}
 #| label: fit-disp
 #| eval: false
 set.seed(333)
-exp_4_disp <- bnec(rlu ~ crf(log.x, model = "nec3param") + disp("power"),
+exp_4_disp <- bnec(rlu ~ crf(log.x, model = "ecxll3") + disp("power"),
                    data = lum_data, family = "Gamma", seed = 333)
 
 save(exp_4_disp, file = "vignettes/fits/m5_exp_4_disp.RData")
@@ -1390,13 +1459,14 @@ load("vignettes/fits/m5_exp_4_disp.RData")
 
 `disp("power")` is used rather than `disp(~ log.x)` because the coefficient of
 variation here rises as the fitted mean falls, which is a relationship with the
-mean rather than with the predictor. Both forms are available and the check is
+mean rather than with the predictor. The same term repaired the beta fit of the
+PAM yields above. Both forms are available and the check is
 what decides between them.
 
 ```{r}
 #| label: fig-disp-checkfit
 #| fig-height: 4.5
-#| fig-cap: "`check_fit()` on the constant-dispersion gamma fit. Seven of the eleven concentrations fall outside their bar on scale."
+#| fig-cap: "`check_fit()` on the constant-dispersion gamma fit."
 cf_const <- check_fit(exp_4_const)
 plot(cf_const)
 ```
@@ -1404,17 +1474,19 @@ plot(cf_const)
 ```{r}
 #| label: fig-disp-checkfit-power
 #| fig-height: 4.5
-#| fig-cap: "The same check with `disp(\"power\")`. Every concentration is now inside its bar on both panels."
+#| fig-cap: "The same check with `disp(\"power\")`."
 cf_disp <- check_fit(exp_4_disp)
 plot(cf_disp)
 ```
 
-The repair is complete, and that is the unusual outcome rather than the
-expected one. Groups falling outside their bar on spread drop from
+Groups falling outside their bar on spread drop from
 `r sum(cf_const$ppp_sd > 0.975 | cf_const$ppp_sd < 0.025)` of
 `r nrow(cf_const)` to
-`r sum(cf_disp$ppp_sd > 0.975 | cf_disp$ppp_sd < 0.025)`, and the location panel
-passes in both fits, so nothing was traded away to get it.
+`r sum(cf_disp$ppp_sd > 0.975 | cf_disp$ppp_sd < 0.025)`, and on the mean
+`r sum(cf_const$ppp_mean > 0.975 | cf_const$ppp_mean < 0.025)` and
+`r sum(cf_disp$ppp_mean > 0.975 | cf_disp$ppp_mean < 0.025)` fall outside in
+the two fits. The count of points outside a bar understates the change, because
+four wells per concentration give wide bars; the table below shows it directly.
 
 ```{r}
 #| label: disp-compare-table
@@ -1431,22 +1503,27 @@ data.frame(
 ```
 
 Read the two `sim_sd` columns against `obs_sd`. The observed spread stays
-between about 70,000 and 155,000 over the first eight concentrations and then
-falls away to
-`r format(round(cf_const$obs_sd[nrow(cf_const)]), big.mark = ",")`, because the
-wells stop varying only once the luminescence has gone. The spread the
-constant-dispersion fit simulates does something different: it tracks the fitted
-mean, falling from
+between about
+`r format(signif(min(cf_const$obs_sd[1:8]), 2), big.mark = ",")` and
+`r format(signif(max(cf_const$obs_sd[1:8]), 2), big.mark = ",")` over the first
+eight concentrations and falls to
+`r format(round(cf_const$obs_sd[nrow(cf_const)]), big.mark = ",")` at the
+highest. The spread the constant-dispersion fit simulates tracks the fitted
+mean instead, falling from
 `r format(round(cf_const$sim_sd[1]), big.mark = ",")` at the lowest
 concentration to
 `r format(round(cf_const$sim_sd[nrow(cf_const)]), big.mark = ",")` at the
 highest, a
 `r round(max(cf_const$sim_sd) / min(cf_const$sim_sd))`-fold decline. That is
-what a fixed coefficient of variation obliges it to do. The consequence is `sd_ratio` near
-`r sprintf("%.2f", min(cf_const$sd_ratio))` at the bottom of the series, where
-the fit simulates seven times the observed spread, and above 1 at the top, where
-it simulates too little. With `disp("power")` the simulated spread stops
-following the mean and the ratio stays near 1 for most of the series.
+what a fixed coefficient of variation obliges it to do. The consequence is
+`sd_ratio` as low as `r sprintf("%.2f", min(cf_const$sd_ratio))` over the lower
+part of the series, where the fit simulates up to five times the observed
+spread, and above 1 at the top, where it simulates too little. With
+`disp("power")` the simulated spread falls less steeply than the mean, from
+`r format(round(cf_disp$sim_sd[1]), big.mark = ",")` to
+`r format(round(cf_disp$sim_sd[nrow(cf_disp)]), big.mark = ",")`, and the ratio
+lies between `r sprintf("%.2f", min(cf_disp$sd_ratio))` and
+`r sprintf("%.2f", max(cf_disp$sd_ratio))`.
 
 The reason this matters is the estimate rather than the diagnostic.
 
@@ -1458,45 +1535,54 @@ rbind(`constant dispersion` = nsec(exp_4_const, xform = exp),
 
 ```{r}
 #| label: disp-estimates-2
-rbind(`constant dispersion` = nec(exp_4_const, xform = exp),
-      `disp("power")`       = nec(exp_4_disp, xform = exp))
+rbind(`constant dispersion` = ecx(exp_4_const, ecx_val = 10, xform = exp),
+      `disp("power")`       = ecx(exp_4_disp, ecx_val = 10, xform = exp))
 ```
 
-The *NSEC* falls by about half, from
+The *NSEC* falls from
 `r sprintf("%.2f", nsec(exp_4_const, xform = exp)[1])` to
-`r sprintf("%.2f", nsec(exp_4_disp, xform = exp)[1])` mg/L, and the *NEC* from
-`r sprintf("%.2f", nec(exp_4_const, xform = exp)[1])` to
-`r sprintf("%.2f", nec(exp_4_disp, xform = exp)[1])`. The direction is the one
+`r sprintf("%.2f", nsec(exp_4_disp, xform = exp)[1])` mg/L, while the EC~10~
+changes only from
+`r sprintf("%.2f", ecx(exp_4_const, ecx_val = 10, xform = exp)[1])` to
+`r sprintf("%.2f", ecx(exp_4_disp, ecx_val = 10, xform = exp)[1])`. The EC~10~
+is read from the fitted curve, which the dispersion sub-model barely changes;
+the *NSEC* is read against the spread of the control. The direction is the one
 module 3 sets out under the *NSEC* and module 7 measures on real data: a fit
 simulating too much variability at the control gives the control posterior too
 much width, which places the significance reference lower, and a reference
 placed lower is crossed further along the curve. The constant-dispersion fit
-therefore reports the **less protective** of the two figures, and nothing in its
+therefore reports the less protective of the two figures, and nothing in its
 sampler diagnostics says so. `check_sampling()` passes on both.
 
-A guideline value derived from the first number would be twice the one derived
-from the second, on the same data, the same equation and the same priors. The
-only difference is whether the fit was allowed to describe the spread.
+A guideline value derived from the first *NSEC* would be
+`r sprintf("%.1f", nsec(exp_4_const, xform = exp)[1] / nsec(exp_4_disp, xform = exp)[1])`
+times the one derived from the second, on the same data and the same equation.
+The difference is whether the fit was allowed to describe the spread, together
+with the prior on the dispersion coefficients that the sub-model adds.
 
 Two cautions. This is one plate of a design that has thirty-three, and module 8
-fits the plate structure rather than subsetting to one. And a clean repair of
-this kind is the exception; more often the term reduces the number of groups
-flagged without taking it to zero, as it does on the ametryn data in module 7,
-where one of eight remains flagged. Read the diagnostic after adding the term rather than
-assuming it has done its work.
+fits the plate structure rather than subsetting to one. And a repair as complete
+as this one is the exception. On the PAM yields above, two of six concentrations
+remain just outside their bars after the term is added, and on the ametryn data
+in module 7 one of eight remains flagged. Read the diagnostic after adding the
+term rather than assuming it has done its work.
 
 ## Open questions
 
 The families implemented in `bayesnec` cover the common cases in
 concentration-response work, and choosing between them from the kind of quantity
-the response is reproduced the mean of the curve on every dataset fitted here.
+the response is reproduced the mean of the curve at all or nearly all
+concentrations on every dataset fitted here.
 
 Two things follow for practice. Check which distribution was used, because
 `bnec()` infers one where it is not told. And check that it reproduces the
-variability in the data as well as the mean, because on five of the six real
-datasets in this module it did not until the dispersion was modelled. That
-second check is `check_fit()`, and module 7 runs it inside a complete analysis
-and reports what it found.
+variability in the data as well as the mean. The beta and gamma fits in this
+module did not, whatever equation was used, and both were brought into agreement
+by modelling the dispersion; the growth block of the hurdle fit did not either,
+and cannot yet be repaired that way. The negative binomial and Gaussian fits
+reproduced both on the algal data, and on those data the equation mattered as
+much as the family. That second check is `check_fit()`, and module 7 runs it
+inside a complete analysis and reports what it found.
 
 What is not settled is how far a dispersion sub-model should be taken. A
 variance function absorbs any cause of apparent heteroscedasticity, so a fit

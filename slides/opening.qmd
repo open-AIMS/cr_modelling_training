@@ -49,8 +49,8 @@ reproduce faithfully.
 
 `ignore/` is git-ignored, so the assets are local to the presenter's machine and
 are not published with the repository. That is deliberate: the exported slides
-contain screenshots of publisher-typeset journal pages, which is the question
-`notes/image-provenance.md` is open on, and photographs of AIMS staff.
+contain screenshots of publisher-typeset journal pages, whose licences
+`notes/image-provenance.md` records, and photographs of AIMS staff.
 
 To rebuild them from the source deck:
 
@@ -109,7 +109,7 @@ First of three statistical developments: species sensitivity distributions in
 ## {background-image="../ignore/slide_assets/intro06.png" background-size="contain" background-color="#ffffff" .image-slide}
 
 ::: {.notes}
-Second: mixture distributions for bi-modal sensitivity data.
+Second: mixture distributions for bimodal sensitivity data.
 :::
 
 ## {background-image="../ignore/slide_assets/intro07.png" background-size="contain" background-color="#ffffff" .image-slide}
@@ -135,12 +135,12 @@ free and open source, which is why a day like this one is possible at all.
 :::
 
 ::: {.column width="52%"}
-`bayesnec` was developed at AIMS by myself and Diego Barneche, and is described
-in *Journal of Statistical Software* 110(5).
+`bayesnec` was developed at AIMS by Diego Barneche and me, and is described in
+*Journal of Statistical Software* 110(5).
 
 It fits concentration-response models in a Bayesian framework through `brms` and
-Stan, and returns NEC, NSEC and ECx estimates averaged over a candidate set of
-equations.
+Stan, and derives NEC, NSEC and ECx estimates from one equation or averaged over
+a candidate set.
 
 The whole of today is spent in it.
 :::
@@ -151,7 +151,7 @@ The whole of today is spent in it.
 Hand over from the ANZG context to the software. Ten minutes gone by here.
 :::
 
-## In the room today
+## Presenter and helpers
 
 Rebecca Fisher, Australian Institute of Marine Science, presenting.
 
@@ -259,10 +259,13 @@ later, and walk-through means the page is read and its output discussed. The
 The page on the projector is the page on your own screen, and each module shows
 the code that produced every result on it.
 
-A single model takes minutes to fit and a model-averaged set takes longer, so
-nothing is sampled from scratch in the room. Every fit appears as three steps:
-the `bnec()` call, the `save()` that keeps the result, and the `load()` that
-reads it back. The call and the save are shown; the load is what runs.
+Every fit appears as three steps: the `bnec()` call, the `save()` that keeps
+the result, and the `load()` that reads it back. On the page, the load is what
+runs.
+
+A model-averaged set takes minutes to hours to fit. In the live scripts the
+short single fits run in the room, and the long fits are commented out and
+loaded instead.
 
 The saved objects are the download named in the setup instructions, and they are
 on the USB sticks at the front.

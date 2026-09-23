@@ -350,8 +350,8 @@ div.csl-indent {
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p><code>bayesnec</code> <span class="citation" data-cites="fisheretal2024">(<a href="#ref-fisheretal2024" role="doc-biblioref">Fisher et al. 2024</a>)</span> fits concentration-response curves to toxicity data and derives no-effect concentration (<em>NEC</em>), no-significant-effect concentration (<em>NSEC</em>, <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>) and effect concentration (<strong>EC<sub>x</sub></strong>) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via <code>brms</code> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> and Stan. It is an extension of <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>.</p>
-<p>This module fits one model to one dataset and works through what is done with the result: looking inside the fitted object, plotting it, and extracting toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, priors, and the checks that go with each.</p>
+<p><code>bayesnec</code> <span class="citation" data-cites="fisheretal2024">(<a href="#ref-fisheretal2024" role="doc-biblioref">Fisher et al. 2024</a>)</span> fits concentration-response curves to toxicity data and derives no-effect concentration (<em>NEC</em>), no-significant-effect concentration (<em>NSEC</em>, <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>) and effect concentration (<em>EC<sub>x</sub></em>) estimates from non-linear models fitted by Bayesian Hamiltonian Monte Carlo, via <code>brms</code> <span class="citation" data-cites="Burkner2017 Burkner2018">(<a href="#ref-Burkner2017" role="doc-biblioref">Bürkner 2017</a>; <a href="#ref-Burkner2018" role="doc-biblioref">Bürkner 2018</a>)</span> and Stan. It is an extension of <code>jagsNEC</code> <span class="citation" data-cites="Fisher2020">(<a href="#ref-Fisher2020" role="doc-biblioref">Fisher et al. 2020</a>)</span>.</p>
+<p>One model is fitted here to one dataset, and the result is then examined, plotted and used to extract toxicity estimates. Later modules cover the full model set, model averaging, the choice of statistical distribution, priors, and the checks that go with each.</p>
 <p>If you have not yet installed R, a C++ compiler, CmdStan and <code>bayesnec</code>, work through the <a href="../vignettes/0Software-setup.html">software setup</a> first. Nothing in this module will run without them.</p>
 </section>
 <section id="the-example-dataset" class="level2">
@@ -377,7 +377,7 @@ div.csl-indent {
 <section id="reproducibility" class="level2">
 <h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
 <p>A Bayesian model is fitted by drawing samples, which module 6 describes, so running the same code twice gives slightly different numbers unless the random number generator is set to a known state.</p>
-<p>Two generators are involved and both have to be fixed. <code>bnec()</code> searches for valid starting values in R before it calls Stan, and that search draws from R’s own generator, which <code>set.seed()</code> fixes. Stan then samples using a generator of its own, which the <code>seed</code> argument fixes. Setting one and not the other leaves the fit irreproducible, so every fit in this course sets both.</p>
+<p>Two random draws are involved. <code>bnec()</code> searches for valid starting values in R before it calls Stan, and Stan then samples. Either <code>set.seed()</code> before the call or the <code>seed</code> argument fixes both. <code>bnec()</code> uses <code>seed</code> to seed the search for starting values as well as passing it to Stan, and without it Stan’s seed is drawn from R’s generator, which <code>set.seed()</code> has already fixed. Every fit in this course sets both, and <code>?bnec</code> describes the cases, such as fitting a model set in parallel, where the two are not equivalent.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bnec_fit <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"nec3param"</span>), <span class="at">data =</span> nec_data, <span class="at">seed =</span> <span class="dv">333</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -393,8 +393,8 @@ div.csl-indent {
 <li><strong>How priors are set:</strong> <code>prior</code>, <code>prior_type</code>, <code>predictor_scale</code>.</li>
 <li><strong>How a model set is weighted, and when a fit that will not return is abandoned:</strong> <code>loo_controls</code>, <code>timeout</code>. Module 4 covers both.</li>
 </ul>
-<p><code>model</code>, <code>x_var</code>, <code>y_var</code> and <code>trials_var</code> named the equation and the columns before version 2.0. They are still accepted and warn that the formula has been used instead.</p>
-<p>Anything else is passed through to <code>brms::brm()</code> by <code>...</code>, so the full <code>brm</code> argument list is available. <code>bayesnec</code> sets three of those arguments differently from <code>brms</code>: it generates its own <code>family</code> and <code>prior</code> rather than taking the <code>brms</code> defaults, and it raises <code>iter</code> from 2,000 to 10,000 with a correspondingly longer warm-up, because the non-linear models here often need it.</p>
+<p><code>model</code>, <code>x_var</code>, <code>y_var</code>, <code>trials_var</code>, <code>random</code> and <code>random_vars</code> named the equation, the columns and the grouping terms before version 2.0. They are still accepted and warn that the formula has been used instead.</p>
+<p>Anything else is passed through to <code>brms::brm()</code> by <code>...</code>, so the full <code>brm</code> argument list is available. <code>bayesnec</code> sets several of those arguments differently from <code>brms</code>: it generates its own <code>family</code>, <code>prior</code> and <code>init</code> rather than taking the <code>brms</code> defaults, it sets <code>sample_prior = "yes"</code> so that the prior is sampled alongside the posterior, and it raises <code>iter</code> from 2,000 to 10,000 with a correspondingly longer warm-up, because the non-linear models here often need it.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Iterations, warm-up and retained draws">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -407,7 +407,7 @@ div.csl-indent {
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Compare the <strong>retained</strong> draws rather than <code>iter</code>, because the fraction discarded during warm-up is a choice each package makes for itself.</p>
+<p>Compare the retained draws rather than <code>iter</code>, because the fraction discarded during warm-up is a choice each package makes for itself.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -516,11 +516,11 @@ div.csl-indent {
 </div>
 <p>Three things happen when that call runs.</p>
 <ul>
-<li><strong>Compilation.</strong> Stan models are written in the Stan language, translated to C++ and compiled to a shared object, which R then loads and runs. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.</li>
+<li><strong>Compilation.</strong> Stan models are written in the Stan language, translated to C++ and compiled. Under <code>cmdstanr</code> the result is a program that runs outside R; under <code>rstan</code> it is a shared object loaded into R. This is why the first fit of a session is slower than later ones, and why a compiler is needed at all.</li>
 <li><strong>Sampling.</strong> How long this takes depends on the machine, the number of chains and the number of iterations. This fit samples in under three seconds on four cores. Compiling it takes considerably longer, so the wait for a model this small is mostly the step above rather than this one.</li>
 <li><strong>Reporting.</strong> <code>bayesnec</code> names the model that was fitted and the statistical distribution used, here a <code>nec3param</code> model with a beta distribution.</li>
 </ul>
-<p>Set two options before fitting. <code>mc.cores</code> decides how many chains run at the same time rather than in turn, so set it to at least the number of chains. <code>brms.backend</code> decides which interface to Stan is used, and <code>brms</code> uses <code>rstan</code> unless told otherwise. <code>rstan</code> compiles a model a good deal more slowly: the two fits in this module took 199 seconds under <code>rstan</code> and 73 under <code>cmdstanr</code> on the same four-core machine, almost all of the difference being compilation rather than sampling.</p>
+<p>Set two options before fitting. <code>mc.cores</code> decides how many chains run at the same time rather than in turn, so set it to at least the number of chains. <code>brms.backend</code> decides which interface to Stan is used, and <code>brms</code> uses <code>rstan</code> unless told otherwise. <code>rstan</code> compiles a model a good deal more slowly: this fit and an <code>ecxll3</code> fit to the same data took 199 seconds together under <code>rstan</code> and 73 under <code>cmdstanr</code> on the same four-core machine, almost all of the difference being compilation rather than sampling.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -623,7 +623,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 <p>Five things are printed, in the order they appear.</p>
 <ul>
 <li><strong>The class and the model.</strong> A <code>bayesnecfit</code> containing <code>nec3param</code>. <code>bayesnec</code> returns a <code>bayesnecfit</code> when one model is fitted and a <code>bayesmanecfit</code> when a set is fitted.</li>
-<li><strong>The family and link.</strong> The beta distribution with an <strong>identity link</strong>. <code>bayesnec</code> uses the identity link for every family, which is not the <code>brms</code> default.</li>
+<li><strong>The family and link.</strong> The beta distribution with an <strong>identity link</strong>. <code>bayesnec</code> uses the identity link for every family unless a link is named in the call, where <code>brms</code> defaults to the logit link for a beta response.</li>
 <li><strong>The <code>brms</code> formula that was fitted.</strong> For <code>nec3param</code> this is a constant <code>top</code> until the concentration reaches <code>nec</code>, followed by exponential decay, with the switch implemented by <code>step()</code>. Module 3 sets out the equations.</li>
 <li><strong>The coefficients, with <em>Rhat</em> and effective sample size.</strong> <em>Rhat</em> is a convergence diagnostic and should be close to 1. All three parameters here are at 1.00 and the effective sample sizes are in the thousands, both of which indicate the sampler explored the posterior properly.</li>
 <li><strong>The <em>NEC</em> estimate and the Bayesian R².</strong> The estimate is a median with a 95% credible interval. The R² here is high, as you would expect of a simulated example where the curve is well-determined; real data rarely look this tidy.</li>
@@ -640,7 +640,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The link will mean something only to a reader familiar with generalised linear models, which are usually parameterised for linear modelling. A beta response in <code>brms</code> defaults to the logit link.</p>
+<p>In a generalised linear model the link function relates the mean of the response to the scale on which the model is written. A beta response in <code>brms</code> defaults to the logit link, so a curve written for <code>mu</code> would be fitted to the logit of the mean rather than to the mean.</p>
 <p><code>bayesnec</code> overrides that for every family, so that the <code>top</code>, <code>bot</code> and <code>nec</code> parameters stay on the scale of the response and remain directly interpretable. It matters if you ever compare a <code>bayesnec</code> fit against a <code>brm</code> model you have written yourself: unless you pass the link explicitly, the two are different models.</p>
 </div>
 </div>
@@ -724,8 +724,8 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 </div>
 </div>
 </div>
-<p><code>check_fit()</code> returns a table of one row per group of the predictor and plots the same comparison. A point outside its bar is a group the model does not reproduce, and no point falls outside its bar here.</p>
-<p>Read <code>failed</code> and the plot, and leave the rest until the modules that need it. Module 5 uses <code>check_fit()</code> to decide whether a statistical family reproduces the observed spread, which is the choice it exists to inform. Module 7 sets out what each sampler diagnostic measures, what to do when one is missed, and what both checks contribute to a written analysis.</p>
+<p><code>check_fit()</code> returns a table of one row per group of the predictor and plots the same comparison. Because <code>nec_data</code> has no replicated concentrations, the predictor is cut into ten bins of ten observations, with a warning. A point outside its bar is a group the model does not reproduce, and no point falls outside its bar here. The mean of the group from 0.726 to 0.876 sits at the top of its bar, and printing <code>cf</code> flags it with a posterior predictive p-value of 0.027; one comparison that close to its limit is expected by chance among the twenty in the plot.</p>
+<p>Read the <code>failed</code> column of <code>check_sampling()</code> and the plot of <code>check_fit()</code>, and leave the rest until the modules that need it. Module 5 uses <code>check_fit()</code> to decide whether a statistical family reproduces the observed spread. Module 7 covers what both checks contribute to a written analysis.</p>
 <p><code>pull_brmsfit()</code> returns the <code>brms</code> model inside the fit, which is how any <code>brms</code> method is reached. Plotting it gives the marginal posterior of each parameter beside its trace:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>brm_fit <span class="ot">&lt;-</span> <span class="fu">pull_brmsfit</span>(bnec_fit)</span>
@@ -753,7 +753,7 @@ R2     0.96      0.00 0.96  0.97</code></pre>
 [17] "ne_posterior"    "ne_type"        </code></pre>
 </div>
 </div>
-<p><code>pred_vals</code> holds fitted values across the range of the predictor, which is what the plotting methods use and what you would use for a custom figure:</p>
+<p><code>pred_vals</code> holds fitted values across the range of the predictor, which is what <code>plot()</code> draws and what you would use for a custom figure:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bnec_fit<span class="sc">$</span>pred_vals<span class="sc">$</span>data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -838,12 +838,12 @@ attr(,"ecnsec_relativeP")
 1.3607025 0.2149438 2.3966669 </code></pre>
 </div>
 </div>
-<p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <strong>EC10</strong> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>
+<p>Each returns a median and a 95% probability interval by default, and each records how it was computed in the attributes of the returned object: <code>ecx()</code> returns an <em>EC<sub>10</sub></em> unless told otherwise, and <code>nsec()</code> uses a significance value of 0.01.</p>
 <p>For this dataset the three estimates are close together, which happens when the curve declines sharply from a well-defined threshold. They are not interchangeable, and on other data they can differ. Module 3 covers what each of them measures and when each is appropriate.</p>
 </section>
 <section id="the-parameters-of-the-curve" class="level2">
 <h2 class="anchored" data-anchor-id="the-parameters-of-the-curve">The parameters of the curve</h2>
-<p><code>summary()</code> reports the toxicity estimate and the fit statistics, and for a single model the parameters are reachable through the underlying <code>brmsfit</code>. <code>curve_params()</code> returns them directly, and returns them for a model-averaged set as well, which nothing else does:</p>
+<p>For a single model <code>summary()</code> prints the parameters in the <code>brms</code> coefficient table. For a model-averaged set it does not print them. <code>curve_params()</code> returns them for both:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve_params</span>(bnec_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -853,9 +853,9 @@ attr(,"ecnsec_relativeP")
 3 nec3param  1   mu identity       nec 1.5352804 1.4983762 1.5692257</code></pre>
 </div>
 </div>
-<p>These are the quantities the toxicity estimates are read from, and they belong in a methods section beside them. <code>top</code> is the control level the curve is referenced to, <code>beta</code> is the decay rate, and <code>nec</code> is the threshold. A four-parameter equation would add <code>bot</code>, the lower asymptote.</p>
+<p>These are the quantities the toxicity estimates are read from, and they belong in a methods section beside them. <code>top</code> is the control level the curve is referenced to, <code>nec</code> is the threshold, and <code>beta</code> is the natural logarithm of the decay rate, since the fitted formula uses <code>exp(beta)</code>: the estimate of 0.54 is a rate of about 1.72 per unit of concentration. A four-parameter equation would add <code>bot</code>, the lower asymptote.</p>
+<p>Where the predictor was transformed in the formula, the <code>xform</code> argument returns an estimate to the measured scale. <code>curve_params()</code> applies it to <code>nec</code> and <code>ec50</code> and to no other parameter, because those two are measured on the predictor axis while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters. Module 7 covers the choice of scale for the predictor.</p>
 <p>Everything above is one fit of one equation. Module 3 sets out the equations available and what each estimate measures, module 4 fits a set of them at once, and module 6 covers what the posterior draws behind every one of these numbers can be used for.</p>
-<p>Where the predictor was transformed in the formula, the <code>xform</code> argument returns an estimate to the measured scale, and it reaches <code>nec</code> and <code>ec50</code> and no other parameter, because those two are measured on the predictor axis while <code>top</code>, <code>bot</code> and <code>beta</code> are levels of the response or shape parameters. Module 7 decides the scale of the predictor and works through what the choice is worth.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>

@@ -20,8 +20,8 @@ data(nec_data)
 ## Background
 
 This course uses Bayesian methods throughout, and from the installation onwards
-that can look like an unnecessary complication — frequentist solutions exist for
-most of it, `drc` among them. The extra overhead has probably held back the use
+that can look like an unnecessary complication, since frequentist solutions exist
+for most of it, `drc` among them. The extra overhead has probably held back the use
 of Bayesian methods for threshold derivation in ecotoxicology, where specialist
 statistical support is not usually available [@Fisher2019].
 
@@ -39,7 +39,7 @@ usable in risk assessment and formal decision frameworks [@fisher2018c], and
 Bayesian methods quantify it with a direct probabilistic meaning
 [@Ellison1996].
 
-The distinction between the two paradigms, stated as simply as it can be:
+The distinction between the two paradigms, in brief:
 
 - Bayesian inference estimates the probability of the parameters, given the
   observed data and the prior information.
@@ -48,7 +48,7 @@ The distinction between the two paradigms, stated as simply as it can be:
 
 That difference is why a Bayesian interval answers the question most people
 think a confidence interval answers. It holds provided the priors have been
-handled properly, which is the subject of this module.
+handled properly.
 
 This introduction covers the principles without the mathematics:
 
@@ -90,10 +90,9 @@ species into the hazard concentration that comes out
 
 None of this removes the overhead. A fit takes minutes rather than seconds and
 needs a working toolchain. The priors are a further assumption that a maximum
-likelihood fit does not make, and stating them, checking them and knowing how
-much they matter is the subject of the middle of this module. *Using posterior
-distributions* returns to the draws at the end, once the machinery that produced
-them has been set out.
+likelihood fit does not make. Stating them, checking them and measuring how much
+they matter are covered from *Priors* to *Fixing a parameter*, and *Using
+posterior distributions* returns to the draws.
 
 ## Sampling
 
@@ -109,9 +108,9 @@ fitting relies on numerical approximation by Markov chain Monte Carlo.
 
 {{< video https://www.youtube.com/watch?v=OTO1DygELpY >}}
 
-Many packages implement MCMC — `WinBUGS` [@Lunn2000], `JAGS` [@Plummer2003] and
-`Stan` [@Carpenter2017], reached from R through `R2WinBUGS`, `R2jags` [@Su2015]
-and `rstan` [@rstan2021].
+Many packages implement MCMC, among them `WinBUGS` [@Lunn2000], `JAGS`
+[@Plummer2003] and `Stan` [@Carpenter2017], reached from R through `R2WinBUGS`,
+`R2jags` [@Su2015] and `rstan` [@rstan2021].
 
 ![](images/mctools.JPG){width=100% fig-align="center"}
 
@@ -124,15 +123,17 @@ priors, and extracting NEC or ECx estimates with their uncertainty from a set of
 posterior draws is cumbersome without dedicated code. Those are the gaps
 `bayesnec` fills, as module 1 described.
 
-`Stan` uses Hamiltonian Monte Carlo, tuning the discretisation time to an
-acceptance-rate target with the no-U-turn sampler [@hoffman2014].
+`Stan` uses Hamiltonian Monte Carlo with the no-U-turn sampler, which sets the
+number of steps in each trajectory automatically [@hoffman2014]. The step size is
+tuned during warm-up towards a target acceptance rate, which `brms` exposes as
+`control = list(adapt_delta = ...)`.
 
 ## Priors
 
 A Bayesian analysis requires a prior probability density for every parameter.
 
-Where real prior knowledge exists — pilot data, or a previous experiment on the
-same response — the prior may reasonably be narrow, and will then be influential,
+Where real prior knowledge exists, such as pilot data or a previous experiment on
+the same response, the prior may reasonably be narrow, and will then be influential,
 especially if the new data are scarce or noisy. In ecology and ecotoxicology that
 situation is the exception.
 
@@ -168,14 +169,15 @@ staying broad enough not to determine its posterior, given a reasonable amount o
 data. Used that way they give results about as objective as the frequentist
 equivalent, while yielding intervals that can be read as probabilities.
 
-They still need interrogating — by sensitivity analysis [@depaoli2020importance]
+They still need interrogating, by sensitivity analysis [@depaoli2020importance]
 and by checking they suit the data [@gelman2017entropy]. As a rule the defaults
 behave well where there are enough data, which includes a reasonable number of
 treatment concentrations. Where data are sparse the defaults can be influential;
 but sparse data usually need informative priors to fit at all, and then the
 influence of prior knowledge should be acknowledged rather than avoided.
 
-Two sets are supplied, and `prior_type` selects between them:
+Two sets are supplied, `"uninformative"` and `"regularizing"`, and `prior_type`
+selects between them. Its default is:
 
 ```{r}
 #| label: prior-types
@@ -192,11 +194,12 @@ analysis was run under, and changing the default would silently change the
 result of re-running one.
 
 On the evidence so far the narrower set is the better choice for a new analysis.
-Measured over 420 `top` and `bot` entries built from simulated responses across
-ten seeds, three designs and five families, the true value fell outside the
-central 95% of its own prior in 12 entries under the narrower set and in 127
-under `"uninformative"`. Expect it to become the default in a later version, and
-state which set was used either way. One assumption is worth checking before
+The `bayesnec` NEWS file records 420 `top` and `bot` entries built from simulated
+responses across ten seeds, three designs and five families, on designs with
+complete effect at the highest concentration or a hurdle or zero-inflated
+response. The true value fell outside the central 95% of its own prior in 12
+entries under the narrower set and in 127 under `"uninformative"`. Expect it to
+become the default in a later version, and state which set was used either way. One assumption is worth checking before
 selecting it: the rule assumes the lowest concentration tested sits at the level
 `top` describes and the highest sits at the level `bot` describes, so on a
 design whose decline is incomplete, use `"uninformative"`.
@@ -208,10 +211,11 @@ consequences of the construction reach how an analysis is run. The prior on
 `nec` is truncated to the observed range of the predictor, so an estimate
 sitting at the edge of the tested range should be treated with suspicion rather
 than reported. And its width is set by the two extreme concentrations, so it
-responds to what is entered for the control: on one dilution series the standard
-deviation is 2.30 with the control recorded as `0` and 6.11 with it recorded as
-`1e-6`, because each smaller value states that a smaller concentration was
-applied. Record a control as `0`.
+responds to what is entered for the control: on the `nassarius` contaminant A
+series the priors article reports a standard deviation of 2.30 with the control
+recorded as `0` and 6.11 with it recorded as `1e-6`. A control recorded as `0` is
+left out of the construction, while `1e-6` states that a concentration of
+`1e-6` was applied. Record a control as `0`.
 
 ## Limits of the default priors
 
@@ -221,7 +225,7 @@ transitions where the data are sufficient. `brms` provides no blanket defaults
 for non-linear models, and how vague a prior is depends on the likelihood in any
 case [@gelman2017entropy].
 
-Three ways they can fail. They may be too informative, giving unreasonably tight
+They can fail in three ways. They may be too informative, giving unreasonably tight
 bounds, which happens mainly with few data or few unique predictor values. They
 may be too vague, giving poor convergence. Or they may be of the wrong family, if
 the data did not contain enough information for `bayesnec` to infer the right one.
@@ -239,8 +243,10 @@ get_priors(y ~ crf(x, model = "nec3param"), data = nec_data,
 ```
 
 That is the set `bnec()` would use, and it can be edited and passed back through
-the `prior` argument, which the next section does. `pull_prior()` reports the
-same thing for a model already fitted.
+the `prior` argument, as *Fixing a parameter* does. For a model already fitted,
+`get_priors()` returns the priors it used in the same form. `pull_prior()`
+returns the whole `brmsprior` stored in the fit, `brms` defaults included, which is
+for inspection and is not accepted by `bnec(prior = )`.
 
 A fitted model to work from:
 
@@ -269,8 +275,7 @@ sample_priors(pull_brmsfit(bnec_fit)$prior)
 ```
 
 `check_priors()`, which builds on the `hypothesis()` function of `brms`, plots
-the prior against the posterior for each parameter. That comparison is the
-check the whole module turns on.
+the prior against the posterior for each parameter.
 
 ```{r}
 #| label: fig-check-priors
@@ -284,9 +289,9 @@ not. All three parameters here are determined by the data. Each posterior is a
 narrow spike, and each prior is broad beneath it: `nec` is located at about 1.5
 under a prior spread across the whole tested range, and `top` at about 0.9 under
 a `beta(5, 2)` spanning most of the interval from 0.25 to 1. The `beta` panel is
-the one to read carefully, because its spike sits at about 0, which is also
-where its `normal(0, 5)` prior is centred. Agreement between a posterior and the
-centre of its prior is not evidence that the prior determined it; what settles
+the one to read carefully, because its spike sits at about 0.5, close to the
+centre of its `normal(0, 5)` prior on the scale of the panel. Agreement between
+a posterior and the centre of its prior is not evidence that the prior determined it; what settles
 that is the width, and this posterior is narrower than its prior by more than an
 order of magnitude.
 
@@ -312,8 +317,11 @@ exmp_reg <- bnec(y ~ crf(x, model = "nec4param"), data = nec_data,
                  prior_type = "regularizing")
 ```
 
-`nec4param` is used rather than `nec3param` because the two sets differ most in
-`bot`, which `nec3param` does not have. Posteriors that agree between the two
+`nec4param` is used rather than `nec3param` so that the comparison includes
+`bot`, which `nec3param` does not have. On `nec_data` the `"regularizing"` set
+narrows and relocates the priors on `top` and `bot` and narrows the one on
+`nec`, and leaves the prior on `beta` unchanged. Compare the result with the same
+equation fitted under the default set. Posteriors that agree between the two
 sets are being determined by the data. Posteriors that differ are being
 determined by the priors, and the influence of the prior then belongs in the
 reporting rather than being left implicit.
@@ -371,7 +379,7 @@ save(exmp_b, file = "vignettes/fits/m6_exmp_b.RData")
 load("vignettes/fits/m6_exmp_b.RData")
 ```
 
-Two things follow from that. Priors must be given for **every** parameter of the
+Two things follow from that. Priors must be given for every parameter of the
 model, not only the ones being changed. And to find out what those parameters
 are before anything is fitted, use `show_params()`:
 
@@ -397,7 +405,8 @@ hist(exmp_a$ne_posterior, main = "Default priors", xlab = "NEC")
 hist(exmp_b$ne_posterior, main = "User priors", xlab = "NEC")
 ```
 
-The posteriors are similar, which is what should happen when the data are
+The posteriors are similar, with medians of 1.535 under the default priors and
+1.533 under the user priors, which is what should happen when the data are
 informative enough that the priors are not driving the result. A large difference
 would be the signal to look harder.
 
@@ -408,6 +417,9 @@ A parameter can be held at a known value rather than estimated, by giving it a
 other change. `bayesnec` has no `fixed` argument of the kind `drc` provides,
 because a point-mass prior expresses the same thing through machinery that
 already exists.
+
+`avoid_data` stands for a two-choice avoidance dataset of your own; `bayesnec`
+does not ship one.
 
 ```{r}
 #| label: constant-prior
@@ -481,16 +493,15 @@ estimate. They support the study of synergistic and antagonistic effects
 [@Charles2020a; @Gottschalk2013], and tests of hypotheses of no effect
 [@Thomas2006].
 
-This section works through one of those uses on the fit above. A comparison
-between two estimates is a count of draws rather than a test statistic, because
-both estimates arrive as whole distributions. `compare_posterior()` does this
+A comparison between two estimates is a count of draws rather than a test
+statistic, because both estimates arrive as whole distributions. `compare_posterior()` does this
 for a named list of fits, and returns both the posteriors it used and the
 probability that one estimate exceeds the other.
 
 There is one fit so far, so the comparison needs a second. `ecxll3` is a smooth
-equation with the same three free parameters as `nec3param` and the same lower
-asymptote fixed at zero, so the two fits differ in the shape of the curve rather
-than in what each is free to estimate.
+equation with three free parameters (`top`, `beta` and `ec50`), as `nec3param`
+has three (`top`, `beta` and `nec`), and the same lower asymptote fixed at
+zero, so the two fits differ in the shape of the curve rather than in what each is free to estimate.
 
 ```{r}
 #| label: fit-ecxll3
@@ -595,7 +606,7 @@ ggplot(post_fitted$posterior_data, aes(x = x)) +
 ```
 
 Both curves pass through the data. `nec3param` holds the control level flat to
-its threshold a little below 1.5 and turns sharply there; `ecxll3` has begun to
+its threshold a little above 1.5 and turns sharply there; `ecxll3` has begun to
 decline before 1.5 and turns gradually, so it sits below `nec3param` just before
 the threshold and above it just after. Reading a separation off two panels stops
 at that description, and the difference below puts a number and an interval on
@@ -623,7 +634,7 @@ Where the band excludes zero the two curves differ at that concentration. These
 two agree from 0.03 to 1.14 and differ over 25 of the 50 grid points. The
 `nec3param` curve is the higher of the two from 1.20 to 1.53, the lower from
 1.72 to 2.05, and the higher again from 2.44 to 3.22. The largest difference is
-0.089 at a concentration of 1.85, on a response spanning about 0.95. That is
+0.089 at a concentration of 1.85, on observed responses spanning 0.001 to 0.98. That is
 what the comparison achieved: it located the disagreement between the two
 equations on the concentration axis and bounded its size, where the EC10
 comparison above gave only that one of them was larger.

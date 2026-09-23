@@ -380,7 +380,7 @@ window.Quarto = {
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
 <p>A toxicity estimate is rarely the end of an analysis. In guideline derivation it becomes one point in a species sensitivity distribution, from which the concentration protecting a stated proportion of the community is read. For that guideline to achieve the level of protection it states, each point entering the distribution should be the highest concentration at which that species shows no effect <span class="citation" data-cites="fisheretal2023">(<a href="#ref-fisheretal2023" role="doc-biblioref">Fisher et al. 2023</a>)</span>.</p>
-<p>Module 2 fitted one model and extracted estimates from it without saying much about either choice. This module sets out the equations <code>bayesnec</code> can fit and which toxicity estimate each one supports. The distinction that organises everything below is between models with a threshold and models without one, and it determines what a no-effect estimate can mean.</p>
+<p>Module 2 fitted one model and extracted estimates from it without saying much about either choice. <code>bayesnec</code> fits a set of equations, and each supports a different set of toxicity estimates. The main division is between models with a threshold and models without one, and it determines what a no-effect estimate can mean.</p>
 </section>
 <section id="the-model-set" class="level2">
 <h2 class="anchored" data-anchor-id="the-model-set">The model set</h2>
@@ -403,7 +403,7 @@ window.Quarto = {
 <img src="images/vignette-fig-exmp2b-theoretical_nec_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: The threshold equations. Each is flat to a breakpoint and then declines, and the breakpoint is the <em>NEC</em>. They differ in the decline after it and in whether the response rises first.
+Figure&nbsp;1: The threshold equations. Each is flat, or rising, up to a breakpoint and then declines, and the breakpoint is the <em>NEC</em>. They differ in the decline after it and in whether the response rises first.
 </figcaption>
 </figure>
 </div>
@@ -413,7 +413,7 @@ Figure&nbsp;1: The threshold equations. Each is flat to a breakpoint and then de
 <img src="images/vignette-fig-exmp2b-theoretical_ecx_curves.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecxmods-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: The smooth equations. None has a breakpoint, so each declines from the intercept onwards and supports an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> rather than an <em>NEC</em>.
+Figure&nbsp;2: The smooth equations. None has a breakpoint, so the response changes from the lowest concentration onwards and each supports an <strong>EC<sub>x</sub></strong> or an <em>NSEC</em> rather than an <em>NEC</em>. The two <code>ecxhormebc</code> equations rise before they decline.
 </figcaption>
 </figure>
 </div>
@@ -478,7 +478,7 @@ Figure&nbsp;3: A threshold curve and a smooth curve fitted to the same response 
 <tr class="odd">
 <td style="text-align: left;"><span class="math inline">\(\alpha\)</span></td>
 <td style="text-align: left;"><code>slope</code></td>
-<td style="text-align: left;">The linear decay rate in <code>neclin</code> and <code>ecxlin</code>, or the linear increase before <span class="math inline">\(\eta\)</span> in the hormesis models.</td>
+<td style="text-align: left;">The linear decay rate in <code>neclin</code> and <code>ecxlin</code>, or the rate of the initial increase in the hormesis models.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><span class="math inline">\(\omega\)</span></td>
@@ -558,13 +558,15 @@ Figure&nbsp;6: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 <p>The full derivation, in both frequentist and Bayesian form, is in <span class="citation" data-cites="fisherfox2023">Fisher and Fox (<a href="#ref-fisherfox2023" role="doc-biblioref">2023</a>)</span>.</p>
 <section id="the-effect-size-at-the-nsec" class="level3">
 <h3 class="anchored" data-anchor-id="the-effect-size-at-the-nsec">The effect size at the NSEC</h3>
-<p>The <em>NSEC</em> is the concentration at which the response becomes distinguishable from the control, and that concentration corresponds to some decline on the fitted curve. The <strong>ECNSEC</strong> is that decline, expressed as a percentage: the effect size the <em>NSEC</em> represents. It is the quantity that says whether an <em>NSEC</em> is a no-effect estimate in any practical sense, or a low-effect estimate wearing the name.</p>
+<p>The <em>NSEC</em> is the concentration at which the response becomes distinguishable from the control, and that concentration corresponds to some decline on the fitted curve. The <strong>ECNSEC</strong> is that decline, expressed as a percentage: the effect size the <em>NSEC</em> represents. It is the quantity that says whether an <em>NSEC</em> is a no-effect estimate in any practical sense, or an estimate of a low effect.</p>
 <p><code>nsec()</code> reports it as an attribute of the value it returns, and <code>ecnsec()</code> computes it directly:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>nsec_value <span class="ot">&lt;-</span> <span class="fu">nsec</span>(bnec_fit)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(nsec_value, <span class="st">"ecnsec_relativeP"</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ecnsec</span>(bnec_fit, <span class="at">nsec =</span> nsec_value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Pass the median alone: given all three quantiles, ecnsec() returns a</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># different and wrong answer (6.7% rather than 1.3% on this fit).</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ecnsec</span>(bnec_fit, <span class="at">nsec =</span> nsec_value[<span class="st">"Q50"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For the <code>nec3param</code> fit of module 2 the <em>NSEC</em> of 1.54 corresponds to an ECNSEC of 1.4%, with a 95% credible interval from 0.2% to 2.4%. The effect being allowed is small, and it is not zero.</p>
 <p><code>ecnsec()</code> takes the same <code>type</code> argument as <code>ecx()</code>, described below, and measures against the same reference, so the two are on the same footing by construction. This matters for reporting: the current Australian and New Zealand method states that an <em>NSEC</em> whose measured effect size exceeds 20% should probably not be used to derive a guideline value <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>, and the ECNSEC is how that condition is checked.</p>
@@ -572,7 +574,7 @@ Figure&nbsp;6: Panel D of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 </section>
 <section id="the-nsec-and-the-noec" class="level2">
 <h2 class="anchored" data-anchor-id="the-nsec-and-the-noec">The NSEC and the NOEC</h2>
-<p>The <em>NSEC</em> is analogous to the <em>NOEC</em>: both identify the concentration at which the response becomes significantly different from the control.</p>
+<p>The <em>NSEC</em> is analogous to the <em>NOEC</em>: both are defined by a comparison with the control, and each is the highest concentration at which the response is not significantly different from it.</p>
 <div id="fig-noec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-noec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -585,17 +587,17 @@ Figure&nbsp;7: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 </div>
 <p>The difference is that the <em>NSEC</em> interpolates from a fitted curve, so it is not restricted to the concentrations that happen to have been tested. This removes the most serious defect of the <em>NOEC</em>, whose value can only ever be one of the treatment concentrations and is therefore determined by the experimental design as much as by the toxicity.</p>
 <p>Because it rests on a comparison against control variability, the <em>NSEC</em> is sensitive to poorly designed experiments. High variability in the control produces a <em>less</em> conservative estimate, which is the opposite of what intuition suggests, and it is the single most important thing to watch when using it.</p>
-<p>A valid <em>NSEC</em> therefore depends on the control variability being a good representation of natural variability in an unimpacted population. That in turn depends on modelling the response with an appropriate statistical distribution, which module 5 covers, and on the fitted model reproducing the variability the data show, which <code>check_fit()</code> measures and module 5 covers.</p>
-<p>The same exposure applies to an <strong>EC<sub>x</sub></strong>. <span class="citation" data-cites="mebane2015">Mebane (<a href="#ref-mebane2015" role="doc-biblioref">2015</a>)</span> states the limit directly: where the control mean has a standard error of 20%, an EC10 is not a meaningful quantity, whatever the fitting routine returns.</p>
+<p>A valid <em>NSEC</em> therefore depends on the control variability being a good representation of natural variability in an unimpacted population. That in turn depends on modelling the response with an appropriate statistical distribution, and on the fitted model reproducing the variability the data show, which <code>check_fit()</code> measures. Module 5 covers both.</p>
+<p>Control variability limits an <strong>EC<sub>x</sub></strong> in the same way. <span class="citation" data-cites="mebane2015">Mebane (<a href="#ref-mebane2015" role="doc-biblioref">2015</a>)</span>, summarising problem cases identified by Green and colleagues, states the limit directly: where the control mean has a standard error of 20%, an EC10 is not a meaningful quantity, whatever the fitting routine returns.</p>
 </section>
 <section id="choosing-an-estimate" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-an-estimate">Choosing an estimate</h2>
 <p>Where no threshold can be estimated, the available options are the <em>NOEC</em>, an <strong>EC<sub>x</sub></strong> at some low value of <em>x</em>, or the <em>NSEC</em>.</p>
 <p>The Australian and New Zealand method sets out a hierarchy, and it was revised in 2025 <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>. The <em>NEC</em> and the <em>NSEC</em> are now the two most preferred estimates, both being negligible-effect concentrations estimated directly from the concentration-response relationship. An <strong>EC<sub>x</sub></strong> at <em>x</em> of 10 or less, and the BEC10, are listed as other appropriate estimates. An <strong>EC<sub>x</sub></strong> between 10 and 20, and the <em>NOEC</em>, are less preferred. The LOEC, the MATC and an EC50 require a conversion factor before they can be used at all.</p>
-<p>Two things follow for practice. The <em>NSEC</em> no longer needs justifying as a novel method in an Australian guideline derivation. And because it sits in the preferred tier alongside the <em>NEC</em>, the condition attached to it applies: an <em>NSEC</em> with a measured effect size above 20% should probably not be used to derive a guideline value, which is what the ECNSEC above is for.</p>
-<p>The <em>NOEC</em> has been discarded as a measure of toxicity and is among the least preferred methods <span class="citation" data-cites="warne2008 warne2018 warne2025">(<a href="#ref-warne2008" role="doc-biblioref">Warne and Van Dam 2008</a>; <a href="#ref-warne2018" role="doc-biblioref">Warne et al. 2018</a>; <a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>.</p>
+<p>Two things follow for practice. The <em>NSEC</em> no longer needs justifying as a novel method in an Australian guideline derivation. And the effect-size condition described with the ECNSEC above applies to it, as it does to a <em>NOEC</em>.</p>
+<p><span class="citation" data-cites="warne2008">Warne and Van Dam (<a href="#ref-warne2008" role="doc-biblioref">2008</a>)</span> argued that <em>NOEC</em> data should no longer be generated or used. The 2025 method lists the <em>NOEC</em> as a less preferred estimate, below the <em>NEC</em>, the <em>NSEC</em> and an <strong>EC<sub>x</sub></strong> at <em>x</em> of 10 or less <span class="citation" data-cites="warne2025">(<a href="#ref-warne2025" role="doc-biblioref">Warne et al. 2025</a>)</span>.</p>
 <p>An <strong>EC<sub>x</sub></strong>, and the EC10 in particular, is the method the earlier guidelines specify <span class="citation" data-cites="warne2018">(<a href="#ref-warne2018" role="doc-biblioref">Warne et al. 2018</a>)</span> and is widely used internationally. An <strong>EC<sub>x</sub></strong> at <em>x</em> of 5 or 10 has been endorsed by the OECD since <span class="citation" data-cites="vanderhoeven1997">Van Der Hoeven et al. (<a href="#ref-vanderhoeven1997" role="doc-biblioref">1997</a>)</span>.</p>
-<p>Where an estimate of no effect is required, an <strong>EC<sub>x</sub></strong> is arguably the wrong instrument, because it reports the concentration producing an effect of magnitude <em>x</em>. It is an effect concentration by construction.</p>
+<p>Where an estimate of no effect is required, an <strong>EC<sub>x</sub></strong> is arguably the wrong estimate, because it reports the concentration producing an effect of magnitude <em>x</em>. It is an effect concentration by construction.</p>
 <p>The <em>NSEC</em>, like the <em>NOEC</em> before it <span class="citation" data-cites="mebane2015">(<a href="#ref-mebane2015" role="doc-biblioref">Mebane 2015</a>)</span>, also represents some non-zero effect: for a smooth sigmoidal model any concentration above zero produces one. The difference is where the line is drawn. The <em>NSEC</em> is the concentration below which the response does not deviate significantly from the control, and a significant deviation can occur well before the effect reaches the 10% that an EC10 reports. Unless there is separate evidence that a 10% effect has no consequence for the population, an EC10 cannot be assumed protective.</p>
 </section>
 <section id="hormesis" class="level2">
@@ -609,7 +611,7 @@ Figure&nbsp;7: Panel C of <a href="#fig-etnc2" class="quarto-xref">Figure&nbsp;1
 [5] "nechorme4pwr"  "nechormepwr01"</code></pre>
 </div>
 </div>
-<p>These assume a linear increase up to the threshold and allow various decay functions after it. Hormesis raises no difficulty for the <em>NEC</em>, which remains the concentration at which the response begins to decline.</p>
+<p>These assume an increase up to the threshold, linear in <code>nechorme</code>, <code>nechorme4</code> and <code>neclinhorme</code> and curved in <code>nechormepwr</code>, <code>nechorme4pwr</code> and <code>nechormepwr01</code>, and allow various decay functions after it. Hormesis raises no difficulty for the <em>NEC</em>, which remains the concentration at which the response begins to decline.</p>
 <div id="fig-hormenec" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hormenec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -641,7 +643,7 @@ Figure&nbsp;9: Two smooth hormesis equations. The curve peaks above the control 
 </section>
 <section id="extracting-estimates" class="level2">
 <h2 class="anchored" data-anchor-id="extracting-estimates">Extracting estimates</h2>
-<p>Three functions extract toxicity estimates from a fitted model: <code>nec()</code>, <code>ecx()</code> and <code>nsec()</code>. Their full documentation is in the help files, which are the authoritative source; what follows covers the arguments that require a decision rather than every argument.</p>
+<p>Three functions extract toxicity estimates from a fitted model: <code>nec()</code>, <code>ecx()</code> and <code>nsec()</code>. The arguments described below are those that require a decision; the help files, which are the authoritative source, document the rest.</p>
 <section id="nec" class="level3">
 <h3 class="anchored" data-anchor-id="nec"><code>nec()</code></h3>
 <p>The <em>NEC</em> is a parameter of the model, so the function has little to do beyond summarising its posterior.</p>
@@ -688,7 +690,7 @@ Figure&nbsp;10: The span each <code>type</code> measures over, and the EC10 each
 <p>Panel C is <code>ecxll3</code>, which has no <code>bot</code> and declines towards 0. All three references fall in the same place and the three types agree at 1.61. Panel D is <code>ecxhormebc4</code>. Measured from the control at 0.99 the 10% target of 0.89 lies below the rising limb, and the curve reaches it once, at 3.10. Measured from the maximum of the curve at 1.32 the target of 1.19 lies above the control, and the curve crosses it twice, at 0.77 and 2.50. A target crossed twice does not identify a single concentration, which is the reason for measuring from the control.</p>
 <p>Three changes arrived in <code>bayesnec</code> 2.2.0 and matter when returning to an older analysis.</p>
 <p><code>"range"</code> computes what <code>"relative"</code> computed up to version 2.1.3, with one difference: the old span was taken from the maximum of the predicted curve rather than from the control. The two agree wherever the maximum is at the lowest concentration, and differ for a hormetic curve, which is panel D of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a>. Passing <code>type = "relative"</code> explicitly now raises a warning naming <code>"range"</code>.</p>
-<p><code>"relative"</code> is refused where the equation has no <code>bot</code> and the family is unbounded below. In panel C of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> the family is bounded below, so the 0 that <code>ecxll3</code> declines towards is a finite reference and the estimate agrees with <code>"absolute"</code>. Under a gaussian or student response there is no lower bound, nothing finite to measure towards, and the call is refused with a message naming <code>"absolute"</code> and <code>"range"</code> as the two types that still apply.</p>
+<p><code>"relative"</code> is refused where the equation has no <code>bot</code> and the family is unbounded below. Panel C of <a href="#fig-ecx-types" class="quarto-xref">Figure&nbsp;10</a> assumes a family bounded below, so the 0 that <code>ecxll3</code> declines towards is a finite reference and the estimate agrees with <code>"absolute"</code>. Under a gaussian response, the only family <code>bnec()</code> accepts that is unbounded below, there is nothing finite to measure towards, and the call is refused with a message naming <code>"absolute"</code> and <code>"range"</code> as the two types that still apply.</p>
 <p>The <code>hormesis_def</code> argument has been removed from <code>ecx()</code>, <code>nsec()</code>, <code>ecnsec()</code> and the comparison functions. It selected between the control and the peak as the reference, and with the control always the reference it selected nothing. A call still passing it is refused by name rather than ignored.</p>
 </section>
 <section id="nsec" class="level3">
@@ -719,7 +721,7 @@ Figure&nbsp;11: The four toxicity estimates. (A) A threshold model, giving the <
 </figcaption>
 </figure>
 </div>
-<p>Panel A is a threshold equation, where the <em>NEC</em> is the breakpoint parameter and the EC10 lies above it. Panel B is a smooth equation, which has no breakpoint, so the EC10 is the only estimate it supports directly. Panel C is the <em>NOEC</em>, obtained from the treatment means with no curve fitted, which is why it can only ever take one of the tested values. Panel D is the <em>NSEC</em>, the concentration at which the fitted curve crosses a lower quantile of the control posterior, with the EC10 for the same curve above it. In both panels B and D the EC10 is the larger and therefore the less conservative estimate.</p>
+<p>Panel A is a threshold equation, where the <em>NEC</em> is the breakpoint parameter and the EC10 lies above it. Panel B is a smooth equation, which has no breakpoint, so the EC10 is the only estimate it supports directly. Panel C is the <em>NOEC</em>, obtained from the treatment means with no curve fitted, which is why it can only ever take one of the tested values. Panel D is the <em>NSEC</em>, the concentration at which the fitted curve crosses a lower quantile of the control posterior, with the EC10 for the same curve above it. In both panels A and D the EC10 is the larger and therefore the less conservative estimate.</p>
 <p><a href="#tbl-definitions" class="quarto-xref">Table&nbsp;1</a> gives the published wording for each estimate, which is the form to quote in a methods section, together with the statistical method that produces it.</p>
 <div id="tbl-definitions" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-tbl figure">

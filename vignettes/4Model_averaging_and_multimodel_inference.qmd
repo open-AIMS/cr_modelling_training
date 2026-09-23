@@ -29,13 +29,13 @@ uses all of them.
 
 ## Choosing among the equations
 
-Sometimes physiological or toxicological mechanism argues for a threshold
-(Chapman and Wang 2000). That is not always known, a threshold is not always visible in
+Sometimes physiological or toxicological mechanism argues for a threshold.
+That is not always known, a threshold is not always visible in
 the data, and even where a threshold is appropriate the functional form of the
 decline after it may not be.
 
 Without a mechanistic argument, the choice has to be made from the data. Metrics
-exist for this — AICc in the frequentist setting, and WAIC, DIC, model
+exist for this: AICc in the frequentist setting, and WAIC, DIC, model
 probabilities and others in the Bayesian setting. The difficulty is that many of
 these curves are similar in shape, so several will often fit a dataset about
 equally well. Model uncertainty is then high and the selection is close to
@@ -105,17 +105,19 @@ fits each in turn and returns a `bayesmanecfit` holding the Bayesian
 model-averaged predictions over those that fitted successfully.
 
 Both compute time and object size scale with the size of the set. Every model is
-sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is
-large. Module 2 measured a single `nec3param` fit of these data at a little over
-two minutes; a set of twenty-three is not twenty-three times more convenient.
+compiled and then sampled by Hamiltonian Monte Carlo, so a large set is slow and
+the result is large. Module 2's `nec3param` fit of these data samples in under
+three seconds, but compilation brings the wait to over half a minute: module 2's
+two fits took 73 seconds under `cmdstanr`. A set of twenty-three equations
+repeats that wait for each one.
 
 ## Combining single fits
 
 A set is assembled from fits made separately, which is the route that starts
 from what module 2 produced. Any model fitted by `bnec` inherits class
-`bnecfit`, which has two methods of its own, `+` and `c`. Either will append
-fits to one another, so two or more `bayesnecfit` objects can be combined into a
-model-averaged `bayesmanecfit`.
+`bnecfit`, and two of its methods, `+` and `c`, append fits to one another, so
+two or more `bayesnecfit` objects can be combined into a model-averaged
+`bayesmanecfit`.
 
 Starting from the `nec3param` fit of module 2:
 
@@ -134,8 +136,8 @@ save(bnec_fit, file = "vignettes/fits/m4_bnec_fit.RData")
 load("vignettes/fits/m4_bnec_fit.RData")
 ```
 
-and adding a second equation of a different shape — `ecxll3`, a three-parameter
-log-logistic curve with no threshold:
+and adding a second equation of a different shape, `ecxll3`, which is a
+three-parameter log-logistic curve with no threshold:
 
 ```{r}
 #| label: fit-ecxll3
@@ -216,10 +218,11 @@ where there is no evidence of hormesis.
 
 `hormesis` are the equations allowing an initial increase.
 
-`bot_free` are the equations with no lower asymptote, which are useful when the
-response curve is incomplete and estimates are needed beyond the observed range.
+`bot_free` are the equations with no `bot` parameter, and so no estimated lower
+plateau, which are useful when the response curve is incomplete and estimates
+are needed beyond the observed range.
 
-`zero_bounded` are those for which negative response values are invalid.
+`zero_bounded` are the equations whose predicted response cannot fall below zero.
 
 `all` is every available equation. It currently includes `necsigm`, which should
 not be used; remove it with `amend()` if fitting the whole set.
@@ -263,12 +266,14 @@ summary(bmanecfit_more)
 ```
 
 The fitted models are listed with their weights. The summary warns that the
-averaged no-effect estimate contains *NSEC* values, and would warn again if any
-fit had divergent transitions.
+averaged no-effect estimate contains *NSEC* values, and would warn if any fit had
+not converged, judged by Rhat.
 
 `nec3param` takes most of the weight here, which is what should happen: these
-data were simulated from that equation. The Bayesian R² values show how little of
-the variation the smooth exponential decline accounts for.
+data were simulated from a threshold curve with the *NEC* at 1.5, using
+`nec4param` with a lower asymptote of 0.01, which is close to the zero that
+`nec3param` declines towards. The Bayesian R² values show how little of the
+variation `ecxexp` accounts for.
 
 The summary also warns that `ecxexp` reproduces the observed variability at the
 control poorly. That is `check_fit()`, named in module 2, applied here to every
@@ -295,8 +300,7 @@ in detail.
 ![](images/weights.jpg){width=50% fig-align="center"}
 
 Bayesian weighting is less settled and there are many candidate methods. A full
-treatment is outside the scope of this course; what follows is what `bayesnec`
-does and why.
+treatment is outside the scope of this course.
 
 
 `bayesnec` uses the weighting implemented in `loo` [@vehtari2020], which performs
@@ -310,17 +314,18 @@ importance weights [@Vehtari2019].
 predictive density of the combined distribution [@Yao2018; @vehtari2020]. It
 prioritises the accuracy of the joint prediction.
 
-*Pseudo-BMA* takes weights proportional to the expected log pointwise
-predictive density of each model [@vehtari2020], estimating relative predictive
-accuracy. It can be combined with a Bayesian bootstrap, which accounts for the
-uncertainty of a finite sample and pulls the weights away from 0 and 1.
+*Pseudo-BMA* takes weights proportional to the exponential of the expected log
+pointwise predictive density of each model [@Yao2018; @vehtari2020], estimating
+relative predictive accuracy. It can be combined with a Bayesian bootstrap,
+which accounts for the uncertainty of a finite sample and pulls the weights away
+from 0 and 1.
 
-Pseudo-BMA with the Bayesian bootstrap is the default, and `bayesnec` passes it
-explicitly. The summary above names it, as `Method: pseudobma_bb_weights`. The
-reasoning is that the purpose of averaging here is to represent uncertainty about
-the shape of the curve rather than to minimise prediction error, and that
-stacking is not well suited to the sample sizes concentration-response
-experiments produce.
+Pseudo-BMA with the Bayesian bootstrap is the `bayesnec` default, and `bayesnec`
+passes it explicitly. The summary above names it, as
+`Method: pseudobma_bb_weights`. The reasoning is that the purpose of averaging here is to
+represent uncertainty about the shape of the curve rather than to minimise
+prediction error, and that stacking is not well suited to the sample sizes
+concentration-response experiments produce.
 
 The default has not always been applied consistently, which matters when reading
 an older analysis. `loo::loo_model_weights()` resolves an unspecified method to
@@ -329,13 +334,13 @@ unspecified. A set assembled with `c()` or `amend()` could therefore be weighted
 by stacking while the same set fitted in one `bnec()` call was weighted by
 pseudo-BMA. Both routes now pass pseudo-BMA. The default is supplied where the
 set is assembled rather than at each entry point, so `c()`, `+`, `amend()` and
-`update()` weight a set as `bnec()` does, and the method used is recorded on the
-weights as `attr(mod_stats$wi, "method")`. Checked under `bayesnec` 2.1.3.39
-with `loo` 2.8.0: the two fits in the packaged `manec_example`, pulled out and
-recombined with `c()`, report `pseudobma`, as does the set fitted in one
-`bnec()` call. Weights from an older analysis are not necessarily comparable
-with weights computed now, which is one more reason to record the package
-version alongside the models fitted.
+`update()` weight a set built with the defaults as `bnec()` does, and the method
+used is recorded on the weights as `attr(mod_stats$wi, "method")`. Checked under
+`bayesnec` 2.1.3.39 with `loo` 2.8.0: the two fits in the packaged
+`manec_example`, pulled out and recombined with `c()`, report `pseudobma`, as
+does the set fitted in one `bnec()` call. Weights from an older analysis are not
+necessarily comparable with weights computed now, which is one more reason to
+record the package version alongside the models fitted.
 
 The method is changed through the `loo_controls` argument of `bnec()` or
 `amend()`, which takes a named list with elements `fitting` and `weights`:
@@ -390,8 +395,8 @@ curve_params(bmanecfit_more)
 ```
 
 The rows are per equation and nothing is averaged across them, because the
-equations do not share a parameter list: `ecxexp` has no `bot`, and only the
-threshold equations estimate `nec`. Averaging a parameter over whichever
+equations do not share a parameter list: only `ecxll3` estimates `ec50`, and only
+the threshold equations estimate `nec`. Averaging a parameter over whichever
 equations happen to estimate it would average over a different subset of the set
 for each parameter, under weights computed for the set as a whole. The model
 weight is reported beside each row instead, which is what makes the table
@@ -451,7 +456,7 @@ disagree with the first the moment both were set. `future` and `future.apply` ar
 suggested rather than required packages, so a session without them, or without a
 plan, fits the models one after another exactly as earlier versions did.
 
-The two levels nest rather than compete. Under a plan of more than one worker,
+The two levels of parallelism are nested. Under a plan of more than one worker,
 `bnec()` passes `cores = 1` to `brm()`, because otherwise `workers` multiplied by
 `chains` processes would be requested, which is sixteen for four workers and the
 default four chains. Passing `cores` yourself is left alone, and is how the two
@@ -482,7 +487,8 @@ slow.
 
 Under a forked plan, use the `cmdstanr` backend. `rstan` compiles each model into
 the session's temporary directory, which a forked worker shares with the process
-it was forked from, so several models compiling at once collide there.
+it was forked from, and the `bayesnec` documentation reports thirteen models
+compiling at once in eight forked workers all failing there.
 
 Test a plan on something small before committing a long run to it. Fit two models
 with a low `iter` under the plan you intend to use and confirm that it returns.
@@ -501,14 +507,15 @@ compiled-program cache emptied first:
 | two workers | 226.4 |
 | four workers | 174.2 |
 | eight workers | 149.9 |
+| five workers, four chains each on four cores | 153.5 |
 
 Run again with the programs already compiled, the same five configurations took
 99, 114, 108, 101 and 94 seconds. Two workers then took longer than no plan at
 all.
 
-The difference between the two tables is which run is being timed. A first fit on
-a machine where the Stan programs have not been built is dominated by
-compilation, which is single-threaded per program, so a plan of *n* workers
+The difference between the two sets of timings is which run is being timed. A
+first fit on a machine where the Stan programs have not been built is dominated
+by compilation, which is single-threaded per program, so a plan of *n* workers
 compiles *n* at a time and the elapsed time halves at eight workers. A repeat
 against a warm cache is dominated by sampling, and for models as small as these
 there is nothing left to gain. Where a single model takes minutes rather than
@@ -546,6 +553,8 @@ threshold and two smooth, across designs varying in the number of test
 concentrations, the number of replicates within each, and the number of
 individuals per replicate. Because the generating curve was known, both the
 weights and the true effect size behind each estimate could be measured.
+The weights in that study were computed from DIC by `jagsNEC`, the predecessor
+of `bayesnec`, rather than by the `loo` methods described above.
 
 ![@fisheretal2023, the source of the simulation and case study results in this section. The paper is open access under CC BY 4.0, and the code for every result in it is at <https://github.com/open-AIMS/NSEC_IEAM>.](images/ieam_head.jpg){#fig-ieam width=100% fig-align="center"}
 
@@ -569,27 +578,28 @@ designs with the poorest sampling effort, falling to about 1% on average for the
 most replicated design simulated. For data generated from a threshold curve the
 averaged estimate was close to the true *NEC*, because the threshold equations
 took the weight; for data generated from a smooth curve it was close to the
-*NSEC*. That is the behaviour model averaging is relied on for, measured rather
-than assumed.
+*NSEC*.
 
-Design also affected the **EC~x~** estimates, which tended to be larger than
+Design also affected the EC~x~ estimates, which tended to be larger than
 their theoretical value where sampling effort was low, with the bias decreasing
 as effort increased.
 
 ### A case study
 
-The same comparison was made on real data. For *Stylophora variolaris*, the
-weight was divided between two smooth equations and the *NEC* returned by the set
-was definitively higher than the EC10.
+The same comparison was made on real data. For the sea urchin *Stomopneustes
+variolaris*, the weight was divided between two smooth equations, and the *NEC*
+estimated from the threshold equations alone was clearly higher than the EC10.
 
 ![The *S. variolaris* case study of @fisheretal2023. Two smooth Weibull equations take the weight, 0.59 and 0.41. The solid line is the N(S)EC at 140 µg L^-1^, the dotted line the EC10 at 530 µg L^-1^, and the dashed line the *NEC* at 800 µg L^-1^.](images/svariolis.jpg){#fig-svariolis width=70% fig-align="center"}
 
-The N(S)EC of 140 µg L^-1^ was the most conservative of the three and represented
-a measured effect of about 1.5%. The *NEC* of 800 µg L^-1^ was the least
-conservative, which is what fitting a threshold to smooth data produces. Across
-the case studies examined, the measured effect at the N(S)EC ran from 1.5% to
-6.6%, and in every case the N(S)EC was higher than the *NOEC* calculated from the
-same data.
+The N(S)EC of 140 µg L^-1^ was the most conservative of the three and
+represented a measured effect of about 1.5%. The *NEC* of 800 µg L^-1^ was the
+least conservative, which is what fitting a threshold to smooth data produces.
+The N(S)EC was higher than the *NOEC* calculated from the same data, 31.8 µg
+L^-1^. Across the five species in the paper's two case studies, the measured
+effect at the N(S)EC ran from 1.5% to 6.6%. The N(S)EC was not always above the
+*NOEC*: for copper toxicity to the microalga *Cryothecomonas armigera* it was
+lower.
 
 ## Open questions
 

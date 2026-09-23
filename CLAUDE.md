@@ -145,14 +145,26 @@ noticed while delivering the course. The replacements are
 |---|---|---|
 | binomial, beta-binomial | `example_binomial.csv` | whole file |
 | beta | `coral_pam` | `climate == "2018"` |
-| Poisson, negative binomial | `alga` | `c_proliferum`, contaminant A, `density` |
-| gamma, dispersion | `lum31` | plate `Zn 28Mar24 Rep1B`, `rlu` |
+| Poisson, negative binomial | `alga` | `c_proliferum`, contaminant B, `density` |
+| gamma, dispersion | `lum31` | plate `Zn 28Mar24 Rep1B`, 15-minute reading, `rlu` |
 | Gaussian | `alga` | same subset, `sgr` |
 | hurdle gamma | `nassarius` | contaminant A |
 
 Do not replace any of these with a transform of another dataset. The module
 teaches matching a family to a response, and a constructed response tests the
 construction rather than the choice.
+
+The equation each example fits was chosen on 2026-09-23 by
+`scripts/screen_module5_models.R`, which fits `model = "all"` to every example
+and records `check_sampling()`, `check_fit()` and the weights in
+`notes/module5-model-screen/`. Its data preparation is `scripts/module5_data.R`,
+shared with `generate_module5_fits.R`. The screen moved the counts and growth
+rate from contaminant A to B, because no equation reproduced contaminant A's
+spread, and showed that the beta, gamma and hurdle growth spread failures are
+not repaired by any equation. The beta and gamma are repaired with
+`disp("power")`; `bnec_hurdle()` cannot take a `disp()` term (`bayesnec` #410). The `lum31` gamma
+uses the 15-minute reading only, because the 15- and 30-minute readings are the
+same wells (RF, 2026-09-23). Module 8 still pools both readings.
 
 `0Overview.Rmd` is the retired 2023 course outline, still tracked, still carrying module
 1's old title. `index.qmd` has replaced it.
@@ -215,7 +227,7 @@ from under a running script.
 ## 5. Data files and their availability
 
 **The fitted objects live in `vignettes/fits/`, which is git-ignored, and are
-distributed as a release asset.** 23 objects, 38.9 MB zipped, built by
+distributed as a release asset.** 24 objects, 39.5 MB zipped, built by
 `scripts/bundle_fits.R` into `dist/` and published under the fixed tag `fits`:
 
 ```bash
@@ -399,7 +411,10 @@ What is outstanding, as of 2026-09-19:
 second replaced module 5's five constructed fits with fits to published
 datasets and merged its two dispersion fits into one, leaving 23 objects at
 38.9 MB. Each upload was verified by running `fetch_fits.R` against the
-published asset from an empty directory.
+published asset from an empty directory. A third rebuild on 2026-09-23 refitted
+module 5's beta, count, gamma and Gaussian examples with the equations the
+screen chose (§3) and added `m5_exp_2_disp`, leaving 24 objects at 39.5 MB. It
+was uploaded on 2026-09-24 and verified the same way.
 
 **Module 6's two videos have not been trimmed.** They are StataCorp's
 *Introduction to Bayesian statistics* parts 1 and 2, and each runs into

@@ -18,15 +18,15 @@ set.seed(333)
 
 `bayesnec` [@fisheretal2024] fits concentration-response curves to toxicity data and derives
 no-effect concentration (*NEC*), no-significant-effect concentration (*NSEC*,
-@fisherfox2023) and effect concentration (**EC~x~**) estimates from non-linear
+@fisherfox2023) and effect concentration (*EC~x~*) estimates from non-linear
 models fitted by Bayesian Hamiltonian Monte Carlo, via `brms`
 [@Burkner2017; @Burkner2018] and Stan. It is an extension of `jagsNEC`
 [@Fisher2020].
 
-This module fits one model to one dataset and works through what is done with
-the result: looking inside the fitted object, plotting it, and extracting
-toxicity estimates. Later modules cover the full model set, model averaging, the
-choice of statistical distribution, priors, and the checks that go with each.
+One model is fitted here to one dataset, and the result is then examined,
+plotted and used to extract toxicity estimates. Later modules cover the full
+model set, model averaging, the choice of statistical distribution, priors,
+and the checks that go with each.
 
 If you have not yet installed R, a C++ compiler, CmdStan and `bayesnec`, work
 through the [software setup](0Software-setup.qmd) first. Nothing in this module
@@ -63,11 +63,13 @@ A Bayesian model is fitted by drawing samples, which module 6 describes, so
 running the same code twice gives slightly different numbers unless the random
 number generator is set to a known state.
 
-Two generators are involved and both have to be fixed. `bnec()` searches for
-valid starting values in R before it calls Stan, and that search draws from R's
-own generator, which `set.seed()` fixes. Stan then samples using a generator of
-its own, which the `seed` argument fixes. Setting one and not the other leaves
-the fit irreproducible, so every fit in this course sets both.
+Two random draws are involved. `bnec()` searches for valid starting values in R
+before it calls Stan, and Stan then samples. Either `set.seed()` before the call
+or the `seed` argument fixes both. `bnec()` uses `seed` to seed the search for
+starting values as well as passing it to Stan, and without it Stan's seed is
+drawn from R's generator, which `set.seed()` has already fixed. Every fit in
+this course sets both, and `?bnec` describes the cases, such as fitting a model
+set in parallel, where the two are not equivalent.
 
 ```{r}
 #| label: seed
@@ -96,20 +98,21 @@ groups. Run `?bnec` for the full list.
 - **How a model set is weighted, and when a fit that will not return is
   abandoned:** `loo_controls`, `timeout`. Module 4 covers both.
 
-`model`, `x_var`, `y_var` and `trials_var` named the equation and the columns
-before version 2.0. They are still accepted and warn that the formula has been
-used instead.
+`model`, `x_var`, `y_var`, `trials_var`, `random` and `random_vars` named the
+equation, the columns and the grouping terms before version 2.0. They are still
+accepted and warn that the formula has been used instead.
 
 Anything else is passed through to `brms::brm()` by `...`, so the full `brm`
-argument list is available. `bayesnec` sets three of those arguments differently
-from `brms`: it generates its own `family` and `prior` rather than taking the
-`brms` defaults, and it raises `iter` from 2,000 to 10,000 with a
-correspondingly longer warm-up, because the non-linear models here often need
-it.
+argument list is available. `bayesnec` sets several of those arguments
+differently from `brms`: it generates its own `family`, `prior` and `init`
+rather than taking the `brms` defaults, it sets `sample_prior = "yes"` so that
+the prior is sampled alongside the posterior, and it raises `iter` from 2,000 to
+10,000 with a correspondingly longer warm-up, because the non-linear models here
+often need it.
 
 ::: {.callout-note collapse="true" title="Iterations, warm-up and retained draws"}
 
-Compare the **retained** draws rather than `iter`, because the fraction
+Compare the retained draws rather than `iter`, because the fraction
 discarded during warm-up is a choice each package makes for itself.
 
 | Package | Chains | `iter` | Discarded as warm-up | Retained draws |
@@ -198,7 +201,8 @@ load("vignettes/fits/m2_bnec_fit.RData")
 Three things happen when that call runs.
 
 - **Compilation.** Stan models are written in the Stan language, translated to
-  C++ and compiled to a shared object, which R then loads and runs. This is why
+  C++ and compiled. Under `cmdstanr` the result is a program that runs outside
+  R; under `rstan` it is a shared object loaded into R. This is why
   the first fit of a session is slower than later ones, and why a compiler is
   needed at all.
 - **Sampling.** How long this takes depends on the machine, the number of chains
@@ -211,10 +215,10 @@ Three things happen when that call runs.
 Set two options before fitting. `mc.cores` decides how many chains run at the
 same time rather than in turn, so set it to at least the number of chains.
 `brms.backend` decides which interface to Stan is used, and `brms` uses `rstan`
-unless told otherwise. `rstan` compiles a model a good deal more slowly: the two
-fits in this module took 199 seconds under `rstan` and 73 under `cmdstanr` on
-the same four-core machine, almost all of the difference being compilation
-rather than sampling.
+unless told otherwise. `rstan` compiles a model a good deal more slowly: this
+fit and an `ecxll3` fit to the same data took 199 seconds together under `rstan`
+and 73 under `cmdstanr` on the same four-core machine, almost all of the
+difference being compilation rather than sampling.
 
 ```{r}
 #| label: cores
@@ -298,8 +302,8 @@ Five things are printed, in the order they appear.
   `bayesnec` returns a `bayesnecfit` when one model is fitted and a
   `bayesmanecfit` when a set is fitted.
 - **The family and link.** The beta distribution with an **identity link**.
-  `bayesnec` uses the identity link for every family, which is not the `brms`
-  default.
+  `bayesnec` uses the identity link for every family unless a link is named in
+  the call, where `brms` defaults to the logit link for a beta response.
 - **The `brms` formula that was fitted.** For `nec3param` this is a constant
   `top` until the concentration reaches `nec`, followed by exponential decay,
   with the switch implemented by `step()`. Module 3 sets out the equations.
@@ -313,9 +317,10 @@ Five things are printed, in the order they appear.
 
 ::: {.callout-note collapse="true" title="The identity link"}
 
-The link will mean something only to a reader familiar with generalised linear
-models, which are usually parameterised for linear modelling. A beta response in
-`brms` defaults to the logit link.
+In a generalised linear model the link function relates the mean of the
+response to the scale on which the model is written. A beta response in `brms`
+defaults to the logit link, so a curve written for `mu` would be fitted to the
+logit of the mean rather than to the mean.
 
 `bayesnec` overrides that for every family, so that the `top`, `bot` and `nec`
 parameters stay on the scale of the response and remain directly interpretable.
@@ -401,14 +406,18 @@ plot(cf)
 ```
 
 `check_fit()` returns a table of one row per group of the predictor and plots
-the same comparison. A point outside its bar is a group the model does not
-reproduce, and no point falls outside its bar here.
+the same comparison. Because `nec_data` has no replicated concentrations, the
+predictor is cut into ten bins of ten observations, with a warning. A point
+outside its bar is a group the model does not reproduce, and no point falls
+outside its bar here. The mean of the group from 0.726 to 0.876 sits at the top
+of its bar, and printing `cf` flags it with a posterior predictive p-value of
+0.027; one comparison that close to its limit is expected by chance among the
+twenty in the plot.
 
-Read `failed` and the plot, and leave the rest until the modules that need it.
-Module 5 uses `check_fit()` to decide whether a statistical family reproduces
-the observed spread, which is the choice it exists to inform. Module 7 sets out
-what each sampler diagnostic measures, what to do when one is missed, and what
-both checks contribute to a written analysis.
+Read the `failed` column of `check_sampling()` and the plot of `check_fit()`,
+and leave the rest until the modules that need it. Module 5 uses `check_fit()`
+to decide whether a statistical family reproduces the observed spread. Module 7
+covers what both checks contribute to a written analysis.
 
 `pull_brmsfit()` returns the `brms` model inside the fit, which is how any
 `brms` method is reached. Plotting it gives the marginal posterior of each
@@ -436,7 +445,7 @@ names(bnec_fit)
 ```
 
 `pred_vals` holds fitted values across the range of the predictor, which is what
-the plotting methods use and what you would use for a custom figure:
+`plot()` draws and what you would use for a custom figure:
 
 ```{r}
 #| label: predvals
@@ -492,7 +501,7 @@ nsec(bnec_fit)
 
 Each returns a median and a 95% probability interval by default, and each
 records how it was computed in the attributes of the returned object: `ecx()`
-returns an **EC10** unless told otherwise, and `nsec()` uses a significance
+returns an *EC~10~* unless told otherwise, and `nsec()` uses a significance
 value of 0.01.
 
 For this dataset the three estimates are close together, which happens when the
@@ -502,10 +511,9 @@ each of them measures and when each is appropriate.
 
 ## The parameters of the curve
 
-`summary()` reports the toxicity estimate and the fit statistics, and for a
-single model the parameters are reachable through the underlying `brmsfit`.
-`curve_params()` returns them directly, and returns them for a model-averaged set
-as well, which nothing else does:
+For a single model `summary()` prints the parameters in the `brms` coefficient
+table. For a model-averaged set it does not print them. `curve_params()` returns
+them for both:
 
 ```{r}
 #| label: curve-params
@@ -514,19 +522,21 @@ curve_params(bnec_fit)
 
 These are the quantities the toxicity estimates are read from, and they belong in
 a methods section beside them. `top` is the control level the curve is referenced
-to, `beta` is the decay rate, and `nec` is the threshold. A four-parameter
-equation would add `bot`, the lower asymptote.
+to, `nec` is the threshold, and `beta` is the natural logarithm of the decay
+rate, since the fitted formula uses `exp(beta)`: the estimate of 0.54 is a rate
+of about 1.72 per unit of concentration. A four-parameter equation would add
+`bot`, the lower asymptote.
+
+Where the predictor was transformed in the formula, the `xform` argument
+returns an estimate to the measured scale. `curve_params()` applies it to `nec`
+and `ec50` and to no other parameter, because those two are measured on the
+predictor axis while `top`, `bot` and `beta` are levels of the response or shape
+parameters. Module 7 covers the choice of scale for the predictor.
 
 Everything above is one fit of one equation. Module 3 sets out the equations
 available and what each estimate measures, module 4 fits a set of them at once,
 and module 6 covers what the posterior draws behind every one of these numbers
 can be used for.
-
-Where the predictor was transformed in the formula, the `xform` argument
-returns an estimate to the measured scale, and it reaches `nec` and `ec50` and
-no other parameter, because those two are measured on the predictor axis while
-`top`, `bot` and `beta` are levels of the response or shape parameters. Module 7
-decides the scale of the predictor and works through what the choice is worth.
 
 ## References
 

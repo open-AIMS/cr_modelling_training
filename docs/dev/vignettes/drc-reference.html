@@ -417,6 +417,11 @@ Residual standard error:
 </div>
 <p>A four-parameter <code>drc</code> model reports parameters named <code>b</code>, <code>c</code>, <code>d</code> and <code>e</code>:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
 <th></th>
@@ -428,7 +433,7 @@ Residual standard error:
 <tr class="odd">
 <td><code>b</code></td>
 <td>slope, sometimes the hill slope</td>
-<td><code>beta</code> or <code>slope</code></td>
+<td><code>beta</code>, which the <code>bayesnec</code> equations use as <code>exp(beta)</code></td>
 </tr>
 <tr class="even">
 <td><code>c</code></td>
@@ -442,14 +447,14 @@ Residual standard error:
 </tr>
 <tr class="even">
 <td><code>e</code></td>
-<td>inflection point</td>
+<td>the concentration halfway between <code>d</code> and <code>c</code></td>
 <td><code>ec50</code></td>
 </tr>
 </tbody>
 </table>
-<p>The estimates above are a slope of 7.85, a lower asymptote indistinguishable from zero, an upper asymptote of 0.897, and an inflection at 1.995. Where the asymptotes span the full possible response range, <code>e</code> is the EC50, and that holds here because the lower asymptote is zero.</p>
-<p>Each parameter comes with a test of whether it differs from zero. That test is seldom the question of interest. A lower asymptote indistinguishable from zero, as here, is a reason to consider a three-parameter model with the lower limit fixed, not evidence about toxicity.</p>
-<p>Residuals can be examined for a continuous response, though not for binomial or count data:</p>
+<p>The estimates above are a slope of 7.85, a lower asymptote indistinguishable from zero, an upper asymptote of 0.897, and <code>e</code> at 1.995. <code>e</code> is always the concentration at which the response is halfway between <code>d</code> and <code>c</code>. Where <code>c</code> is zero, as here, it is also the concentration at which the response has fallen to half its control level.</p>
+<p>Each parameter comes with a test of whether it differs from zero. That test is seldom the question of interest. A lower asymptote indistinguishable from zero, as here, is a reason to consider a three-parameter model with the lower limit fixed at zero. It says nothing about toxicity.</p>
+<p>For a continuous response fitted with a Gaussian error the residuals should be approximately normal, and that can be checked. For binomial or count data they are not expected to be normal, so a normality test does not apply:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">r =</span> <span class="fu">residuals</span>(model_LL4)), <span class="fu">aes</span>(r)) <span class="sc">+</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">fill =</span> <span class="st">"grey80"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
@@ -502,7 +507,7 @@ Residual standard error:
  0.04145488 (97 degrees of freedom)</code></pre>
 </div>
 </div>
-<p>The threshold is the <code>e</code> parameter, estimated at 1.523, with <code>d</code> the level of the response below it.</p>
+<p>The threshold is the <code>e</code> parameter, estimated at 1.523, with <code>d</code> the response level at concentrations below it.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(model_NEC3)[<span class="st">"e:(Intercept)"</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -616,7 +621,7 @@ increasing 1.511092 2.494251</code></pre>
 <tr class="odd">
 <td><code>"relative"</code> (default)</td>
 <td>percentage of the fitted range <code>d − c</code></td>
-<td><code>"range"</code></td>
+<td><code>"relative"</code>, from the control to the <code>bot</code> parameter</td>
 </tr>
 <tr class="even">
 <td><code>"absolute"</code></td>
@@ -625,19 +630,24 @@ increasing 1.511092 2.494251</code></pre>
 </tr>
 <tr class="odd">
 <td>—</td>
+<td>percentage of the span from the control to the lowest predicted response</td>
+<td><code>"range"</code></td>
+</tr>
+<tr class="even">
+<td>—</td>
 <td>percentage decline from the control to zero</td>
 <td><code>"absolute"</code> (default)</td>
 </tr>
 </tbody>
 </table>
-<p><code>drc</code>’s <code>"absolute"</code> asks for the concentration at which the response equals the number supplied, so <code>ED(model_LL4, 10, type = "absolute")</code> asks where the response equals 10. This response is bounded near 1, so no such concentration exists and the call fails:</p>
+<p><code>drc</code>’s <code>"absolute"</code> asks for the concentration at which the response equals the number supplied, so <code>ED(model_LL4, 10, type = "absolute")</code> asks where the response equals 10. This response is bounded near 1, so no such concentration exists, and the call returns <code>NaN</code> with a warning:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ED</span>(model_LL4, <span class="dv">10</span>, <span class="at">type =</span> <span class="st">"absolute"</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in log(exp(-tempVal/parmVec[5]) - 1): NaNs produced</code></pre>
 </div>
 </div>
-<p>The error is the correct behaviour. It is shown because the same word is the default in <code>bayesnec</code> and means a percentage there, so translating <code>ecx(fit, type = "absolute")</code> into <code>ED(m, 10, type = "absolute")</code> changes the question being asked.</p>
+<p>A missing value is the correct result. It is shown because the same word is the default in <code>bayesnec</code> and means a percentage there, so translating <code>ecx(fit, type = "absolute")</code> into <code>ED(m, 10, type = "absolute")</code> changes the question being asked.</p>
 </section>
 <section id="agreement-between-the-engines" class="level3">
 <h3 class="anchored" data-anchor-id="agreement-between-the-engines">Agreement between the engines</h3>
@@ -655,11 +665,11 @@ increasing 1.511092 2.494251</code></pre>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">ecx</span>(bnec_ecx4, <span class="at">ecx_val =</span> <span class="dv">50</span>, <span class="at">type =</span> <span class="st">"range"</span>)[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  quantity drc_relative bayesnec_range
-1     EC10     1.507871       1.514011
-2     EC50     1.995000       1.995596</code></pre>
+1     EC10     1.507871       1.513310
+2     EC50     1.995000       1.995123</code></pre>
 </div>
 </div>
-<p>The EC50 estimates agree to three decimal places. The EC10 estimates differ by about half a per cent, and the <code>drc</code> estimate falls inside the <code>bayesnec</code> credible interval. Two different engines, fitting two differently parameterised four-parameter curves by two different methods, return the same numbers to the precision anyone would report.</p>
+<p>The EC50 estimates differ by less than 0.001. The EC10 estimates differ by about half a per cent, and the <code>drc</code> estimate falls inside the <code>bayesnec</code> credible interval. The two fits differ in more than their method. <code>LL.4</code> is logistic in log concentration and <code>ecx4param</code> is logistic in concentration, and <code>drc</code> fits a Gaussian error where <code>bnec()</code> chose a beta family for these proportions. They still return the same estimates to the precision that would be reported.</p>
 </section>
 <section id="divergence-between-the-engines" class="level3">
 <h3 class="anchored" data-anchor-id="divergence-between-the-engines">Divergence between the engines</h3>
@@ -710,7 +720,7 @@ increasing 1.511092 2.494251</code></pre>
 <img src="drc-reference_files/figure-html/fig-anchors-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anchors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: The same fitted curve, with the two targets a ten per cent effect can mean. The upper dashed line is ten per cent of the fitted range below the control; the lower is ten per cent of the control.
+Figure&nbsp;4: The same fitted curve, with the two targets a ten per cent effect can mean. The upper dashed line is ten per cent of the fitted range below the control; the lower is ten per cent below the control.
 </figcaption>
 </figure>
 </div>
@@ -767,12 +777,12 @@ Figure&nbsp;5: The derived NSEC. The horizontal line is the lower bound on the c
 </div>
 </div>
 </div>
-<p>The derivation above reads the control’s uncertainty off the <code>d</code> parameter because <code>predict(model_NEC3, se.fit = TRUE)</code> returns no standard error for this fit. That is one instance of a wider problem with <code>drc</code> standard errors, described at the end of this page.</p>
-<p>Two things separate this from the <code>bayesnec</code> <em>NSEC</em>. The bound here is a normal approximation from one standard error, where <code>bayesnec</code> takes a quantile of the control posterior. And there is no interval on the result, because propagating the uncertainty in both the control and the curve through the crossing would require the delta method or a bootstrap.</p>
+<p>The derivation above reads the control’s uncertainty off the <code>d</code> parameter because <code>predict(model_NEC3, se.fit = TRUE)</code> returns no standard error for this fit. <code>NEC.3()</code> supplies no derivatives of its mean function, and without them <code>predict()</code> returns the fitted values alone, with no warning.</p>
+<p>Two things separate this from the <code>bayesnec</code> <em>NSEC</em>. The bound here is a normal approximation built from the standard error of <code>d</code>, where <code>bayesnec</code> takes a quantile of the control posterior. And there is no interval on the result, because propagating the uncertainty in both the control and the curve through the crossing would require the delta method or a bootstrap.</p>
 </section>
 <section id="model-averaging" class="level2">
 <h2 class="anchored" data-anchor-id="model-averaging">Model averaging</h2>
-<p><code>drc</code> selects among candidates by information criterion:</p>
+<p><code>mselect()</code> ranks candidate mean functions by an information criterion, AIC by default:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mselect</span>(model_LL4, <span class="fu">list</span>(<span class="fu">LL.3</span>(), <span class="fu">W1.4</span>(), <span class="fu">W2.4</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -784,7 +794,7 @@ W1.4 157.1969 -304.3938          NA 0.002629416</code></pre>
 </div>
 </div>
 <p><code>W2.4</code> has the lowest information criterion at −338.2, followed by <code>LL.3</code> at −320.6.</p>
-<p>It also averages, through <code>maED()</code>, using Akaike weights and a Buckland unconditional interval:</p>
+<p><code>maED()</code> averages effect concentrations over the candidates using Akaike weights. A Buckland unconditional interval is available through <code>interval = "buckland"</code>; the default, used here, returns no interval:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">maED</span>(model_LL4, <span class="fu">list</span>(<span class="fu">LL.3</span>(), <span class="fu">LL.4</span>(), <span class="fu">W1.4</span>(), <span class="fu">W2.4</span>()), <span class="dv">10</span>, <span class="at">display =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -792,9 +802,9 @@ W1.4 157.1969 -304.3938          NA 0.002629416</code></pre>
 e:1:10 1.564547</code></pre>
 </div>
 </div>
-<p>The averaged EC10 is 1.565. The four candidates individually give 1.508, 1.508, 1.462 and 1.565, so the average sits at the value from <code>W2.4</code>, which took almost all of the Akaike weight because its information criterion is nearly twenty units below the others.</p>
+<p>The averaged EC10 is 1.565. The four candidates individually give 1.508, 1.508, 1.462 and 1.565, so the average sits at the value from <code>W2.4</code>, which took almost all of the Akaike weight because its information criterion is 17.6 units below the next.</p>
 <p>Two properties of <code>maED()</code> are visible in <code>drc::maED</code> itself and matter before relying on it. It takes <code>na.rm = FALSE</code> and threads that through every <code>sum()</code>, so one candidate whose root-finder fails renders every averaged value missing rather than being dropped. And it forms weights as <code>exp(-AIC/2)</code> without centring on the minimum AIC, so once AIC reaches a few thousand every term underflows to zero in double precision and the weights become <code>0/0</code>. Centring on the minimum resolves this and changes nothing where the uncentred form works.</p>
-<p>The difference from <code>bayesnec</code> is one of default rather than of capability. <code>bayesnec</code> averages unless asked to fit a single equation; <code>drc</code> fits one equation unless asked to average, and the uncertainty in which equation was selected does not appear in the interval of a single selected fit.</p>
+<p>Both packages can fit one equation or average over several, and they differ in the default. <code>bayesnec</code> averages unless asked to fit a single equation; <code>drc</code> fits one equation unless asked to average, and the uncertainty in which equation was selected does not appear in the interval of a single selected fit.</p>
 </section>
 <section id="comparing-groups" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-groups">Comparing groups</h2>
@@ -812,7 +822,7 @@ Estimated ratios of effect doses
 24h/48h:50/50 3.4021279  0.8182594 2.9356556 0.0033284</code></pre>
 </div>
 </div>
-<p>The ratio of the two EC50 values is 3.40 with a p-value of 0.003, so the 24-hour and 48-hour curves differ. <code>bayesnec</code> answers the same question by comparing posteriors and returns a probability that one estimate is lower than the other, which module 7 covers.</p>
+<p>The ratio of the two EC50 values is 3.40 with a p-value of 0.003 against a ratio of one, so the 24-hour and 48-hour EC50 values differ. <code>bayesnec</code> answers the same question by comparing posteriors and returns a probability that one estimate is lower than the other, which module 8 covers.</p>
 </section>
 <section id="agreement-and-divergence" class="level2">
 <h2 class="anchored" data-anchor-id="agreement-and-divergence">Agreement and divergence</h2>
@@ -867,14 +877,14 @@ Estimated ratios of effect doses
 </tr>
 </tbody>
 </table>
-<p>A confidence interval and a credible interval are not the same quantity. A credible interval states where the parameter lies with a given probability, given the data, the model and the priors. A confidence interval states that the procedure producing it would contain the true value in that proportion of repeated experiments. The sentence a risk assessment usually wants — that there is a 95 per cent probability the <em>NEC</em> lies between two values — follows from the first and not from the second. Both are abbreviated CI, and <code>brms</code> prints <code>l-95% CI</code>, so the interval type is worth naming in a results table.</p>
+<p>A confidence interval and a credible interval are not the same quantity. A credible interval states where the parameter lies with a given probability, given the data, the model and the priors. A confidence interval states that the procedure producing it would contain the true value in that proportion of repeated experiments. A risk assessment usually wants to state that there is a 95 per cent probability the <em>NEC</em> lies between two values, and that statement follows from the first and not from the second. Both are abbreviated CI, and <code>brms</code> prints <code>l-95% CI</code>, so name the interval type in a results table.</p>
 <p>The distributional assumptions differ and the point estimates will differ with them. A continuous positive response will commonly be fitted Gaussian in <code>drc</code> where <code>bayesnec</code> selects a gamma, and the Gaussian fit is influenced more by the high-response observations. A difference between the engines is not by itself evidence that either is wrong.</p>
-<p><code>drc</code> intervals can be too narrow, or missing. Under <code>type = "Poisson"</code> the variance is fixed equal to the mean, so an over-dispersed count response gets intervals narrower than the data support by roughly the square root of the dispersion; report the dispersion alongside the interval rather than rescaling it, since changing the variance assumption changes the model. Separately, the delta-method standard error is <code>NaN</code> wherever the variance calculation goes negative, which is neither rare nor confined to poor fits, and each occurrence arrives as its own <code>"NaNs produced"</code> warning. The NSEC derivation above met this in a mild form. Where standard errors feed a model average, dropping candidates as their errors become unavailable changes what the average is an average of, so fix the candidate set for the whole curve rather than point by point.</p>
+<p><code>drc</code> intervals can be too narrow, or missing. Under <code>type = "Poisson"</code> the variance is fixed equal to the mean, so an overdispersed count response gets intervals narrower than the data support by roughly the square root of the dispersion; report the dispersion alongside the interval rather than rescaling it, since changing the variance assumption changes the model. Separately, the delta-method standard error is <code>NaN</code> wherever the variance calculation goes negative, which is neither rare nor confined to poor fits, and each occurrence arrives as its own <code>"NaNs produced"</code> warning. Where standard errors feed a model average, dropping candidates as their errors become unavailable changes what the average is an average of, so fix the candidate set for the whole curve rather than point by point.</p>
 </section>
 <section id="choosing-between-them" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-between-them">Choosing between them</h2>
-<p>For a well-determined monotonic curve with adequate replication, fitted with the same distribution in both, the two engines return much the same answer, as the EC50 comparison above shows, and <code>drc</code> returns it in seconds rather than minutes.</p>
-<p>The Bayesian route repays its overhead where the problem is harder: where priors are needed to stabilise a non-linear fit, where the candidate set does not identify one curve, where an interval is wanted on a derived quantity such as the <em>NSEC</em>, or where the posterior itself is needed to propagate uncertainty into a species sensitivity distribution or to state the probability that one substance is more toxic than another.</p>
+<p>For a well-determined monotonic curve with adequate replication, fitted with the same distribution in both, the two engines return much the same answer, and <code>drc</code> returns it in seconds rather than minutes. The EC50 comparison above agreed even with a Gaussian error in <code>drc</code> and a beta family in <code>bayesnec</code>.</p>
+<p>The longer run time of a Bayesian fit is justified where the problem is harder: where priors are needed to stabilise a non-linear fit, where the candidate set does not identify one curve, where an interval is wanted on a derived quantity such as the <em>NSEC</em>, or where the posterior itself is needed to propagate uncertainty into a species sensitivity distribution or to state the probability that one substance is more toxic than another.</p>
 </section>
 <section id="provenance" class="level2">
 <h2 class="anchored" data-anchor-id="provenance">Provenance</h2>
@@ -884,7 +894,7 @@ Estimated ratios of effect doses
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>drc        3.0.1
-bayesnec   2.1.3.35
+bayesnec   2.1.3.39
 brms       2.23.0</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-10s %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"R"</span>, <span class="fu">getRversion</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

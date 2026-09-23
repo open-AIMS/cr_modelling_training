@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-22">
+<meta name="dcterms.date" content="2026-09-24">
 
 <title>Software setup – Concentration-response modelling (in development)</title>
 <style>
@@ -332,7 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 22, 2026</p>
+      <p class="date">September 24, 2026</p>
     </div>
   </div>
   
@@ -355,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <p>This setup takes most people between thirty minutes and two hours, and some of it cannot be hurried: package installation and the CmdStan build both take time that depends on your machine and your network.</p>
-<p><strong>There is no time set aside during the workshop to install or repair software.</strong> If you arrive without a working installation you will be able to watch, but you will not be able to fit models alongside the demonstrations, and most of the day is spent fitting models.</p>
+<p>There is no time set aside during the workshop to install or repair software. If you arrive without a working installation you will be able to watch, but you will not be able to fit models alongside the demonstrations, and most of the day is spent fitting models.</p>
 <p>Work through this document, then run the verification check in the final section. Do it early, so that a problem has time to be resolved before the day.</p>
 </div>
 </div>
@@ -392,12 +392,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>The C++ toolchain is the part that differs by operating system, and it is the part that fails most often. On Windows it is Rtools, on macOS the Xcode Command Line Tools, and on Linux the standard build tools.</p>
-<p>Bayesian model fitting works differently from most R modelling. Each model is translated into C++, compiled into a program, and run. That is why a compiler is needed at all, and why the first fit of a session takes longer than later ones.</p>
+<p>Bayesian model fitting works differently from most R modelling. Each model is translated into C++, compiled into a program, and run. That is why a compiler is needed at all, and why the first fit of a model in a session takes longer than a repeat of the same model.</p>
 </section>
 <section id="route-by-operating-system" class="level2">
 <h2 class="anchored" data-anchor-id="route-by-operating-system">Route by operating system</h2>
-<p><strong>Windows is the tested and recommended route</strong>, and it is the one described in most detail below. The difficulties Stan had on Windows historically came from an older interface, <code>rstan</code>, which required matched versions of several compiled packages. The current interface, <code>cmdstanr</code>, avoids most of that.</p>
-<p><strong>Linux is also tested.</strong> macOS is not, because the workshop organisers have no Mac available. Mac users should follow the outline in the macOS section, which points to the authoritative upstream instructions, and then run the same verification check as everyone else. The check is what determines whether you are ready, not which instructions you followed.</p>
+<p>Windows is the tested and recommended route, and it is the one described in most detail below. The difficulties Stan had on Windows historically came from an older interface, <code>rstan</code>, which required matched versions of several compiled packages. The current interface, <code>cmdstanr</code>, avoids most of that.</p>
+<p>Linux is also tested. macOS is not, because the workshop organisers have no Mac available. Mac users should follow the outline in the macOS section, which points to the authoritative upstream instructions, and then run the same verification check as everyone else. Passing the check is what determines whether you are ready.</p>
 <p>The Windows Subsystem for Linux is a fallback for one situation only, where compilation on Windows is blocked by security policy on a machine you cannot change. It is not a simpler route: it means a second installation of R, a second package library and a different way of referring to your files. Do not start there.</p>
 <hr>
 </section>
@@ -406,19 +406,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="r-and-rtools" class="level2">
 <h2 class="anchored" data-anchor-id="r-and-rtools">R and Rtools</h2>
 <p>Install R first, then Rtools.</p>
-<p>Download R from <a href="https://cran.r-project.org/bin/windows/base/">CRAN</a> and install whichever version CRAN currently offers — do not go looking for an older one. This document was written against R 4.5.x, and has since been re-verified against R 4.6.1 (see the Linux section below); either is fine. What matters is that Rtools matches the R you install, not which minor version that is.</p>
-<p>Then install the matching <strong>Rtools</strong>, from <a href="https://cran.r-project.org/bin/windows/Rtools/">CRAN’s Rtools page</a>. CRAN’s own page names it inconsistently — you may see “Rtools45”, “RTools 4.5” or “Rtools for R 4.5.x” — these all mean the same installer. Rtools version numbers do not track R’s one-for-one: <strong>Rtools 4.5 is current for every R version from 4.5.0 onward</strong>, including R 4.6.x, so do not go looking for a separate “Rtools 4.6” — there is not one as of this writing. Check CRAN’s Rtools page for the current mapping, since this changes as new R and Rtools versions are released. Accept the default installation location.</p>
+<p>Download R from <a href="https://cran.r-project.org/bin/windows/base/">CRAN</a> and install whichever version CRAN currently offers rather than an older one. This document was written against R 4.5.x, and has since been re-verified against R 4.6.1 (see the Linux section below); either is fine. What matters is that Rtools matches the R you install, not which minor version that is.</p>
+<p>Then install the matching Rtools, from <a href="https://cran.r-project.org/bin/windows/Rtools/">CRAN’s Rtools page</a>. CRAN’s own page names it inconsistently: “Rtools45”, “RTools 4.5” and “Rtools for R 4.5.x” all mean the same installer. Rtools version numbers do not track R’s one-for-one. Rtools 4.5 is current for every R version from 4.5.0 onward, including R 4.6.x, and there is no separate “Rtools 4.6” as of this writing. Check CRAN’s Rtools page for the current mapping, since this changes as new R and Rtools versions are released. Accept the default installation location.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Rtools must match your version of R
+<span class="screen-reader-only">Warning</span>Matching Rtools to the R version
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>An Rtools built for an earlier R than the one you installed is the most common single cause of setup failure, and the error it produces does not mention version numbers. Check CRAN’s Rtools page for which Rtools release currently covers your R version — do not assume the two version numbers must match exactly, since one Rtools release can cover several R releases.</p>
+<p>An Rtools built for an earlier R than the one you installed is the most common single cause of setup failure, and the error it produces does not mention version numbers. Check CRAN’s Rtools page for which Rtools release currently covers your R version. The two version numbers need not be the same, since one Rtools release can cover several R releases.</p>
 </div>
 </div>
 </section>
@@ -446,14 +446,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>rstan is a dependency, not a step
+<span class="screen-reader-only">Note</span>rstan as a dependency
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>brms</code> installs <code>rstan</code> as a dependency. That is expected: <code>rstan</code> must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly. No further action is needed here — the next step is <code>bayesnec</code>, below.</p>
+<p><code>brms</code> installs <code>rstan</code> as a dependency. That is expected: <code>rstan</code> must be installed, but the workshop does not use it as the sampler, so it does not matter if you never call it directly. It needs no further action.</p>
 </div>
 </div>
-<p><code>bayesnec</code> is installed from the development branch, which contains changes not yet released to CRAN and is what the course material is built against. This needs the <code>remotes</code> package first — install it if you have not already:</p>
+<p><code>bayesnec</code> is installed from the development branch, which contains changes not yet released to CRAN and is what the course material is built against. This needs the <code>remotes</code> package first, so install it if you have not already:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"remotes"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then install <code>bayesnec</code> itself:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"open-AIMS/bayesnec"</span>, <span class="at">ref =</span> <span class="st">"dev"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -480,30 +480,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"C:/cmdstan"</span>)           <span class="co"># cmdstanr will not create it</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">1800</span>)            <span class="co"># the default of 60 seconds is far too short</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>The directory must exist first.</strong> <code>install_cmdstan()</code> does not create it, and stops with <code>Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.</code></p>
-<p><strong>The download needs a longer timeout.</strong> The CmdStan archive is about 49 MB, and R’s default <code>options(timeout)</code> is 60 seconds, which is not enough on any ordinary connection. The <code>timeout</code> argument of <code>install_cmdstan()</code> does not govern the download — the option does. Measured on a connection delivering about 500 KB/s: the download failed with <code>Download of CmdStan failed with error</code> at the default, and completed in 4.9 minutes at <code>timeout = 1800</code> with nothing else changed. Conference and hotel networks are commonly slower than that, so set it.</p>
-<p>The default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to <code>C:/cmdstan</code> avoids all three, and costs nothing if none of them applies to you.</p>
+<p>The directory must exist first. <code>install_cmdstan()</code> does not create it, and stops with <code>Assertion on 'dir' failed: Directory 'C:/cmdstan' does not exist.</code></p>
+<p>The download needs a longer timeout. The CmdStan archive is about 49 MB, and R’s default <code>options(timeout)</code> is 60 seconds, so the download fails on any connection slower than about 0.8 MB/s. The <code>timeout</code> argument of <code>install_cmdstan()</code> applies to the build, not to the download, which is governed by the option. Measured on a connection delivering about 500 KB/s: the download failed with <code>Download of CmdStan failed with error</code> at the default, and completed in 4.9 minutes at <code>timeout = 1800</code> with nothing else changed. Conference and hotel networks are commonly slower than that, so set it.</p>
+<p>The default location is inside your home directory. On many Windows machines, particularly work-managed ones, that directory is synchronised by OneDrive, and the CmdStan build fails there. The same failure occurs when the path contains a space or a character outside the standard English alphabet, which happens when a Windows username does. Installing to <code>C:/cmdstan</code> avoids all three, and makes no difference if none of them applies to you.</p>
 <p>Because that is not the default location, tell R where to find it in every future session. Run <code>usethis::edit_r_profile()</code>, or open <code>.Rprofile</code> in your home directory, and add the line below, replacing the version number with the one you installed:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">cmdstanr_cmdstan_path =</span> <span class="st">"C:/cmdstan/cmdstan-2.39.0"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Without this, every new session reports that CmdStan is not installed.</p>
 <section id="recurring-problems-on-windows" class="level3">
 <h3 class="anchored" data-anchor-id="recurring-problems-on-windows">Recurring problems on Windows</h3>
-<p><strong><code>install_cmdstan()</code> fails.</strong> Run it again with these arguments:</p>
+<section id="failure-of-install_cmdstan" class="level4">
+<h4 class="anchored" data-anchor-id="failure-of-install_cmdstan">Failure of <code>install_cmdstan()</code></h4>
+<p>Run <code>install_cmdstan()</code> again with these arguments:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is the failure most recently observed on a fresh Windows machine, and this is what resolved it. <code>overwrite = TRUE</code> is the part that matters. A first attempt that fails partway through the build leaves a partly built directory behind, and a second attempt without <code>overwrite</code> declines to replace it, which produces an error resembling the original one. <code>quiet = FALSE</code> only prints more of the build output, which is worth having because the default output is truncated and does not identify which stage failed.</p>
-<p><strong>A model compiles but no chains run.</strong> <code>cmdstanr</code> reports “No chains finished successfully”, which names neither a cause nor a file. The usual reason is that Rtools changed after CmdStan was installed. CmdStan builds its own <code>tbb.dll</code>, linked against the toolchain that built it, so a CmdStan built under Rtools44 requires libraries that Rtools45 does not provide; the model still compiles and then every chain exits immediately with <code>STATUS_DLL_NOT_FOUND</code>. Rebuild CmdStan:</p>
+</section>
+<section id="chains-that-do-not-run-after-compilation" class="level4">
+<h4 class="anchored" data-anchor-id="chains-that-do-not-run-after-compilation">Chains that do not run after compilation</h4>
+<p>A model compiles and then <code>cmdstanr</code> reports “No chains finished successfully”, which names neither a cause nor a file. The usual reason is that Rtools changed after CmdStan was installed. CmdStan builds its own <code>tbb.dll</code>, linked against the toolchain that built it, so a CmdStan built under Rtools44 requires libraries that Rtools45 does not provide; the model still compiles and then every chain exits immediately with <code>STATUS_DLL_NOT_FOUND</code>. Rebuild CmdStan:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>(<span class="at">overwrite =</span> <span class="cn">TRUE</span>, <span class="at">dir =</span> <span class="st">"C:/cmdstan"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Anyone who upgrades R and Rtools between installing CmdStan and the workshop will meet this.</p>
-<p><strong>Rtools is installed but <code>cmdstanr</code> cannot find it.</strong> <code>cmdstanr</code> chooses which Rtools to look for from your R version, and the mapping changed between releases. Version 0.9.0 sends R 4.5.x to Rtools45; 0.8.0 sent every R from 4.4 onward to Rtools44. With an older <code>cmdstanr</code> and the Rtools45 this document specifies, it searches for a toolchain you were never asked to install and reports it missing. Install <code>cmdstanr</code> 0.9.0 or later, which is what the r-universe repository above supplies. <code>check_setup.R</code> reports the version.</p>
-<p><strong>Compiling is very slow.</strong> Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the <code>C:/cmdstan</code> directory from real-time scanning resolves it, where your organisation’s policy allows.</p>
-<p><strong>Compiling is blocked entirely.</strong> Some managed machines prevent newly compiled programs from running at all. This is a policy decision rather than a configuration problem and cannot be worked around from within R. Contact the organisers before the workshop rather than attempting a fix on the day.</p>
+</section>
+<section id="rtools-not-found-by-cmdstanr" class="level4">
+<h4 class="anchored" data-anchor-id="rtools-not-found-by-cmdstanr">Rtools not found by <code>cmdstanr</code></h4>
+<p><code>cmdstanr</code> chooses which Rtools to look for from your R version, and the mapping changed between releases. Version 0.9.0 sends R 4.5 and later to Rtools45; 0.8.0 sent every R from 4.4 onward to Rtools44. With an older <code>cmdstanr</code> and the Rtools45 this document specifies, it searches for a toolchain you were never asked to install and reports it missing. Install <code>cmdstanr</code> 0.9.0 or later, which is what the r-universe repository above supplies. <code>check_setup.R</code> reports the version.</p>
+</section>
+<section id="slow-compilation" class="level4">
+<h4 class="anchored" data-anchor-id="slow-compilation">Slow compilation</h4>
+<p>Windows Defender inspects each newly compiled program. A compile that should take under a minute can take several. Excluding the <code>C:/cmdstan</code> directory from real-time scanning resolves it, where your organisation’s policy allows.</p>
+</section>
+<section id="compilation-blocked-by-policy" class="level4">
+<h4 class="anchored" data-anchor-id="compilation-blocked-by-policy">Compilation blocked by policy</h4>
+<p>Some managed machines prevent newly compiled programs from running at all. The block is set by the machine’s administrators and cannot be worked around from within R. Contact the organisers before the workshop rather than attempting a fix on the day.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Time box the native route
+<span class="screen-reader-only">Tip</span>Time limit for the native route
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -511,6 +525,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <hr>
+</section>
 </section>
 </section>
 </section>
@@ -526,7 +541,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The organisers have no Mac available and have not tested these steps. They point to the upstream instructions, which are maintained by the projects themselves. Run the verification check when you have finished; passing it is what matters, not the route taken.</p>
+<p>The organisers have no Mac available and have not tested these steps. They point to the upstream instructions, which are maintained by the projects themselves. Run the verification check when you have finished.</p>
 </div>
 </div>
 <ol type="1">
@@ -540,7 +555,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="linux" class="level1">
 <h1>Linux</h1>
-<p>Install R through your distribution’s package manager or from CRAN, and the standard build tools — <code>build-essential</code> on Debian and Ubuntu, or the equivalent development group on other distributions. Install Positron and Git. Then install the R packages as in the Windows section, and run <code>check_cmdstan_toolchain()</code> followed by <code>install_cmdstan()</code>. The default path is not a problem here either.</p>
+<p>Install R through your distribution’s package manager or from CRAN, and the standard build tools: <code>build-essential</code> on Debian and Ubuntu, or the equivalent development group on other distributions. Install Positron and Git. Then install the R packages as in the Windows section, and run <code>check_cmdstan_toolchain()</code> followed by <code>install_cmdstan()</code>. The default path is not a problem here either.</p>
 <p>This route was verified on 2026-09-11 under Debian with R 4.6.1 and CmdStan 2.39.0.</p>
 <hr>
 </section>
@@ -549,7 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The modules, the example data and <code>check_setup.R</code> are in a public GitHub repository, <a href="https://github.com/open-AIMS/cr_modelling_training" class="uri">https://github.com/open-AIMS/cr_modelling_training</a>. Retrieve them before the workshop and put the folder somewhere you can find again. Avoid a folder that a cloud service synchronises while you work, such as OneDrive or Dropbox, because a synchronising folder can lock files while R is reading them.</p>
 <section id="retrieval-with-git" class="level2">
 <h2 class="anchored" data-anchor-id="retrieval-with-git">Retrieval with Git</h2>
-<p>This is the route the Git installation above is for. Open a terminal — the Terminal pane in Positron, or Git Bash on Windows — change to the folder you want the materials in, and run:</p>
+<p>This is the route the Git installation above is for. Open a terminal (the Terminal pane in Positron, or Git Bash on Windows), change to the folder you want the materials in, and run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/open-AIMS/cr_modelling_training.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>That creates a folder <code>cr_modelling_training</code> holding the whole course, including <code>vignettes/check_setup.R</code>.</p>
 <p>The material is revised up to the workshop. On the morning, run</p>
@@ -562,7 +577,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="the-fitted-models" class="level2">
 <h2 class="anchored" data-anchor-id="the-fitted-models">The fitted models</h2>
-<p>The modules fit Bayesian models, and some of them take a while: on a four-core machine module 5 takes about thirteen minutes and module 6 about sixteen. You do not have to wait for that during the workshop. Every fit used in the material is available as a single download of about 42 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.</p>
+<p>The modules fit Bayesian models, and fitting all of them takes long enough that you should not wait for it during the workshop; how long depends on your machine. Every fit the modules load is available as a single download of about 40 MB, and with those objects in place each module loads its fits in seconds instead of sampling them.</p>
 <p>Each module shows you the <code>bnec()</code> call that produced a fit, then the <code>save()</code> that kept it, then the <code>load()</code> that reads it back. The download supplies the saved objects, so the <code>load()</code> is what runs when you work through the page. That is the same sequence a real analysis follows, and it is why the fitting call stays visible rather than being hidden behind a cache.</p>
 <p>From inside the <code>cr_modelling_training</code> folder, in R:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"vignettes/fetch_fits.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -578,14 +593,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The same archive, <code>cr_modelling_fits.zip</code>, is on a USB stick on the day, and you can put the objects in place yourself without running anything. Copy it into your <code>cr_modelling_training</code> folder and extract it there. It holds the folders as well as the files, so the twenty-five <code>.RData</code> objects end up at:</p>
+<p>The same archive, <code>cr_modelling_fits.zip</code>, is on a USB stick on the day, and you can put the objects in place yourself without running anything. Copy it into your <code>cr_modelling_training</code> folder and extract it there. It holds the folders as well as the files, so the twenty-four <code>.RData</code> objects end up at:</p>
 <pre><code>cr_modelling_training/vignettes/fits/m2_bnec_fit.RData
 cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 ...</code></pre>
 <p>The path matters. Every module reads its fits as <code>vignettes/fits/...</code>, counted from the <code>cr_modelling_training</code> folder, so extract the archive at the top level of that folder and the path comes out right. Extracting it inside <code>vignettes</code> gives <code>vignettes/vignettes/fits</code>, which is not found.</p>
 </div>
 </div>
-<p>The download is optional. Without it the material is complete and the modules are slower. Run the <code>bnec()</code> chunk each module shows, which is the one marked as not evaluated, followed by its <code>save()</code> line. That writes the same file into <code>vignettes/fits/</code>, and the <code>load()</code> below it then works exactly as it does for everyone else.</p>
+<p>The download is optional. Without it the material is complete and the modules are slower. Create the folder once with <code>dir.create("vignettes/fits")</code>, since <code>save()</code> does not create it. Then run the fitting call shown above each <code>load()</code>, together with the <code>save()</code> line that follows it. That writes the same file into <code>vignettes/fits/</code>, and the <code>load()</code> below it then works exactly as it does for everyone else.</p>
 <p>The verification check below reports whether the fitted models are present, so you do not have to work it out yourself.</p>
 </section>
 <section id="opening-the-materials-in-positron" class="level2">
@@ -597,8 +612,8 @@ cr_modelling_training/vignettes/fits/m4_bnec_fit.RData
 </section>
 <section id="the-verification-check" class="level1">
 <h1>The verification check</h1>
-<p><code>check_setup.R</code> is supplied alongside this document, in the <code>vignettes/</code> folder of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits a small model, and finishes with either READY or NOT READY.</p>
-<p>The most reliable way to run it is to open <code>check_setup.R</code> itself in Positron (not just this document) and run the whole file from there — for example with Positron’s “Source” button, or by selecting all the code and running it. Positron then runs it from the folder the file is saved in, which avoids the error below.</p>
+<p><code>check_setup.R</code> is supplied alongside this document, in the <code>vignettes/</code> folder of the materials you retrieved in the previous section. It installs nothing. It reports what you have, compiles and fits two small models, and finishes with either READY or NOT READY.</p>
+<p>The most reliable way to run it is to open <code>check_setup.R</code> itself in Positron (not this document) and run the whole file from there, for example with Positron’s “Source” button, or by selecting all the code and running it. Either way R does not have to locate the file from its working directory, which avoids the error below.</p>
 <p>If you instead want to run it from the R console with <code>source()</code>, give the path from the <code>cr_modelling_training</code> folder:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"vignettes/check_setup.R"</span>, <span class="at">echo =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>That works when the folder is open in Positron, which the previous section covers. Otherwise you will see:</p>
@@ -615,7 +630,7 @@ Error in `file()`:
 <pre><code>Summary
 -------
 READY. Every check passed.</code></pre>
-<p>A warning rather than a failure means you can follow the workshop but something is not as expected — a home directory the CmdStan build cannot use, or a <code>cmdstanr</code> too old for the Rtools these instructions specify. Read the warning and act on it if you can.</p>
+<p>A warning rather than a failure means you can follow the workshop but something is not as expected: a home directory the CmdStan build cannot use, a <code>cmdstanr</code> too old for the Rtools these instructions specify, or no saved fits in <code>vignettes/fits/</code>. Read the warning and act on it if you can.</p>
 
 
 </section>

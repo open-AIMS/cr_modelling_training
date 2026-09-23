@@ -77,23 +77,25 @@ A four-parameter `drc` model reports parameters named `b`, `c`, `d` and `e`:
 
 | | meaning | `bayesnec` equivalent |
 |---|---|---|
-| `b` | slope, sometimes the hill slope | `beta` or `slope` |
+| `b` | slope, sometimes the hill slope | `beta`, which the `bayesnec` equations use as `exp(beta)` |
 | `c` | lower asymptote | `bot` |
 | `d` | upper asymptote | `top` |
-| `e` | inflection point | `ec50` |
+| `e` | the concentration halfway between `d` and `c` | `ec50` |
 
 The estimates above are a slope of 7.85, a lower asymptote indistinguishable
-from zero, an upper asymptote of 0.897, and an inflection at 1.995. Where the
-asymptotes span the full possible response range, `e` is the EC50, and that
-holds here because the lower asymptote is zero.
+from zero, an upper asymptote of 0.897, and `e` at 1.995. `e` is always the
+concentration at which the response is halfway between `d` and `c`. Where `c`
+is zero, as here, it is also the concentration at which the response has fallen
+to half its control level.
 
 Each parameter comes with a test of whether it differs from zero. That test is
 seldom the question of interest. A lower asymptote indistinguishable from zero,
 as here, is a reason to consider a three-parameter model with the lower limit
-fixed, not evidence about toxicity.
+fixed at zero. It says nothing about toxicity.
 
-Residuals can be examined for a continuous response, though not for binomial or
-count data:
+For a continuous response fitted with a Gaussian error the residuals should be
+approximately normal, and that can be checked. For binomial or count data they
+are not expected to be normal, so a normality test does not apply:
 
 ```{r}
 #| label: fig-resid
@@ -120,8 +122,8 @@ model_NEC3 <- drm(y ~ x, data = nec_data, fct = NEC.3())
 summary(model_NEC3)
 ```
 
-The threshold is the `e` parameter, estimated at 1.523, with `d` the level of
-the response below it.
+The threshold is the `e` parameter, estimated at 1.523, with `d` the response
+level at concentrations below it.
 
 ```{r}
 #| label: nec-ci
@@ -224,14 +226,15 @@ with `drc`'s.
 
 | `drc` `type` | what it means | nearest `bayesnec` `type` |
 |---|---|---|
-| `"relative"` (default) | percentage of the fitted range `d − c` | `"range"` |
+| `"relative"` (default) | percentage of the fitted range `d − c` | `"relative"`, from the control to the `bot` parameter |
 | `"absolute"` | an absolute response value | `"direct"` |
+| — | percentage of the span from the control to the lowest predicted response | `"range"` |
 | — | percentage decline from the control to zero | `"absolute"` (default) |
 
 `drc`'s `"absolute"` asks for the concentration at which the response equals the
 number supplied, so `ED(model_LL4, 10, type = "absolute")` asks where the
 response equals 10. This response is bounded near 1, so no such concentration
-exists and the call fails:
+exists, and the call returns `NaN` with a warning:
 
 ```{r}
 #| label: ed-absolute
@@ -239,7 +242,7 @@ exists and the call fails:
 ED(model_LL4, 10, type = "absolute", display = FALSE)
 ```
 
-The error is the correct behaviour. It is shown because the same word is the
+A missing value is the correct result. It is shown because the same word is the
 default in `bayesnec` and means a percentage there, so translating
 `ecx(fit, type = "absolute")` into `ED(m, 10, type = "absolute")` changes the
 question being asked.
@@ -269,11 +272,13 @@ data.frame(
                      ecx(bnec_ecx4, ecx_val = 50, type = "range")[1]))
 ```
 
-The EC50 estimates agree to three decimal places. The EC10 estimates differ by
+The EC50 estimates differ by less than 0.001. The EC10 estimates differ by
 about half a per cent, and the `drc` estimate falls inside the `bayesnec`
-credible interval. Two different engines, fitting two differently parameterised
-four-parameter curves by two different methods, return the same numbers to the
-precision anyone would report.
+credible interval. The two fits differ in more than their method. `LL.4` is
+logistic in log concentration and `ecx4param` is logistic in concentration, and
+`drc` fits a Gaussian error where `bnec()` chose a beta family for these
+proportions. They still return the same estimates to the precision that would be
+reported.
 
 ### Divergence between the engines
 
@@ -308,7 +313,7 @@ seven per cent higher.
 ```{r}
 #| label: fig-anchors
 #| fig-height: 3.8
-#| fig-cap: "The same fitted curve, with the two targets a ten per cent effect can mean. The upper dashed line is ten per cent of the fitted range below the control; the lower is ten per cent of the control."
+#| fig-cap: "The same fitted curve, with the two targets a ten per cent effect can mean. The upper dashed line is ten per cent of the fitted range below the control; the lower is ten per cent below the control."
 gr <- curve_data(model_floor, min(floored$x), max(floored$x))
 ec_range <- ED(model_floor, 10, display = FALSE)[1, 1]
 ec_ctrl  <- ED(model_floor, level_from_control, display = FALSE)[1, 1]
@@ -388,18 +393,19 @@ ggplot(nec_data, aes(x, y)) +
 
 The derivation above reads the control's uncertainty off the `d` parameter
 because `predict(model_NEC3, se.fit = TRUE)` returns no standard error for this
-fit. That is one instance of a wider problem with `drc` standard errors,
-described at the end of this page.
+fit. `NEC.3()` supplies no derivatives of its mean function, and without them
+`predict()` returns the fitted values alone, with no warning.
 
 Two things separate this from the `bayesnec` *NSEC*. The bound here is a normal
-approximation from one standard error, where `bayesnec` takes a quantile of the
-control posterior. And there is no interval on the result, because propagating
+approximation built from the standard error of `d`, where `bayesnec` takes a
+quantile of the control posterior. And there is no interval on the result, because propagating
 the uncertainty in both the control and the curve through the crossing would
 require the delta method or a bootstrap.
 
 ## Model averaging
 
-`drc` selects among candidates by information criterion:
+`mselect()` ranks candidate mean functions by an information criterion, AIC by
+default:
 
 ```{r}
 #| label: mselect
@@ -409,8 +415,9 @@ mselect(model_LL4, list(LL.3(), W1.4(), W2.4()))
 `W2.4` has the lowest information criterion at −338.2, followed by `LL.3` at
 −320.6.
 
-It also averages, through `maED()`, using Akaike weights and a Buckland
-unconditional interval:
+`maED()` averages effect concentrations over the candidates using Akaike
+weights. A Buckland unconditional interval is available through
+`interval = "buckland"`; the default, used here, returns no interval:
 
 ```{r}
 #| label: maed
@@ -419,8 +426,8 @@ maED(model_LL4, list(LL.3(), LL.4(), W1.4(), W2.4()), 10, display = FALSE)
 
 The averaged EC10 is 1.565. The four candidates individually give 1.508, 1.508,
 1.462 and 1.565, so the average sits at the value from `W2.4`, which took
-almost all of the Akaike weight because its information criterion is nearly
-twenty units below the others.
+almost all of the Akaike weight because its information criterion is 17.6 units
+below the next.
 
 Two properties of `maED()` are visible in `drc::maED` itself and matter before
 relying on it. It takes `na.rm = FALSE` and threads that through every `sum()`,
@@ -430,8 +437,8 @@ centring on the minimum AIC, so once AIC reaches a few thousand every term
 underflows to zero in double precision and the weights become `0/0`. Centring on
 the minimum resolves this and changes nothing where the uncentred form works.
 
-The difference from `bayesnec` is one of default rather than of capability.
-`bayesnec` averages unless asked to fit a single equation; `drc` fits one
+Both packages can fit one equation or average over several, and they differ in
+the default. `bayesnec` averages unless asked to fit a single equation; `drc` fits one
 equation unless asked to average, and the uncertainty in which equation was
 selected does not appear in the interval of a single selected fit.
 
@@ -447,10 +454,10 @@ daphnids.m1 <- drm(no / total ~ dose, weights = total, curveid = time,
 EDcomp(daphnids.m1, c(50, 50))
 ```
 
-The ratio of the two EC50 values is 3.40 with a p-value of 0.003, so the 24-hour
-and 48-hour curves differ. `bayesnec` answers the same question by comparing
-posteriors and returns a probability that one estimate is lower than the other,
-which module 7 covers.
+The ratio of the two EC50 values is 3.40 with a p-value of 0.003 against a
+ratio of one, so the 24-hour and 48-hour EC50 values differ. `bayesnec` answers
+the same question by comparing posteriors and returns a probability that one
+estimate is lower than the other, which module 8 covers.
 
 ## Agreement and divergence
 
@@ -468,10 +475,10 @@ A confidence interval and a credible interval are not the same quantity. A
 credible interval states where the parameter lies with a given probability,
 given the data, the model and the priors. A confidence interval states that the
 procedure producing it would contain the true value in that proportion of
-repeated experiments. The sentence a risk assessment usually wants — that there
-is a 95 per cent probability the *NEC* lies between two values — follows from
-the first and not from the second. Both are abbreviated CI, and `brms` prints
-`l-95% CI`, so the interval type is worth naming in a results table.
+repeated experiments. A risk assessment usually wants to state that there is a
+95 per cent probability the *NEC* lies between two values, and that statement
+follows from the first and not from the second. Both are abbreviated CI, and
+`brms` prints `l-95% CI`, so name the interval type in a results table.
 
 The distributional assumptions differ and the point estimates will differ with
 them. A continuous positive response will commonly be fitted Gaussian in `drc`
@@ -480,25 +487,24 @@ high-response observations. A difference between the engines is not by itself
 evidence that either is wrong.
 
 `drc` intervals can be too narrow, or missing. Under `type = "Poisson"` the
-variance is fixed equal to the mean, so an over-dispersed count response gets
+variance is fixed equal to the mean, so an overdispersed count response gets
 intervals narrower than the data support by roughly the square root of the
 dispersion; report the dispersion alongside the interval rather than rescaling
 it, since changing the variance assumption changes the model. Separately, the
 delta-method standard error is `NaN` wherever the variance calculation goes
 negative, which is neither rare nor confined to poor fits, and each occurrence
-arrives as its own `"NaNs produced"` warning. The NSEC derivation above met this
-in a mild form. Where standard errors feed a model average, dropping candidates
+arrives as its own `"NaNs produced"` warning. Where standard errors feed a model average, dropping candidates
 as their errors become unavailable changes what the average is an average of, so
 fix the candidate set for the whole curve rather than point by point.
 
 ## Choosing between them
 
 For a well-determined monotonic curve with adequate replication, fitted with the
-same distribution in both, the two engines return much the same answer, as the
-EC50 comparison above shows, and `drc` returns it in seconds rather than
-minutes.
+same distribution in both, the two engines return much the same answer, and
+`drc` returns it in seconds rather than minutes. The EC50 comparison above
+agreed even with a Gaussian error in `drc` and a beta family in `bayesnec`.
 
-The Bayesian route repays its overhead where the problem is harder: where priors
+The longer run time of a Bayesian fit is justified where the problem is harder: where priors
 are needed to stabilise a non-linear fit, where the candidate set does not
 identify one curve, where an interval is wanted on a derived quantity such as
 the *NSEC*, or where the posterior itself is needed to propagate uncertainty

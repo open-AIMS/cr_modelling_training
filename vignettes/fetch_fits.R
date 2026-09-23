@@ -6,8 +6,8 @@
 #
 #   source("vignettes/fetch_fits.R")
 #
-# Fitting the models yourself works and is slow: modules 5 and 6 take about
-# thirteen and sixteen minutes each on four cores. The archive is about 42 MB.
+# Fitting the models yourself works and is slow, by an amount that depends on
+# the machine. The archive is about 40 MB.
 # With these objects in place the same modules run in seconds, because every
 # fit call finds a saved result.
 #
@@ -50,7 +50,7 @@ ARCHIVE <- "cr_modelling_fits.zip"
 # 2026-09-22 module 5's constructed examples were replaced with published
 # datasets, which merged its two dispersion fits into one. An under-set value
 # does not break the fetch, it only guards less.
-N_FITS <- 23L
+N_FITS <- 24L
 
 fits_url <- function() {
   override <- Sys.getenv("CR_FITS_URL", unset = "")

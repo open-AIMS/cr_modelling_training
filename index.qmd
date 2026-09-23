@@ -42,7 +42,7 @@ not taught; it is done beforehand.
 | | Module | Subject |
 |---|---|---|
 | 1 | [The software stack](vignettes/1Software-stack.qmd) | R, Stan, `brms` and `bayesnec`, and Positron |
-| 2 | [Fitting a single model](vignettes/2Fitting-a-CR-model-using-bayesnec.qmd) | the `bnec` call, the fitted object, plotting |
+| 2 | [Fitting a single model](vignettes/2Fitting-a-CR-model-using-bayesnec.qmd) | the `bnec()` call, the fitted object, plotting |
 | 3 | [Toxicity estimation and the model set](vignettes/3Toxicity_estimation_and_available_models.qmd) | NEC, NSEC and ECx, and the available equations |
 | 4 | [Model averaging and multi-model inference](vignettes/4Model_averaging_and_multimodel_inference.qmd) | candidate sets, weights, averaged estimates |
 | 5 | [Response data and statistical distributions](vignettes/5Response_data_and_statistical_distributions.qmd) | matching the family to the endpoint |
@@ -50,14 +50,15 @@ not taught; it is done beforehand.
 | 7 | [A worked case study](vignettes/7Example_case_study.qmd) | herbicide toxicity, start to finish |
 | 8 | [Factor covariates and groupings](vignettes/8Factor_covariates_and_groupings.qmd) | comparing curves and estimates across groups |
 
-Modules 7 and 8 read results produced outside the render, by
-`scripts/generate_herbicide_fits.R` and `scripts/generate_grouping_fits.R`,
-because the fits behind them take hours and are not made when the site is built.
+No model is fitted when the site is built. Each module that fits shows the
+`bnec()` call and then loads the saved result. Module 8 reads summary tables
+instead, written by `scripts/generate_grouping_fits.R`, because the fits behind
+them take hours.
 
 [Frequentist fitting with `drc`](vignettes/drc-reference.qmd) is supplied as
 reference rather than taught. It shows the same questions asked of a
-maximum-likelihood engine, and is explicit about where the two engines answer
-the same question and where they do not.
+maximum-likelihood engine, and is explicit about where the two engines give the
+same answer and where they differ.
 
 ## Working through the material independently
 
@@ -66,14 +67,14 @@ the code that produced every result on the page, so the reasoning can be
 followed without running anything.
 
 Fitting Bayesian concentration-response models takes time. A single model may
-take minutes and a model-averaged set considerably longer, so the larger fits in
-these modules are shown with their code and their output rather than being run
-as you read. Anything that runs quickly is intended to be run.
+take minutes and a model-averaged set considerably longer, so each fit in these
+modules is shown with its code and its output, and the page loads the saved
+result rather than sampling it. The saved fits are a separate download.
 
 If you want to run the code yourself, work through the [software
 setup](vignettes/0Software-setup.qmd) first. It installs R, a C++ compiler,
-CmdStan and the R packages, and ends with a script that verifies the
-installation.
+CmdStan and the R packages, fetches the saved fits, and ends with a script that
+verifies the installation.
 
 ## Workshop participants
 

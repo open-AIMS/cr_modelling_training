@@ -317,7 +317,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td>2</td>
 <td><a href="./vignettes/2Fitting-a-CR-model-using-bayesnec.html">Fitting a single model</a></td>
-<td>the <code>bnec</code> call, the fitted object, plotting</td>
+<td>the <code>bnec()</code> call, the fitted object, plotting</td>
 </tr>
 <tr class="odd">
 <td>3</td>
@@ -351,14 +351,14 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p>Modules 7 and 8 read results produced outside the render, by <code>scripts/generate_herbicide_fits.R</code> and <code>scripts/generate_grouping_fits.R</code>, because the fits behind them take hours and are not made when the site is built.</p>
-<p><a href="./vignettes/drc-reference.html">Frequentist fitting with <code>drc</code></a> is supplied as reference rather than taught. It shows the same questions asked of a maximum-likelihood engine, and is explicit about where the two engines answer the same question and where they do not.</p>
+<p>No model is fitted when the site is built. Each module that fits shows the <code>bnec()</code> call and then loads the saved result. Module 8 reads summary tables instead, written by <code>scripts/generate_grouping_fits.R</code>, because the fits behind them take hours.</p>
+<p><a href="./vignettes/drc-reference.html">Frequentist fitting with <code>drc</code></a> is supplied as reference rather than taught. It shows the same questions asked of a maximum-likelihood engine, and is explicit about where the two engines give the same answer and where they differ.</p>
 </section>
 <section id="working-through-the-material-independently" class="level2">
 <h2 class="anchored" data-anchor-id="working-through-the-material-independently">Working through the material independently</h2>
 <p>The modules are written to be read in order and are self-contained. Each shows the code that produced every result on the page, so the reasoning can be followed without running anything.</p>
-<p>Fitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so the larger fits in these modules are shown with their code and their output rather than being run as you read. Anything that runs quickly is intended to be run.</p>
-<p>If you want to run the code yourself, work through the <a href="./vignettes/0Software-setup.html">software setup</a> first. It installs R, a C++ compiler, CmdStan and the R packages, and ends with a script that verifies the installation.</p>
+<p>Fitting Bayesian concentration-response models takes time. A single model may take minutes and a model-averaged set considerably longer, so each fit in these modules is shown with its code and its output, and the page loads the saved result rather than sampling it. The saved fits are a separate download.</p>
+<p>If you want to run the code yourself, work through the <a href="./vignettes/0Software-setup.html">software setup</a> first. It installs R, a C++ compiler, CmdStan and the R packages, fetches the saved fits, and ends with a script that verifies the installation.</p>
 </section>
 <section id="workshop-participants" class="level2">
 <h2 class="anchored" data-anchor-id="workshop-participants">Workshop participants</h2>

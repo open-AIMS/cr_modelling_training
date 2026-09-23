@@ -14,17 +14,24 @@
 #   beta               coral_pam, the 2018 climate scenario. PAM yield, a
 #                      genuine physical proportion, with readings at exactly 0
 #                      at the top of the series.
-#   Poisson, negbin    alga, Cladocopium proliferum against contaminant A.
-#                      Cell counts whose control standard deviation is 1454
-#                      against the 136 a Poisson implies.
-#   gamma              lum31, one zinc plate. Luminescence, positive
-#                      throughout, whose coefficient of variation runs 0.10 to
-#                      1.05 across the series.
+#   Poisson, negbin    alga, Cladocopium proliferum against contaminant B.
+#                      Cell counts whose control standard deviation is 1417
+#                      against the 169 a Poisson implies.
+#   gamma              lum31, one zinc plate read at 15 minutes.
+#                      Luminescence, positive throughout, whose coefficient
+#                      of variation runs 0.02 to 0.21 across the series.
 #   Gaussian           alga again, the specific growth rate, which is genuinely
 #                      negative at the two highest doses.
 #
+# The equation fitted to each is the one scripts/screen_module5_models.R found
+# best supported among those passing check_sampling(), with its evidence in
+# notes/module5-model-screen/ (2026-09-23). The beta keeps nec3param beside
+# ecxwb1 so the module can show a threshold equation losing the weight on a
+# series with no flat region.
+#
 # The dispersion example follows the gamma on the same plate, so the module
-# fails a check and repairs it on one dataset rather than three.
+# fails a check and repairs it on one dataset rather than three. The beta is
+# repaired the same way, in its own section.
 #
 # The binomial pair and the hurdle example are here too, so that this script
 # owns every fit module 5 loads. They were made by generate_taught_fits.R until
@@ -73,41 +80,8 @@ needed <- function(name) {
   FORCE || !file.exists(file.path(out_dir, paste0("m5_", name, ".RData")))
 }
 
-data(coral_pam); data(alga); data(lum31); data(nassarius)
-
-# --- the data each example uses, prepared exactly as the module shows --------
-
-# A log predictor needs the control somewhere other than log(0). One decade
-# below the lowest tested level is the convention the module uses throughout.
-pam_data <- subset(coral_pam, climate == "2018")
-pam_data$log.x <- log(pam_data$diuron + min(pam_data$diuron[pam_data$diuron > 0]) / 10)
-
-alga_data <- subset(alga, species == "c_proliferum" & contaminant == "A")
-alga_data$log.x <- log(alga_data$dose + min(alga_data$dose[alga_data$dose > 0]) / 10)
-
-# One plate rather than the whole series, because module 8 is where the
-# plate-to-plate structure is modelled. This plate is chosen because every
-# reading on it is positive, which a gamma requires; the copper plates include
-# readings floored at zero.
-lum_data <- subset(lum31, plate == "Zn 28Mar24 Rep1B")
-lum_data$log.x <- log(lum_data$conc)
-
-# The binomial example is a tracked CSV rather than a packaged dataset, because
-# it predates the others and is already real: counts of survivors out of a
-# total, from Gerard Ricardo's repository.
-binom_data <- read.csv("vignettes/example_binomial.csv")
-binom_data$log.x <- log(binom_data$raw_x)
-
-# The hurdle example. Growth is referenced to a baseline mean rather than to
-# each snail's own starting size, so a few survivors are recorded at or below
-# zero; those are measurement noise around a true value near zero rather than
-# deaths, and are nudged off the boundary. The control is placed one decade
-# below the lowest tested dose so that a log predictor is defined.
-snail <- subset(nassarius, contaminant == "A")
-snail_pos_min <- min(snail$growth[snail$growth > 0])
-snail$growth <- ifelse(snail$alive == 1 & snail$growth <= 0,
-                       snail_pos_min / 2, snail$growth)
-snail$log_dose <- log(snail$dose + min(snail$dose[snail$dose > 0]) / 10)
+# The data preparation is shared with scripts/screen_module5_models.R.
+source("scripts/module5_data.R")
 
 message("fitting: ", format(Sys.time()))
 t0 <- Sys.time()
@@ -135,46 +109,55 @@ if (needed("exp_1b")) {
 
 if (needed("exp_2")) {
   message("  beta: coral_pam yield")
-  exp_2 <- bnec(yield ~ crf(log.x, model = c("ecxll3", "nec3param")),
+  exp_2 <- bnec(yield ~ crf(log.x, model = c("ecxwb1", "nec3param")),
                 data = pam_data, seed = 333)
   save_fit(exp_2, "exp_2")
 }
 
+if (needed("exp_2_disp")) {
+  message("  beta with disp(\"power\"): coral_pam yield")
+  exp_2_disp <- bnec(yield ~ crf(log.x, model = "ecxwb1") + disp("power"),
+                     data = pam_data, seed = 333)
+  save_fit(exp_2_disp, "exp_2_disp")
+}
+
 if (needed("exp_3")) {
   message("  poisson: alga cell density")
-  exp_3 <- bnec(density ~ crf(log.x, model = c("ecxll3", "nec3param")),
+  exp_3 <- bnec(density ~ crf(log.x, model = "ecxwb1"),
                 data = alga_data, family = "poisson", seed = 333)
   save_fit(exp_3, "exp_3")
 }
 
 if (needed("exp_3b")) {
   message("  negative binomial: alga cell density")
-  exp_3b <- bnec(density ~ crf(log.x, model = c("ecxll3", "nec3param")),
+  exp_3b <- bnec(density ~ crf(log.x, model = "ecxwb1"),
                  data = alga_data, family = "negbinomial", seed = 333)
   save_fit(exp_3b, "exp_3b")
 }
 
 if (needed("exp_4")) {
   message("  gamma: lum31 one zinc plate")
-  exp_4 <- bnec(rlu ~ crf(log.x, model = c("ecxll3", "nec3param")),
+  exp_4 <- bnec(rlu ~ crf(log.x, model = "ecxll3"),
                 data = lum_data, family = "Gamma", seed = 333)
   save_fit(exp_4, "exp_4")
 }
 
 if (needed("exp_5")) {
   message("  gaussian: alga specific growth rate")
-  exp_5 <- bnec(sgr ~ crf(log.x, model = c("ecxll4", "nec4param")),
-                data = alga_data, seed = 333)
+  # adapt_delta is raised because ecxwb1 returns divergent transitions on these
+  # data at the default of 0.8 and none at 0.99 (the screen, gaussian_b_ad).
+  exp_5 <- bnec(sgr ~ crf(log.x, model = "ecxwb1"),
+                data = alga_data, seed = 333,
+                control = list(adapt_delta = 0.99))
   save_fit(exp_5, "exp_5")
 }
 
 # The dispersion sub-model, on the same plate the gamma section fits, so the
-# module shows a check failing and being repaired on one dataset. The
-# constant-dispersion baseline needs no separate fit: it is pulled out of
-# exp_4 above, which makes the comparison like for like.
+# module shows a check failing and being repaired on one dataset. exp_4 is the
+# constant-dispersion baseline: the same equation on the same data.
 if (needed("exp_4_disp")) {
   message("  gamma with disp(\"power\"): lum31 one zinc plate")
-  exp_4_disp <- bnec(rlu ~ crf(log.x, model = "nec3param") + disp("power"),
+  exp_4_disp <- bnec(rlu ~ crf(log.x, model = "ecxll3") + disp("power"),
                      data = lum_data, family = "Gamma", seed = 333)
   save_fit(exp_4_disp, "exp_4_disp")
 }

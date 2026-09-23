@@ -363,8 +363,8 @@ div.csl-indent {
 </section>
 <section id="choosing-among-the-equations" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-among-the-equations">Choosing among the equations</h2>
-<p>Sometimes physiological or toxicological mechanism argues for a threshold (Chapman and Wang 2000). That is not always known, a threshold is not always visible in the data, and even where a threshold is appropriate the functional form of the decline after it may not be.</p>
-<p>Without a mechanistic argument, the choice has to be made from the data. Metrics exist for this — AICc in the frequentist setting, and WAIC, DIC, model probabilities and others in the Bayesian setting. The difficulty is that many of these curves are similar in shape, so several will often fit a dataset about equally well. Model uncertainty is then high and the selection is close to arbitrary, while the estimate reported depends on which equation was picked.</p>
+<p>Sometimes physiological or toxicological mechanism argues for a threshold. That is not always known, a threshold is not always visible in the data, and even where a threshold is appropriate the functional form of the decline after it may not be.</p>
+<p>Without a mechanistic argument, the choice has to be made from the data. Metrics exist for this: AICc in the frequentist setting, and WAIC, DIC, model probabilities and others in the Bayesian setting. The difficulty is that many of these curves are similar in shape, so several will often fit a dataset about equally well. Model uncertainty is then high and the selection is close to arbitrary, while the estimate reported depends on which equation was picked.</p>
 <p><span class="citation" data-cites="Krull2020">Krull (<a href="#ref-Krull2020" role="doc-biblioref">2020</a>)</span> measured how hard the choice is. They simulated threshold estimation by maximum likelihood, by MCMC and by piecewise regression, across a range of curve slopes, background mortalities and designs. All three performed poorly on shallow and intermediate curves, and accuracy improved as the curve steepened. Information criteria weights usually did not provide strong evidence in favour of the generating model.</p>
 </section>
 <section id="multi-model-inference" class="level2">
@@ -407,11 +407,11 @@ Figure&nbsp;1: The N(S)EC. <em>NEC</em> values from threshold equations and <em>
 <h2 class="anchored" data-anchor-id="model-averaging-in-bayesnec">Model averaging in <code>bayesnec</code></h2>
 <p>What <code>bnec</code> returns depends on how many equations it is given.</p>
 <p>A single recognised model name fits one model and returns a <code>bayesnecfit</code>, which is what modules 2 and 3 used. Two or more names, or the name of a model set, fits each in turn and returns a <code>bayesmanecfit</code> holding the Bayesian model-averaged predictions over those that fitted successfully.</p>
-<p>Both compute time and object size scale with the size of the set. Every model is sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is large. Module 2 measured a single <code>nec3param</code> fit of these data at a little over two minutes; a set of twenty-three is not twenty-three times more convenient.</p>
+<p>Both compute time and object size scale with the size of the set. Every model is compiled and then sampled by Hamiltonian Monte Carlo, so a large set is slow and the result is large. Module 2’s <code>nec3param</code> fit of these data samples in under three seconds, but compilation brings the wait to over half a minute: module 2’s two fits took 73 seconds under <code>cmdstanr</code>. A set of twenty-three equations repeats that wait for each one.</p>
 </section>
 <section id="combining-single-fits" class="level2">
 <h2 class="anchored" data-anchor-id="combining-single-fits">Combining single fits</h2>
-<p>A set is assembled from fits made separately, which is the route that starts from what module 2 produced. Any model fitted by <code>bnec</code> inherits class <code>bnecfit</code>, which has two methods of its own, <code>+</code> and <code>c</code>. Either will append fits to one another, so two or more <code>bayesnecfit</code> objects can be combined into a model-averaged <code>bayesmanecfit</code>.</p>
+<p>A set is assembled from fits made separately, which is the route that starts from what module 2 produced. Any model fitted by <code>bnec</code> inherits class <code>bnecfit</code>, and two of its methods, <code>+</code> and <code>c</code>, append fits to one another, so two or more <code>bayesnecfit</code> objects can be combined into a model-averaged <code>bayesmanecfit</code>.</p>
 <p>Starting from the <code>nec3param</code> fit of module 2:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
@@ -423,7 +423,7 @@ Figure&nbsp;1: The N(S)EC. <em>NEC</em> values from threshold equations and <em>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"vignettes/fits/m4_bnec_fit.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>and adding a second equation of a different shape — <code>ecxll3</code>, a three-parameter log-logistic curve with no threshold:</p>
+<p>and adding a second equation of a different shape, <code>ecxll3</code>, which is a three-parameter log-logistic curve with no threshold:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bnec_fit_new <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"ecxll3"</span>), <span class="at">data =</span> nec_data)</span>
@@ -532,8 +532,8 @@ $hormesis
 <p><code>nec</code> and <code>ecx</code> are the threshold and smooth equations respectively.</p>
 <p><code>decline</code> excludes the hormesis equations and is the most generally useful set where there is no evidence of hormesis.</p>
 <p><code>hormesis</code> are the equations allowing an initial increase.</p>
-<p><code>bot_free</code> are the equations with no lower asymptote, which are useful when the response curve is incomplete and estimates are needed beyond the observed range.</p>
-<p><code>zero_bounded</code> are those for which negative response values are invalid.</p>
+<p><code>bot_free</code> are the equations with no <code>bot</code> parameter, and so no estimated lower plateau, which are useful when the response curve is incomplete and estimates are needed beyond the observed range.</p>
+<p><code>zero_bounded</code> are the equations whose predicted response cannot fall below zero.</p>
 <p><code>all</code> is every available equation. It currently includes <code>necsigm</code>, which should not be used; remove it with <code>amend()</code> if fitting the whole set.</p>
 <p>The sets are not mutually exclusive, and <code>bayesnec</code> discards any model in the set that is unsuitable for the statistical distribution of the response, which module 5 covers. <code>bnec_record()</code>, from module 2, names anything excluded that way.</p>
 <p>Everything shown of the three-equation <code>bayesmanecfit</code> assembled above holds for a set of eleven fitted this way, and the rest of this module stays with the three so that the page renders in reasonable time. <em>Fitting a set in parallel</em> covers what to do once a set is large enough for the wait to matter, and module 7 fits the whole <code>decline</code> set to real data.</p>
@@ -598,8 +598,8 @@ ecxexp        0.38      0.06 0.25  0.49</code></pre>
 This is a modelling result rather than a fault; inspect with check_fit().</code></pre>
 </div>
 </div>
-<p>The fitted models are listed with their weights. The summary warns that the averaged no-effect estimate contains <em>NSEC</em> values, and would warn again if any fit had divergent transitions.</p>
-<p><code>nec3param</code> takes most of the weight here, which is what should happen: these data were simulated from that equation. The Bayesian R² values show how little of the variation the smooth exponential decline accounts for.</p>
+<p>The fitted models are listed with their weights. The summary warns that the averaged no-effect estimate contains <em>NSEC</em> values, and would warn if any fit had not converged, judged by Rhat.</p>
+<p><code>nec3param</code> takes most of the weight here, which is what should happen: these data were simulated from a threshold curve with the <em>NEC</em> at 1.5, using <code>nec4param</code> with a lower asymptote of 0.01, which is close to the zero that <code>nec3param</code> declines towards. The Bayesian R² values show how little of the variation <code>ecxexp</code> accounts for.</p>
 <p>The summary also warns that <code>ecxexp</code> reproduces the observed variability at the control poorly. That is <code>check_fit()</code>, named in module 2, applied here to every equation in the set and reported where it fails. It is a statement about how well that equation describes the data rather than a fault in the fitting, and <code>ecxexp</code> holds almost none of the weight, so it does not reach the averaged estimate. The same warning against a heavily weighted equation would need acting on. Module 5 uses that check to choose a statistical family and module 7 reads it across a fitted set.</p>
 </section>
 <section id="the-weighting-method" class="level2">
@@ -616,13 +616,13 @@ This is a modelling result rather than a fault; inspect with check_fit().</code>
 <p><img src="images/weights.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
 </figure>
 </div>
-<p>Bayesian weighting is less settled and there are many candidate methods. A full treatment is outside the scope of this course; what follows is what <code>bayesnec</code> does and why.</p>
+<p>Bayesian weighting is less settled and there are many candidate methods. A full treatment is outside the scope of this course.</p>
 <p><code>bayesnec</code> uses the weighting implemented in <code>loo</code> <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, which performs approximate leave-one-out cross-validation for models fitted by MCMC <span class="citation" data-cites="vehtari2017">(<a href="#ref-vehtari2017" role="doc-biblioref">Vehtari et al. 2017</a>)</span>, using Pareto-smoothed importance sampling to regularise the importance weights <span class="citation" data-cites="Vehtari2019">(<a href="#ref-Vehtari2019" role="doc-biblioref">Vehtari et al. 2019</a>)</span>.</p>
 <p><code>loo</code> offers two methods.</p>
 <p><em>Stacking</em> minimises prediction error by maximising the leave-one-out predictive density of the combined distribution <span class="citation" data-cites="Yao2018 vehtari2020">(<a href="#ref-Yao2018" role="doc-biblioref">Yao et al. 2018</a>; <a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>. It prioritises the accuracy of the joint prediction.</p>
-<p><em>Pseudo-BMA</em> takes weights proportional to the expected log pointwise predictive density of each model <span class="citation" data-cites="vehtari2020">(<a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, estimating relative predictive accuracy. It can be combined with a Bayesian bootstrap, which accounts for the uncertainty of a finite sample and pulls the weights away from 0 and 1.</p>
-<p>Pseudo-BMA with the Bayesian bootstrap is the default, and <code>bayesnec</code> passes it explicitly. The summary above names it, as <code>Method: pseudobma_bb_weights</code>. The reasoning is that the purpose of averaging here is to represent uncertainty about the shape of the curve rather than to minimise prediction error, and that stacking is not well suited to the sample sizes concentration-response experiments produce.</p>
-<p>The default has not always been applied consistently, which matters when reading an older analysis. <code>loo::loo_model_weights()</code> resolves an unspecified method to stacking, and some paths through earlier versions of <code>bayesnec</code> left it unspecified. A set assembled with <code>c()</code> or <code>amend()</code> could therefore be weighted by stacking while the same set fitted in one <code>bnec()</code> call was weighted by pseudo-BMA. Both routes now pass pseudo-BMA. The default is supplied where the set is assembled rather than at each entry point, so <code>c()</code>, <code>+</code>, <code>amend()</code> and <code>update()</code> weight a set as <code>bnec()</code> does, and the method used is recorded on the weights as <code>attr(mod_stats$wi, "method")</code>. Checked under <code>bayesnec</code> 2.1.3.39 with <code>loo</code> 2.8.0: the two fits in the packaged <code>manec_example</code>, pulled out and recombined with <code>c()</code>, report <code>pseudobma</code>, as does the set fitted in one <code>bnec()</code> call. Weights from an older analysis are not necessarily comparable with weights computed now, which is one more reason to record the package version alongside the models fitted.</p>
+<p><em>Pseudo-BMA</em> takes weights proportional to the exponential of the expected log pointwise predictive density of each model <span class="citation" data-cites="Yao2018 vehtari2020">(<a href="#ref-Yao2018" role="doc-biblioref">Yao et al. 2018</a>; <a href="#ref-vehtari2020" role="doc-biblioref">Vehtari et al. 2020</a>)</span>, estimating relative predictive accuracy. It can be combined with a Bayesian bootstrap, which accounts for the uncertainty of a finite sample and pulls the weights away from 0 and 1.</p>
+<p>Pseudo-BMA with the Bayesian bootstrap is the <code>bayesnec</code> default, and <code>bayesnec</code> passes it explicitly. The summary above names it, as <code>Method: pseudobma_bb_weights</code>. The reasoning is that the purpose of averaging here is to represent uncertainty about the shape of the curve rather than to minimise prediction error, and that stacking is not well suited to the sample sizes concentration-response experiments produce.</p>
+<p>The default has not always been applied consistently, which matters when reading an older analysis. <code>loo::loo_model_weights()</code> resolves an unspecified method to stacking, and some paths through earlier versions of <code>bayesnec</code> left it unspecified. A set assembled with <code>c()</code> or <code>amend()</code> could therefore be weighted by stacking while the same set fitted in one <code>bnec()</code> call was weighted by pseudo-BMA. Both routes now pass pseudo-BMA. The default is supplied where the set is assembled rather than at each entry point, so <code>c()</code>, <code>+</code>, <code>amend()</code> and <code>update()</code> weight a set built with the defaults as <code>bnec()</code> does, and the method used is recorded on the weights as <code>attr(mod_stats$wi, "method")</code>. Checked under <code>bayesnec</code> 2.1.3.39 with <code>loo</code> 2.8.0: the two fits in the packaged <code>manec_example</code>, pulled out and recombined with <code>c()</code>, report <code>pseudobma</code>, as does the set fitted in one <code>bnec()</code> call. Weights from an older analysis are not necessarily comparable with weights computed now, which is one more reason to record the package version alongside the models fitted.</p>
 <p>The method is changed through the <code>loo_controls</code> argument of <code>bnec()</code> or <code>amend()</code>, which takes a named list with elements <code>fitting</code> and <code>weights</code>:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
@@ -687,7 +687,7 @@ ecxexp                  NA                  NA</code></pre>
 8 -1.2567271</code></pre>
 </div>
 </div>
-<p>The rows are per equation and nothing is averaged across them, because the equations do not share a parameter list: <code>ecxexp</code> has no <code>bot</code>, and only the threshold equations estimate <code>nec</code>. Averaging a parameter over whichever equations happen to estimate it would average over a different subset of the set for each parameter, under weights computed for the set as a whole. The model weight is reported beside each row instead, which is what makes the table readable: a <code>nec</code> row holding a thousandth of the weight is not describing the averaged estimate.</p>
+<p>The rows are per equation and nothing is averaged across them, because the equations do not share a parameter list: only <code>ecxll3</code> estimates <code>ec50</code>, and only the threshold equations estimate <code>nec</code>. Averaging a parameter over whichever equations happen to estimate it would average over a different subset of the set for each parameter, under weights computed for the set as a whole. The model weight is reported beside each row instead, which is what makes the table readable: a <code>nec</code> row holding a thousandth of the weight is not describing the averaged estimate.</p>
 </section>
 <section id="every-model-in-the-set" class="level2">
 <h2 class="anchored" data-anchor-id="every-model-in-the-set">Every model in the set</h2>
@@ -732,7 +732,7 @@ Figure&nbsp;4: Each equation in the set plotted separately.
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>There is no argument to <code>bnec()</code> that turns this on. The plan already records how much of the machine you are willing to use, and a second way of saying it would disagree with the first the moment both were set. <code>future</code> and <code>future.apply</code> are suggested rather than required packages, so a session without them, or without a plan, fits the models one after another exactly as earlier versions did.</p>
-<p>The two levels nest rather than compete. Under a plan of more than one worker, <code>bnec()</code> passes <code>cores = 1</code> to <code>brm()</code>, because otherwise <code>workers</code> multiplied by <code>chains</code> processes would be requested, which is sixteen for four workers and the default four chains. Passing <code>cores</code> yourself is left alone, and is how the two levels are divided deliberately:</p>
+<p>The two levels of parallelism are nested. Under a plan of more than one worker, <code>bnec()</code> passes <code>cores = 1</code> to <code>brm()</code>, because otherwise <code>workers</code> multiplied by <code>chains</code> processes would be requested, which is sixteen for four workers and the default four chains. Passing <code>cores</code> yourself is left alone, and is how the two levels are divided deliberately:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>fit_nested <span class="ot">&lt;-</span> <span class="fu">bnec</span>(y <span class="sc">~</span> <span class="fu">crf</span>(x, <span class="at">model =</span> <span class="st">"decline"</span>), <span class="at">data =</span> nec_data,</span>
@@ -743,7 +743,7 @@ Figure&nbsp;4: Each equation in the set plotted separately.
 <section id="choosing-a-plan" class="level3">
 <h3 class="anchored" data-anchor-id="choosing-a-plan">Choosing a plan</h3>
 <p><code>plan(multisession)</code> starts fresh R processes that communicate over local sockets, and is available on every platform. <code>plan(multicore)</code> forks the current process instead, which starts faster and shares memory rather than copying it, but forking is unavailable on Windows and inside RStudio and Positron, where the plan resolves quietly to a single worker. <code>bnec()</code> reports the number of workers it was given, so a plan that has collapsed to one is visible rather than merely slow.</p>
-<p>Under a forked plan, use the <code>cmdstanr</code> backend. <code>rstan</code> compiles each model into the session’s temporary directory, which a forked worker shares with the process it was forked from, so several models compiling at once collide there.</p>
+<p>Under a forked plan, use the <code>cmdstanr</code> backend. <code>rstan</code> compiles each model into the session’s temporary directory, which a forked worker shares with the process it was forked from, and the <code>bayesnec</code> documentation reports thirteen models compiling at once in eight forked workers all failing there.</p>
 <p>Test a plan on something small before committing a long run to it. Fit two models with a low <code>iter</code> under the plan you intend to use and confirm that it returns. The socket layer <code>multisession</code> depends on is outside R’s control, and where it misbehaves the symptom is a run that neither finishes nor errors.</p>
 </section>
 <section id="the-effect-of-a-parallel-plan" class="level3">
@@ -773,10 +773,14 @@ Figure&nbsp;4: Each equation in the set plotted separately.
 <td>eight workers</td>
 <td>149.9</td>
 </tr>
+<tr class="odd">
+<td>five workers, four chains each on four cores</td>
+<td>153.5</td>
+</tr>
 </tbody>
 </table>
 <p>Run again with the programs already compiled, the same five configurations took 99, 114, 108, 101 and 94 seconds. Two workers then took longer than no plan at all.</p>
-<p>The difference between the two tables is which run is being timed. A first fit on a machine where the Stan programs have not been built is dominated by compilation, which is single-threaded per program, so a plan of <em>n</em> workers compiles <em>n</em> at a time and the elapsed time halves at eight workers. A repeat against a warm cache is dominated by sampling, and for models as small as these there is nothing left to gain. Where a single model takes minutes rather than seconds, sampling dominates in both cases and the first table describes the repeat run as well.</p>
+<p>The difference between the two sets of timings is which run is being timed. A first fit on a machine where the Stan programs have not been built is dominated by compilation, which is single-threaded per program, so a plan of <em>n</em> workers compiles <em>n</em> at a time and the elapsed time halves at eight workers. A repeat against a warm cache is dominated by sampling, and for models as small as these there is nothing left to gain. Where a single model takes minutes rather than seconds, sampling dominates in both cases and the first table describes the repeat run as well.</p>
 </section>
 <section id="reproducibility-under-a-plan" class="level3">
 <h3 class="anchored" data-anchor-id="reproducibility-under-a-plan">Reproducibility under a plan</h3>
@@ -789,7 +793,7 @@ Figure&nbsp;4: Each equation in the set plotted separately.
 </section>
 <section id="evidence-from-the-simulation-study" class="level2">
 <h2 class="anchored" data-anchor-id="evidence-from-the-simulation-study">Evidence from the simulation study</h2>
-<p><span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> simulated concentration-response data from four known curves, two threshold and two smooth, across designs varying in the number of test concentrations, the number of replicates within each, and the number of individuals per replicate. Because the generating curve was known, both the weights and the true effect size behind each estimate could be measured.</p>
+<p><span class="citation" data-cites="fisheretal2023">Fisher et al. (<a href="#ref-fisheretal2023" role="doc-biblioref">2023</a>)</span> simulated concentration-response data from four known curves, two threshold and two smooth, across designs varying in the number of test concentrations, the number of replicates within each, and the number of individuals per replicate. Because the generating curve was known, both the weights and the true effect size behind each estimate could be measured. The weights in that study were computed from DIC by <code>jagsNEC</code>, the predecessor of <code>bayesnec</code>, rather than by the <code>loo</code> methods described above.</p>
 <div id="fig-ieam" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ieam-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -807,12 +811,12 @@ Figure&nbsp;5: <span class="citation" data-cites="fisheretal2023">Fisher et al. 
 </section>
 <section id="the-effect-the-estimate-represents" class="level3">
 <h3 class="anchored" data-anchor-id="the-effect-the-estimate-represents">The effect the estimate represents</h3>
-<p>The <em>NSEC</em> and the N(S)EC represented effects nearing 10% on average for the designs with the poorest sampling effort, falling to about 1% on average for the most replicated design simulated. For data generated from a threshold curve the averaged estimate was close to the true <em>NEC</em>, because the threshold equations took the weight; for data generated from a smooth curve it was close to the <em>NSEC</em>. That is the behaviour model averaging is relied on for, measured rather than assumed.</p>
-<p>Design also affected the <strong>EC<sub>x</sub></strong> estimates, which tended to be larger than their theoretical value where sampling effort was low, with the bias decreasing as effort increased.</p>
+<p>The <em>NSEC</em> and the N(S)EC represented effects nearing 10% on average for the designs with the poorest sampling effort, falling to about 1% on average for the most replicated design simulated. For data generated from a threshold curve the averaged estimate was close to the true <em>NEC</em>, because the threshold equations took the weight; for data generated from a smooth curve it was close to the <em>NSEC</em>.</p>
+<p>Design also affected the EC<sub>x</sub> estimates, which tended to be larger than their theoretical value where sampling effort was low, with the bias decreasing as effort increased.</p>
 </section>
 <section id="a-case-study" class="level3">
 <h3 class="anchored" data-anchor-id="a-case-study">A case study</h3>
-<p>The same comparison was made on real data. For <em>Stylophora variolaris</em>, the weight was divided between two smooth equations and the <em>NEC</em> returned by the set was definitively higher than the EC10.</p>
+<p>The same comparison was made on real data. For the sea urchin <em>Stomopneustes variolaris</em>, the weight was divided between two smooth equations, and the <em>NEC</em> estimated from the threshold equations alone was clearly higher than the EC10.</p>
 <div id="fig-svariolis" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-svariolis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -823,7 +827,7 @@ Figure&nbsp;6: The <em>S. variolaris</em> case study of <span class="citation" d
 </figcaption>
 </figure>
 </div>
-<p>The N(S)EC of 140 µg L<sup>-1</sup> was the most conservative of the three and represented a measured effect of about 1.5%. The <em>NEC</em> of 800 µg L<sup>-1</sup> was the least conservative, which is what fitting a threshold to smooth data produces. Across the case studies examined, the measured effect at the N(S)EC ran from 1.5% to 6.6%, and in every case the N(S)EC was higher than the <em>NOEC</em> calculated from the same data.</p>
+<p>The N(S)EC of 140 µg L<sup>-1</sup> was the most conservative of the three and represented a measured effect of about 1.5%. The <em>NEC</em> of 800 µg L<sup>-1</sup> was the least conservative, which is what fitting a threshold to smooth data produces. The N(S)EC was higher than the <em>NOEC</em> calculated from the same data, 31.8 µg L<sup>-1</sup>. Across the five species in the paper’s two case studies, the measured effect at the N(S)EC ran from 1.5% to 6.6%. The N(S)EC was not always above the <em>NOEC</em>: for copper toxicity to the microalga <em>Cryothecomonas armigera</em> it was lower.</p>
 </section>
 </section>
 <section id="open-questions" class="level2">
